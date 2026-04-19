@@ -1,6 +1,6 @@
-# electron-starter
+# music-player
 
-A template project for developing new Electron applications.
+Cross-platform music player powered by Electron
 
 ## Getting Started
 
@@ -41,14 +41,14 @@ pnpm run dev
 
 ## Scripts
 
-| Script | Description |
-| --- | --- |
-| `init` | Initialize the project with your app name, ID, and license |
-| `dev` | Start the development server |
-| `build` | Build all processes (main, preload, renderer) |
-| `typecheck` | Run TypeScript type checking |
-| `package` | Build and package the app with electron-builder |
-| `sync-targets` | Sync tsconfig targets with the installed Electron version |
+| Script         | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| `init`         | Initialize the project with your app name, ID, and license |
+| `dev`          | Start the development server                               |
+| `build`        | Build all processes (main, preload, renderer)              |
+| `typecheck`    | Run TypeScript type checking                               |
+| `package`      | Build and package the app with electron-builder            |
+| `sync-targets` | Sync tsconfig targets with the installed Electron version  |
 
 ## Updating Electron
 
