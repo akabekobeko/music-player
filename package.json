@@ -15,7 +15,9 @@
     "sync-targets": "node scripts/sync-electron-targets.mjs",
     "typecheck": "tsc --build",
     "package": "npm run build && electron-builder",
-    "init": "node scripts/init.mjs"
+    "init": "node scripts/init.mjs",
+    "check": "biome check",
+    "fix": "biome check --fix"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@base-ui/react": "^1.4.0",
+    "@biomejs/biome": "2.4.12",
     "@fontsource-variable/inter": "^5.2.8",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^25.6.0",

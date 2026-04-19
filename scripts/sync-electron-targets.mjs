@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getElectronTargetEnv } from "./get-electron-target-env.mjs";
 
@@ -19,14 +19,8 @@ function updateTsconfig(root, relativePath, esTarget, moduleTarget) {
   const prevTarget = json.compilerOptions.target;
   const prevModule = json.compilerOptions.module;
 
-  text = text.replace(
-    /("target"\s*:\s*)"[^"]*"/,
-    `$1"${esTarget}"`,
-  );
-  text = text.replace(
-    /("module"\s*:\s*)"[^"]*"/,
-    `$1"${moduleTarget}"`,
-  );
+  text = text.replace(/("target"\s*:\s*)"[^"]*"/, `$1"${esTarget}"`);
+  text = text.replace(/("module"\s*:\s*)"[^"]*"/, `$1"${moduleTarget}"`);
 
   writeFileSync(filePath, text);
   console.log(
@@ -48,10 +42,7 @@ function updateViteConfig(root, relativePath, newTarget) {
   const match = text.match(/target:\s*(['"])([^'"]*)\1/);
   const prev = match ? match[2] : "unknown";
 
-  text = text.replace(
-    /target:\s*(['"])[^'"]*\1/,
-    `target: $1${newTarget}$1`,
-  );
+  text = text.replace(/target:\s*(['"])[^'"]*\1/, `target: $1${newTarget}$1`);
 
   writeFileSync(filePath, text);
   console.log(`  ${relativePath}: ${prev} -> ${newTarget}`);
@@ -69,10 +60,7 @@ function updateMiseToml(root, newVersion) {
   const match = text.match(/^node\s*=\s*"([^"]*)"/m);
   const prev = match ? match[1] : "unknown";
 
-  text = text.replace(
-    /^(node\s*=\s*")[^"]*(")/m,
-    `$1${newVersion}$2`,
-  );
+  text = text.replace(/^(node\s*=\s*")[^"]*(")/m, `$1${newVersion}$2`);
 
   writeFileSync(filePath, text);
   console.log(`  node: ${prev} -> ${newVersion}`);
@@ -86,14 +74,19 @@ function syncElectronTargets() {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const root = resolve(__dirname, "..");
 
-  const { esTarget, chromeMajor, nodeMajor, nodeVersion } = getElectronTargetEnv();
+  const { esTarget, chromeMajor, nodeMajor, nodeVersion } =
+    getElectronTargetEnv();
 
   const chromeTarget = `chrome${chromeMajor}`;
   const nodeTarget = `node${nodeMajor}`;
 
-  console.log(`Electron bundled versions: Chrome ${chromeMajor}, Node ${nodeMajor}`);
+  console.log(
+    `Electron bundled versions: Chrome ${chromeMajor}, Node ${nodeMajor}`,
+  );
   console.log(`ES target: ${esTarget}`);
-  console.log(`Vite targets: ${chromeTarget} (renderer), ${nodeTarget} (main/preload)`);
+  console.log(
+    `Vite targets: ${chromeTarget} (renderer), ${nodeTarget} (main/preload)`,
+  );
 
   // TypeScript `module` only accepts up to "ES2022"; for higher ES targets use "ESNext".
   const moduleTarget = esTarget > "ES2022" ? "ESNext" : esTarget;
