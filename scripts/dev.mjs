@@ -1,0 +1,91 @@
+import { createServer, build } from 'vite'
+import { spawn } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+import electron from 'electron'
+
+/** @type {import('node:child_process').ChildProcess | null} */
+let electronProcess = null
+
+/**
+ * (Re)start the Electron process.
+ * Kills any previously spawned instance before launching a new one.
+ * @param {string} root - Project root directory.
+ */
+function startElectron(root) {
+  if (electronProcess) {
+    electronProcess.removeAllListeners()
+    electronProcess.kill()
+    electronProcess = null
+  }
+
+  electronProcess = spawn(String(electron), [path.join(root, 'dist/main/index.js')], {
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      VITE_DEV_SERVER_URL: 'http://localhost:5173'
+    }
+  })
+
+  electronProcess.on('close', (code) => {
+    if (code !== null) {
+      process.exit(code)
+    }
+  })
+}
+
+/**
+ * Start the development environment.
+ * Launches the renderer dev server, then watch-builds preload and main processes.
+ */
+async function startDev() {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const root = path.join(__dirname, '..')
+
+  // 1. Start renderer dev server
+  const server = await createServer({
+    configFile: path.join(root, 'src/renderer/vite.config.ts'),
+    root: path.join(root, 'src/renderer'),
+    server: { port: 5173, strictPort: true }
+  })
+  await server.listen()
+  console.log('Renderer dev server running on http://localhost:5173')
+
+  // 2. Watch-build preload
+  await build({
+    configFile: path.join(root, 'src/preload/vite.config.ts'),
+    root: path.join(root, 'src/preload'),
+    build: {
+      watch: {}
+    },
+    plugins: [
+      {
+        name: 'preload-watcher',
+        writeBundle() {
+          console.log('Preload rebuilt — restarting Electron...')
+          startElectron(root)
+        }
+      }
+    ]
+  })
+
+  // 3. Watch-build main
+  await build({
+    configFile: path.join(root, 'src/main/vite.config.ts'),
+    root: path.join(root, 'src/main'),
+    build: {
+      watch: {}
+    },
+    plugins: [
+      {
+        name: 'main-watcher',
+        writeBundle() {
+          console.log('Main rebuilt — starting Electron...')
+          startElectron(root)
+        }
+      }
+    ]
+  })
+}
+
+startDev()
