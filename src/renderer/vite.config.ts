@@ -9,6 +9,11 @@ export default defineConfig({
   root: __dirname,
   plugins: [react(), tailwindcss()],
   base: "./",
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname),
+    },
+  },
   build: {
     target: "chrome146",
     outDir: "../../dist/renderer",
