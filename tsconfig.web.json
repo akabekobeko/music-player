@@ -19,5 +19,5 @@
     "noUncheckedIndexedAccess": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/renderer/src/**/*.ts", "src/renderer/src/**/*.tsx"]
+  "include": ["src/renderer/**/*.ts", "src/renderer/**/*.tsx"]
 }
