@@ -16,7 +16,7 @@ function App() {
         </Button>
       </div>
       {versions && (
-        <div className="mt-8 space-y-1 text-sm text-gray-400">
+        <div className="mt-8 space-y-1 text-sm text-muted-foreground">
           <p>Electron: {versions.electron}</p>
           <p>Chrome: {versions.chrome}</p>
           <p>Node: {versions.node}</p>

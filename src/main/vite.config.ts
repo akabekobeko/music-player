@@ -10,9 +10,9 @@ export default defineConfig({
     target: "node24",
     outDir: "../../dist/main",
     lib: {
-      entry: "index.ts",
+      entry: "main.ts",
       formats: ["es"],
-      fileName: () => "index.js",
+      fileName: () => "main.js",
     },
     minify: false,
     emptyOutDir: true,

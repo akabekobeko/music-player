@@ -21,7 +21,7 @@ function startElectron(root) {
 
   electronProcess = spawn(
     String(electron),
-    [path.join(root, "dist/main/index.js")],
+    [path.join(root, "dist/main/main.js")],
     {
       stdio: "inherit",
       env: {

@@ -10,9 +10,9 @@ export default defineConfig({
     target: "node24",
     outDir: "../../dist/preload",
     lib: {
-      entry: "index.ts",
+      entry: "preload.ts",
       formats: ["cjs"],
-      fileName: () => "index.cjs",
+      fileName: () => "preload.cjs",
     },
     minify: false,
     emptyOutDir: true,

@@ -16,10 +16,10 @@ First, create a new project from this template using one of the following method
 
 ```sh
 # Using npx
-npx tiged akabeko/electron-starter my-app
+npx tiged akabekobeko/electron-starter my-app
 
 # Using pnpm
-pnpm dlx tiged akabeko/electron-starter my-app
+pnpm dlx tiged akabekobeko/electron-starter my-app
 ```
 
 Then install dependencies and run the interactive setup:
@@ -37,6 +37,38 @@ After setup, start the development server:
 
 ```sh
 pnpm run dev
+```
+
+## File Structure
+
+```
+/
+├── scripts/                     # Development tools
+├── src/
+│   ├── main/
+│   │   ├── main.ts              # Main process entry point
+│   │   └── vite.config.ts
+│   ├── preload/
+│   │   ├── preload.ts           # Preload script entry point
+│   │   └── vite.config.ts
+│   └── renderer/
+│       ├── components/
+│       │   ├── app/             # Application-specific components
+│       │   └── ui/              # shadcn/ui components
+│       ├── libs/                # Shared libraries
+│       ├── App.css
+│       ├── App.tsx
+│       ├── index.html
+│       ├── renderer.tsx         # Renderer process entry point
+│       ├── vite-env.d.ts
+│       └── vite.config.ts
+├── biome.json
+├── components.json              # shadcn/ui configuration
+├── electron-builder.yml
+├── tsconfig.json
+├── tsconfig.node.json           # main / preload
+├── tsconfig.web.json            # renderer
+└── vitest.config.ts
 ```
 
 ## Scripts
