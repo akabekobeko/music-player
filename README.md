@@ -93,7 +93,9 @@ pnpm shadcn add button
 
 The script wraps the `shadcn` CLI with `TS_NODE_PROJECT=tsconfig.web.json` so the CLI loads the renderer's path alias from `tsconfig.web.json` instead of the root `tsconfig.json` (which only orchestrates project references). Without this, the CLI cannot resolve `@/*` and rewrites external imports such as `@base-ui/react/<name>` into broken local paths.
 
-> **Note:** Run `pnpm shadcn ...` rather than `pnpm dlx shadcn@latest ...` so the env var is applied. The inline `KEY=value` syntax is POSIX-only; on Windows, prefix the script with `cross-env` (or use a tool such as Git Bash).
+After the CLI finishes, the wrapper runs `biome check --write src/renderer` to format and tidy the generated files. The env var is applied via `scripts/shadcn.mjs` so the script works on Windows without `cross-env`.
+
+> **Note:** Run `pnpm shadcn ...` rather than `pnpm dlx shadcn@latest ...` so the wrapper (and the post-add formatting) is applied.
 
 ## Updating Electron
 
