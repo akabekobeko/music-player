@@ -18,7 +18,8 @@
     "init": "node scripts/init.mjs",
     "test": "vitest",
     "check": "biome check",
-    "fix": "biome check --fix"
+    "fix": "biome check --fix",
+    "shadcn": "TS_NODE_PROJECT=tsconfig.web.json shadcn"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
