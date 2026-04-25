@@ -100,3 +100,13 @@ mise install
 - `.mise.toml` — `node` version (matching the bundled Node.js version)
 
 If the Node.js major version changed, `mise install` installs the new version.
+
+## Updating pnpm
+
+Node.js is pinned to the version bundled with Electron, but pnpm can be updated independently. Use `mise` to update only pnpm in `.mise.toml`:
+
+```sh
+mise up --bump npm:pnpm
+```
+
+The `--bump` flag rewrites the pinned version in `.mise.toml` to the latest available release. Without it, `mise up` only upgrades within the existing range, so a fully-pinned version (e.g. `10.33.0`) is left unchanged. Add `--dry-run` to preview the change before applying it.
