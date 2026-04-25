@@ -81,6 +81,19 @@ pnpm run dev
 | `typecheck`    | Run TypeScript type checking                               |
 | `package`      | Build and package the app with electron-builder            |
 | `sync-targets` | Sync tsconfig targets with the installed Electron version  |
+| `shadcn`       | Run the shadcn CLI against the renderer tsconfig           |
+
+## Adding shadcn/ui Components
+
+shadcn/ui components live in `src/renderer/components/ui/` and use the `@/*` path alias defined in `tsconfig.web.json`. Use the `shadcn` script to add components:
+
+```sh
+pnpm shadcn add button
+```
+
+The script wraps the `shadcn` CLI with `TS_NODE_PROJECT=tsconfig.web.json` so the CLI loads the renderer's path alias from `tsconfig.web.json` instead of the root `tsconfig.json` (which only orchestrates project references). Without this, the CLI cannot resolve `@/*` and rewrites external imports such as `@base-ui/react/<name>` into broken local paths.
+
+> **Note:** Run `pnpm shadcn ...` rather than `pnpm dlx shadcn@latest ...` so the env var is applied. The inline `KEY=value` syntax is POSIX-only; on Windows, prefix the script with `cross-env` (or use a tool such as Git Bash).
 
 ## Updating Electron
 
