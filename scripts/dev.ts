@@ -1,18 +1,18 @@
-import { spawn } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import electron from "electron";
 import { build, createServer } from "vite";
 
-/** @type {import('node:child_process').ChildProcess | null} */
-let electronProcess = null;
+let electronProcess: ChildProcess | null = null;
 
 /**
  * (Re)start the Electron process.
+ *
  * Kills any previously spawned instance before launching a new one.
- * @param {string} root - Project root directory.
+ *
+ * @param root - Project root directory.
  */
-function startElectron(root) {
+function startElectron(root: string): void {
   if (electronProcess) {
     electronProcess.removeAllListeners();
     electronProcess.kill();
@@ -40,11 +40,12 @@ function startElectron(root) {
 
 /**
  * Start the development environment.
- * Launches the renderer dev server, then watch-builds preload and main processes.
+ *
+ * Launches the renderer dev server, then watch-builds preload and main
+ * processes.
  */
-async function startDev() {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const root = path.join(__dirname, "..");
+async function startDev(): Promise<void> {
+  const root = path.join(import.meta.dirname, "..");
 
   // 1. Start renderer dev server
   const server = await createServer({

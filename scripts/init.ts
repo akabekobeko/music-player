@@ -1,28 +1,33 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createInterface } from "node:readline/promises";
-import { fileURLToPath } from "node:url";
+import { createInterface, type Interface } from "node:readline/promises";
 
 /**
  * Prompt the user for input with a default value.
+ *
  * Returns the default if the user enters an empty string.
- * @param {import('node:readline/promises').Interface} rl
- * @param {string} message - The prompt message.
- * @param {string} defaultValue - The default value shown in brackets.
- * @returns {Promise<string>} The user's input or the default value.
+ *
+ * @param rl - Active readline interface.
+ * @param message - The prompt message.
+ * @param defaultValue - The default value shown in brackets.
+ * @returns The user's input or the default value.
  */
-async function prompt(rl, message, defaultValue) {
+async function prompt(
+  rl: Interface,
+  message: string,
+  defaultValue: string,
+): Promise<string> {
   const answer = await rl.question(`${message} [${defaultValue}]: `);
   return answer.trim() || defaultValue;
 }
 
 /**
  * Interactively initialize the project with custom app name, ID, and license.
- * Updates package.json, electron-builder.yml, and LICENSE.
+ *
+ * Updates `package.json`, `electron-builder.yml`, and `LICENSE`.
  */
-async function initElectronProject() {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const root = path.join(__dirname, "..");
+async function initElectronProject(): Promise<void> {
+  const root = path.join(import.meta.dirname, "..");
   const rl = createInterface({ input: process.stdin, output: process.stdout });
 
   try {
