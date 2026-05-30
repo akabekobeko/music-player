@@ -49,12 +49,12 @@ function updateViteConfig(root, relativePath, newTarget) {
 }
 
 /**
- * Update the Node.js version in .mise.toml.
+ * Update the Node.js version in mise.toml.
  * @param {string} root - Project root directory.
  * @param {string} newVersion - Full version string (e.g. "24.14.1")
  */
 function updateMiseToml(root, newVersion) {
-  const filePath = resolve(root, ".mise.toml");
+  const filePath = resolve(root, "mise.toml");
   let text = readFileSync(filePath, "utf-8");
 
   const match = text.match(/^node\s*=\s*"([^"]*)"/m);
@@ -67,7 +67,7 @@ function updateMiseToml(root, newVersion) {
 }
 
 /**
- * Sync tsconfig, vite.config.ts, and .mise.toml targets
+ * Sync tsconfig, vite.config.ts, and mise.toml targets
  * with the installed Electron's bundled Chrome and Node.js versions.
  */
 function syncElectronTargets() {
@@ -100,7 +100,7 @@ function syncElectronTargets() {
   updateViteConfig(root, "src/preload/vite.config.ts", nodeTarget);
   updateViteConfig(root, "src/renderer/vite.config.ts", chromeTarget);
 
-  console.log("\n.mise.toml:");
+  console.log("\nmise.toml:");
   updateMiseToml(root, nodeVersion);
 
   console.log("\nDone.");
