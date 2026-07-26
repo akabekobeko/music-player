@@ -28,3 +28,61 @@ music-player v1.0 の仕様書です。
 - AI 対応
   - AI 操作を想定してアプリケーション操作用の CLI を提供
   - AI にプレイリスト作成を依頼、音声バイナリーを解析させて再生位置マーキングを自動化、などを想定
+
+## 仕様書の構成
+
+v1.0 の開発計画と設計仕様を、機能・粒度ごとに分割して管理します。
+
+### 計画
+
+- [スコープ](scope.md)
+  - v1.0 でやること・やらないことの定義
+- [ロードマップ](roadmap.md)
+  - 実装フェーズの分割と順序
+
+### アーキテクチャー
+
+- [プロセス構成](architecture/process-model.md)
+  - Main / Preload / Renderer の責務分担、セキュリティ、カスタムプロトコル
+- [技術選定](architecture/tech-stack.md)
+  - ライブラリー選定と方針、バージョン、選定理由
+- [IPC 設計](architecture/ipc.md)
+  - チャネル定義、型共有、エラーの正規化
+- [データベース](architecture/database.md)
+  - スキーマ、マイグレーション、接続管理
+
+### Renderer 設計
+
+- [状態管理](renderer/state-management.md)
+  - Context / Reducer / Command の構成 (audio-player の課題を踏まえた刷新)
+- [オーディオエンジン](renderer/audio-engine.md)
+  - AudioPlayer3 を関数ベースで再設計した再生エンジン
+- [ルーティングとレイアウト](renderer/routing-layout.md)
+  - React Router による画面遷移、アプリ全体のレイアウト
+
+### 機能仕様
+
+- [ライブラリー管理](features/library.md)
+  - 音楽ファイルのインポート、メタデータ管理、アートワーク
+- [プレーヤー UI](features/player-ui.md)
+  - 再生バー、シーク、音量、エラー表示、MediaSession 連携
+- [Artist ビュー](features/artist-view.md)
+  - アーティスト一覧とアルバム・曲の表示、再生操作
+- [Album ビュー](features/album-view.md)
+  - フィルター UI によるアルバムの絞り込みと一覧表示
+- [Playlist](features/playlist.md)
+  - 静的プレイリスト、動的プレイリスト、カレントキューの設計
+
+## 参考プロジェクト
+
+本仕様は以下の実装調査に基づきます。
+
+- audio-player
+  - 音楽プレーヤーの先行プロトタイプ
+  - AudioPlayer3 (ハイブリッド再生)、カスタムプロトコルによる音声配信、Artist ビューの原型
+- npm-music-metadata-editor
+  - メタデータ操作ライブラリー @akabeko/music-metadata-editor と、その GUI
+  - IPC 設計、型共有、Base UI 版 shadcn/ui 構成の手本
+- electron-starter
+  - 本プロジェクトのベーステンプレート
+  - ビルド構成、開発ツール、Electron バージョン同期の仕組み
