@@ -143,22 +143,35 @@ mme-gui 方式をベースに、初期ロードを React の外へ出します�
 
 ## ディレクトリー構成
 
-mme-gui の「features にロジック、components にコンポーネント + 専用フック」の規約を採用します。
+**コロケーションを第一原則とします。** コンポーネント・専用フック・ロジック・テストは、それを使う場所のできるだけ近くに置きます。共有ディレクトリー (`components/` / `features/`) への配置は、**横断的な機能か、複数ページからの参照がある場合に限定**します。
 
 ```
 src/renderer/
-├── features/
-│   ├── player/        # PlayerProvider, reducer, useAudioPlayer, キュー導出ロジック
-│   ├── audio/         # オーディオエンジン (React 非依存)
-│   ├── library/       # useArtists / useAlbums / フィルターロジック
-│   ├── playlist/      # プレイリスト操作、スマートプレイリストのルール型
-│   ├── settings/      # SettingsProvider
-│   └── i18n/          # t() ラッパー
-├── components/
-│   ├── ui/            # shadcn 生成プリミティブ
-│   └── app/<Name>/    # 画面コンポーネント + use<Name>.ts のコロケーション
-└── pages/             # ルートに対応するページ
+├── pages/                       # ルートに対応するページ。ページ専用のものはすべてここへ
+│   ├── artists/
+│   │   ├── ArtistsPage.tsx
+│   │   ├── useArtistsPage.ts    # ページ専用フック (コンポーネントと並置)
+│   │   └── components/          # このページ専用のコンポーネント
+│   │       └── <Name>/          #   <Name>.tsx + use<Name>.ts + *.test.ts をコロケーション
+│   ├── albums/
+│   ├── playlists/
+│   └── settings/
+├── components/                  # 複数ページから参照されるコンポーネントのみ
+│   ├── ui/                      # shadcn 生成プリミティブ
+│   └── app/<Name>/              # AppLayout / Sidebar / PlayerBar / MusicList (曲リスト共通) など
+├── features/                    # 横断的な機能・ロジックのみ
+│   ├── player/                  # PlayerProvider, reducer, useAudioPlayer, キュー導出
+│   ├── audio/                   # オーディオエンジン (React 非依存)
+│   ├── library/                 # クエリストア
+│   ├── playlist/                # プレイリスト操作、スマートプレイリストのルール型
+│   ├── settings/                # SettingsProvider
+│   └── i18n/                    # t() ラッパー
+└── libs/                        # cn() などの汎用ユーティリティー
 ```
 
-- reducer / コマンド / 導出関数はすべて純関数として切り出し、`*.test.ts` を並置します
+- ページ専用のコンポーネントは `pages/<page>/components/` に置きます。`components/app/` に置いてよいのは、複数ページから実際に参照されるもの (レイアウト、PlayerBar、Artist / Album / Playlist ビューで共用する曲リストなど) だけです
+- ロジックも同じ基準です。単一ページでしか使わないフックやフィルター整形はページ配下に置き、`features/` に置くのは横断的なもの (再生、クエリストア、設定、i18n) に限定します
+- **昇格は後から行います。** 2 つめの参照元が現れた時点で共有ディレクトリーへ移動します。「将来共有されそう」という推測での先回り配置はしません
+- コンポーネント + 専用フック (`<Name>.tsx` + `use<Name>.ts`) のコロケーション規約は mme-gui から継承します。置き場所だけが上記の基準で決まります
+- reducer / コマンド / 導出関数はすべて純関数として切り出し、`*.test.ts` を実装と並置します
 - Action 型は audio-player の「1 Action 1 ファイル + 各ファイルが型を export」の規約を継承します (見通しがよかったため)。ただし非同期 Action が消えるため、ファイル数は大幅に減ります
