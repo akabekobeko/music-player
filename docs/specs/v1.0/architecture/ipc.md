@@ -7,7 +7,7 @@ Main - Renderer 間の IPC の設計です。mme-gui で実証済みのパター
 1. **ブリッジを throw が越えない**: すべての invoke は `IpcResult<T>` を返す。`Error` は structured clone を越えられないため、plain object に詰め替える
 2. **型の単一定義**: チャネルの Request / Response 型は `src/main/ipc/types.ts` に一元定義し、Renderer は type-only import で参照する
 3. **ホワイトリスト公開**: preload は `ipcRenderer` を生で露出せず、リソース単位の名前空間オブジェクトのみ公開する
-4. **購読は unsubscribe を返す**: Main → Renderer の push を購読する関数は必ず `() => void` を返し、`useEffect` のクリーンアップにそのまま渡せる形にする
+4. **購読は unsubscribe を返す**: Main → Renderer の push を購読する関数は必ず `() => void` を返す。アプリ寿命の購読はブートストラップで登録し、コンポーネント寿命の購読は `useSyncExternalStore` の subscribe から使う ([状態管理](../renderer/state-management.md))
 5. **バイナリーは IPC で運ばない**: 音声・画像はカスタムプロトコル経由 ([プロセス構成](process-model.md))
 
 ## IpcResult

@@ -23,10 +23,33 @@ audio-player は「2 層 Reducer」でした: 外側の `dispatchWrapper` が非
 | --- | --- | --- |
 | 再生状態 (state / currentTime / duration / エラー) | React 外のエンジンが所有、高頻度更新 | オーディオエンジンの store を `useSyncExternalStore` で購読 |
 | カレントキュー + 現在曲 | UI 操作で変わる純粋なアプリ状態 | `useReducer` + Context (`PlayerProvider`) |
-| ライブラリーデータ (アーティスト、アルバム、フィルター結果) | Main への問い合わせ結果 (サーバー状態相当) | 各ビューのフック内で fetch + `mp:library:changed` 購読で再取得 |
+| ライブラリーデータ (アーティスト、アルバム、フィルター結果) | Main への問い合わせ結果 (サーバー状態相当) | React 外のクエリストア + `useSyncExternalStore` (後述) |
 | ビューのローカル状態 (選択中、ダイアログ開閉) | コンポーネント局所 | `useState` |
 
 **非同期 Action という概念を廃止します。** 非同期処理は Provider が公開する通常の async 関数 (コマンド) で行い、dispatch は純粋な同期 reducer への通知だけに使います。「この関数は async か」が型シグネチャに現れるため、規約を覚える必要がなくなります。
+
+### useEffect・useMemo・useCallback を既定にしない
+
+[You Might Not Need an Effect](https://ja.react.dev/learn/you-might-not-need-an-effect) の指針に従い、useEffect は「レンダー結果を外部システムへ同期する、他のどの手段にも当てはまらない場合」の最終手段とします。本設計で useEffect になりがちな処理は、次の対応表で置き換えます。
+
+| ありがちな useEffect | 置き換え |
+| --- | --- |
+| 前後曲などの派生値を state にコピーする | レンダー中に計算する (state に持たない) |
+| エンジン・IPC push など外部ストアの購読 | `useSyncExternalStore` |
+| ユーザー操作起点の副作用 (再生開始、MediaSession metadata 更新、設定保存) | イベントハンドラー (コマンド関数) 内で実行する |
+| アプリ寿命の初期化・購読 (設定ロード、`mp:menu:action` / `mp:library:changed` の購読、テーマの matchMedia 監視) | React の外。`createRoot` 前のブートストラップで 1 回だけ行う ([ルーティングとレイアウト](routing-layout.md)) |
+| データフェッチ | クエリストア (次節)。コンポーネントの useEffect からは発行しない |
+
+この方針により、v1.0 の設計上 useEffect が必須になる箇所は原則ありません。実装時に useEffect を書きたくなったら、まず上の表のどれかに置き換えられないかを検討します。
+
+**useMemo / useCallback / React.memo も同様に既定では使いません。** これらは「状態の置き場所と階層が不適切なことによる過剰レンダー」への対症療法になりがちです。本設計は原因側を先に潰します。
+
+- 高頻度に変わる値 (再生時間、フェッチ結果) は React の外 (エンジン / クエリストア) に置き、購読したコンポーネントだけが再レンダーされる
+- Context は State 用と Commands 用を分離し、コマンドしか使わないコンポーネントは状態変化で再レンダーされない
+- 派生値 (前後曲、表示用の整形) はレンダー中に素朴に計算する。この規模の計算コストはメモ化に値しない
+- 大量要素のレンダーコストは仮想スクロール (@tanstack/react-virtual) が抑える
+
+それでも計測で問題が出た場合のみ、該当箇所に限定して導入します。その際も個別の手書きメモ化より先に React Compiler の導入 (自動メモ化) を検討します (v1.0 時点では不要の想定のため採用しません)。
 
 ### PlayerProvider (キューと再生コマンド)
 
@@ -55,8 +78,8 @@ type PlayerCommands = {
 
 - Provider 内部で `useReducer` (queue / current の純粋 reducer) と、オーディオエンジンのインスタンスを `useRef` で保持します。**エンジンは React state に入れません**
 - `playMusic` は「前エンジンの close → `createAudioEngine` → 再生開始 → reducer へ current 更新を dispatch」までを担う async コマンドです。失敗はエンジン store の error に載るため、コマンド自体は throw しません
-- エンジンの `ended` イベント購読も Provider が行い、`playNext()` を呼びます。audio-player のような「ポーリング再描画への相乗りで終了検知」は行いません
-- Context は audio-player 同様に **State 用と Commands 用を分離**します (コマンドは安定参照のため、購読不要なコンポーネントの再レンダーを防ぐ)
+- エンジンへの `ended` 購読 (→ `playNext()`) や MediaSession の metadata 更新は、**エンジンを生成するコマンドの中で**行います。useEffect で「current の変化を監視して同期する」形は取りません (変化を起こした場所で副作用も実行する)。audio-player のような「ポーリング再描画への相乗りで終了検知」も行いません
+- Context は audio-player 同様に **State 用と Commands 用を分離**します。Commands オブジェクトは **Provider マウント時に 1 回だけ生成** (`useState` の initializer で作り、`useReducer` の dispatch と `useRef` のエンジン参照を閉じ込める) するため、useCallback なしで恒久的に安定参照になります。コマンドしか使わないコンポーネントは状態変化で再レンダーされません
 
 ### 再生状態の購読: useAudioPlayer
 
@@ -75,33 +98,48 @@ export const useAudioPlayer = (): PlaybackSnapshot => {
 - snapshot はエンジン内でイベント発生時のみ差し替えられる不変オブジェクトです。参照が変わったときだけ React が再レンダーするため、「1 秒ポーリング」も「getter 委譲」も不要になります
 - `currentTime` は snapshot に含めますが更新は 250ms 間隔にスロットルします。より高頻度が必要な描画 (将来のビジュアライザー) は snapshot を経由せず `getSpectrums()` を rAF で直接読みます
 
-### ライブラリーデータの取得
+### ライブラリーデータの取得: クエリストア
 
-サーバー状態相当のデータはグローバル store に持たず、各ビューのフックで完結させます。
+useEffect でフェッチしません。React の外に小さなクエリストア (`src/renderer/features/library/queryStore.ts`) を実装し、コンポーネントは `useSyncExternalStore` で読むだけにします。再生状態と同じプリミティブに揃うため、アプリ全体で「外部の状態は subscribe / getSnapshot」という単一のメンタルモデルになります。
 
 ```ts
-export const useArtists = () => {
-  const [result, setResult] = useState<FetchState<Artist[]>>({ status: "loading" });
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      const res = await window.mp.library.getArtists();
-      if (alive) setResult(fromIpcResult(res));
-    };
-    load();
-    return window.mp.library.onChanged(load); // ライブラリー変更で自動再取得
-  }, []);
-  return result;
+// React 非依存の純粋な TS モジュール
+type FetchState<T> =
+  | { status: "loading" }
+  | { status: "success"; value: T }
+  | { status: "error"; error: IpcError };
+
+export const libraryStore = {
+  subscribe: (key: QueryKey, listener: () => void) => Unsubscribe,
+  getSnapshot: <T>(key: QueryKey) => FetchState<T>, // 純粋。fetch は起動しない
 };
 ```
 
-- `FetchState<T>` は `loading / success / error` の判別 union。エラーを握りつぶさず UI に出します
-- audio-player の `useTabArtists` (毎レンダーで IPC を発行) のようなパターンは禁止します。fetch は必ず `useEffect` (または明示的なイベント) から発行します
-- ビュー間で共有が必要になったデータのみ Context へ昇格します。v1.0 で昇格が確定しているのは PlayerProvider と SettingsProvider だけです
+- キー例: `"artists"`、`"musicsByArtist:<name>"`、`"albums:<AlbumFilter のハッシュ>"`。キーごとに `FetchState<T>` の不変スナップショットを保持します
+- fetch の起動タイミングは「そのキーへの最初の `subscribe` 時」と「無効化時」です。`getSnapshot` は純粋に保ちます (レンダー中に副作用を起こさない)
+- **無効化**: `mp:library:changed` の購読はアプリのブートストラップで 1 回だけ登録し ([ルーティングとレイアウト](routing-layout.md))、受信したらキャッシュを無効化して購読中のキーを再取得します。購読者のいないキーはキャッシュを破棄するだけです
+- 応答の適用時は世代チェック (リクエスト発行時の世代と一致する場合のみ反映) を行い、無効化と交差した古い応答を捨てます
+
+コンポーネント側は 1 行です。
+
+```ts
+export const useArtists = (): FetchState<Artist[]> =>
+  useSyncExternalStore(
+    (listener) => libraryStore.subscribe("artists", listener),
+    () => libraryStore.getSnapshot("artists"),
+  );
+```
+
+- エラーは `FetchState` の `error` として UI に出します。握りつぶしません
+- audio-player の `useTabArtists` (毎レンダーで IPC を発行) のようなパターンは禁止します。fetch を起動してよいのはクエリストア内部 (subscribe / 無効化) とイベントハンドラーだけです
+- React 19 の `use()` + Suspense によるフェッチも検討しましたが、無効化 (ライブラリー変更時の再取得) にはどのみち外部の購読機構が必要で、Suspense / ErrorBoundary の層も増えるため、`useSyncExternalStore` 一本に揃えます
 
 ### SettingsProvider
 
-mme-gui 方式です。起動時に `mp:settings:get`、変更は `mp:settings:set` を呼び、**IPC のレスポンス (Main がマージ・永続化した値) を唯一の真実として** state に反映します。
+mme-gui 方式をベースに、初期ロードを React の外へ出します。
+
+- 起動時の `mp:settings:get` は **`createRoot` 前のブートストラップで await** し、初期値として `SettingsProvider` に渡します。マウント後に useEffect でロードする方式は取りません (設定はテーマ・言語の決定に必要で、「設定ロード中」の中間状態を UI から消せる)
+- 変更は `mp:settings:set` を呼ぶイベントハンドラー (コマンド) で行い、**IPC のレスポンス (Main がマージ・永続化した値) を唯一の真実として**そのハンドラー内で state に反映します
 
 ## ディレクトリー構成
 

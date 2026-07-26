@@ -53,10 +53,12 @@ audio-player の「シーク直後に摘まみが巻き戻る」「停止中の�
 
 Renderer 中心方針に合わせ、Main の `globalShortcut` ではなく **Web 標準の MediaSession API** を使います。OS のメディアコントロール (macOS の Now Playing、Windows の SMTC) とハードウェアメディアキーに対応します。
 
-- PlayerProvider が現在曲の変化で `navigator.mediaSession.metadata` を更新します (title / artist / album / artwork)
+MediaSession への同期も useEffect では行いません ([状態管理](../renderer/state-management.md) の方針)。
+
+- `navigator.mediaSession.metadata` (title / artist / album / artwork) は、**現在曲を変更するコマンド (`playMusic` / `playNext` / `playPrevious` / `stop`) の中で**更新します
   - artwork の URL は `media-file://` を指定します。MediaSession が受け付けない場合は Blob URL へフォールバックします (実装時に検証。Phase 3 の確認項目)
-- action handler: `play` / `pause` / `previoustrack` / `nexttrack` / `seekto` を PlayerCommands に接続します
-- `navigator.mediaSession.playbackState` と `setPositionState()` を snapshot の変化に同期します
+- action handler (`play` / `pause` / `previoustrack` / `nexttrack` / `seekto` → PlayerCommands) の登録は PlayerProvider の初期化時に 1 回だけ行います (コマンド参照は React 外のディスパッチャー経由で常に最新を呼ぶ)
+- `navigator.mediaSession.playbackState` と `setPositionState()` は、エンジン生成時にコマンド内で登録する snapshot 購読 (`engine.subscribe`) の中で同期します。React のレンダリングを経由しません
 
 ## 再生中表示 (各ビューとの連携)
 

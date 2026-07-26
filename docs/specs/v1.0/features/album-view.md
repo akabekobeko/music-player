@@ -29,7 +29,7 @@
   - **年代**: 10 年区切り (1970s, 1980s, ...) のチェックボックス複数選択 (OR)。範囲はライブラリーの `MIN(year)` / `MAX(year)` から生成。year NULL のアルバムは「Unknown」項目で拾う
 - 種別間は **AND** で結合します (例: 「Rock」かつ「2000s」)
 - フィルター条件は `AlbumFilter` 型として `mp:library:getAlbums` に渡し、Main が WHERE 句に変換します ([データベース](../architecture/database.md))。Renderer 側での全件フィルターは行いません (1 万曲規模への備え)
-- 適用は即時 (Apply ボタンなし)。IPC 呼び出しは 200ms debounce
+- 適用は即時 (Apply ボタンなし)。フィルター変更ハンドラーが state 更新とともにクエリストアの取得を起動し、IPC 呼び出しは 200ms debounce します (useEffect でフィルター state を監視して fetch する形は取らない)
 - 条件は settings (`albumFilter`) に保存し、次回起動時に復元します
 - 将来のフィルター追加 (rating、bpm、再生回数など) は `AlbumFilter` 型へのフィールド追加で拡張します
 
