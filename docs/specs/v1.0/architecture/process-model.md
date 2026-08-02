@@ -103,7 +103,12 @@ src/
 - ウィンドウ位置・サイズ・最大化状態を設定ファイルに保存し、起動時に復元します (mme-gui の window 設定と同方式)
 - `window-all-closed` は全プラットフォームで `app.quit()` とします
   - macOS の慣習 (Dock 常駐) に反しますが、再生状態が Renderer に住む本設計ではウィンドウを閉じる = 再生終了が自然なため。バックグラウンド再生・トレイ常駐は v1.x で検討します
-- macOS では `titleBarStyle: "hiddenInset"` + CSS の `app-region-drag` によるカスタムタイトルバーを採用します (audio-player を踏襲)
+- OS 標準のタイトルバーは全プラットフォームで非表示にし、アプリ UI の最上段をタイトルバー相当とします (audio-player を踏襲)
+  - macOS: `titleBarStyle: "hiddenInset"` (ウィンドウ操作コントロールは左上端のトラフィックライト)
+  - Windows: `titleBarStyle: "hidden"` + `titleBarOverlay: { color, symbolColor, height }` (コントロールは右上端のオーバーレイ)
+  - Linux: `titleBarStyle: "hidden"`。`titleBarOverlay` の対応状況は実装時に検証し、非対応なら Renderer に自前の最小コントロール (最小化・最大化・閉じる) を右上へ置きます
+  - テーマ変更時、Main は `mp:settings:set` の theme 変更を検知し `setTitleBarOverlay()` で配色を同期します
+  - ドラッグ領域とセーフエリアの扱いは [ルーティングとレイアウト](../renderer/routing-layout.md)
 - 起動時の keychain ダイアログ抑止スイッチ (`use-mock-keychain` など) は electron-starter の実装を維持します
 
 ## 設定の永続化
