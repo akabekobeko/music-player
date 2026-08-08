@@ -1,6 +1,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog } from "electron";
+import { resolveLocale } from "../shared/locales/resolveLocale";
+import { closeDatabase, openDatabase } from "./db/connection";
+import { buildStartupErrorContent } from "./db/startupError";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -33,6 +36,21 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  try {
+    openDatabase(path.join(app.getPath("userData"), "app.db"));
+  } catch (error) {
+    // A broken or downgraded library DB means nothing else can work; tell
+    // the user why and abort startup (docs/specs/v1.0/architecture/database.md).
+    const locale = resolveLocale({
+      preference: undefined,
+      systemLocale: app.getLocale(),
+    });
+    const { title, message } = buildStartupErrorContent(error, locale);
+    dialog.showErrorBox(title, message);
+    app.quit();
+    return;
+  }
+
   initializeIpcEvents();
   createWindow();
 
@@ -45,4 +63,8 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", () => {
   app.quit();
+});
+
+app.on("will-quit", () => {
+  closeDatabase();
 });
