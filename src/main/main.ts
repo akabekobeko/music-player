@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow } from "electron";
+import { initializeIpcEvents } from "./ipc/ipcHandler";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +21,7 @@ function createWindow(): void {
       preload: path.join(__dirname, "../preload/preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   });
 
@@ -31,6 +33,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  initializeIpcEvents();
   createWindow();
 
   app.on("activate", () => {
