@@ -5,6 +5,8 @@ import { resolveLocale } from "../shared/locales/resolveLocale";
 import { closeDatabase, openDatabase } from "./db/connection";
 import { buildStartupErrorContent } from "./db/startupError";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
+// Importing also registers the privileged schemes (must run before `ready`).
+import { registerProtocolHandlers } from "./protocol/registerProtocol";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,6 +53,7 @@ app.whenReady().then(() => {
     return;
   }
 
+  registerProtocolHandlers();
   initializeIpcEvents();
   createWindow();
 

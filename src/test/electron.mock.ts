@@ -53,3 +53,15 @@ export const ipcMain = {
   removeAllListeners: noop,
   removeHandler: noop,
 };
+
+/** Stub of Electron's `protocol`. */
+export const protocol = {
+  registerSchemesAsPrivileged: noop,
+  handle: noop,
+};
+
+/** Stub of Electron's `net`. Tests spy on `fetch` to assert delegation. */
+export const net = {
+  fetch: (): Promise<Response> =>
+    Promise.resolve(new Response(null, { status: 200 })),
+};
