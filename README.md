@@ -1,5 +1,7 @@
 # music-player
 
+[![CI](https://github.com/akabekobeko/music-player/actions/workflows/ci.yml/badge.svg)](https://github.com/akabekobeko/music-player/actions/workflows/ci.yml)
+
 Cross-platform music player powered by Electron
 
 ## Getting Started
