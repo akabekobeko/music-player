@@ -43,4 +43,9 @@ export const ja: Dictionary = {
   "player.unmute": "ミュート解除",
   "player.errorTitle": "再生エラー",
   "player.dismiss": "閉じる",
+  "artist.search": "アーティストを検索",
+  "artist.unknown": "不明なアーティスト",
+  "artist.songs": "{count} 曲",
+  "artist.empty": "アーティストがいません。音楽をインポートしてください。",
+  "library.loadFailed": "読み込みに失敗しました: {message}",
 };

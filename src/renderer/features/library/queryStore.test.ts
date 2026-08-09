@@ -49,6 +49,18 @@ it("does not start a second fetch for an already-subscribed key", () => {
   expect(pending).toHaveLength(1);
 });
 
+it("a rejected fetch surfaces as the error state (never stuck loading)", async () => {
+  const store = createQueryStore(() =>
+    Promise.reject(new Error("No handler registered")),
+  );
+  store.subscribe("artists", vi.fn());
+  await Promise.resolve().then(() => {});
+  expect(store.getSnapshot("artists")).toEqual({
+    status: "error",
+    error: { name: "Error", message: "No handler registered" },
+  });
+});
+
 it("exposes fetch failures as the error state", async () => {
   const store = createQueryStore(() =>
     Promise.resolve({
@@ -115,7 +127,7 @@ it("discards a response that crossed an invalidation (generation check)", async 
   });
 });
 
-it("the last unsubscribe drops the cache entry", async () => {
+it("the cache survives the last unsubscribe (resubscribe reuses it)", async () => {
   const { fetch, pending } = createManualFetcher();
   const store = createQueryStore(fetch);
   const unsubscribe = store.subscribe("artists", vi.fn());
@@ -123,5 +135,31 @@ it("the last unsubscribe drops the cache entry", async () => {
   await flush();
 
   unsubscribe();
-  expect(store.getSnapshot("artists")).toEqual({ status: "loading" });
+  expect(store.getSnapshot("artists")).toEqual({
+    status: "success",
+    value: ["a"],
+  });
+
+  // Re-subscribing (e.g. useSyncExternalStore swapping its subscribe
+  // identity) must not restart the fetch.
+  store.subscribe("artists", vi.fn());
+  expect(pending).toHaveLength(1);
+});
+
+it("subscribe → unsubscribe → subscribe around a pending fetch stays stable", async () => {
+  const { fetch, pending } = createManualFetcher();
+  const store = createQueryStore(fetch);
+  const first = store.subscribe("artists", vi.fn());
+  first();
+  const listener = vi.fn();
+  store.subscribe("artists", listener);
+  expect(pending).toHaveLength(1);
+
+  pending[0]?.resolve(ok(["a"]));
+  await flush();
+  expect(listener).toHaveBeenCalledTimes(1);
+  expect(store.getSnapshot("artists")).toEqual({
+    status: "success",
+    value: ["a"],
+  });
 });

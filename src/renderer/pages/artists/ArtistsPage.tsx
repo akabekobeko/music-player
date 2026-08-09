@@ -12,9 +12,10 @@ export const ArtistsPage = () => {
     <section className="p-6">
       <h1 className="text-lg font-semibold">Artists</h1>
       <p className="mt-2 text-sm text-muted-foreground">
+        {/* Route params arrive already decoded — never decode them again. */}
         {artistName !== undefined
-          ? `Selected: ${decodeURIComponent(artistName)}`
-          : "アーティストビューは Phase 4 で実装します。"}
+          ? `Selected: ${artistName}`
+          : "アルバム・曲一覧は #42 で実装します。左の一覧からアーティストを選択できます。"}
       </p>
     </section>
   );
