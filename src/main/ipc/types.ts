@@ -1,3 +1,4 @@
+import type { AudioFormat } from "@akabeko/music-metadata-editor";
 import type { LocalePreference } from "../../shared/locales/types";
 
 /**
@@ -51,8 +52,8 @@ export type Music = {
   readonly id: number;
   /** Absolute path of the audio file. Unique within the library. */
   readonly filePath: string;
-  /** Audio container format. Narrowed to mme's `AudioFormat` in Phase 2. */
-  readonly audioFormat: string;
+  /** Audio container format (mme's `AudioFormat`, type-only import). */
+  readonly audioFormat: AudioFormat;
   /** Track title; the importer fills in the file name when the tag is empty. */
   readonly title: string;
   readonly artist: string;
