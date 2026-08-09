@@ -35,6 +35,8 @@ const track = (overrides: Partial<Track> = {}): Track => ({
 const deps = (overrides: Partial<ImportRunDeps> = {}): ImportRunDeps => ({
   loadTrack: vi.fn(async () => track()),
   expandAudioPaths: vi.fn(async (paths) => [...paths]),
+  // Emulates content-hash naming: identical bytes → identical path.
+  saveArtwork: vi.fn(async (picture) => `/images/${picture.data.join("")}.jpg`),
   now: () => "2026-08-09T00:00:00.000Z",
   ...overrides,
 });
@@ -182,6 +184,129 @@ it("expands directories via the enumeration seam", async () => {
   );
   expect(expandAudioPaths).toHaveBeenCalledWith(["/music-root"]);
   expect(summary.imported).toBe(1);
+});
+
+const pictured = (bytes: number[], overrides: Partial<Track> = {}): Track =>
+  track({
+    pictures: [
+      { mimeType: "image/jpeg", kind: 3, data: new Uint8Array(bytes) },
+    ],
+    ...overrides,
+  });
+
+it("stores artwork, links picture_id, and registers the artist picture", async () => {
+  await runImport(
+    db,
+    ["/m/a.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([1])) }),
+  );
+
+  const music = db
+    .prepare("SELECT artist, picture_id FROM musics")
+    .get() as Record<string, unknown>;
+  expect(music.picture_id).not.toBeNull();
+
+  const picture = db
+    .prepare("SELECT id, file_path FROM pictures")
+    .get() as Record<string, unknown>;
+  expect(picture.id).toBe(music.picture_id);
+  expect(picture.file_path).toBe("/images/1.jpg");
+
+  const artistPicture = db
+    .prepare("SELECT artist, picture_id FROM artist_pictures")
+    .get() as Record<string, unknown>;
+  expect(artistPicture.artist).toBe("Artist");
+  expect(artistPicture.picture_id).toBe(music.picture_id);
+});
+
+it("identical artwork across files shares one pictures row", async () => {
+  await runImport(
+    db,
+    ["/m/a.mp3", "/m/b.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([7])) }),
+  );
+
+  const count = (
+    db.prepare("SELECT COUNT(*) AS n FROM pictures").get() as { n: number }
+  ).n;
+  expect(count).toBe(1);
+});
+
+it("the first import wins for artist_pictures (no overwrite)", async () => {
+  await runImport(
+    db,
+    ["/m/first.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([1])) }),
+  );
+  const first = db
+    .prepare("SELECT picture_id FROM artist_pictures WHERE artist = 'Artist'")
+    .get() as { picture_id: number };
+
+  await runImport(
+    db,
+    ["/m/second.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([2])) }),
+  );
+  const after = db
+    .prepare("SELECT picture_id FROM artist_pictures WHERE artist = 'Artist'")
+    .get() as { picture_id: number };
+  expect(after.picture_id).toBe(first.picture_id);
+});
+
+it("re-import without artwork keeps the existing picture_id", async () => {
+  await runImport(
+    db,
+    ["/m/a.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([9])) }),
+  );
+  const before = db.prepare("SELECT picture_id FROM musics").get() as {
+    picture_id: number;
+  };
+
+  await runImport(db, ["/m/a.mp3"], events(), deps());
+  const after = db.prepare("SELECT picture_id FROM musics").get() as {
+    picture_id: number;
+  };
+  expect(after.picture_id).toBe(before.picture_id);
+});
+
+it("a failed artwork save degrades to no artwork instead of failing the file", async () => {
+  const summary = await runImport(
+    db,
+    ["/m/a.mp3"],
+    events(),
+    deps({
+      loadTrack: vi.fn(async () => pictured([1])),
+      saveArtwork: vi.fn(async () => {
+        throw new Error("disk full");
+      }),
+    }),
+  );
+  expect(summary).toEqual({ imported: 1, updated: 0, failed: [] });
+  const music = db.prepare("SELECT picture_id FROM musics").get() as {
+    picture_id: number | null;
+  };
+  expect(music.picture_id).toBeNull();
+});
+
+it("skips artist_pictures for an empty artist", async () => {
+  await runImport(
+    db,
+    ["/m/a.mp3"],
+    events(),
+    deps({ loadTrack: vi.fn(async () => pictured([1], { tag: {} })) }),
+  );
+  const count = (
+    db.prepare("SELECT COUNT(*) AS n FROM artist_pictures").get() as {
+      n: number;
+    }
+  ).n;
+  expect(count).toBe(0);
 });
 
 it("returns an empty summary for an empty expansion", async () => {

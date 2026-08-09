@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import {
   loadTrack as mmeLoadTrack,
+  type PictureInfo,
   type Track,
 } from "@akabeko/music-metadata-editor";
 import type {
@@ -9,9 +10,15 @@ import type {
   IpcError,
 } from "../ipc/types";
 import { toIpcError } from "../ipc/utils/toIpcError";
+import { imagesDirectory } from "../protocol/fetchMediaFile";
+import { saveArtwork, selectArtworkPicture } from "./artwork";
 import { expandAudioPaths as defaultExpandAudioPaths } from "./expandAudioPaths";
 import { mapWithConcurrency } from "./mapWithConcurrency";
 import { upsertMusic } from "./musicRepository";
+import {
+  getOrCreatePictureId,
+  registerArtistPictureIfMissing,
+} from "./pictureRepository";
 import { type MusicRowInput, mapTrackToMusicRow } from "./trackMapping";
 
 /** Concurrent `loadTrack` ceiling — prevents fd exhaustion. */
@@ -38,6 +45,8 @@ export type ImportRunDeps = {
   readonly expandAudioPaths: (
     paths: readonly string[],
   ) => Promise<readonly string[]>;
+  /** Persist one artwork image; returns its absolute path (issue #33). */
+  readonly saveArtwork: (picture: PictureInfo) => Promise<string>;
   /** ISO-8601 clock for `added_at` / `updated_at`. */
   readonly now: () => string;
 };
@@ -45,6 +54,7 @@ export type ImportRunDeps = {
 const DEFAULT_DEPS: ImportRunDeps = {
   loadTrack: (filePath) => mmeLoadTrack(filePath),
   expandAudioPaths: defaultExpandAudioPaths,
+  saveArtwork: (picture) => saveArtwork(imagesDirectory(), picture),
   now: () => new Date().toISOString(),
 };
 
@@ -54,6 +64,8 @@ type ExtractionResult =
       readonly ok: true;
       readonly filePath: string;
       readonly row: MusicRowInput;
+      /** Stored artwork path, or `null` when the file carries none. */
+      readonly artworkPath: string | null;
     }
   | { readonly ok: false; readonly filePath: string; readonly error: IpcError }
   | { readonly ok: null; readonly filePath: string }; // Skipped by cancellation.
@@ -133,10 +145,23 @@ export const runImport = async (
             console.warn(`[import] ${filePath}: ${warning.message}`);
           }
 
+          // Artwork is best-effort: a failed image write degrades the track
+          // to "no artwork" instead of failing the import of the music.
+          let artworkPath: string | null = null;
+          const picture = selectArtworkPicture(track.pictures);
+          if (picture !== null) {
+            try {
+              artworkPath = await deps.saveArtwork(picture);
+            } catch (error) {
+              console.warn(`[import] ${filePath}: artwork save failed`, error);
+            }
+          }
+
           return {
             ok: true,
             filePath,
             row: mapTrackToMusicRow(track, filePath),
+            artworkPath,
           };
         } catch (error) {
           return { ok: false, filePath, error: toIpcError(error) };
@@ -155,7 +180,15 @@ export const runImport = async (
         }
 
         try {
-          const outcome = upsertMusic(db, result.row, now);
+          const pictureId =
+            result.artworkPath !== null
+              ? getOrCreatePictureId(db, result.artworkPath)
+              : null;
+          const outcome = upsertMusic(db, result.row, now, pictureId);
+          if (pictureId !== null) {
+            registerArtistPictureIfMissing(db, result.row.artist, pictureId);
+          }
+
           if (outcome === "inserted") {
             imported += 1;
           } else {
