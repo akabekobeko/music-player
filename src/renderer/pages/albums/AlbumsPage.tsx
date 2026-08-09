@@ -1,7 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Disc3, FilterX, FolderInput, Play } from "lucide-react";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
@@ -9,17 +9,22 @@ import { queryKeys } from "@/features/library/queryStore";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import { usePlayerCommands } from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { cn } from "@/libs/utils";
 import { albumFilterStore, hasActiveFilter } from "./albumFilterStore";
 import { computeAlbumGridLayout, GRID_GAP } from "./albumGridLayout";
+import { AlbumDetail } from "./components/AlbumDetail/AlbumDetail";
+import { buildAlbumGridRows, estimateDetailHeight } from "./gridRows";
 import { sortAlbums } from "./sortAlbums";
 import { useElementWidth } from "./useElementWidth";
 
 /**
  * Album view route (`/albums`)
  * (`docs/specs/v1.0/features/album-view.md`): the filtered album summaries
- * as an artwork-first card grid, virtualised by row. The filter itself lives
- * in the sidebar panel; this page only reads the applied filter's query key.
- * Card click (inline expansion) arrives with #47.
+ * as an artwork-first card grid, virtualised by row, with the expanded
+ * album's track list spliced in as an inline full-width row — no route
+ * change, so the filter state and scroll position survive expansion and
+ * playback. The filter itself lives in the sidebar panel; this page only
+ * reads the applied filter's query key.
  */
 export const AlbumsPage = () => {
   const t = useT();
@@ -33,24 +38,47 @@ export const AlbumsPage = () => {
   const commands = usePlayerCommands();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const width = useElementWidth(scrollRef);
+  /** `albumKey` of the inline-expanded album; card click toggles it. */
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const albums =
     albumsState.status === "success" ? sortAlbums(albumsState.value) : [];
   const layout = computeAlbumGridLayout(width);
-  const rowCount = Math.ceil(albums.length / layout.columns);
+  const rows = buildAlbumGridRows(albums, layout.columns, expandedKey);
 
   const virtualizer = useVirtualizer({
-    count: rowCount,
+    count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => layout.rowHeight,
+    // Row-identity keys: expansion inserts a row and shifts every index
+    // after it — identity keys keep the measured heights attached to their
+    // rows instead of their positions.
+    getItemKey: (index) => {
+      const row = rows[index];
+      return row === undefined
+        ? index
+        : row.type === "cards"
+          ? `cards:${row.albums[0]?.albumKey ?? index}`
+          : `detail:${row.album.albumKey}`;
+    },
+    estimateSize: (index) => {
+      const row = rows[index];
+      return row === undefined || row.type === "cards"
+        ? layout.rowHeight
+        : estimateDetailHeight(row.album);
+    },
     overscan: 6,
   });
-  // The virtualizer's measurement cache does not watch estimateSize — after
-  // a resize changes the row height it must be re-measured explicitly.
+  // The virtualizer's measurement cache does not watch estimateSize — when a
+  // resize changes the card geometry the rows must be re-measured wholesale.
+  // (The detail row's own height changes are covered by measureElement.)
   // biome-ignore lint/correctness/useExhaustiveDependencies: layout.rowHeight is the trigger — the new value reaches the virtualizer through estimateSize, not through the effect body.
   useEffect(() => {
     virtualizer.measure();
   }, [virtualizer, layout.rowHeight]);
+
+  const toggleExpanded = (album: AlbumSummary): void => {
+    setExpandedKey((key) => (key === album.albumKey ? null : album.albumKey));
+  };
 
   /** Queue exactly this album and play it from the top (hover ▶). */
   const playAlbum = async (album: AlbumSummary): Promise<void> => {
@@ -84,28 +112,40 @@ export const AlbumsPage = () => {
           style={{ height: virtualizer.getTotalSize() }}
         >
           {virtualizer.getVirtualItems().map((item) => {
-            const rowAlbums = albums.slice(
-              item.index * layout.columns,
-              (item.index + 1) * layout.columns,
-            );
+            const row = rows[item.index];
+            if (row === undefined) {
+              return null;
+            }
+
+            // Rows are measured (measureElement), not fixed: the detail
+            // row's height depends on its fetched track list, so content
+            // defines the height and translateY positions the row.
             return (
               <div
                 key={item.key}
-                className="absolute top-0 left-0 flex w-full"
-                style={{
-                  height: item.size,
-                  transform: `translateY(${item.start}px)`,
-                  gap: GRID_GAP,
-                }}
+                data-index={item.index}
+                ref={virtualizer.measureElement}
+                className="absolute top-0 left-0 w-full"
+                style={{ transform: `translateY(${item.start}px)` }}
               >
-                {rowAlbums.map((album) => (
-                  <AlbumCard
-                    key={album.albumKey}
-                    album={album}
-                    width={layout.cardWidth}
-                    onPlay={() => void playAlbum(album)}
-                  />
-                ))}
+                {row.type === "cards" ? (
+                  <div className="flex pb-4" style={{ gap: GRID_GAP }}>
+                    {row.albums.map((album) => (
+                      <AlbumCard
+                        key={album.albumKey}
+                        album={album}
+                        width={layout.cardWidth}
+                        expanded={album.albumKey === expandedKey}
+                        onToggle={() => toggleExpanded(album)}
+                        onPlay={() => void playAlbum(album)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="pb-4">
+                    <AlbumDetail album={row.album} />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -144,32 +184,50 @@ const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
   );
 };
 
-/** One album card: artwork with a hover ▶ overlay + name / artist / year. */
+/**
+ * One album card: artwork (click = toggle the inline detail) with a hover
+ * ▶ overlay, then name / artist / year.
+ */
 const AlbumCard = ({
   album,
   width,
+  expanded,
+  onToggle,
   onPlay,
 }: {
   readonly album: AlbumSummary;
   readonly width: number;
+  readonly expanded: boolean;
+  readonly onToggle: () => void;
   readonly onPlay: () => void;
 }) => {
   const t = useT();
   return (
     <div className="group shrink-0" style={{ width }}>
       <div className="relative">
-        {album.picturePath !== null ? (
-          <img
-            src={toMediaFileUrl(album.picturePath)}
-            alt=""
-            loading="lazy"
-            className="aspect-square w-full rounded-md bg-muted object-cover"
-          />
-        ) : (
-          <span className="flex aspect-square w-full items-center justify-center rounded-md bg-muted">
-            <Disc3 aria-hidden className="size-10 text-muted-foreground" />
-          </span>
-        )}
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-label={album.album}
+          className={cn(
+            "block w-full overflow-hidden rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+            expanded && "ring-2 ring-primary",
+          )}
+          onClick={onToggle}
+        >
+          {album.picturePath !== null ? (
+            <img
+              src={toMediaFileUrl(album.picturePath)}
+              alt=""
+              loading="lazy"
+              className="aspect-square w-full bg-muted object-cover"
+            />
+          ) : (
+            <span className="flex aspect-square w-full items-center justify-center bg-muted">
+              <Disc3 aria-hidden className="size-10 text-muted-foreground" />
+            </span>
+          )}
+        </button>
         <button
           type="button"
           aria-label={`${t("player.play")}: ${album.album}`}

@@ -188,6 +188,13 @@ const fetchLibraryQuery: QueryFetcher = (key) => {
     );
   }
 
+  const byAlbumPrefix = "musicsByAlbum:";
+  if (key.startsWith(byAlbumPrefix)) {
+    return window.mp.library.getMusicsByAlbum({
+      albumKey: key.slice(byAlbumPrefix.length),
+    });
+  }
+
   return Promise.resolve({
     ok: false,
     error: { name: "Error", message: `Unknown query key: ${key}` },
@@ -225,6 +232,7 @@ export const queryKeys = {
   musicsByArtist: (artist: string): QueryKey => `musicsByArtist:${artist}`,
   albums: (filter: AlbumFilter): QueryKey =>
     `albums:${serializeAlbumFilter(filter)}`,
+  musicsByAlbum: (albumKey: string): QueryKey => `musicsByAlbum:${albumKey}`,
 };
 
 /** The app-wide library query store. */
