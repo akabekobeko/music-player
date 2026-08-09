@@ -4,7 +4,7 @@
 
 ## ルーティング
 
-React Router v7 の HashRouter を使用します (file:// ロードのため。選定理由は [技術選定](../architecture/tech-stack.md))。
+React Router v8 の HashRouter を使用します (file:// ロードのため。選定理由は [技術選定](../architecture/tech-stack.md))。
 
 | パス | 画面 | 備考 |
 | --- | --- | --- |

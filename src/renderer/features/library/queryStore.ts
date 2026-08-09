@@ -1,0 +1,171 @@
+import type { IpcError, IpcResult } from "@mp/ipc";
+
+/**
+ * Query store skeleton (`docs/specs/v1.0/renderer/state-management.md`).
+ *
+ * A React-free cache of Main query results keyed by string. Components read
+ * it through `useSyncExternalStore`, so the whole app shares one mental
+ * model with the audio engine: external state is `subscribe` / `getSnapshot`.
+ *
+ * Rules encoded here:
+ * - `getSnapshot` is pure — it never starts a fetch.
+ * - Fetches start on the first `subscribe` of a key and on invalidation.
+ * - Invalidation refetches keys that still have subscribers and simply drops
+ *   the cache for keys that do not.
+ * - Every applied response passes a generation check, so a response that
+ *   crossed an invalidation is discarded instead of overwriting fresh data.
+ */
+
+/** Result of one query as seen by the UI. Errors are shown, never swallowed. */
+export type FetchState<T> =
+  | { readonly status: "loading" }
+  | { readonly status: "success"; readonly value: T }
+  | { readonly status: "error"; readonly error: IpcError };
+
+/** Cache key. Convention: `"artists"`, `"musicsByArtist:<name>"`, … */
+export type QueryKey = string;
+
+/** Resolves a key to its Main query. Injected so tests never touch IPC. */
+export type QueryFetcher = (key: QueryKey) => Promise<IpcResult<unknown>>;
+
+/** Store interface returned by {@link createQueryStore}. */
+export type QueryStore = {
+  /**
+   * Register a listener for one key, starting the fetch if this is the key's
+   * first subscriber.
+   *
+   * @param key - Query key to observe.
+   * @param listener - Called whenever the key's snapshot is replaced.
+   * @returns Unsubscribe function; the last unsubscribe drops the cache entry.
+   */
+  readonly subscribe: (key: QueryKey, listener: () => void) => () => void;
+  /**
+   * Read the current snapshot for a key. Pure: no fetch is started.
+   *
+   * @param key - Query key to read.
+   * @returns The cached state, or the stable loading state when absent.
+   */
+  readonly getSnapshot: <T>(key: QueryKey) => FetchState<T>;
+  /**
+   * Discard cached results. Subscribed keys refetch; idle keys are dropped.
+   *
+   * @param key - Single key to invalidate, or omit for the whole store.
+   */
+  readonly invalidate: (key?: QueryKey) => void;
+};
+
+type Entry = {
+  state: FetchState<unknown>;
+  /** Bumped by invalidation; stale responses fail the equality check. */
+  generation: number;
+  listeners: Set<() => void>;
+};
+
+/** Stable snapshot for unknown keys (`useSyncExternalStore` needs identity). */
+const LOADING: FetchState<never> = { status: "loading" };
+
+/**
+ * Build a query store around a fetcher.
+ *
+ * @param fetch - Key → Main query resolver.
+ * @returns The store.
+ */
+export const createQueryStore = (fetch: QueryFetcher): QueryStore => {
+  const entries = new Map<QueryKey, Entry>();
+
+  const start = (key: QueryKey, entry: Entry): void => {
+    const generation = entry.generation;
+    void fetch(key).then((result) => {
+      const current = entries.get(key);
+      if (current !== entry || current.generation !== generation) {
+        return; // Invalidated (or dropped) while in flight — discard.
+      }
+
+      current.state = result.ok
+        ? { status: "success", value: result.value }
+        : { status: "error", error: result.error };
+      for (const listener of [...current.listeners]) {
+        listener();
+      }
+    });
+  };
+
+  return {
+    subscribe: (key, listener) => {
+      let entry = entries.get(key);
+      if (entry === undefined) {
+        entry = { state: LOADING, generation: 0, listeners: new Set() };
+        entries.set(key, entry);
+        start(key, entry);
+      }
+
+      entry.listeners.add(listener);
+      return () => {
+        entry.listeners.delete(listener);
+        if (entry.listeners.size === 0) {
+          entries.delete(key);
+        }
+      };
+    },
+    getSnapshot: <T>(key: QueryKey): FetchState<T> =>
+      (entries.get(key)?.state ?? LOADING) as FetchState<T>,
+    invalidate: (key) => {
+      const targets =
+        key === undefined ? [...entries.keys()] : entries.has(key) ? [key] : [];
+      for (const target of targets) {
+        const entry = entries.get(target);
+        if (entry === undefined) {
+          continue;
+        }
+
+        if (entry.listeners.size === 0) {
+          entries.delete(target);
+          continue;
+        }
+
+        entry.generation += 1;
+        entry.state = LOADING;
+        for (const listener of [...entry.listeners]) {
+          listener();
+        }
+
+        start(target, entry);
+      }
+    },
+  };
+};
+
+/**
+ * Map a {@link QueryKey} to its `window.mp.library` call.
+ *
+ * Extended as views land in later phases (albums, filter options, …).
+ *
+ * @param key - Query key to resolve.
+ * @returns The pending IPC result.
+ */
+const fetchLibraryQuery: QueryFetcher = (key) => {
+  if (key === "artists") {
+    return window.mp.library.getArtists();
+  }
+
+  const byArtistPrefix = "musicsByArtist:";
+  if (key.startsWith(byArtistPrefix)) {
+    return window.mp.library.getMusicsByArtist({
+      artist: key.slice(byArtistPrefix.length),
+    });
+  }
+
+  return Promise.resolve({
+    ok: false,
+    error: { name: "Error", message: `Unknown query key: ${key}` },
+  });
+};
+
+/** Key builders so call sites never hand-assemble key strings. */
+export const queryKeys = {
+  artists: "artists" as QueryKey,
+  musicsByArtist: (artist: string): QueryKey => `musicsByArtist:${artist}`,
+};
+
+/** The app-wide library query store. */
+export const libraryStore = createQueryStore(fetchLibraryQuery);

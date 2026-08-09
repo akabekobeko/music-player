@@ -8,13 +8,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-it("registers the getVersions handler", () => {
+it("registers every implemented invoke handler", () => {
   const handle = vi.spyOn(ipcMain, "handle");
 
   initializeIpcEvents();
 
   expect(handle).toHaveBeenCalledWith(
     IpcKeys.GetVersions,
+    expect.any(Function),
+  );
+  expect(handle).toHaveBeenCalledWith(
+    IpcKeys.GetSettings,
+    expect.any(Function),
+  );
+  expect(handle).toHaveBeenCalledWith(
+    IpcKeys.SetSettings,
     expect.any(Function),
   );
 });
@@ -33,8 +41,9 @@ it("can re-register after releaseIpcEvents", () => {
   const handle = vi.spyOn(ipcMain, "handle");
 
   initializeIpcEvents();
+  const callsPerInit = handle.mock.calls.length;
   releaseIpcEvents();
   initializeIpcEvents();
 
-  expect(handle).toHaveBeenCalledTimes(2);
+  expect(handle).toHaveBeenCalledTimes(callsPerInit * 2);
 });

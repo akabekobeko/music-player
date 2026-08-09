@@ -1,12 +1,19 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog, nativeTheme } from "electron";
 import { resolveLocale } from "../shared/locales/resolveLocale";
 import { closeDatabase, openDatabase } from "./db/connection";
 import { buildStartupErrorContent } from "./db/startupError";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
+import { applyTitleBarOverlayTheme } from "./ipc/onSetSettings";
 // Importing also registers the privileged schemes (must run before `ready`).
 import { registerProtocolHandlers } from "./protocol/registerProtocol";
+import {
+  flushSettings,
+  getSettings,
+  initializeSettings,
+} from "./settings/settingsManager";
+import { buildWindowChrome } from "./windowOptions";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,10 +25,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.commandLine.appendSwitch("use-mock-keychain");
 app.commandLine.appendSwitch("password-store", "basic");
 
+/**
+ * Whether the dark palette is in effect right now, combining the persisted
+ * preference with the OS theme for `"system"` (and unset).
+ */
+function shouldUseDarkTheme(): boolean {
+  const theme = getSettings().theme;
+  return (
+    theme === "dark" ||
+    ((theme === "system" || theme === undefined) &&
+      nativeTheme.shouldUseDarkColors)
+  );
+}
+
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
+    ...buildWindowChrome(process.platform, shouldUseDarkTheme()),
     webPreferences: {
       preload: path.join(__dirname, "../preload/preload.cjs"),
       contextIsolation: true,
@@ -53,9 +74,17 @@ app.whenReady().then(() => {
     return;
   }
 
+  initializeSettings(path.join(app.getPath("userData"), "settings.json"));
   registerProtocolHandlers();
   initializeIpcEvents();
   createWindow();
+
+  // Keep the WCO control colors in sync when the OS switches between light
+  // and dark while the preference is "system" (explicit preferences are
+  // handled inside the mp:settings:set handler).
+  nativeTheme.on("updated", () => {
+    applyTitleBarOverlayTheme(shouldUseDarkTheme());
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -69,5 +98,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("will-quit", () => {
+  flushSettings();
   closeDatabase();
 });
