@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router";
 import App from "./App";
 import "./App.css";
+import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
 import { libraryStore } from "./features/library/queryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
@@ -60,6 +61,8 @@ const bootstrap = async (): Promise<void> => {
   const settings = await loadInitialSettings();
   applyThemePreference(settings.theme);
   watchSystemTheme();
+
+  registerWindowDropHandler();
 
   window.mp.library.onChanged(() => {
     libraryStore.invalidate();

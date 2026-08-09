@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
 import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
 import { Sidebar } from "@/components/app/Sidebar/Sidebar";
 
@@ -15,5 +16,6 @@ export const AppLayout = () => (
     <main className="overflow-y-auto">
       <Outlet />
     </main>
+    <ImportConfirmDialog />
   </div>
 );
