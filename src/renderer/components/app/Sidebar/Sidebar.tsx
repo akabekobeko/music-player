@@ -1,8 +1,9 @@
 import { Disc3, FolderInput, ListMusic, Settings, Users } from "lucide-react";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { cn } from "@/libs/utils";
+import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";
 
 /** Primary navigation entries (`docs/specs/v1.0/renderer/routing-layout.md`). */
 const NAV_ITEMS = [
@@ -29,6 +30,7 @@ const linkClassName = ({ isActive }: { isActive: boolean }): string =>
  */
 export const Sidebar = () => {
   const t = useT();
+  const { pathname } = useLocation();
   return (
     <aside className="flex flex-col overflow-hidden border-r bg-sidebar">
       <nav className="flex flex-col gap-1 p-2">
@@ -39,8 +41,11 @@ export const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      {/* Route-specific secondary area (filled by each view's issue). */}
-      <div className="flex-1 overflow-y-auto border-t p-2" />
+      {/* Route-specific secondary area (Album filters and Playlist list
+          arrive with their views in Phase 5 / 6). */}
+      <div className="flex-1 overflow-hidden border-t">
+        {pathname.startsWith("/artists") && <ArtistListPanel />}
+      </div>
       <nav className="flex flex-col gap-1 border-t p-2">
         <button
           type="button"

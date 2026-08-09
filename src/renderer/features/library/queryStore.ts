@@ -12,6 +12,10 @@ import type { IpcError, IpcResult } from "@mp/ipc";
  * - Fetches start on the first `subscribe` of a key and on invalidation.
  * - Invalidation refetches keys that still have subscribers and simply drops
  *   the cache for keys that do not.
+ * - Losing the last subscriber KEEPS the cache. `useSyncExternalStore`
+ *   re-subscribes whenever its subscribe identity changes (StrictMode,
+ *   inline arrows), and dropping the entry in that window would restart the
+ *   fetch and oscillate between loading and success forever.
  * - Every applied response passes a generation check, so a response that
  *   crossed an invalidation is discarded instead of overwriting fresh data.
  */
@@ -75,19 +79,38 @@ export const createQueryStore = (fetch: QueryFetcher): QueryStore => {
 
   const start = (key: QueryKey, entry: Entry): void => {
     const generation = entry.generation;
-    void fetch(key).then((result) => {
+    const apply = (state: FetchState<unknown>): void => {
       const current = entries.get(key);
       if (current !== entry || current.generation !== generation) {
         return; // Invalidated (or dropped) while in flight — discard.
       }
 
-      current.state = result.ok
-        ? { status: "success", value: result.value }
-        : { status: "error", error: result.error };
+      current.state = state;
       for (const listener of [...current.listeners]) {
         listener();
       }
-    });
+    };
+
+    fetch(key).then(
+      (result) => {
+        apply(
+          result.ok
+            ? { status: "success", value: result.value }
+            : { status: "error", error: result.error },
+        );
+      },
+      // A rejected invoke (e.g. no handler registered) must surface as an
+      // error state — without this the key would sit in "loading" forever.
+      (reason: unknown) => {
+        apply({
+          status: "error",
+          error:
+            reason instanceof Error
+              ? { name: reason.name, message: reason.message }
+              : { name: "Error", message: String(reason) },
+        });
+      },
+    );
   };
 
   return {
@@ -101,10 +124,9 @@ export const createQueryStore = (fetch: QueryFetcher): QueryStore => {
 
       entry.listeners.add(listener);
       return () => {
+        // Cache survives the last unsubscribe; idle entries are reclaimed
+        // by the next invalidation (see module docs).
         entry.listeners.delete(listener);
-        if (entry.listeners.size === 0) {
-          entries.delete(key);
-        }
       };
     },
     getSnapshot: <T>(key: QueryKey): FetchState<T> =>

@@ -44,4 +44,9 @@ export const en: Dictionary = {
   "player.unmute": "Unmute",
   "player.errorTitle": "Playback error",
   "player.dismiss": "Dismiss",
+  "artist.search": "Search artists",
+  "artist.unknown": "Unknown Artist",
+  "artist.songs": "{count} songs",
+  "artist.empty": "No artists yet. Import music to get started.",
+  "library.loadFailed": "Failed to load: {message}",
 };
