@@ -1,14 +1,6 @@
-import type { Artist } from "@mp/ipc";
-import { useSyncExternalStore } from "react";
-import { type FetchState, libraryStore, queryKeys } from "./queryStore";
-
-// Module-scope so both functions keep a stable identity —
-// `useSyncExternalStore` re-subscribes whenever the subscribe reference
-// changes, which must not happen once per render.
-const subscribeArtists = (listener: () => void): (() => void) =>
-  libraryStore.subscribe(queryKeys.artists, listener);
-const getArtistsSnapshot = (): FetchState<readonly Artist[]> =>
-  libraryStore.getSnapshot<readonly Artist[]>(queryKeys.artists);
+import type { Artist, Music } from "@mp/ipc";
+import { type FetchState, queryKeys } from "./queryStore";
+import { useLibraryQuery } from "./useLibraryQuery";
 
 /**
  * Subscribe to the artist list
@@ -22,4 +14,15 @@ const getArtistsSnapshot = (): FetchState<readonly Artist[]> =>
  * @returns The artist list fetch state; errors surface to the UI.
  */
 export const useArtists = (): FetchState<readonly Artist[]> =>
-  useSyncExternalStore(subscribeArtists, getArtistsSnapshot);
+  useLibraryQuery(queryKeys.artists);
+
+/**
+ * Subscribe to one artist's full track list
+ * (`docs/specs/v1.0/features/artist-view.md`): the page-level hook —
+ * the result stays local to the view, never in global state.
+ *
+ * @param artist - Artist name from the route parameter.
+ * @returns The track list fetch state.
+ */
+export const useArtistMusics = (artist: string): FetchState<readonly Music[]> =>
+  useLibraryQuery(queryKeys.musicsByArtist(artist));

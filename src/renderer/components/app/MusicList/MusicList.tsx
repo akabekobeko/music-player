@@ -1,0 +1,88 @@
+import type { Music } from "@mp/ipc";
+import { Pause, Play, Volume2 } from "lucide-react";
+import type { MouseEvent, ReactNode } from "react";
+import { formatTime } from "@/libs/formatTime";
+import { cn } from "@/libs/utils";
+
+/** Row height in px — shared with virtualizers embedding these rows. */
+export const MUSIC_ROW_HEIGHT = 36;
+
+/**
+ * One track row shared by the Artist / Album / Playlist views
+ * (`docs/specs/v1.0/features/artist-view.md`): track number / title /
+ * duration / menu slot, with receptacles for the playing highlight,
+ * selection, and playback wiring (#43 / later views).
+ *
+ * A row, not a list: the views own their (virtualized) list structure and
+ * render one `MusicRow` per item, so the shared piece stays layout-agnostic.
+ * The title is a real `<button>` (click = select, double-click = play,
+ * Enter = select), keeping the container itself non-interactive.
+ */
+export const MusicRow = ({
+  music,
+  playing = null,
+  selected = false,
+  onClick,
+  onPlay,
+  menu,
+}: {
+  readonly music: Music;
+  /** Non-null when this is the current track ("playing" / "paused"). */
+  readonly playing?: "playing" | "paused" | null;
+  readonly selected?: boolean;
+  /** Selection handler (click; Shift / Cmd arrive via the event). */
+  readonly onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  /** Start playback from this track (hover ▶ / double-click). */
+  readonly onPlay?: () => void;
+  /** Per-track menu slot (the [⋯] dropdown, #43). */
+  readonly menu?: ReactNode;
+}) => (
+  <div
+    data-selected={selected || undefined}
+    className={cn(
+      "group flex h-9 w-full items-center gap-2 rounded-md px-2 text-sm",
+      selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+    )}
+  >
+    <span className="relative w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
+      {playing !== null ? (
+        playing === "playing" ? (
+          <Volume2 aria-hidden className="ml-auto size-4 text-primary" />
+        ) : (
+          <Pause aria-hidden className="ml-auto size-4 text-primary" />
+        )
+      ) : (
+        <>
+          <span className={cn(onPlay !== undefined && "group-hover:hidden")}>
+            {music.track > 0 ? music.track : "-"}
+          </span>
+          {onPlay !== undefined && (
+            <button
+              type="button"
+              aria-label={music.title}
+              className="hidden size-4 items-center justify-center group-hover:inline-flex"
+              onClick={onPlay}
+            >
+              <Play className="size-4" />
+            </button>
+          )}
+        </>
+      )}
+    </span>
+    <button
+      type="button"
+      className={cn(
+        "min-w-0 flex-1 cursor-default truncate text-left outline-none",
+        playing !== null && "font-medium text-primary",
+      )}
+      onClick={onClick}
+      onDoubleClick={onPlay}
+    >
+      {music.title}
+    </button>
+    <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
+      {formatTime(music.durationMs / 1000)}
+    </span>
+    {menu !== undefined && <span className="shrink-0">{menu}</span>}
+  </div>
+);
