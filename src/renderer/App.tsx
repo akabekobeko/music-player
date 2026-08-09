@@ -1,43 +1,26 @@
-import type { Versions } from "@mp/ipc";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Navigate, Route, Routes } from "react-router";
+import { AppLayout } from "@/components/app/AppLayout/AppLayout";
+import { AlbumsPage } from "@/pages/albums/AlbumsPage";
+import { ArtistsPage } from "@/pages/artists/ArtistsPage";
+import { PlaylistsPage } from "@/pages/playlists/PlaylistsPage";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [versions, setVersions] = useState<Versions | null>(null);
-
-  useEffect(() => {
-    let disposed = false;
-    window.mp.app.getVersions().then((result) => {
-      if (!disposed && result.ok) {
-        setVersions(result.value);
-      }
-    });
-    return () => {
-      disposed = true;
-    };
-  }, []);
-
-  return (
-    <div className="mx-auto max-w-3xl p-8 text-center">
-      <h1 className="text-4xl font-bold leading-tight">
-        Electron + Vite + React
-      </h1>
-      <div className="py-8">
-        <Button variant="outline" onClick={() => setCount((c) => c + 1)}>
-          count is {count}
-        </Button>
-      </div>
-      {versions && (
-        <div className="mt-8 space-y-1 text-sm text-muted-foreground">
-          <p>App: {versions.app}</p>
-          <p>Electron: {versions.electron}</p>
-          <p>Chrome: {versions.chrome}</p>
-          <p>Node: {versions.node}</p>
-        </div>
-      )}
-    </div>
-  );
-}
+/**
+ * Route table (`docs/specs/v1.0/renderer/routing-layout.md`). Selection
+ * state (artist, playlist) lives in the URL so mod+[ style history
+ * navigation works; playback state is independent of the route.
+ */
+const App = () => (
+  <Routes>
+    <Route element={<AppLayout />}>
+      <Route index element={<Navigate to="/artists" replace />} />
+      <Route path="artists/:artistName?" element={<ArtistsPage />} />
+      <Route path="albums" element={<AlbumsPage />} />
+      <Route path="playlists/:playlistId?" element={<PlaylistsPage />} />
+      <Route path="settings" element={<SettingsPage />} />
+      <Route path="*" element={<Navigate to="/artists" replace />} />
+    </Route>
+  </Routes>
+);
 
 export default App;

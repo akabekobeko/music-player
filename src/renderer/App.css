@@ -117,6 +117,55 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/*
+ * Title-bar-less window support (docs/specs/v1.0/renderer/routing-layout.md).
+ *
+ * The PlayerBar band is the drag region; interactive elements inside it opt
+ * out with .app-region-no-drag. Text in drag regions is unselectable so
+ * window dragging never fights text selection.
+ */
+@utility app-region-drag {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+@utility app-region-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/*
+ * Title-bar safe areas: the top-left / top-right corners host the OS window
+ * controls (macOS traffic lights / Window Controls Overlay) and stay free of
+ * app UI. Widths derive from the WCO CSS environment variables; where they
+ * are unavailable (macOS hiddenInset, WCO-less Linux) the env() fallback
+ * supplies a fixed per-platform value keyed off <html data-platform="…">,
+ * set in the bootstrap.
+ */
+:root {
+  --playerbar-height: 72px;
+  --titlebar-safe-left: env(titlebar-area-x, 0px);
+  --titlebar-safe-right: calc(
+    100vw -
+    env(titlebar-area-x, 0px) -
+    env(titlebar-area-width, 100vw)
+  );
+}
+
+html[data-platform="mac"] {
+  --titlebar-safe-left: env(titlebar-area-x, 80px);
+  --titlebar-safe-right: 0px;
+}
+
+html[data-platform="windows"],
+html[data-platform="linux"] {
+  --titlebar-safe-left: env(titlebar-area-x, 0px);
+  --titlebar-safe-right: calc(
+    100vw -
+    env(titlebar-area-x, 0px) -
+    env(titlebar-area-width, calc(100vw - 140px))
+  );
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -13,7 +13,7 @@
 | ライブラリー | バージョン | 用途 |
 | --- | --- | --- |
 | React / React DOM | 19.x | UI。状態管理もライブラリーを足さず React 標準 (useReducer / Context / useSyncExternalStore) に寄せる |
-| React Router | 7.x | 画面遷移。Electron の file:// ロードのため HashRouter を使用 |
+| React Router | 8.x | 画面遷移。Electron の file:// ロードのため HashRouter を使用 (declarative mode) |
 | shadcn/ui (Base UI core) | shadcn 4.x + @base-ui/react 1.x | UI コンポーネント。Radix UI ではなく Base UI を core に採用 (starter の `base-nova` style) |
 | Lucide Icons (lucide-react) | 1.x | アイコン。アイコン類はこれに統一する |
 | Tailwind CSS | 4.x | スタイリング。CSS-first 設定 (`tailwind.config.js` なし)、`@tailwindcss/vite` |
@@ -23,7 +23,10 @@
 
 ### React Router vs TanStack Router
 
-React Router v7 を採用します。
+React Router v8 を採用します。
+
+- v8 は ESM-only 配布・`react-router-dom` パッケージ廃止 (`react-router` 本体から import)・Node 22.22+ / React 19.2.7+ / Vite 7+ 要件となったが、本プロジェクトの構成 (ESM / React 19.2.8 / Vite 8) はすべて満たす
+- declarative mode (HashRouter) は v8 でも全面サポート
 
 - 本アプリのルートは 4〜5 本 (artists / albums / playlists / settings) と少なく、TanStack Router の強みである型安全なルート定義・search params 管理の恩恵が小さい
 - audio-player で React Router (HashRouter) の Electron 動作実績がある

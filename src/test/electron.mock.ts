@@ -39,6 +39,12 @@ export const BrowserWindow = {
   fromWebContents: (): unknown => null,
 };
 
+/** Stub of Electron's `nativeTheme`. */
+export const nativeTheme = {
+  shouldUseDarkColors: false,
+  on: noop,
+};
+
 /** Stub of Electron's `dialog`. */
 export const dialog = {
   showOpenDialog: (): Promise<{ canceled: boolean; filePaths: string[] }> =>

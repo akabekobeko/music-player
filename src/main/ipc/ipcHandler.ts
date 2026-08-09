@@ -1,6 +1,8 @@
 import { ipcMain } from "electron";
 import { IpcKeys } from "./ipcKeys";
+import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
+import { onSetSettings } from "./onSetSettings";
 
 /**
  * Tracks whether {@link initializeIpcEvents} has already wired the handlers.
@@ -27,6 +29,8 @@ export const initializeIpcEvents = (): void => {
 
   isInitialized = true;
   ipcMain.handle(IpcKeys.GetVersions, onGetVersions);
+  ipcMain.handle(IpcKeys.GetSettings, onGetSettings);
+  ipcMain.handle(IpcKeys.SetSettings, onSetSettings);
 };
 
 /**
@@ -43,5 +47,7 @@ export const releaseIpcEvents = (): void => {
   }
 
   ipcMain.removeHandler(IpcKeys.GetVersions);
+  ipcMain.removeHandler(IpcKeys.GetSettings);
+  ipcMain.removeHandler(IpcKeys.SetSettings);
   isInitialized = false;
 };
