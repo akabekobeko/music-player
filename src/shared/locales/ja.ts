@@ -15,4 +15,13 @@ export const ja: Dictionary = {
   "dialog.db.migrationFailed.title": "データベース エラー",
   "dialog.db.migrationFailed.message":
     "ライブラリー データベースの更新に失敗しました: {message}",
+  "sidebar.import": "インポート…",
+  "import.dialog.title": "音楽のインポート",
+  "import.dialog.expanding": "音楽ファイルを検索しています…",
+  "import.dialog.count": "{count} 件のファイルをインポートします。",
+  "import.dialog.empty": "インポートできる音楽ファイルが見つかりませんでした。",
+  "import.dialog.failed": "インポートに失敗しました: {message}",
+  "import.dialog.cancel": "キャンセル",
+  "import.dialog.run": "インポート",
+  "import.dialog.close": "閉じる",
 };

@@ -1,7 +1,9 @@
 import { ipcMain } from "electron";
 import { IpcKeys } from "./ipcKeys";
+import { onExpandPaths } from "./onExpandPaths";
 import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
+import { onOpenImportTargets } from "./onOpenImportTargets";
 import { onSetSettings } from "./onSetSettings";
 
 /**
@@ -31,6 +33,8 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetVersions, onGetVersions);
   ipcMain.handle(IpcKeys.GetSettings, onGetSettings);
   ipcMain.handle(IpcKeys.SetSettings, onSetSettings);
+  ipcMain.handle(IpcKeys.OpenImportTargets, onOpenImportTargets);
+  ipcMain.handle(IpcKeys.ExpandPaths, onExpandPaths);
 };
 
 /**
@@ -49,5 +53,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetVersions);
   ipcMain.removeHandler(IpcKeys.GetSettings);
   ipcMain.removeHandler(IpcKeys.SetSettings);
+  ipcMain.removeHandler(IpcKeys.OpenImportTargets);
+  ipcMain.removeHandler(IpcKeys.ExpandPaths);
   isInitialized = false;
 };
