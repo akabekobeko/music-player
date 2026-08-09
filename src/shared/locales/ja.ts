@@ -24,4 +24,12 @@ export const ja: Dictionary = {
   "import.dialog.cancel": "キャンセル",
   "import.dialog.run": "インポート",
   "import.dialog.close": "閉じる",
+  "import.progress.importing": "インポート中 {current} / {total}",
+  "import.progress.errors": "失敗 {count} 件",
+  "import.progress.cancelling": "キャンセルしています…",
+  "import.summary.done": "インポートが完了しました。",
+  "import.summary.cancelled": "インポートをキャンセルしました。",
+  "import.summary.imported": "追加: {count} 件",
+  "import.summary.updated": "更新: {count} 件",
+  "import.summary.failed": "{count} 件失敗 (詳細)",
 };

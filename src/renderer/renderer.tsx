@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router";
 import App from "./App";
 import "./App.css";
+import { importStore } from "./features/import/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
 import { libraryStore } from "./features/library/queryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
@@ -66,6 +67,9 @@ const bootstrap = async (): Promise<void> => {
 
   window.mp.library.onChanged(() => {
     libraryStore.invalidate();
+  });
+  window.mp.library.onImportProgress((payload) => {
+    importStore.handleProgress(payload);
   });
   window.mp.menu.onAction(({ action }) => {
     menuActionBus.publish(action);

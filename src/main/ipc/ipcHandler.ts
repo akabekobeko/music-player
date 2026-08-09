@@ -5,6 +5,7 @@ import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
 import { onOpenImportTargets } from "./onOpenImportTargets";
+import { onRemoveMusics } from "./onRemoveMusics";
 import { onSetSettings } from "./onSetSettings";
 
 /**
@@ -38,6 +39,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.ExpandPaths, onExpandPaths);
   ipcMain.handle(IpcKeys.ImportMusics, onImportMusics);
   ipcMain.handle(IpcKeys.CancelImport, onCancelImport);
+  ipcMain.handle(IpcKeys.RemoveMusics, onRemoveMusics);
 };
 
 /**
@@ -60,5 +62,6 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.ExpandPaths);
   ipcMain.removeHandler(IpcKeys.ImportMusics);
   ipcMain.removeHandler(IpcKeys.CancelImport);
+  ipcMain.removeHandler(IpcKeys.RemoveMusics);
   isInitialized = false;
 };
