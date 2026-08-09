@@ -1,6 +1,7 @@
 import type {
   ExpandPathsOk,
   ImportMusicsRequest,
+  ImportProgressPayload,
   ImportSummary,
   IpcError,
   IpcResult,
@@ -23,7 +24,20 @@ export type ImportEntryState =
   | { readonly status: "idle" }
   | { readonly status: "expanding" }
   | { readonly status: "confirming"; readonly files: readonly string[] }
-  | { readonly status: "importing"; readonly files: readonly string[] }
+  | {
+      readonly status: "importing";
+      readonly files: readonly string[];
+      /** Latest `mp:library:importProgress` push, `null` before the first. */
+      readonly progress: ImportProgressPayload | null;
+      /** Whether the user already pressed Cancel (button then disables). */
+      readonly cancelRequested: boolean;
+    }
+  | {
+      readonly status: "done";
+      readonly summary: ImportSummary;
+      /** Whether the run ended via cancellation. */
+      readonly cancelled: boolean;
+    }
   | { readonly status: "error"; readonly error: IpcError };
 
 /** The slice of `window.mp` the store needs (injectable for tests). */
@@ -35,6 +49,7 @@ export type ImportBridge = {
   readonly importMusics: (
     request: ImportMusicsRequest,
   ) => Promise<IpcResult<ImportSummary>>;
+  readonly cancelImport: () => Promise<IpcResult<void>>;
 };
 
 const IDLE: ImportEntryState = { status: "idle" };
@@ -69,6 +84,15 @@ export const createImportStore = (bridge: ImportBridge) => {
   /** Whether a bridge call is in flight (commands are ignored meanwhile). */
   const isBusy = (): boolean =>
     state.status === "expanding" || state.status === "importing";
+
+  /**
+   * Whether the running import has a pending cancel request. A function
+   * (not an inline check) because `state` is reassigned by the progress /
+   * cancel handlers while `startImport` awaits — an inline check would keep
+   * TS's stale narrowing from the guard at the top of `startImport`.
+   */
+  const isCancelRequested = (): boolean =>
+    state.status === "importing" && state.cancelRequested;
 
   const expandInto = async (paths: readonly string[]): Promise<void> => {
     const known = currentFiles();
@@ -143,7 +167,12 @@ export const createImportStore = (bridge: ImportBridge) => {
       }
 
       const files = state.files;
-      setState({ status: "importing", files });
+      setState({
+        status: "importing",
+        files,
+        progress: null,
+        cancelRequested: false,
+      });
       try {
         const result = await bridge.importMusics({ paths: files });
         if (!result.ok) {
@@ -151,11 +180,41 @@ export const createImportStore = (bridge: ImportBridge) => {
           return;
         }
 
-        // Progress / summary UI arrives with issue #34; for now a completed
-        // run simply closes the dialog.
-        setState(IDLE);
+        setState({
+          status: "done",
+          summary: result.value,
+          cancelled: isCancelRequested(),
+        });
       } catch (reason) {
         setState({ status: "error", error: toBridgeError(reason) });
+      }
+    },
+
+    /**
+     * Apply an `mp:library:importProgress` push. Registered app-lifetime in
+     * the bootstrap; pushes outside a run (e.g. an import started by another
+     * window) are ignored.
+     */
+    handleProgress: (payload: ImportProgressPayload): void => {
+      if (state.status === "importing") {
+        setState({ ...state, progress: payload });
+      }
+    },
+
+    /** Request cancellation of the running import (button disables). */
+    cancelImport: async (): Promise<void> => {
+      if (state.status !== "importing" || state.cancelRequested) {
+        return;
+      }
+
+      setState({ ...state, cancelRequested: true });
+      try {
+        const result = await bridge.cancelImport();
+        if (!result.ok) {
+          console.error("Failed to cancel import", result.error);
+        }
+      } catch (reason) {
+        console.error("Failed to cancel import", reason);
       }
     },
 
@@ -178,4 +237,5 @@ export const importStore: ImportStore = createImportStore({
   openImportTargets: () => window.mp.dialog.openImportTargets(),
   expandPaths: (paths) => window.mp.dnd.expandPaths({ paths }),
   importMusics: (request) => window.mp.library.import(request),
+  cancelImport: () => window.mp.library.cancelImport(),
 });

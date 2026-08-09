@@ -1,14 +1,8 @@
-import { BrowserWindow } from "electron";
 import { getDatabase } from "../db/connection";
 import { runImport } from "../library/importMusics";
 import { IpcKeys } from "./ipcKeys";
-import type {
-  ImportMusicsRequest,
-  ImportProgressPayload,
-  ImportSummary,
-  IpcResult,
-  LibraryChangedPayload,
-} from "./types";
+import type { ImportMusicsRequest, ImportSummary, IpcResult } from "./types";
+import { broadcast } from "./utils/broadcast";
 import { toIpcError } from "./utils/toIpcError";
 
 /**
@@ -23,18 +17,6 @@ let isCancelRequested = false;
 export const resetImportStateForTest = (): void => {
   isImportRunning = false;
   isCancelRequested = false;
-};
-
-/** Broadcast a push payload to every open window. */
-const broadcast = (
-  channel: string,
-  payload: ImportProgressPayload | LibraryChangedPayload,
-): void => {
-  for (const window of BrowserWindow.getAllWindows()) {
-    if (!window.isDestroyed()) {
-      window.webContents.send(channel, payload);
-    }
-  }
 };
 
 /**

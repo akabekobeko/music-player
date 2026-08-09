@@ -25,4 +25,12 @@ export const en: Dictionary = {
   "import.dialog.cancel": "Cancel",
   "import.dialog.run": "Import",
   "import.dialog.close": "Close",
+  "import.progress.importing": "Importing {current} / {total}",
+  "import.progress.errors": "{count} failed",
+  "import.progress.cancelling": "Cancelling…",
+  "import.summary.done": "Import finished.",
+  "import.summary.cancelled": "Import was cancelled.",
+  "import.summary.imported": "Added: {count}",
+  "import.summary.updated": "Updated: {count}",
+  "import.summary.failed": "{count} files failed (details)",
 };

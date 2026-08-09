@@ -12,6 +12,7 @@ const createBridge = (overrides: Partial<ImportBridge> = {}): ImportBridge => ({
   openImportTargets: vi.fn(async () => ok({ paths: ["/music"] })),
   expandPaths: vi.fn(async () => ok({ files: ["/music/a.mp3"] })),
   importMusics: vi.fn(async () => ok({ imported: 1, updated: 0, failed: [] })),
+  cancelImport: vi.fn(async () => ok(undefined)),
   ...overrides,
 });
 
@@ -82,7 +83,7 @@ it("expansion failure lands in the error state", async () => {
   });
 });
 
-it("startImport sends the confirmed files and closes on success", async () => {
+it("startImport sends the confirmed files and lands in done with the summary", async () => {
   const bridge = createBridge();
   const store = createImportStore(bridge);
   await store.addPaths(["/music"]);
@@ -90,6 +91,93 @@ it("startImport sends the confirmed files and closes on success", async () => {
   expect(bridge.importMusics).toHaveBeenCalledWith({
     paths: ["/music/a.mp3"],
   });
+  expect(store.getSnapshot()).toEqual({
+    status: "done",
+    summary: { imported: 1, updated: 0, failed: [] },
+    cancelled: false,
+  });
+});
+
+it("progress pushes update the importing state", async () => {
+  let resolveImport: (value: IpcResult<ImportSummary>) => void = () => {};
+  const store = createImportStore(
+    createBridge({
+      importMusics: vi.fn(
+        () =>
+          new Promise<IpcResult<ImportSummary>>((resolve) => {
+            resolveImport = resolve;
+          }),
+      ),
+    }),
+  );
+  await store.addPaths(["/music"]);
+  const running = store.startImport();
+
+  const payload = {
+    phase: "importing" as const,
+    current: 100,
+    total: 500,
+    filePath: "/music/x.mp3",
+    errors: 2,
+  };
+  store.handleProgress(payload);
+  expect(store.getSnapshot()).toMatchObject({
+    status: "importing",
+    progress: payload,
+  });
+
+  resolveImport(ok({ imported: 500, updated: 0, failed: [] }));
+  await running;
+});
+
+it("progress pushes outside a run are ignored", () => {
+  const store = createImportStore(createBridge());
+  store.handleProgress({
+    phase: "importing",
+    current: 1,
+    total: 2,
+    filePath: "/x",
+    errors: 0,
+  });
+  expect(store.getSnapshot()).toEqual({ status: "idle" });
+});
+
+it("cancelImport flags the run and calls the bridge once", async () => {
+  let resolveImport: (value: IpcResult<ImportSummary>) => void = () => {};
+  const bridge = createBridge({
+    importMusics: vi.fn(
+      () =>
+        new Promise<IpcResult<ImportSummary>>((resolve) => {
+          resolveImport = resolve;
+        }),
+    ),
+  });
+  const store = createImportStore(bridge);
+  await store.addPaths(["/music"]);
+  const running = store.startImport();
+
+  await store.cancelImport();
+  await store.cancelImport(); // Second press is a no-op.
+  expect(bridge.cancelImport).toHaveBeenCalledTimes(1);
+  expect(store.getSnapshot()).toMatchObject({
+    status: "importing",
+    cancelRequested: true,
+  });
+
+  resolveImport(ok({ imported: 10, updated: 0, failed: [] }));
+  await running;
+  expect(store.getSnapshot()).toEqual({
+    status: "done",
+    summary: { imported: 10, updated: 0, failed: [] },
+    cancelled: true,
+  });
+});
+
+it("the done dialog closes via cancel", async () => {
+  const store = createImportStore(createBridge());
+  await store.addPaths(["/music"]);
+  await store.startImport();
+  store.cancel();
   expect(store.getSnapshot()).toEqual({ status: "idle" });
 });
 
