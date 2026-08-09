@@ -55,6 +55,8 @@ export const ja: Dictionary = {
   "album.filter.decade": "年代",
   "album.filter.unknownYear": "不明",
   "album.filter.clear": "フィルターをクリア",
+  "album.noMatch": "条件に一致するアルバムがありません。",
+  "album.empty": "アルバムがありません。音楽をインポートしてください。",
   "player.shuffle": "シャッフル",
   "menu.playNext": "次に再生",
   "menu.addToQueue": "キューに追加",

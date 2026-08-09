@@ -56,6 +56,8 @@ export const en: Dictionary = {
   "album.filter.decade": "Decade",
   "album.filter.unknownYear": "Unknown",
   "album.filter.clear": "Clear filters",
+  "album.noMatch": "No albums match the filters.",
+  "album.empty": "No albums yet. Import music to get started.",
   "player.shuffle": "Shuffle",
   "menu.playNext": "Play next",
   "menu.addToQueue": "Add to queue",

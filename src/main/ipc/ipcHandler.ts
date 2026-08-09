@@ -4,6 +4,7 @@ import { onExpandPaths } from "./onExpandPaths";
 import { onGetAlbums } from "./onGetAlbums";
 import { onGetArtists } from "./onGetArtists";
 import { onGetFilterOptions } from "./onGetFilterOptions";
+import { onGetMusicsByAlbum } from "./onGetMusicsByAlbum";
 import { onGetMusicsByArtist } from "./onGetMusicsByArtist";
 import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
@@ -48,6 +49,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetMusicsByArtist, onGetMusicsByArtist);
   ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
   ipcMain.handle(IpcKeys.GetFilterOptions, onGetFilterOptions);
+  ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
 };
 
 /**
@@ -75,5 +77,6 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetMusicsByArtist);
   ipcMain.removeHandler(IpcKeys.GetAlbums);
   ipcMain.removeHandler(IpcKeys.GetFilterOptions);
+  ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);
   isInitialized = false;
 };
