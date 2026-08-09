@@ -8,6 +8,7 @@ import { importStore } from "./features/import/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
 import { libraryStore } from "./features/library/queryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
+import { PlayerProvider } from "./features/player/PlayerProvider";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
 import {
   applyThemePreference,
@@ -83,9 +84,11 @@ const bootstrap = async (): Promise<void> => {
   createRoot(root).render(
     <StrictMode>
       <SettingsProvider initialSettings={settings}>
-        <HashRouter>
-          <App />
-        </HashRouter>
+        <PlayerProvider>
+          <HashRouter>
+            <App />
+          </HashRouter>
+        </PlayerProvider>
       </SettingsProvider>
     </StrictMode>,
   );
