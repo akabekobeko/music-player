@@ -52,5 +52,9 @@ export const en: Dictionary = {
   "artist.selectPrompt": "Select an artist from the list.",
   "album.disc": "Disc {number}",
   "player.shuffle": "Shuffle",
+  "menu.playNext": "Play next",
+  "menu.addToQueue": "Add to queue",
+  "menu.addToPlaylist": "Add to playlist",
+  "menu.removeFromLibrary": "Remove from library",
   "library.loadFailed": "Failed to load: {message}",
 };

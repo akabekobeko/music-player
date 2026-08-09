@@ -325,6 +325,11 @@ export class WebAudioEngine {
   #attachStreaming(url: string): void {
     const element = new Audio();
     element.preload = "auto";
+    // media-stream:// is cross-origin from the app origin. Anonymous CORS
+    // (paired with Access-Control-Allow-Origin on the protocol responses)
+    // keeps the MediaElementAudioSourceNode untainted — a tainted source
+    // plays silence through Web Audio.
+    element.crossOrigin = "anonymous";
     element.oncanplay = () => {
       this.#dispatch({ type: "loaded" });
     };

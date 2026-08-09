@@ -54,6 +54,41 @@ it("currentChanged moves the current track without touching the queue", () => {
   expect(state.current).toBe(queue[1]);
 });
 
+it("queueInsertedNext inserts right after the current track", () => {
+  const queue = [music(1), music(2), music(3)];
+  const before = {
+    queue,
+    queueSource: "artist" as const,
+    current: queue[1] as Music,
+  };
+  const state = playerReducer(before, {
+    type: "queueInsertedNext",
+    musics: [music(8), music(9)],
+  });
+  expect(state.queue.map((m) => m.id)).toEqual([1, 2, 8, 9, 3]);
+  expect(state.current).toBe(queue[1]);
+});
+
+it("queueInsertedNext goes to the head without a current track", () => {
+  const state = playerReducer(
+    { queue: [music(1)], queueSource: "none", current: null },
+    { type: "queueInsertedNext", musics: [music(9)] },
+  );
+  expect(state.queue.map((m) => m.id)).toEqual([9, 1]);
+});
+
+it("queueAppended adds to the tail", () => {
+  const state = playerReducer(
+    {
+      queue: [music(1)],
+      queueSource: "artist",
+      current: music(1),
+    },
+    { type: "queueAppended", musics: [music(2), music(3)] },
+  );
+  expect(state.queue.map((m) => m.id)).toEqual([1, 2, 3]);
+});
+
 it("queueReplaced keeps the current track", () => {
   const current = music(1);
   const before = {

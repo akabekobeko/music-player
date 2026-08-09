@@ -54,6 +54,7 @@ protocol.registerSchemesAsPrivileged([
 - `Range` ヘッダーあり: `206 Partial Content` を返す
   - `Accept-Ranges: bytes` / `Content-Type` (拡張子から判定) / `Content-Length` / `Content-Range` を付与
   - Node の `ReadStream` を `ReadableStream` に変換し、`desiredSize` による背圧制御を行う (audio-player の `fetchLocalFileStream` を移植)
+- **すべての応答に `Access-Control-Allow-Origin: *` を付与する** (2026-08-09 追記)。`media-stream://` はアプリのオリジン (`file://` / dev サーバー) から見てクロスオリジンであり、CORS ヘッダーなしの音源を `MediaElementAudioSourceNode` へ接続すると taint により無音になる。オーディオエンジン側は `HTMLAudioElement.crossOrigin = "anonymous"` を設定する (パス検証が musics テーブル照合で行われるため、Origin 制限を緩めても配信対象は広がらない)
 
 ### パス検証 (audio-player からの改善)
 

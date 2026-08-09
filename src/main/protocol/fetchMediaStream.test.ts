@@ -103,6 +103,33 @@ it("returns 206 with the requested slice for a Range request", async () => {
   expect(await response.text()).toBe("2345");
 });
 
+it("adds Access-Control-Allow-Origin to range-less responses", async () => {
+  const { library, filePath } = setupLibrary("0123456789");
+  vi.spyOn(net, "fetch").mockResolvedValue(new Response("whole file"));
+
+  const response = await fetchMediaStream(
+    new Request(streamUrl(filePath)),
+    library,
+  );
+
+  // Without this header a MediaElementAudioSourceNode over the
+  // cross-origin media-stream:// source is tainted and plays silence.
+  expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+});
+
+it("adds Access-Control-Allow-Origin to 206 responses", async () => {
+  const { library, filePath } = setupLibrary("0123456789");
+
+  const response = await fetchMediaStream(
+    new Request(streamUrl(filePath), {
+      headers: { Range: "bytes=2-5" },
+    }),
+    library,
+  );
+
+  expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+});
+
 it("returns 416 for an unsatisfiable Range", async () => {
   const { library, filePath } = setupLibrary("0123456789");
 

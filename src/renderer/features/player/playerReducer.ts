@@ -1,5 +1,7 @@
 import type { CurrentChangedAction } from "./actions/currentChanged";
 import type { PlayedAction } from "./actions/played";
+import type { QueueAppendedAction } from "./actions/queueAppended";
+import type { QueueInsertedNextAction } from "./actions/queueInsertedNext";
 import type { QueueReplacedAction } from "./actions/queueReplaced";
 import type { PlayerState } from "./types";
 
@@ -14,7 +16,9 @@ import type { PlayerState } from "./types";
 export type PlayerAction =
   | PlayedAction
   | CurrentChangedAction
-  | QueueReplacedAction;
+  | QueueReplacedAction
+  | QueueInsertedNextAction
+  | QueueAppendedAction;
 
 /**
  * Advance the player state by one action.
@@ -42,6 +46,17 @@ export const playerReducer = (
         queue: action.queue,
         queueSource: action.source,
       };
+    case "queueInsertedNext": {
+      const index =
+        state.current === null
+          ? -1
+          : state.queue.findIndex((music) => music.id === state.current?.id);
+      const queue = [...state.queue];
+      queue.splice(index + 1, 0, ...action.musics);
+      return { ...state, queue };
+    }
+    case "queueAppended":
+      return { ...state, queue: [...state.queue, ...action.musics] };
     default:
       return state;
   }

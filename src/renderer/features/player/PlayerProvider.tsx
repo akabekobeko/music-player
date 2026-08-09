@@ -56,6 +56,10 @@ export type PlayerCommands = {
   readonly setVolume: (volume: number) => void;
   /** Replace the queue, keeping the current track and playback running. */
   readonly replaceQueue: (queue: readonly Music[], source: QueueSource) => void;
+  /** Insert tracks right after the current one ("Play next"). */
+  readonly insertNext: (musics: readonly Music[]) => void;
+  /** Append tracks to the queue tail ("Add to queue"). */
+  readonly appendToQueue: (musics: readonly Music[]) => void;
 };
 
 const PlayerStateContext = createContext<PlayerState | null>(null);
@@ -173,6 +177,14 @@ const createCommands = (
     replaceQueue: (queue, source) => {
       dispatch({ type: "queueReplaced", queue, source });
     },
+
+    insertNext: (musics) => {
+      dispatch({ type: "queueInsertedNext", musics });
+    },
+
+    appendToQueue: (musics) => {
+      dispatch({ type: "queueAppended", musics });
+    },
   };
 
   return commands;
@@ -258,4 +270,20 @@ export const useAudioPlayer = (): PlaybackSnapshot => {
   }
 
   return useSyncExternalStore(host.subscribe, host.getSnapshot);
+};
+
+/**
+ * Subscribe to the playback state alone (a primitive), so consumers that
+ * only need playing / paused — e.g. the track-row highlight — do not
+ * re-render on every 250ms `currentTime` tick.
+ *
+ * @returns The current engine state.
+ */
+export const usePlaybackState = (): PlaybackSnapshot["state"] => {
+  const host = useContext(EngineHostContext);
+  if (host === null) {
+    throw new Error("usePlaybackState must be used within PlayerProvider");
+  }
+
+  return useSyncExternalStore(host.subscribe, () => host.getSnapshot().state);
 };
