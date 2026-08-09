@@ -47,5 +47,9 @@ export const ja: Dictionary = {
   "artist.unknown": "不明なアーティスト",
   "artist.songs": "{count} 曲",
   "artist.empty": "アーティストがいません。音楽をインポートしてください。",
+  "artist.albumCount": "{count} 枚のアルバム",
+  "artist.selectPrompt": "左の一覧からアーティストを選択してください。",
+  "album.disc": "Disc {number}",
+  "player.shuffle": "シャッフル",
   "library.loadFailed": "読み込みに失敗しました: {message}",
 };

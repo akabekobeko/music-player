@@ -48,5 +48,9 @@ export const en: Dictionary = {
   "artist.unknown": "Unknown Artist",
   "artist.songs": "{count} songs",
   "artist.empty": "No artists yet. Import music to get started.",
+  "artist.albumCount": "{count} albums",
+  "artist.selectPrompt": "Select an artist from the list.",
+  "album.disc": "Disc {number}",
+  "player.shuffle": "Shuffle",
   "library.loadFailed": "Failed to load: {message}",
 };

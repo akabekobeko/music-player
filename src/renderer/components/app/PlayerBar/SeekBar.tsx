@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { formatTime } from "./formatTime";
+import { formatTime } from "@/libs/formatTime";
 
 /** Coerce Base UI's single-or-array slider value into a number. */
 const asNumber = (value: number | readonly number[]): number =>
