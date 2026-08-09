@@ -39,7 +39,16 @@ export const fetchMediaStream = async (
 
   const range = request.headers.get("Range");
   if (range === null) {
-    return await net.fetch(pathToFileURL(filePath).href);
+    const response = await net.fetch(pathToFileURL(filePath).href);
+    // CORS-clean copy: the audio engine wires this response into a
+    // MediaElementAudioSourceNode with `crossOrigin = "anonymous"`; without
+    // Access-Control-Allow-Origin the node is tainted and outputs silence.
+    const headers = new Headers(response.headers);
+    headers.set("Access-Control-Allow-Origin", "*");
+    return new Response(response.body, {
+      status: response.status,
+      headers,
+    });
   }
 
   const { size } = fs.statSync(filePath);
@@ -54,6 +63,8 @@ export const fetchMediaStream = async (
     ["Content-Type", audioContentType(filePath)],
     ["Content-Length", `${end - start + 1}`],
     ["Content-Range", `bytes ${start}-${end}/${size}`],
+    // See above — required for an untainted MediaElementAudioSourceNode.
+    ["Access-Control-Allow-Origin", "*"],
   ]);
 
   const stream = fs.createReadStream(filePath, { start, end });

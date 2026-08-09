@@ -1,25 +1,50 @@
+import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Disc3, MoreHorizontal, Play, Shuffle, UserRound } from "lucide-react";
-import { useRef } from "react";
+import {
+  Disc3,
+  MoreHorizontal,
+  Play,
+  Shuffle as ShuffleIcon,
+  UserRound,
+} from "lucide-react";
+import { useRef, useState } from "react";
 import { useParams } from "react-router";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useT } from "@/features/i18n/useT";
-import { groupAlbums } from "@/features/library/groupAlbums";
+import {
+  type AlbumGroup,
+  flattenAlbumMusics,
+  groupAlbums,
+} from "@/features/library/groupAlbums";
 import { useArtistMusics, useArtists } from "@/features/library/useArtists";
+import {
+  usePlaybackState,
+  usePlayerCommands,
+  usePlayerState,
+} from "@/features/player/PlayerProvider";
+import { shuffle } from "@/features/player/shuffle";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
 import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./albumRows";
+import {
+  applySelectionClick,
+  EMPTY_SELECTION,
+  type SelectionState,
+} from "./selection";
 
 /**
  * Artist view content (`/artists/:artistName`)
- * (`docs/specs/v1.0/features/artist-view.md`): header (image, counts,
- * Play / Shuffle) and the album sections with disc-split track lists.
- *
- * Albums / discs / tracks render as one flat virtualized row stream
- * (`albumRows.ts`); grouping and ordering are render-time derivations.
- * Playback wiring (Play / Shuffle / row play / menus) lands with #43 —
- * the controls are present but disabled here.
+ * (`docs/specs/v1.0/features/artist-view.md`): header (Play / Shuffle /
+ * menu), album sections, and the playback wiring — every action only calls
+ * PlayerCommands; the view never manages queue contents itself.
  */
 export const ArtistsPage = () => {
   const t = useT();
@@ -39,20 +64,107 @@ export const ArtistsPage = () => {
   );
 };
 
+/** The [⋯] dropdown shared by the header, albums, and track rows. */
+const RowMenu = ({
+  items,
+}: {
+  readonly items: ReadonlyArray<{
+    readonly label: string;
+    readonly onSelect?: () => void;
+    readonly disabled?: boolean;
+    readonly destructive?: boolean;
+    readonly separatorBefore?: boolean;
+  }>;
+}) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger
+      render={<Button variant="ghost" size="icon-sm" aria-label="Menu" />}
+    >
+      <MoreHorizontal />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end">
+      {items.map((item) => (
+        <div key={item.label}>
+          {item.separatorBefore === true && <DropdownMenuSeparator />}
+          <DropdownMenuItem
+            disabled={item.disabled}
+            variant={item.destructive === true ? "destructive" : "default"}
+            onClick={item.onSelect}
+          >
+            {item.label}
+          </DropdownMenuItem>
+        </div>
+      ))}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
 /** Selected-artist content; remounted per artist via the `key` above. */
 const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
   const t = useT();
   const artistsState = useArtists();
   const musicsState = useArtistMusics(artistName);
+  const commands = usePlayerCommands();
+  const { current } = usePlayerState();
+  const playbackState = usePlaybackState();
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
 
   const musics = musicsState.status === "success" ? musicsState.value : [];
   const groups = groupAlbums(musics);
   const rows = buildAlbumRows(groups);
+  // The artist's full play order — every playback action queues this
+  // (album year order → disc → track), so listening continues across albums.
+  const playOrder = flattenAlbumMusics(groups);
+  const orderedIds = playOrder.map((music) => music.id);
   const artist =
     artistsState.status === "success"
       ? (artistsState.value.find((entry) => entry.name === artistName) ?? null)
       : null;
+
+  const playAll = (): void => {
+    const first = playOrder[0];
+    if (first !== undefined) {
+      void commands.playMusic(first, playOrder, "artist");
+    }
+  };
+
+  const playShuffled = (): void => {
+    const shuffled = shuffle(playOrder);
+    const first = shuffled[0];
+    if (first !== undefined) {
+      void commands.playMusic(first, shuffled, "artist");
+    }
+  };
+
+  const playFrom = (music: Music): void => {
+    void commands.playMusic(music, playOrder, "artist");
+  };
+
+  const playAlbum = (group: AlbumGroup): void => {
+    const albumMusics = group.discs.flatMap((disc) => [...disc.musics]);
+    const first = albumMusics[0];
+    if (first !== undefined) {
+      void commands.playMusic(first, albumMusics, "artist");
+    }
+  };
+
+  const albumMusicsOf = (group: AlbumGroup): Music[] =>
+    group.discs.flatMap((disc) => [...disc.musics]);
+
+  const removeFromLibrary = (music: Music): void => {
+    void window.mp.library.removeMusics({ musicIds: [music.id] });
+    // The broadcast mp:library:changed invalidates the query store, which
+    // refetches this view automatically.
+  };
+
+  const playingStateOf = (music: Music): "playing" | "paused" | null => {
+    if (current === null || current.id !== music.id) {
+      return null;
+    }
+
+    return playbackState === "playing" ? "playing" : "paused";
+  };
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -86,24 +198,33 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
             {t("artist.songs", { count: musics.length })}
           </p>
           <div className="mt-2 flex items-center gap-2">
-            {/* Wired to PlayerCommands in #43. */}
-            <Button size="sm" disabled>
+            <Button
+              size="sm"
+              disabled={playOrder.length === 0}
+              onClick={playAll}
+            >
               <Play /> {t("player.play")}
             </Button>
-            <Button size="sm" variant="outline" disabled>
-              <Shuffle /> {t("player.shuffle")}
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={playOrder.length === 0}
+              onClick={playShuffled}
+            >
+              <ShuffleIcon /> {t("player.shuffle")}
             </Button>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Menu"
-          disabled
-          className="self-start"
-        >
-          <MoreHorizontal />
-        </Button>
+        <span className="self-start">
+          <RowMenu
+            items={[
+              { label: t("player.play"), onSelect: playAll },
+              { label: t("player.shuffle"), onSelect: playShuffled },
+              // Wired to the playlist picker in Phase 6.
+              { label: t("menu.addToPlaylist"), disabled: true },
+            ]}
+          />
+        </span>
       </header>
 
       {musicsState.status === "error" && (
@@ -171,15 +292,20 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                           .join(" · ")}
                       </p>
                     </div>
-                    {/* Album menu arrives with #43. */}
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Menu"
-                      disabled
-                    >
-                      <MoreHorizontal />
-                    </Button>
+                    <RowMenu
+                      items={[
+                        {
+                          label: t("player.play"),
+                          onSelect: () => playAlbum(row.group),
+                        },
+                        {
+                          label: t("menu.addToQueue"),
+                          onSelect: () =>
+                            commands.appendToQueue(albumMusicsOf(row.group)),
+                        },
+                        { label: t("menu.addToPlaylist"), disabled: true },
+                      ]}
+                    />
                   </div>
                 )}
                 {row.type === "disc" && (
@@ -187,7 +313,52 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                     {t("album.disc", { number: row.disc })}
                   </p>
                 )}
-                {row.type === "music" && <MusicRow music={row.music} />}
+                {row.type === "music" && (
+                  <MusicRow
+                    music={row.music}
+                    playing={playingStateOf(row.music)}
+                    selected={selection.selectedIds.has(row.music.id)}
+                    onClick={(event) => {
+                      setSelection(
+                        applySelectionClick(
+                          selection,
+                          orderedIds,
+                          row.music.id,
+                          {
+                            shift: event.shiftKey,
+                            meta: event.metaKey || event.ctrlKey,
+                          },
+                        ),
+                      );
+                    }}
+                    onPlay={() => playFrom(row.music)}
+                    menu={
+                      <RowMenu
+                        items={[
+                          {
+                            label: t("player.play"),
+                            onSelect: () => playFrom(row.music),
+                          },
+                          {
+                            label: t("menu.playNext"),
+                            onSelect: () => commands.insertNext([row.music]),
+                          },
+                          {
+                            label: t("menu.addToQueue"),
+                            onSelect: () => commands.appendToQueue([row.music]),
+                          },
+                          { label: t("menu.addToPlaylist"), disabled: true },
+                          {
+                            label: t("menu.removeFromLibrary"),
+                            onSelect: () => removeFromLibrary(row.music),
+                            destructive: true,
+                            separatorBefore: true,
+                          },
+                        ]}
+                      />
+                    }
+                  />
+                )}
               </div>
             );
           })}

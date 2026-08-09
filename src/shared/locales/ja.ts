@@ -51,5 +51,9 @@ export const ja: Dictionary = {
   "artist.selectPrompt": "左の一覧からアーティストを選択してください。",
   "album.disc": "Disc {number}",
   "player.shuffle": "シャッフル",
+  "menu.playNext": "次に再生",
+  "menu.addToQueue": "キューに追加",
+  "menu.addToPlaylist": "プレイリストに追加",
+  "menu.removeFromLibrary": "ライブラリーから削除",
   "library.loadFailed": "読み込みに失敗しました: {message}",
 };

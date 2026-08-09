@@ -11,7 +11,12 @@ import { fetchMediaStream } from "./fetchMediaStream";
 //
 // `supportFetchAPI` on media-stream is required: the audio engine uses the
 // same URL for both `<audio src>` (streaming) and `fetch()` (full read for
-// buffer playback) — docs/specs/v1.0/architecture/process-model.md.
+// buffer playback). `corsEnabled` is equally required: the engine loads the
+// element with `crossOrigin = "anonymous"` so the
+// MediaElementAudioSourceNode stays untainted (audible), and a CORS-mode
+// request to a scheme without this privilege fails outright
+// (MEDIA_ELEMENT_ERROR: Format error) —
+// docs/specs/v1.0/architecture/process-model.md.
 protocol.registerSchemesAsPrivileged([
   {
     scheme: PROTOCOL_MEDIA_FILE,
@@ -19,7 +24,12 @@ protocol.registerSchemesAsPrivileged([
   },
   {
     scheme: PROTOCOL_MEDIA_STREAM,
-    privileges: { bypassCSP: true, stream: true, supportFetchAPI: true },
+    privileges: {
+      bypassCSP: true,
+      stream: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
   },
 ]);
 
