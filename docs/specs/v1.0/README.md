@@ -56,7 +56,7 @@ v1.0 の開発計画と設計仕様を、機能・粒度ごとに分割して管
 - [状態管理](renderer/state-management.md)
   - Context / Reducer / Command の構成 (audio-player の課題を踏まえた刷新)
 - [オーディオエンジン](renderer/audio-engine.md)
-  - AudioPlayer3 を関数ベースで再設計した再生エンジン
+  - AudioPlayer3 を class + 純関数 reducer で再設計した再生エンジン
 - [ルーティングとレイアウト](renderer/routing-layout.md)
   - React Router による画面遷移、アプリ全体のレイアウト
 
