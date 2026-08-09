@@ -37,7 +37,11 @@ export const AlbumsPage = () => {
   );
   const commands = usePlayerCommands();
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const width = useElementWidth(scrollRef);
+  // Width comes from the inner content element, not the scroll container:
+  // clientWidth of the container includes its padding, and columns computed
+  // against that overflow the content box (horizontal scrollbar).
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const width = useElementWidth(contentRef);
   /** `albumKey` of the inline-expanded album; card click toggles it. */
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
@@ -106,8 +110,12 @@ export const AlbumsPage = () => {
       {albumsState.status === "success" && albums.length === 0 && (
         <EmptyState filtered={hasActiveFilter(applied)} />
       )}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 pt-4">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-x-hidden overflow-y-auto p-6 pt-4"
+      >
         <div
+          ref={contentRef}
           className="relative w-full"
           style={{ height: virtualizer.getTotalSize() }}
         >
