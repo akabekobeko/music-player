@@ -9,6 +9,7 @@ import { registerWindowDropHandler } from "./features/import/registerWindowDropH
 import { libraryStore } from "./features/library/queryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
 import { PlayerProvider } from "./features/player/PlayerProvider";
+import { registerPlayerHotkeys } from "./features/player/registerPlayerHotkeys";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
 import {
   applyThemePreference,
@@ -65,6 +66,7 @@ const bootstrap = async (): Promise<void> => {
   watchSystemTheme();
 
   registerWindowDropHandler();
+  registerPlayerHotkeys();
 
   window.mp.library.onChanged(() => {
     libraryStore.invalidate();
