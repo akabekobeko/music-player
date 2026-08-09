@@ -16,6 +16,7 @@ import {
   watchSystemTheme,
 } from "./features/settings/theme";
 import { detectPlatform } from "./libs/platform";
+import { albumFilterStore } from "./pages/albums/albumFilterStore";
 
 /**
  * Fallback when `mp:settings:get` fails: the app still starts with defaults
@@ -64,6 +65,7 @@ const bootstrap = async (): Promise<void> => {
   const settings = await loadInitialSettings();
   applyThemePreference(settings.theme);
   watchSystemTheme();
+  albumFilterStore.initialize(settings.albumFilter);
 
   registerWindowDropHandler();
   registerPlayerHotkeys();

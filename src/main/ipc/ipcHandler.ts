@@ -1,7 +1,9 @@
 import { ipcMain } from "electron";
 import { IpcKeys } from "./ipcKeys";
 import { onExpandPaths } from "./onExpandPaths";
+import { onGetAlbums } from "./onGetAlbums";
 import { onGetArtists } from "./onGetArtists";
+import { onGetFilterOptions } from "./onGetFilterOptions";
 import { onGetMusicsByArtist } from "./onGetMusicsByArtist";
 import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
@@ -44,6 +46,8 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.RemoveMusics, onRemoveMusics);
   ipcMain.handle(IpcKeys.GetArtists, onGetArtists);
   ipcMain.handle(IpcKeys.GetMusicsByArtist, onGetMusicsByArtist);
+  ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
+  ipcMain.handle(IpcKeys.GetFilterOptions, onGetFilterOptions);
 };
 
 /**
@@ -69,5 +73,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.RemoveMusics);
   ipcMain.removeHandler(IpcKeys.GetArtists);
   ipcMain.removeHandler(IpcKeys.GetMusicsByArtist);
+  ipcMain.removeHandler(IpcKeys.GetAlbums);
+  ipcMain.removeHandler(IpcKeys.GetFilterOptions);
   isInitialized = false;
 };
