@@ -1,6 +1,6 @@
 # オーディオエンジン
 
-音楽再生を担うオーディオエンジンの設計です。audio-player の AudioPlayer3 (class、556 行) の再生戦略を継承しつつ、**関数ベース (クロージャーファクトリー) + イベント駆動**に再設計します。
+音楽再生を担うオーディオエンジンの設計です。audio-player の AudioPlayer3 (class、556 行) の再生戦略を継承しつつ、**class (副作用リソースの器) + 純関数 reducer (状態遷移) + イベント駆動**に再設計します。
 
 ## 継承する再生戦略: streaming / buffer ハイブリッド
 
@@ -27,18 +27,24 @@ source (MediaElement | BufferSource)
   → destination
 ```
 
-## 関数ベース化の方針
+## class + 純関数 reducer の方針
 
-class が担っていた責務はクロージャーで同等に表現できます。
+**実装形態は class に回帰します** (2026-08-09 改訂)。当初は関数ベース (クロージャーファクトリー) で設計しましたが、Phase 3 の初期実装を評価した結果、次の課題により class 路線へ変更しました。
 
-| class での役割 | 関数ベースでの置き換え |
+- ファクトリー関数が長大になり、多数の `let` クロージャー変数が読解の認知負荷を上げる
+- クロージャーは可変状態の全体像を一覧できず、「class をそのまま関数化しただけ」で副作用管理は改善されない
+- オーディオエンジンは本質的に状態の塊であり、可変リソースを private field として 1 箇所に宣言できる class の方が見通しがよい
+
+ただし **AudioPlayer3 の弱点はそのまま継承しません**。class に残すのは「副作用リソース (AudioContext・ノードグラフ・media element・buffer source) の器」の役割だけで、状態管理は次の分離を守ります。
+
+| 責務 | 置き場所 |
 | --- | --- |
-| private field (`#context` 等) による隠蔽 | ファクトリー関数のクロージャー変数 (外部から到達不能) |
-| getter/setter による HTMLMediaElement 風 API | メソッドと snapshot への一本化 (後述。むしろ getter をやめることが改善になる) |
-| `close()` によるリソース解放 | 同じく `close()` 関数。生成 (`createAudioEngine`) と対で契約化 |
-| 状態管理と再生をセットで扱うわかりやすさ | **エンジン内部の単一 `internal` オブジェクト + snapshot 再計算関数**に集約 |
+| 状態遷移 (イベント → 次状態) | 純関数 `reducePlayback(internal, event)` (`playbackReducer.ts`)。Web Audio 非依存でユニットテスト可能 |
+| 公開状態 | 不変 snapshot (`snapshotOfPlayback(internal)` の射影)。getter live view は採用しない |
+| 副作用リソースと命令 | class (`WebAudioEngine`)。すべてのイベントを `#dispatch` に集約し、snapshot が変化したときだけ listener へ通知 |
+| 生成の接点 | ファクトリー `createAudioEngine(url, options)`。class は実装詳細で、PlayerProvider は `new` を直接呼ばない |
 
-AudioPlayer3 で class が正当だった最大の理由は「再生位置が毎フレーム変わるので React state に入れられない」ことでしたが、これは class 固有の利点ではなく「React の外に状態を置く」ことの利点です。クロージャー + `useSyncExternalStore` で同じ性質を保ちつつ、getter 委譲・ポーリングという弱点 ([状態管理](state-management.md)) を除去します。
+「再生位置が毎フレーム変わるので React state に入れられない」という性質は「React の外に状態を置く」ことで保ち、`useSyncExternalStore` で購読します。getter 委譲・ポーリングという弱点 ([状態管理](state-management.md)) は class 化後も採用しません。
 
 ## 公開 API
 
@@ -84,28 +90,47 @@ export const createAudioEngine = (url: string, options?: { volume?: number }): A
 ## snapshot と通知の実装
 
 ```ts
-export const createAudioEngine = (url: string, options = {}): AudioEngine => {
-  // ---- クロージャー変数 (= 旧 #private fields) ----
-  const listeners = new Set<() => void>();
-  let audio: HTMLAudioElement | null = null;
-  let audioBuffer: AudioBuffer | null = null;   // 非 null = buffer モード
-  let pendingSeekTime: number | null = null;
-  let closed = false;
-  // ... context, nodes, bufferStartOffset など
+// playbackReducer.ts — 純関数の状態コア
+export type InternalPlayback = { mode; state; intendedPlaying; currentTime; duration; volume; pendingSeekTime; error; closed };
+export type PlaybackEvent =
+  | { type: "loaded" } | { type: "playRequested" } | { type: "playStarted" }
+  | { type: "paused" } | { type: "stopped" } | { type: "ended" }
+  | { type: "seeked"; time } | { type: "seekDeferred"; time } | { type: "seekRecovered" }
+  | { type: "tick"; time } | { type: "durationChanged"; duration }
+  | { type: "bufferEntered"; resumeOffset } | { type: "failed"; error }
+  | { type: "volumeChanged"; volume } | { type: "closed" };
+export const reducePlayback = (internal, event) => { ... };      // 純関数
+export const snapshotOfPlayback = (internal) => { ... };          // 射影
 
-  let snapshot: PlaybackSnapshot = INITIAL_SNAPSHOT;
-
-  const emit = (patch: Partial<PlaybackSnapshot>) => {
-    snapshot = { ...snapshot, ...patch };       // 不変オブジェクトを差し替え
-    for (const listener of listeners) listener();
-  };
+// WebAudioEngine.ts — 副作用リソースの器
+export class WebAudioEngine {
+  #internal: InternalPlayback;
+  #snapshot: PlaybackSnapshot;
+  readonly #listeners = new Set<() => void>();
+  readonly #context: AudioContext;      // ノードグラフは readonly field
+  #audio: HTMLAudioElement | null;      // streaming パイプライン
+  #audioBuffer: AudioBuffer | null;     // buffer パイプライン
   // ...
-};
+
+  #dispatch(event: PlaybackEvent): void {
+    const next = reducePlayback(this.#internal, event);
+    if (next === this.#internal) return;
+    this.#internal = next;
+    const nextSnapshot = snapshotOfPlayback(next);
+    if (!playbackSnapshotsEqual(this.#snapshot, nextSnapshot)) {
+      this.#snapshot = nextSnapshot;    // 不変オブジェクトを差し替え
+      for (const listener of [...this.#listeners]) listener();
+    }
+  }
+}
+
+export const createAudioEngine = (url, options = {}): AudioEngine =>
+  new WebAudioEngine(url, options);
 ```
 
 - `subscribe` / `getSnapshot` は `useSyncExternalStore` の契約 (変化がない限り同一参照を返す) を満たします
-- 再生中は 250ms 間隔の内部タイマーで `currentTime` を snapshot に反映します (streaming モードは `timeupdate` イベントでも可だが、buffer モードは `AudioContext.currentTime` からの計算になるためタイマーに統一)
-- 状態遷移 (`loading → playing` など)、`durationchange`、エラー、`bufferReady` への移行は即時 `emit` します
+- 再生中は 250ms 間隔の内部タイマーで `tick` イベントを発行し `currentTime` を snapshot に反映します (streaming モードは `timeupdate` イベントでも可だが、buffer モードは `AudioContext.currentTime` からの計算になるためタイマーに統一)
+- 状態遷移 (`loading → playing` など)、`durationchange`、エラー、`bufferReady` への移行は即時イベントとして `#dispatch` します
 
 ## audio-player からの修正点 (バグ・抜けの解消)
 
