@@ -72,6 +72,11 @@ export type Music = {
   readonly rating: number | null;
   /** Artwork reference into the `pictures` table. */
   readonly pictureId: number | null;
+  /**
+   * Absolute artwork path joined from `pictures.file_path`, or `null`.
+   * Renderer turns this into a `media-file://` URL (PlayerBar, track lists).
+   */
+  readonly picturePath: string | null;
   /** ISO-8601 timestamp the track was first imported. */
   readonly addedAt: string;
   /** ISO-8601 timestamp of the last (re-)import. */

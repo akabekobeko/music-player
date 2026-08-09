@@ -8,12 +8,13 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { toMediaStreamUrl } from "@/libs/mediaUrl";
 import type { PlaybackSnapshot } from "../audio/types";
 import { createAudioEngine } from "../audio/WebAudioEngine";
 import { nextOf, previousOf } from "./derive";
 import { createEngineHost, type EngineHost } from "./engineHost";
-import { toMediaStreamUrl } from "./mediaStreamUrl";
 import { isNaturalEnd } from "./naturalEnd";
+import { setActivePlayer } from "./playerBridge";
 import { type PlayerAction, playerReducer } from "./playerReducer";
 import {
   INITIAL_PLAYER_STATE,
@@ -183,6 +184,10 @@ export const PlayerProvider = ({
 
   const [host] = useState(() => createEngineHost());
   const [commands] = useState(() => createCommands(host, stateRef, dispatch));
+
+  // Publish for React-external listeners (hotkeys, MediaSession handlers).
+  // Idempotent pointer assignment — safe under StrictMode double-render.
+  setActivePlayer({ commands, getSnapshot: host.getSnapshot });
 
   return (
     <PlayerStateContext.Provider value={state}>
