@@ -10,6 +10,8 @@ export default defineConfig({
       // the real module from Node throws ENOENT (missing path.txt). Main-process
       // unit tests never need the real runtime — swap it for a Node-safe stub.
       electron: path.resolve(__dirname, "src/test/electron.mock.ts"),
+      // Mirror the Renderer vite config's alias so its modules resolve here.
+      "@": path.resolve(__dirname, "src/renderer"),
     },
   },
   test: {

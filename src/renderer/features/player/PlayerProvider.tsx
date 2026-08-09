@@ -13,6 +13,11 @@ import type { PlaybackSnapshot } from "../audio/types";
 import { createAudioEngine } from "../audio/WebAudioEngine";
 import { nextOf, previousOf } from "./derive";
 import { createEngineHost, type EngineHost } from "./engineHost";
+import {
+  registerMediaSessionHandlers,
+  syncMediaSessionPlayback,
+  updateMediaSessionMetadata,
+} from "./mediaSession";
 import { isNaturalEnd } from "./naturalEnd";
 import { setActivePlayer } from "./playerBridge";
 import { type PlayerAction, playerReducer } from "./playerReducer";
@@ -83,7 +88,11 @@ const createCommands = (
     });
     let advanced = false;
     engine.subscribe(() => {
-      if (advanced || !isNaturalEnd(engine.getSnapshot())) {
+      const snapshot = engine.getSnapshot();
+      // OS media controls follow every snapshot change without passing
+      // through React rendering (docs/specs/v1.0/features/player-ui.md).
+      syncMediaSessionPlayback(snapshot);
+      if (advanced || !isNaturalEnd(snapshot)) {
         return;
       }
 
@@ -102,6 +111,8 @@ const createCommands = (
       }
     });
     host.set(engine); // Closes the previous engine.
+    updateMediaSessionMetadata(music);
+    syncMediaSessionPlayback(engine.getSnapshot());
     void engine.play(); // Failures surface via snapshot.error; no auto-skip.
   };
 
@@ -188,6 +199,9 @@ export const PlayerProvider = ({
   // Publish for React-external listeners (hotkeys, MediaSession handlers).
   // Idempotent pointer assignment — safe under StrictMode double-render.
   setActivePlayer({ commands, getSnapshot: host.getSnapshot });
+  // One-shot (internally guarded); handlers reach the commands through the
+  // bridge above, so they never go stale.
+  registerMediaSessionHandlers();
 
   return (
     <PlayerStateContext.Provider value={state}>
