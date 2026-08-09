@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { cn } from "@/libs/utils";
+import { AlbumFilterPanel } from "@/pages/albums/components/AlbumFilterPanel/AlbumFilterPanel";
 import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";
 
 /** Primary navigation entries (`docs/specs/v1.0/renderer/routing-layout.md`). */
@@ -41,10 +42,11 @@ export const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      {/* Route-specific secondary area (Album filters and Playlist list
-          arrive with their views in Phase 5 / 6). */}
+      {/* Route-specific secondary area (Playlist list arrives with its view
+          in Phase 6). */}
       <div className="flex-1 overflow-hidden border-t">
         {pathname.startsWith("/artists") && <ArtistListPanel />}
+        {pathname.startsWith("/albums") && <AlbumFilterPanel />}
       </div>
       <nav className="flex flex-col gap-1 border-t p-2">
         <button
