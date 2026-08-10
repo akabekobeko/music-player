@@ -10,6 +10,7 @@ import { onGetSettings } from "./onGetSettings";
 import { onGetStats } from "./onGetStats";
 import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
+import { onMenuSetState } from "./onMenuSetState";
 import { onOpenImportTargets } from "./onOpenImportTargets";
 import {
   onPlaylistCreate,
@@ -64,6 +65,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.PlaylistUpdate, onPlaylistUpdate);
   ipcMain.handle(IpcKeys.PlaylistRemove, onPlaylistRemove);
   ipcMain.handle(IpcKeys.PlaylistGetMusics, onPlaylistGetMusics);
+  ipcMain.on(IpcKeys.MenuSetState, onMenuSetState);
 };
 
 /**
@@ -98,5 +100,6 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.PlaylistUpdate);
   ipcMain.removeHandler(IpcKeys.PlaylistRemove);
   ipcMain.removeHandler(IpcKeys.PlaylistGetMusics);
+  ipcMain.removeAllListeners(IpcKeys.MenuSetState);
   isInitialized = false;
 };

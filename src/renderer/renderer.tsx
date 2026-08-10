@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router";
 import App from "./App";
 import "./App.css";
+import { aboutStore } from "./features/about/aboutStore";
 import { importStore } from "./features/import/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
 import { libraryStore } from "./features/library/queryStore";
@@ -78,6 +79,22 @@ const bootstrap = async (): Promise<void> => {
   });
   window.mp.menu.onAction(({ action }) => {
     menuActionBus.publish(action);
+  });
+  // Route native menu actions to their targets (app-lifetime, like the
+  // subscription above). Navigation uses the hash directly — the router is
+  // a HashRouter and this runs outside the React tree.
+  menuActionBus.subscribe((action) => {
+    switch (action) {
+      case "import":
+        void importStore.openFromDialog();
+        break;
+      case "openSettings":
+        window.location.hash = "#/settings";
+        break;
+      case "showAbout":
+        aboutStore.open();
+        break;
+    }
   });
 
   const root = document.getElementById("root");
