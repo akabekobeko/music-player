@@ -1,4 +1,5 @@
 import { MoreHorizontal } from "lucide-react";
+import { isValidElement, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,21 +9,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/** One plain entry of a {@link RowMenu}. */
+export type RowMenuItem = {
+  readonly label: string;
+  readonly onSelect?: () => void;
+  readonly disabled?: boolean;
+  readonly destructive?: boolean;
+  readonly separatorBefore?: boolean;
+};
+
 /**
  * The [⋯] dropdown shared by list headers, album sections, and track rows
- * (Artist / Album views). Promoted out of the Artist page when the Album
- * view became its second consumer.
+ * (Artist / Album / Playlist views). Promoted out of the Artist page when
+ * the Album view became its second consumer.
+ *
+ * Entries are plain items or ready-made menu elements — the latter lets
+ * views splice in composite pieces like the "Add to playlist ▸" submenu.
  */
 export const RowMenu = ({
   items,
 }: {
-  readonly items: ReadonlyArray<{
-    readonly label: string;
-    readonly onSelect?: () => void;
-    readonly disabled?: boolean;
-    readonly destructive?: boolean;
-    readonly separatorBefore?: boolean;
-  }>;
+  readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
 }) => (
   <DropdownMenu>
     <DropdownMenuTrigger
@@ -31,18 +38,23 @@ export const RowMenu = ({
       <MoreHorizontal />
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      {items.map((item) => (
-        <div key={item.label}>
-          {item.separatorBefore === true && <DropdownMenuSeparator />}
-          <DropdownMenuItem
-            disabled={item.disabled}
-            variant={item.destructive === true ? "destructive" : "default"}
-            onClick={item.onSelect}
-          >
-            {item.label}
-          </DropdownMenuItem>
-        </div>
-      ))}
+      {items.map((item, index) =>
+        isValidElement(item) ? (
+          // biome-ignore lint/suspicious/noArrayIndexKey: menu entries are a short static list; elements carry no natural key.
+          <div key={index}>{item}</div>
+        ) : (
+          <div key={item.label}>
+            {item.separatorBefore === true && <DropdownMenuSeparator />}
+            <DropdownMenuItem
+              disabled={item.disabled}
+              variant={item.destructive === true ? "destructive" : "default"}
+              onClick={item.onSelect}
+            >
+              {item.label}
+            </DropdownMenuItem>
+          </div>
+        ),
+      )}
     </DropdownMenuContent>
   </DropdownMenu>
 );

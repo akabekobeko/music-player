@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { Disc3, Play, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { useRef, useState } from "react";
 import { useParams } from "react-router";
+import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,15 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
   const albumMusicsOf = (group: AlbumGroup): Music[] =>
     group.discs.flatMap((disc) => [...disc.musics]);
 
+  /**
+   * Tracks a row's "Add to playlist" targets: the whole multi-selection (in
+   * play order) when the row is part of it, otherwise the row alone.
+   */
+  const playlistTargetsOf = (music: Music): Music[] =>
+    selection.selectedIds.has(music.id) && selection.selectedIds.size > 1
+      ? playOrder.filter((entry) => selection.selectedIds.has(entry.id))
+      : [music];
+
   const removeFromLibrary = (music: Music): void => {
     void window.mp.library.removeMusics({ musicIds: [music.id] });
     // The broadcast mp:library:changed invalidates the query store, which
@@ -173,8 +183,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
             items={[
               { label: t("player.play"), onSelect: playAll },
               { label: t("player.shuffle"), onSelect: playShuffled },
-              // Wired to the playlist picker in Phase 6.
-              { label: t("menu.addToPlaylist"), disabled: true },
+              <AddToPlaylistSubmenu key="playlist" musics={playOrder} />,
             ]}
           />
         </span>
@@ -256,7 +265,10 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                           onSelect: () =>
                             commands.appendToQueue(albumMusicsOf(row.group)),
                         },
-                        { label: t("menu.addToPlaylist"), disabled: true },
+                        <AddToPlaylistSubmenu
+                          key="playlist"
+                          musics={albumMusicsOf(row.group)}
+                        />,
                       ]}
                     />
                   </div>
@@ -300,7 +312,10 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                             label: t("menu.addToQueue"),
                             onSelect: () => commands.appendToQueue([row.music]),
                           },
-                          { label: t("menu.addToPlaylist"), disabled: true },
+                          <AddToPlaylistSubmenu
+                            key="playlist"
+                            musics={playlistTargetsOf(row.music)}
+                          />,
                           {
                             label: t("menu.removeFromLibrary"),
                             onSelect: () => removeFromLibrary(row.music),

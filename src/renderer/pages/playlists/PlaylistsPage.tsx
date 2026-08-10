@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { ListMusic, Play, Shuffle as ShuffleIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useParams } from "react-router";
+import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import {
   MUSIC_ROW_HEIGHT,
   MusicRow,
@@ -265,6 +266,10 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
                           label: t("menu.addToQueue"),
                           onSelect: () => commands.appendToQueue([music]),
                         },
+                        <AddToPlaylistSubmenu
+                          key="playlist"
+                          musics={[music]}
+                        />,
                         ...(ref.kind === "static"
                           ? [
                               {
