@@ -21,6 +21,7 @@ export const IpcKeys = {
   GetAlbums: "mp:library:getAlbums",
   GetMusicsByAlbum: "mp:library:getMusicsByAlbum",
   GetFilterOptions: "mp:library:getFilterOptions",
+  GetStats: "mp:library:getStats",
   PlaylistList: "mp:playlist:list",
   PlaylistCreate: "mp:playlist:create",
   PlaylistUpdate: "mp:playlist:update",

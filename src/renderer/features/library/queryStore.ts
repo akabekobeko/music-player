@@ -174,6 +174,10 @@ const fetchLibraryQuery: QueryFetcher = (key) => {
     return window.mp.library.getFilterOptions();
   }
 
+  if (key === "stats") {
+    return window.mp.library.getStats();
+  }
+
   const byArtistPrefix = "musicsByArtist:";
   if (key.startsWith(byArtistPrefix)) {
     return window.mp.library.getMusicsByArtist({
@@ -242,6 +246,7 @@ export const serializeAlbumFilter = (filter: AlbumFilter): string => {
 export const queryKeys = {
   artists: "artists" as QueryKey,
   filterOptions: "filterOptions" as QueryKey,
+  stats: "stats" as QueryKey,
   musicsByArtist: (artist: string): QueryKey => `musicsByArtist:${artist}`,
   albums: (filter: AlbumFilter): QueryKey =>
     `albums:${serializeAlbumFilter(filter)}`,
