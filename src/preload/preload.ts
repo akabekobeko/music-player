@@ -60,6 +60,7 @@ const buildBridge = (): MpBridge => ({
     getMusicsByAlbum: (request) =>
       ipcRenderer.invoke(IpcKeys.GetMusicsByAlbum, request),
     getFilterOptions: () => ipcRenderer.invoke(IpcKeys.GetFilterOptions),
+    getStats: () => ipcRenderer.invoke(IpcKeys.GetStats),
     onImportProgress: (listener) =>
       subscribe<ImportProgressPayload>(IpcKeys.ImportProgress, listener),
     onChanged: (listener) =>

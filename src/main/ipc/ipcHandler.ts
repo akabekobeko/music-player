@@ -7,6 +7,7 @@ import { onGetFilterOptions } from "./onGetFilterOptions";
 import { onGetMusicsByAlbum } from "./onGetMusicsByAlbum";
 import { onGetMusicsByArtist } from "./onGetMusicsByArtist";
 import { onGetSettings } from "./onGetSettings";
+import { onGetStats } from "./onGetStats";
 import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
 import { onOpenImportTargets } from "./onOpenImportTargets";
@@ -56,6 +57,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetMusicsByArtist, onGetMusicsByArtist);
   ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
   ipcMain.handle(IpcKeys.GetFilterOptions, onGetFilterOptions);
+  ipcMain.handle(IpcKeys.GetStats, onGetStats);
   ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
   ipcMain.handle(IpcKeys.PlaylistList, onPlaylistList);
   ipcMain.handle(IpcKeys.PlaylistCreate, onPlaylistCreate);
@@ -89,6 +91,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetMusicsByArtist);
   ipcMain.removeHandler(IpcKeys.GetAlbums);
   ipcMain.removeHandler(IpcKeys.GetFilterOptions);
+  ipcMain.removeHandler(IpcKeys.GetStats);
   ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);
   ipcMain.removeHandler(IpcKeys.PlaylistList);
   ipcMain.removeHandler(IpcKeys.PlaylistCreate);

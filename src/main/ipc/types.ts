@@ -144,6 +144,15 @@ export type FilterOptions = {
   readonly yearRange: { readonly min: number; readonly max: number } | null;
 };
 
+/** Library-wide counters shown by the settings page's library section. */
+export type LibraryStats = {
+  readonly musicCount: number;
+  readonly artistCount: number;
+  /** Number of album identity groups (album_artist ⊕ album). */
+  readonly albumCount: number;
+  readonly totalDurationMs: number;
+};
+
 /** Final report of one `mp:library:import` run. */
 export type ImportSummary = {
   /** Number of newly inserted tracks. */
@@ -501,6 +510,7 @@ export type MpBridge = {
       request: GetMusicsByAlbumRequest,
     ) => Promise<IpcResult<readonly Music[]>>;
     readonly getFilterOptions: () => Promise<IpcResult<FilterOptions>>;
+    readonly getStats: () => Promise<IpcResult<LibraryStats>>;
     /** Subscribe to import progress pushes. */
     readonly onImportProgress: (
       listener: (payload: ImportProgressPayload) => void,
