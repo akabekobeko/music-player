@@ -6,8 +6,8 @@ import type { Music } from "../ipc/types";
  * artwork path joined from `pictures` (`Music.picturePath`).
  */
 
-/** Raw row shape shared by the track SELECTs below. */
-type MusicRow = {
+/** Raw row shape shared by the track SELECTs (exported for playlist queries). */
+export type MusicRow = {
   id: number;
   filePath: string;
   audioFormat: string;
@@ -29,7 +29,7 @@ type MusicRow = {
   updatedAt: string;
 };
 
-const MUSIC_COLUMNS = `
+export const MUSIC_COLUMNS = `
   m.id           AS id,
   m.file_path    AS filePath,
   m.audio_format AS audioFormat,

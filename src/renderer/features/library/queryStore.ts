@@ -195,6 +195,19 @@ const fetchLibraryQuery: QueryFetcher = (key) => {
     });
   }
 
+  if (key === "playlists") {
+    return window.mp.playlist.list();
+  }
+
+  const byPlaylistPrefix = "musicsByPlaylist:";
+  if (key.startsWith(byPlaylistPrefix)) {
+    const id = key.slice(byPlaylistPrefix.length);
+    return window.mp.playlist.getMusics({
+      playlistId: Number(id.slice(1)),
+      kind: id.startsWith("s") ? "smart" : "static",
+    });
+  }
+
   return Promise.resolve({
     ok: false,
     error: { name: "Error", message: `Unknown query key: ${key}` },
@@ -233,6 +246,10 @@ export const queryKeys = {
   albums: (filter: AlbumFilter): QueryKey =>
     `albums:${serializeAlbumFilter(filter)}`,
   musicsByAlbum: (albumKey: string): QueryKey => `musicsByAlbum:${albumKey}`,
+  playlists: "playlists" as QueryKey,
+  /** @param routeId - `p<id>` (static) / `s<id>` (smart), the route id form. */
+  musicsByPlaylist: (routeId: string): QueryKey =>
+    `musicsByPlaylist:${routeId}`,
 };
 
 /** The app-wide library query store. */
