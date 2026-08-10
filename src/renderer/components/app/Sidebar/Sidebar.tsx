@@ -5,6 +5,7 @@ import { importStore } from "@/features/import/importStore";
 import { cn } from "@/libs/utils";
 import { AlbumFilterPanel } from "@/pages/albums/components/AlbumFilterPanel/AlbumFilterPanel";
 import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";
+import { PlaylistListPanel } from "@/pages/playlists/components/PlaylistListPanel/PlaylistListPanel";
 
 /** Primary navigation entries (`docs/specs/v1.0/renderer/routing-layout.md`). */
 const NAV_ITEMS = [
@@ -42,11 +43,11 @@ export const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      {/* Route-specific secondary area (Playlist list arrives with its view
-          in Phase 6). */}
+      {/* Route-specific secondary area. */}
       <div className="flex-1 overflow-hidden border-t">
         {pathname.startsWith("/artists") && <ArtistListPanel />}
         {pathname.startsWith("/albums") && <AlbumFilterPanel />}
+        {pathname.startsWith("/playlists") && <PlaylistListPanel />}
       </div>
       <nav className="flex flex-col gap-1 border-t p-2">
         <button

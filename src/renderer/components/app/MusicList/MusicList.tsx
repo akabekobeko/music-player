@@ -20,6 +20,8 @@ export const MUSIC_ROW_HEIGHT = 36;
  */
 export const MusicRow = ({
   music,
+  ordinal,
+  columns,
   playing = null,
   selected = false,
   onClick,
@@ -27,6 +29,17 @@ export const MusicRow = ({
   menu,
 }: {
   readonly music: Music;
+  /**
+   * Number shown in the leading cell instead of the track number (the
+   * Playlist view shows the 1-based position — position is the entry's
+   * identity there, not the track).
+   */
+  readonly ordinal?: number;
+  /**
+   * Extra middle columns between the title and the duration (e.g. the
+   * Playlist view's artist / album). The slot keeps the row layout-agnostic.
+   */
+  readonly columns?: ReactNode;
   /** Non-null when this is the current track ("playing" / "paused"). */
   readonly playing?: "playing" | "paused" | null;
   readonly selected?: boolean;
@@ -54,7 +67,11 @@ export const MusicRow = ({
       ) : (
         <>
           <span className={cn(onPlay !== undefined && "group-hover:hidden")}>
-            {music.track > 0 ? music.track : "-"}
+            {ordinal !== undefined
+              ? ordinal
+              : music.track > 0
+                ? music.track
+                : "-"}
           </span>
           {onPlay !== undefined && (
             <button
@@ -80,6 +97,7 @@ export const MusicRow = ({
     >
       {music.title}
     </button>
+    {columns}
     <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
       {formatTime(music.durationMs / 1000)}
     </span>

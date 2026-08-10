@@ -10,6 +10,13 @@ import { onGetSettings } from "./onGetSettings";
 import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
 import { onOpenImportTargets } from "./onOpenImportTargets";
+import {
+  onPlaylistCreate,
+  onPlaylistGetMusics,
+  onPlaylistList,
+  onPlaylistRemove,
+  onPlaylistUpdate,
+} from "./onPlaylist";
 import { onRemoveMusics } from "./onRemoveMusics";
 import { onSetSettings } from "./onSetSettings";
 
@@ -50,6 +57,11 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
   ipcMain.handle(IpcKeys.GetFilterOptions, onGetFilterOptions);
   ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
+  ipcMain.handle(IpcKeys.PlaylistList, onPlaylistList);
+  ipcMain.handle(IpcKeys.PlaylistCreate, onPlaylistCreate);
+  ipcMain.handle(IpcKeys.PlaylistUpdate, onPlaylistUpdate);
+  ipcMain.handle(IpcKeys.PlaylistRemove, onPlaylistRemove);
+  ipcMain.handle(IpcKeys.PlaylistGetMusics, onPlaylistGetMusics);
 };
 
 /**
@@ -78,5 +90,10 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetAlbums);
   ipcMain.removeHandler(IpcKeys.GetFilterOptions);
   ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);
+  ipcMain.removeHandler(IpcKeys.PlaylistList);
+  ipcMain.removeHandler(IpcKeys.PlaylistCreate);
+  ipcMain.removeHandler(IpcKeys.PlaylistUpdate);
+  ipcMain.removeHandler(IpcKeys.PlaylistRemove);
+  ipcMain.removeHandler(IpcKeys.PlaylistGetMusics);
   isInitialized = false;
 };
