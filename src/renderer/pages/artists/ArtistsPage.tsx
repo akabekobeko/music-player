@@ -1,23 +1,11 @@
 import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import {
-  Disc3,
-  MoreHorizontal,
-  Play,
-  Shuffle as ShuffleIcon,
-  UserRound,
-} from "lucide-react";
+import { Disc3, Play, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { useRef, useState } from "react";
 import { useParams } from "react-router";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
+import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useT } from "@/features/i18n/useT";
 import {
   type AlbumGroup,
@@ -63,41 +51,6 @@ export const ArtistsPage = () => {
     </div>
   );
 };
-
-/** The [⋯] dropdown shared by the header, albums, and track rows. */
-const RowMenu = ({
-  items,
-}: {
-  readonly items: ReadonlyArray<{
-    readonly label: string;
-    readonly onSelect?: () => void;
-    readonly disabled?: boolean;
-    readonly destructive?: boolean;
-    readonly separatorBefore?: boolean;
-  }>;
-}) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger
-      render={<Button variant="ghost" size="icon-sm" aria-label="Menu" />}
-    >
-      <MoreHorizontal />
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      {items.map((item) => (
-        <div key={item.label}>
-          {item.separatorBefore === true && <DropdownMenuSeparator />}
-          <DropdownMenuItem
-            disabled={item.disabled}
-            variant={item.destructive === true ? "destructive" : "default"}
-            onClick={item.onSelect}
-          >
-            {item.label}
-          </DropdownMenuItem>
-        </div>
-      ))}
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
 
 /** Selected-artist content; remounted per artist via the `key` above. */
 const ArtistContent = ({ artistName }: { readonly artistName: string }) => {

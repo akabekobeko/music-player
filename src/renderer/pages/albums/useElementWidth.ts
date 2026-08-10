@@ -9,7 +9,8 @@ import { type RefObject, useState, useSyncExternalStore } from "react";
  * directly. The binding pair is created once per component so the store is
  * not re-subscribed every render.
  *
- * @param ref - Ref of the observed element (the grid's scroll container).
+ * @param ref - Ref of the observed element (the grid's content container —
+ *   not the padded scroll container, whose `clientWidth` includes padding).
  * @returns The element's `clientWidth`, or `0` before the first measurement.
  */
 export const useElementWidth = (ref: RefObject<HTMLElement | null>): number => {
