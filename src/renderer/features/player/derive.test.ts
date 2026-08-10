@@ -16,14 +16,21 @@ it("returns null before the head and after the tail", () => {
   expect(nextOf(queue, music(3))).toBeNull();
 });
 
-it("returns null when the current track is not in the queue", () => {
+it("resolves a replaced queue: no previous, next is the new head", () => {
+  // Queue replacement policy: the playing track is outside the new queue.
   expect(previousOf(queue, music(99))).toBeNull();
-  expect(nextOf(queue, music(99))).toBeNull();
+  expect(nextOf(queue, music(99))?.id).toBe(1);
 });
 
-it("returns null without a current track or with an empty queue", () => {
+it("offers the queue head as next before anything has played", () => {
   expect(previousOf(queue, null)).toBeNull();
+  expect(nextOf(queue, null)?.id).toBe(1);
+});
+
+it("returns null with an empty queue", () => {
+  expect(previousOf([], music(1))).toBeNull();
   expect(nextOf([], music(1))).toBeNull();
+  expect(nextOf([], null)).toBeNull();
 });
 
 it("matches by id, not by object identity", () => {
