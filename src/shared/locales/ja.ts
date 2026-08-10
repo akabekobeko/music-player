@@ -70,6 +70,9 @@ export const ja: Dictionary = {
   "playlist.deleteMessage":
     "「{name}」を削除しますか？この操作は取り消せません。",
   "playlist.smartBadge": "Smart",
+  "playlist.addedToast": "「{name}」に {count} 曲を追加しました。",
+  "playlist.nameDialogTitle": "新規プレイリスト",
+  "playlist.create": "作成",
   "menu.rename": "名前を変更",
   "menu.removeFromPlaylist": "プレイリストから削除",
   "common.cancel": "キャンセル",

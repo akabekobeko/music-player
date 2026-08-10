@@ -1,7 +1,9 @@
 import { Outlet } from "react-router";
+import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
 import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
 import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
 import { Sidebar } from "@/components/app/Sidebar/Sidebar";
+import { Toaster } from "@/components/app/Toaster/Toaster";
 
 /**
  * Application frame (`docs/specs/v1.0/renderer/routing-layout.md`): a plain
@@ -17,5 +19,7 @@ export const AppLayout = () => (
       <Outlet />
     </main>
     <ImportConfirmDialog />
+    <NewPlaylistDialog />
+    <Toaster />
   </div>
 );

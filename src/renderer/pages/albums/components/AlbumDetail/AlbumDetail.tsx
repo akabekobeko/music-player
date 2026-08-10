@@ -1,5 +1,6 @@
 import type { AlbumSummary, Music } from "@mp/ipc";
 import { Play } from "lucide-react";
+import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
@@ -85,8 +86,7 @@ export const AlbumDetail = ({ album }: { readonly album: AlbumSummary }) => {
               onSelect: () => commands.appendToQueue([...musics]),
               disabled: musics.length === 0,
             },
-            // Wired to the playlist picker in Phase 6.
-            { label: t("menu.addToPlaylist"), disabled: true },
+            <AddToPlaylistSubmenu key="playlist" musics={musics} />,
           ]}
         />
       </header>
@@ -127,7 +127,7 @@ export const AlbumDetail = ({ album }: { readonly album: AlbumSummary }) => {
                         label: t("menu.addToQueue"),
                         onSelect: () => commands.appendToQueue([music]),
                       },
-                      { label: t("menu.addToPlaylist"), disabled: true },
+                      <AddToPlaylistSubmenu key="playlist" musics={[music]} />,
                       {
                         label: t("menu.removeFromLibrary"),
                         onSelect: () => removeFromLibrary(music),
