@@ -1,6 +1,12 @@
 import type { FilterOptions } from "@mp/ipc";
 import { FilterX } from "lucide-react";
 import { type ReactNode, useSyncExternalStore } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -14,8 +20,10 @@ import { decadeOptions } from "./decadeOptions";
  * Album filter panel in the Sidebar's secondary area
  * (`docs/specs/v1.0/features/album-view.md`): text search, genre and decade
  * checkboxes (choices from `mp:library:getFilterOptions`), and Clear filters.
- * Controls only dispatch to the shared filter store — the albums page reads
- * the applied filter from the same store for its query key.
+ * The genre / decade sections are accordion items (both open by default,
+ * open state is view-local). Controls only dispatch to the shared filter
+ * store — the albums page reads the applied filter from the same store for
+ * its query key.
  */
 export const AlbumFilterPanel = () => {
   const t = useT();
@@ -56,48 +64,50 @@ export const AlbumFilterPanel = () => {
           {t("library.loadFailed", { message: optionsState.error.message })}
         </p>
       )}
-      {genres.length > 0 && (
-        <FilterSection label={t("album.filter.genre")}>
-          {genres.map((genre) => (
+      <Accordion defaultValue={["genre", "decade"]}>
+        {genres.length > 0 && (
+          <FilterSection value="genre" label={t("album.filter.genre")}>
+            {genres.map((genre) => (
+              <FilterCheckbox
+                key={genre.name}
+                label={genre.name}
+                count={genre.count}
+                checked={selectedGenres.includes(genre.name)}
+                onToggle={() => {
+                  albumFilterStore.dispatch({
+                    type: "genreToggled",
+                    genre: genre.name,
+                  });
+                }}
+              />
+            ))}
+          </FilterSection>
+        )}
+        {options !== null && (
+          <FilterSection value="decade" label={t("album.filter.decade")}>
+            {decadeOptions(options.yearRange).map((decade) => (
+              <FilterCheckbox
+                key={decade}
+                label={`${decade}s`}
+                checked={decades.includes(decade)}
+                onToggle={() => {
+                  albumFilterStore.dispatch({ type: "decadeToggled", decade });
+                }}
+              />
+            ))}
             <FilterCheckbox
-              key={genre.name}
-              label={genre.name}
-              count={genre.count}
-              checked={selectedGenres.includes(genre.name)}
+              label={t("album.filter.unknownYear")}
+              checked={decades.includes(null)}
               onToggle={() => {
                 albumFilterStore.dispatch({
-                  type: "genreToggled",
-                  genre: genre.name,
+                  type: "decadeToggled",
+                  decade: null,
                 });
               }}
             />
-          ))}
-        </FilterSection>
-      )}
-      {options !== null && (
-        <FilterSection label={t("album.filter.decade")}>
-          {decadeOptions(options.yearRange).map((decade) => (
-            <FilterCheckbox
-              key={decade}
-              label={`${decade}s`}
-              checked={decades.includes(decade)}
-              onToggle={() => {
-                albumFilterStore.dispatch({ type: "decadeToggled", decade });
-              }}
-            />
-          ))}
-          <FilterCheckbox
-            label={t("album.filter.unknownYear")}
-            checked={decades.includes(null)}
-            onToggle={() => {
-              albumFilterStore.dispatch({
-                type: "decadeToggled",
-                decade: null,
-              });
-            }}
-          />
-        </FilterSection>
-      )}
+          </FilterSection>
+        )}
+      </Accordion>
       <Button
         variant="outline"
         size="sm"
@@ -111,20 +121,25 @@ export const AlbumFilterPanel = () => {
   );
 };
 
-/** Heading + checkbox list of one filter kind. */
+/** Collapsible heading + checkbox list of one filter kind. */
 const FilterSection = ({
+  value,
   label,
   children,
 }: {
+  /** Accordion item value (identifies the section's open state). */
+  readonly value: string;
   readonly label: string;
   readonly children: ReactNode;
 }) => (
-  <section className="shrink-0">
-    <h3 className="px-1 pb-1 font-medium text-muted-foreground text-xs">
+  <AccordionItem value={value}>
+    <AccordionTrigger className="px-1 py-2 text-muted-foreground text-xs hover:no-underline">
       {label}
-    </h3>
-    <div className="flex flex-col gap-0.5">{children}</div>
-  </section>
+    </AccordionTrigger>
+    <AccordionContent className="flex flex-col gap-0.5 pb-2">
+      {children}
+    </AccordionContent>
+  </AccordionItem>
 );
 
 /** One checkbox row; the whole row is the click target. */
