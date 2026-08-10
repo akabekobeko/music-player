@@ -1,8 +1,9 @@
 {
   "name": "music-player",
+  "productName": "MusicPlayer",
   "author": "akabeko",
   "version": "1.0.0",
-  "description": "",
+  "description": "A music player for local audio libraries",
   "private": true,
   "type": "module",
   "main": "dist/main/main.js",
