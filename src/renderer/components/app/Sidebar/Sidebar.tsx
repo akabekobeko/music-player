@@ -1,5 +1,11 @@
 import { Disc3, FolderInput, ListMusic, Settings, Users } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { cn } from "@/libs/utils";
@@ -23,26 +29,41 @@ const linkClassName = ({ isActive }: { isActive: boolean }): string =>
       : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
   );
 
+/** Classes for the horizontal mode-switch tabs (styled after audio-player). */
+const tabClassName = ({ isActive }: { isActive: boolean }): string =>
+  cn(
+    "flex items-center justify-center rounded-md py-1.5 transition-colors",
+    isActive
+      ? "bg-background text-foreground shadow-sm"
+      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground",
+  );
+
 /**
- * Left sidebar: top navigation + a route-specific secondary area.
- *
- * The secondary area replaces audio-player's tab approach — its content is
- * decided by the active route and is filled in by the view issues
- * (artist list in Phase 4, album filters in Phase 5, playlists in Phase 6).
+ * Left sidebar: horizontal mode-switch tabs on top (audio-player style) + a
+ * route-specific secondary area whose content is decided by the active route
+ * (artist list, album filters, playlists).
  */
 export const Sidebar = () => {
   const t = useT();
   const { pathname } = useLocation();
   return (
     <aside className="flex flex-col overflow-hidden border-r bg-sidebar">
-      <nav className="flex flex-col gap-1 p-2">
-        {NAV_ITEMS.map(({ to, label, Icon }) => (
-          <NavLink key={to} to={to} className={linkClassName}>
-            <Icon aria-hidden className="size-4" />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
+      <TooltipProvider>
+        <nav className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1 m-2">
+          {NAV_ITEMS.map(({ to, label, Icon }) => (
+            <Tooltip key={to}>
+              <TooltipTrigger
+                render={
+                  <NavLink to={to} aria-label={label} className={tabClassName}>
+                    <Icon aria-hidden className="size-4" />
+                  </NavLink>
+                }
+              />
+              <TooltipContent side="bottom">{label}</TooltipContent>
+            </Tooltip>
+          ))}
+        </nav>
+      </TooltipProvider>
       {/* Route-specific secondary area. */}
       <div className="flex-1 overflow-hidden border-t">
         {pathname.startsWith("/artists") && <ArtistListPanel />}
