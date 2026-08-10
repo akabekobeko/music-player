@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import { AboutDialog } from "@/components/app/AboutDialog/AboutDialog";
 import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
 import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
 import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
@@ -20,6 +21,7 @@ export const AppLayout = () => (
     </main>
     <ImportConfirmDialog />
     <NewPlaylistDialog />
+    <AboutDialog />
     <Toaster />
   </div>
 );

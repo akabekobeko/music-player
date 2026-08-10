@@ -1,19 +1,22 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, dialog, nativeTheme } from "electron";
+import { app, BrowserWindow, dialog, nativeTheme, screen } from "electron";
 import { resolveLocale } from "../shared/locales/resolveLocale";
 import { closeDatabase, openDatabase } from "./db/connection";
 import { buildStartupErrorContent } from "./db/startupError";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
 import { applyTitleBarOverlayTheme } from "./ipc/onSetSettings";
+import { installApplicationMenu } from "./menu/applicationMenu";
 // Importing also registers the privileged schemes (must run before `ready`).
 import { registerProtocolHandlers } from "./protocol/registerProtocol";
 import {
   flushSettings,
   getSettings,
   initializeSettings,
+  updateSettings,
 } from "./settings/settingsManager";
 import { buildWindowChrome } from "./windowOptions";
+import { resolveWindowBounds } from "./windowState";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,10 +41,26 @@ function shouldUseDarkTheme(): boolean {
   );
 }
 
+/**
+ * Persist the window's current geometry into the settings
+ * (`docs/specs/v1.0/architecture/process-model.md`). Normal bounds are used
+ * so un-maximizing later restores the pre-maximize rect; disk writes are
+ * debounced by the settings manager.
+ */
+function saveWindowState(window: BrowserWindow): void {
+  const bounds = window.getNormalBounds();
+  updateSettings({
+    window: { ...bounds, maximized: window.isMaximized() },
+  });
+}
+
 function createWindow(): void {
+  const saved = getSettings().window;
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    ...resolveWindowBounds(
+      saved,
+      screen.getAllDisplays().map((display) => display.workArea),
+    ),
     ...buildWindowChrome(process.platform, shouldUseDarkTheme()),
     webPreferences: {
       preload: path.join(__dirname, "../preload/preload.cjs"),
@@ -50,6 +69,16 @@ function createWindow(): void {
       sandbox: true,
     },
   });
+  if (saved.maximized) {
+    mainWindow.maximize();
+  }
+
+  for (const event of ["resized", "moved", "maximize", "unmaximize"] as const) {
+    // biome-ignore lint/suspicious/noExplicitAny: the union of these event names does not narrow through `on` overloads; each one is a valid BrowserWindow event.
+    mainWindow.on(event as any, () => {
+      saveWindowState(mainWindow);
+    });
+  }
 
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
@@ -77,6 +106,7 @@ app.whenReady().then(() => {
   initializeSettings(path.join(app.getPath("userData"), "settings.json"));
   registerProtocolHandlers();
   initializeIpcEvents();
+  installApplicationMenu();
   createWindow();
 
   // Keep the WCO control colors in sync when the OS switches between light

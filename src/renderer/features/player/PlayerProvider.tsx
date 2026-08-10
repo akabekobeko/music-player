@@ -205,7 +205,20 @@ export const PlayerProvider = ({
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  const [host] = useState(() => createEngineHost());
+  const [host] = useState(() => {
+    const created = createEngineHost();
+    // Keep the native menu's playback state in sync (mp:menu:setState).
+    // Deduplicated here because snapshots also tick on currentTime updates.
+    let lastIsPlaying = false;
+    created.subscribe(() => {
+      const isPlaying = created.getSnapshot().state === "playing";
+      if (isPlaying !== lastIsPlaying) {
+        lastIsPlaying = isPlaying;
+        window.mp.menu.setState({ isPlaying });
+      }
+    });
+    return created;
+  });
   const [commands] = useState(() => createCommands(host, stateRef, dispatch));
 
   // Publish for React-external listeners (hotkeys, MediaSession handlers).

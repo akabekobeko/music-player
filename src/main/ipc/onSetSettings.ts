@@ -1,4 +1,5 @@
 import { BrowserWindow, nativeTheme } from "electron";
+import { installApplicationMenu } from "../menu/applicationMenu";
 import { getSettings, updateSettings } from "../settings/settingsManager";
 import { buildTitleBarOverlay } from "../windowOptions";
 import type { AppSettings, IpcResult, SetSettingsRequest } from "./types";
@@ -59,10 +60,16 @@ export const onSetSettings = async (
   request: SetSettingsRequest,
 ): Promise<IpcResult<AppSettings>> => {
   try {
-    const before = getSettings().theme;
+    const before = getSettings();
     const merged = updateSettings(request?.patch ?? {});
-    if (merged.theme !== before) {
+    if (merged.theme !== before.theme) {
       applyTitleBarOverlayTheme(isDarkTheme(merged.theme));
+    }
+
+    // The native menu renders its labels in the app locale — rebuild it
+    // when the language preference changes.
+    if (merged.locale !== before.locale) {
+      installApplicationMenu();
     }
 
     return { ok: true, value: merged };
