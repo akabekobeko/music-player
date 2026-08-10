@@ -98,6 +98,9 @@ export const SmartRulesDialog = ({
           </span>
           <Select
             value={draft.match}
+            // items maps value → label so SelectValue shows the display
+            // name in the trigger instead of the raw value.
+            items={{ all: t("smart.matchAll"), any: t("smart.matchAny") }}
             onValueChange={(match) =>
               setDraft({ ...draft, match: match as RulesDraft["match"] })
             }
@@ -150,6 +153,9 @@ export const SmartRulesDialog = ({
           </span>
           <Select
             value={draft.sort}
+            items={Object.fromEntries(
+              SORT_CHOICES.map((choice) => [choice, t(`smart.sort.${choice}`)]),
+            )}
             onValueChange={(sort) =>
               setDraft({ ...draft, sort: sort as RulesDraft["sort"] })
             }
@@ -168,6 +174,7 @@ export const SmartRulesDialog = ({
           {draft.sort !== "none" && draft.sort !== "random" && (
             <Select
               value={draft.order}
+              items={{ asc: t("smart.orderAsc"), desc: t("smart.orderDesc") }}
               onValueChange={(order) =>
                 setDraft({ ...draft, order: order as RulesDraft["order"] })
               }
@@ -238,6 +245,9 @@ const ConditionRow = ({
     <div className="flex items-center gap-2">
       <Select
         value={condition.field}
+        items={Object.fromEntries(
+          CONDITION_FIELDS.map((field) => [field, t(`smart.field.${field}`)]),
+        )}
         onValueChange={(field) =>
           onChange(defaultCondition(field as ConditionField))
         }
@@ -255,6 +265,12 @@ const ConditionRow = ({
       </Select>
       <Select
         value={condition.operator}
+        items={Object.fromEntries(
+          operatorsFor(condition.field).map((operator) => [
+            operator,
+            t(`smart.op.${operator}`),
+          ]),
+        )}
         onValueChange={(operator) =>
           onChange({ ...condition, operator } as SmartCondition)
         }
