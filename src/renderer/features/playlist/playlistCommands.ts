@@ -1,4 +1,9 @@
-import type { Music, Playlist, PlaylistUpdateRequest } from "@mp/ipc";
+import type {
+  Music,
+  Playlist,
+  PlaylistUpdateRequest,
+  SmartPlaylistRules,
+} from "@mp/ipc";
 import { libraryStore, queryKeys } from "../library/queryStore";
 import { type PlaylistRef, playlistRouteId } from "./routeId";
 
@@ -46,6 +51,36 @@ export const createStaticPlaylist = async (
     return result.value;
   } catch (reason) {
     console.error("Failed to create playlist", messageOf(reason));
+    return null;
+  }
+};
+
+/**
+ * Create a smart playlist from the rules editor.
+ *
+ * @param name - Display name.
+ * @param rules - Rule document from the editor.
+ * @returns The created playlist, or `null` on failure (already logged).
+ */
+export const createSmartPlaylist = async (
+  name: string,
+  rules: SmartPlaylistRules,
+): Promise<Playlist | null> => {
+  try {
+    const result = await window.mp.playlist.create({
+      kind: "smart",
+      name,
+      rules,
+    });
+    if (!result.ok) {
+      console.error("Failed to create smart playlist", result.error);
+      return null;
+    }
+
+    invalidate();
+    return result.value;
+  } catch (reason) {
+    console.error("Failed to create smart playlist", messageOf(reason));
     return null;
   }
 };

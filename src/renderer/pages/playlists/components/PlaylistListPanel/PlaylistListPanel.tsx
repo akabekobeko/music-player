@@ -17,12 +17,14 @@ import { useT } from "@/features/i18n/useT";
 import { queryKeys } from "@/features/library/queryStore";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {
+  createSmartPlaylist,
   createStaticPlaylist,
   removePlaylist,
   updatePlaylist,
 } from "@/features/playlist/playlistCommands";
 import { playlistRouteId } from "@/features/playlist/routeId";
 import { cn } from "@/libs/utils";
+import { SmartRulesDialog } from "../SmartRulesDialog/SmartRulesDialog";
 
 /**
  * Playlist list in the Sidebar's secondary area
@@ -41,6 +43,8 @@ export const PlaylistListPanel = () => {
   const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
   /** Playlist pending delete confirmation, or `null`. */
   const [deleting, setDeleting] = useState<Playlist | null>(null);
+  /** Whether the smart-playlist creation dialog is open. */
+  const [creatingSmart, setCreatingSmart] = useState(false);
 
   const playlists =
     playlistsState.status === "success" ? playlistsState.value : [];
@@ -80,7 +84,7 @@ export const PlaylistListPanel = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="p-2">
+      <div className="flex flex-col gap-1 p-2">
         <Button
           variant="outline"
           size="sm"
@@ -88,6 +92,14 @@ export const PlaylistListPanel = () => {
           onClick={() => void create()}
         >
           <Plus /> {t("playlist.new")}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => setCreatingSmart(true)}
+        >
+          <Sparkles /> {t("playlist.newSmart")}
         </Button>
       </div>
       {playlistsState.status === "error" && (
@@ -175,6 +187,26 @@ export const PlaylistListPanel = () => {
           );
         })}
       </div>
+
+      {creatingSmart && (
+        <SmartRulesDialog
+          title={t("playlist.newSmart")}
+          initialName={t("playlist.defaultName")}
+          onClose={() => setCreatingSmart(false)}
+          onSubmit={(rules, name) => {
+            setCreatingSmart(false);
+            void (async () => {
+              const created = await createSmartPlaylist(
+                name !== "" ? name : t("playlist.defaultName"),
+                rules,
+              );
+              if (created !== null) {
+                navigate(`/playlists/${playlistRouteId(created)}`);
+              }
+            })();
+          }}
+        />
+      )}
 
       <Dialog
         open={deleting !== null}
