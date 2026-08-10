@@ -194,16 +194,19 @@ it("drops tracks from playlists when the music leaves the library", () => {
   ).toEqual([ids[1]]);
 });
 
-it("resolves smart playlists to an empty list until evaluation lands", () => {
-  seedMusics(2);
+it("evaluates a smart playlist's rules on getMusics", () => {
+  seedMusics(2); // genre "" — no Rock matches.
+  upsertMusic(db, { ...row("/m/rock.mp3", "R"), genre: "Rock" }, NOW);
   const smart = createPlaylist(
     db,
     { kind: "smart", name: "S", rules: RULES },
     NOW,
   );
   expect(
-    getPlaylistMusics(db, { playlistId: smart.id, kind: "smart" }),
-  ).toEqual([]);
+    getPlaylistMusics(db, { playlistId: smart.id, kind: "smart" }).map(
+      (music) => music.filePath,
+    ),
+  ).toEqual(["/m/rock.mp3"]);
 });
 
 it("throws for unknown playlist ids", () => {

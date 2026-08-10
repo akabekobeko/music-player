@@ -9,16 +9,14 @@ import type {
   SmartPlaylistRules,
 } from "../ipc/types";
 import { MUSIC_COLUMNS, type MusicRow } from "../library/musicQueries";
+import { evaluateSmartPlaylist } from "./smartQuery";
 
 /**
  * Playlist queries for the `mp:playlist:*` channels
  * (`docs/specs/v1.0/features/playlist.md`). Static playlists live in
  * `playlists` / `playlist_musics` (position = identity, duplicates allowed);
- * smart playlists store only their rule JSON in `smart_playlists`.
- *
- * Smart-playlist rule evaluation is implemented with the smart playlist
- * issue — until then `getPlaylistMusics` resolves smart playlists to an
- * empty list.
+ * smart playlists store only their rule JSON in `smart_playlists` and are
+ * evaluated per request (`smartQuery.ts`).
  */
 
 /** Row shape shared by the two playlist tables' SELECTs. */
@@ -221,8 +219,9 @@ export const removePlaylist = (
  * Resolve a playlist's tracks (`mp:playlist:getMusics`).
  *
  * Static playlists join `playlist_musics` in position order (duplicated
- * tracks appear once per position). Smart playlists evaluate to an empty
- * list until rule evaluation lands with the smart playlist issue.
+ * tracks appear once per position). Smart playlists evaluate their rules
+ * against the library on every call — the caller pins a play's result into
+ * the queue, so playback never drifts mid-listen.
  *
  * @param db - The open library connection.
  * @param request - Target id and kind.
@@ -232,9 +231,13 @@ export const getPlaylistMusics = (
   db: DatabaseSync,
   request: PlaylistGetMusicsRequest,
 ): Music[] => {
-  readPlaylist(db, request.kind, request.playlistId); // Existence check.
+  const playlist = readPlaylist(db, request.kind, request.playlistId);
   if (request.kind === "smart") {
-    return [];
+    if (playlist.rules == null) {
+      throw new Error(`Smart playlist #${request.playlistId} has no rules`);
+    }
+
+    return evaluateSmartPlaylist(db, playlist.rules);
   }
 
   const rows = db

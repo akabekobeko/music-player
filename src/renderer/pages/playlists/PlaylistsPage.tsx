@@ -1,6 +1,6 @@
 import type { Music, Playlist } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ListMusic, Play, Shuffle as ShuffleIcon } from "lucide-react";
+import { ListMusic, Pencil, Play, Shuffle as ShuffleIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useParams } from "react-router";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
@@ -20,10 +20,14 @@ import {
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { shuffle } from "@/features/player/shuffle";
-import { replacePlaylistMusics } from "@/features/playlist/playlistCommands";
+import {
+  replacePlaylistMusics,
+  updatePlaylist,
+} from "@/features/playlist/playlistCommands";
 import { parsePlaylistRouteId } from "@/features/playlist/routeId";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
+import { SmartRulesDialog } from "./components/SmartRulesDialog/SmartRulesDialog";
 import { moveItem, removeAt } from "./reorder";
 
 /**
@@ -89,6 +93,8 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
   const [pending, setPending] = useState<PendingOrder | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  /** Whether the smart-rules editor is open (smart playlists only). */
+  const [editingRules, setEditingRules] = useState(false);
 
   const playlist =
     playlistsState.status === "success"
@@ -185,9 +191,30 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
             >
               <ShuffleIcon /> {t("player.shuffle")}
             </Button>
+            {ref.kind === "smart" && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditingRules(true)}
+              >
+                <Pencil /> {t("smart.editRules")}
+              </Button>
+            )}
           </div>
         </div>
       </header>
+
+      {editingRules && playlist !== null && (
+        <SmartRulesDialog
+          title={t("smart.editRules")}
+          initialRules={playlist.rules}
+          onClose={() => setEditingRules(false)}
+          onSubmit={(rules) => {
+            setEditingRules(false);
+            void updatePlaylist({ id: ref.id, kind: "smart", rules });
+          }}
+        />
+      )}
 
       {musicsState.status === "error" && (
         <p className="break-all px-6 py-3 text-destructive text-sm">
