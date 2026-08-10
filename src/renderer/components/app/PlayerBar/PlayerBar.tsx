@@ -25,6 +25,7 @@ import {
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { QueuePopover } from "./QueuePopover";
 import { SeekBar } from "./SeekBar";
 import { VolumeControl } from "./VolumeControl";
 
@@ -153,7 +154,8 @@ export const PlayerBar = () => {
           </div>
         </div>
 
-        <div className="app-region-no-drag flex items-end pr-2 pb-1.5">
+        <div className="app-region-no-drag flex items-end gap-0.5 pr-2 pb-1.5">
+          <QueuePopover />
           <VolumeControl
             volume={snapshot.volume}
             onChange={commands.setVolume}
