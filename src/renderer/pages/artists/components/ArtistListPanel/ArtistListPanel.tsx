@@ -2,6 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { UserRound } from "lucide-react";
 import { useRef, useState } from "react";
 import { useMatch, useNavigate } from "react-router";
+import { Stack } from "@/components/app/stacks";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle";
@@ -47,7 +48,7 @@ export const ArtistListPanel = () => {
   });
 
   return (
-    <div className="flex h-full flex-col">
+    <Stack className="h-full gap-0">
       <div className="p-2">
         <Input
           type="search"
@@ -123,6 +124,6 @@ export const ArtistListPanel = () => {
           })}
         </div>
       </div>
-    </div>
+    </Stack>
   );
 };

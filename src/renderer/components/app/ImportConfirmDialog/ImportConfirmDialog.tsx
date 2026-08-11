@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,40 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useT } from "@/features/i18n/useT";
-import {
-  type ImportEntryState,
-  importStore,
-} from "@/features/import/importStore";
-
-/** Body copy for each store state (details rendered separately). */
-const description = (
-  state: ImportEntryState,
-  t: ReturnType<typeof useT>,
-): string => {
-  switch (state.status) {
-    case "expanding":
-      return t("import.dialog.expanding");
-    case "confirming":
-      return state.files.length === 0
-        ? t("import.dialog.empty")
-        : t("import.dialog.count", { count: state.files.length });
-    case "importing":
-      return state.progress === null || state.progress.phase === "enumerating"
-        ? t("import.dialog.expanding")
-        : t("import.progress.importing", {
-            current: state.progress.current,
-            total: state.progress.total,
-          });
-    case "done":
-      return state.cancelled
-        ? t("import.summary.cancelled")
-        : t("import.summary.done");
-    case "error":
-      return t("import.dialog.failed", { message: state.error.message });
-    default:
-      return "";
-  }
-};
+import type { ImportEntryState } from "@/features/import/importStore";
+import { useImportConfirmDialog } from "./useImportConfirmDialog";
 
 /** Progress body while an import runs: bar, current file, error count. */
 const ImportProgress = ({
@@ -57,7 +25,7 @@ const ImportProgress = ({
       ? progress.current / progress.total
       : 0;
   return (
-    <div className="flex flex-col gap-2">
+    <Stack>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-primary transition-[width]"
@@ -80,7 +48,7 @@ const ImportProgress = ({
           {t("import.progress.cancelling")}
         </p>
       )}
-    </div>
+    </Stack>
   );
 };
 
@@ -93,7 +61,7 @@ const ImportSummaryView = ({
   const t = useT();
   const { summary } = state;
   return (
-    <div className="flex flex-col gap-2 text-sm">
+    <Stack className="text-sm">
       <p>{t("import.summary.imported", { count: summary.imported })}</p>
       <p>{t("import.summary.updated", { count: summary.updated })}</p>
       {summary.failed.length > 0 && (
@@ -113,7 +81,7 @@ const ImportSummaryView = ({
           </ul>
         </details>
       )}
-    </div>
+    </Stack>
   );
 };
 
@@ -124,20 +92,22 @@ const ImportSummaryView = ({
  * #34). Mounted once in AppLayout; visibility follows the import store.
  */
 export const ImportConfirmDialog = () => {
-  const state = useSyncExternalStore(
-    importStore.subscribe,
-    importStore.getSnapshot,
-  );
   const t = useT();
-
-  const confirmingFiles = state.status === "confirming" ? state.files : [];
+  const {
+    state,
+    confirmingFiles,
+    descriptionText,
+    cancel,
+    startImport,
+    cancelImport,
+  } = useImportConfirmDialog();
 
   return (
     <Dialog
       open={state.status !== "idle"}
       onOpenChange={(open) => {
         if (!open) {
-          importStore.cancel();
+          cancel();
         }
       }}
     >
@@ -145,7 +115,7 @@ export const ImportConfirmDialog = () => {
         <DialogHeader>
           <DialogTitle>{t("import.dialog.title")}</DialogTitle>
           <DialogDescription className="break-all">
-            {description(state, t)}
+            {descriptionText}
           </DialogDescription>
         </DialogHeader>
         {confirmingFiles.length > 0 && (
@@ -162,13 +132,10 @@ export const ImportConfirmDialog = () => {
         <DialogFooter>
           {state.status === "confirming" && (
             <>
-              <Button variant="outline" onClick={() => importStore.cancel()}>
+              <Button variant="outline" onClick={cancel}>
                 {t("import.dialog.cancel")}
               </Button>
-              <Button
-                disabled={state.files.length === 0}
-                onClick={() => void importStore.startImport()}
-              >
+              <Button disabled={state.files.length === 0} onClick={startImport}>
                 {t("import.dialog.run")}
               </Button>
             </>
@@ -177,18 +144,18 @@ export const ImportConfirmDialog = () => {
             <Button
               variant="outline"
               disabled={state.cancelRequested}
-              onClick={() => void importStore.cancelImport()}
+              onClick={cancelImport}
             >
               {t("import.dialog.cancel")}
             </Button>
           )}
           {(state.status === "done" || state.status === "error") && (
-            <Button variant="outline" onClick={() => importStore.cancel()}>
+            <Button variant="outline" onClick={cancel}>
               {t("import.dialog.close")}
             </Button>
           )}
           {state.status === "expanding" && (
-            <Button variant="outline" onClick={() => importStore.cancel()}>
+            <Button variant="outline" onClick={cancel}>
               {t("import.dialog.cancel")}
             </Button>
           )}

@@ -1,6 +1,6 @@
-import type { LibraryStats, ThemePreference } from "@mp/ipc";
 import { FolderInput } from "lucide-react";
 import type { ReactNode } from "react";
+import { HStack, Spacer, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,27 +11,17 @@ import {
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  useSettings,
-  useSettingsCommands,
-} from "@/features/settings/SettingsProvider";
 import { formatTime } from "@/libs/formatTime";
-import type { LocalePreference } from "../../../shared/locales/types";
+import { useSettingsPage } from "./useSettingsPage";
 
 /**
  * Settings route (`/settings`)
  * (`docs/specs/v1.0/architecture/process-model.md`): theme, language, and
- * the library section (stats + import entrance). Every change goes through
- * `mp:settings:set`; the merged response is the single source of truth
- * (SettingsProvider), so the page holds no local settings state.
+ * the library section (stats + import entrance).
  */
 export const SettingsPage = () => {
   const t = useT();
-  const settings = useSettings();
-  const commands = useSettingsCommands();
-  const statsState = useLibraryQuery<LibraryStats>(queryKeys.stats);
+  const { settings, statsState, setTheme, setLocale } = useSettingsPage();
 
   return (
     <section className="max-w-2xl p-6">
@@ -46,9 +36,7 @@ export const SettingsPage = () => {
               light: t("settings.theme.light"),
               dark: t("settings.theme.dark"),
             }}
-            onValueChange={(theme) =>
-              void commands.update({ theme: theme as ThemePreference })
-            }
+            onValueChange={setTheme}
           >
             <SelectTrigger className="w-48">
               <SelectValue />
@@ -72,9 +60,7 @@ export const SettingsPage = () => {
               en: "English",
               ja: "日本語",
             }}
-            onValueChange={(locale) =>
-              void commands.update({ locale: locale as LocalePreference })
-            }
+            onValueChange={setLocale}
           >
             <SelectTrigger className="w-48">
               <SelectValue />
@@ -145,7 +131,7 @@ const SettingsSection = ({
     <h2 className="border-b pb-1 font-medium text-muted-foreground text-sm">
       {label}
     </h2>
-    <div className="flex flex-col gap-3 pt-3">{children}</div>
+    <Stack className="gap-4 pt-3">{children}</Stack>
   </div>
 );
 
@@ -157,10 +143,11 @@ const SettingsRow = ({
   readonly label: string;
   readonly children: ReactNode;
 }) => (
-  <div className="flex items-center justify-between gap-4">
+  <HStack>
     <span className="text-sm">{label}</span>
+    <Spacer />
     {children}
-  </div>
+  </HStack>
 );
 
 /** One statistics line of the library section. */

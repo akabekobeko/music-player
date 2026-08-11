@@ -1,21 +1,15 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { Disc3, FilterX, FolderInput, Play } from "lucide-react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import { usePlayerCommands } from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
 import { cn } from "@/libs/utils";
 import { albumFilterStore, hasActiveFilter } from "./albumFilterStore";
-import { computeAlbumGridLayout, GRID_GAP } from "./albumGridLayout";
+import { GRID_GAP } from "./albumGridLayout";
 import { AlbumDetail } from "./components/AlbumDetail/AlbumDetail";
-import { buildAlbumGridRows, estimateDetailHeight } from "./gridRows";
-import { sortAlbums } from "./sortAlbums";
-import { useElementWidth } from "./useElementWidth";
+import { useAlbumsPage } from "./useAlbumsPage";
 
 /**
  * Album view route (`/albums`)
@@ -28,80 +22,22 @@ import { useElementWidth } from "./useElementWidth";
  */
 export const AlbumsPage = () => {
   const t = useT();
-  const { applied } = useSyncExternalStore(
-    albumFilterStore.subscribe,
-    albumFilterStore.getSnapshot,
-  );
-  const albumsState = useLibraryQuery<readonly AlbumSummary[]>(
-    queryKeys.albums(applied),
-  );
-  const commands = usePlayerCommands();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  // Width comes from the inner content element, not the scroll container:
-  // clientWidth of the container includes its padding, and columns computed
-  // against that overflow the content box (horizontal scrollbar).
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const width = useElementWidth(contentRef);
-  /** `albumKey` of the inline-expanded album; card click toggles it. */
-  const [expandedKey, setExpandedKey] = useState<string | null>(null);
-
-  const albums =
-    albumsState.status === "success" ? sortAlbums(albumsState.value) : [];
-  const layout = computeAlbumGridLayout(width);
-  const rows = buildAlbumGridRows(albums, layout.columns, expandedKey);
-
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => scrollRef.current,
-    // Row-identity keys: expansion inserts a row and shifts every index
-    // after it — identity keys keep the measured heights attached to their
-    // rows instead of their positions.
-    getItemKey: (index) => {
-      const row = rows[index];
-      return row === undefined
-        ? index
-        : row.type === "cards"
-          ? `cards:${row.albums[0]?.albumKey ?? index}`
-          : `detail:${row.album.albumKey}`;
-    },
-    estimateSize: (index) => {
-      const row = rows[index];
-      return row === undefined || row.type === "cards"
-        ? layout.rowHeight
-        : estimateDetailHeight(row.album);
-    },
-    overscan: 6,
-  });
-  // The virtualizer's measurement cache does not watch estimateSize — when a
-  // resize changes the card geometry the rows must be re-measured wholesale.
-  // (The detail row's own height changes are covered by measureElement.)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: layout.rowHeight is the trigger — the new value reaches the virtualizer through estimateSize, not through the effect body.
-  useEffect(() => {
-    virtualizer.measure();
-  }, [virtualizer, layout.rowHeight]);
-
-  const toggleExpanded = (album: AlbumSummary): void => {
-    setExpandedKey((key) => (key === album.albumKey ? null : album.albumKey));
-  };
-
-  /** Queue exactly this album and play it from the top (hover ▶). */
-  const playAlbum = async (album: AlbumSummary): Promise<void> => {
-    const result = await window.mp.library.getMusicsByAlbum({
-      albumKey: album.albumKey,
-    });
-    if (!result.ok) {
-      console.error("Failed to load album tracks", result.error);
-      return;
-    }
-
-    const first = result.value[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, [...result.value], "album");
-    }
-  };
+  const {
+    applied,
+    albumsState,
+    albums,
+    layout,
+    rows,
+    scrollRef,
+    contentRef,
+    virtualizer,
+    expandedKey,
+    toggleExpanded,
+    playAlbum,
+  } = useAlbumsPage();
 
   return (
-    <div className="flex h-full flex-col">
+    <Stack className="h-full gap-0">
       {albumsState.status === "error" && (
         <p className="break-all px-6 py-3 text-destructive text-sm">
           {t("library.loadFailed", { message: albumsState.error.message })}
@@ -137,7 +73,10 @@ export const AlbumsPage = () => {
                 style={{ transform: `translateY(${item.start}px)` }}
               >
                 {row.type === "cards" ? (
-                  <div className="flex pb-4" style={{ gap: GRID_GAP }}>
+                  <HStack
+                    className="items-stretch pb-4"
+                    style={{ gap: GRID_GAP }}
+                  >
                     {row.albums.map((album) => (
                       <AlbumCard
                         key={album.albumKey}
@@ -148,7 +87,7 @@ export const AlbumsPage = () => {
                         onPlay={() => void playAlbum(album)}
                       />
                     ))}
-                  </div>
+                  </HStack>
                 ) : (
                   <div className="pb-4">
                     <AlbumDetail album={row.album} />
@@ -159,7 +98,7 @@ export const AlbumsPage = () => {
           })}
         </div>
       </div>
-    </div>
+    </Stack>
   );
 };
 
@@ -167,7 +106,7 @@ export const AlbumsPage = () => {
 const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
   const t = useT();
   return (
-    <div className="flex flex-col items-center gap-3 px-6 py-16">
+    <VStack className="gap-4 px-6 py-16">
       <p className="text-muted-foreground text-sm">
         {filtered ? t("album.noMatch") : t("album.empty")}
       </p>
@@ -188,7 +127,7 @@ const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
           <FolderInput /> {t("sidebar.import")}
         </Button>
       )}
-    </div>
+    </VStack>
   );
 };
 

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { Stack } from "@/components/app/stacks";
 import { toastStore } from "@/features/toast/toastStore";
 
 /**
@@ -11,7 +12,7 @@ export const Toaster = () => {
     toastStore.getSnapshot,
   );
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col items-end gap-2">
+    <Stack className="pointer-events-none fixed right-4 bottom-4 z-50 items-end">
       {toasts.map((toast) => (
         <button
           key={toast.id}
@@ -22,6 +23,6 @@ export const Toaster = () => {
           {toast.message}
         </button>
       ))}
-    </div>
+    </Stack>
   );
 };

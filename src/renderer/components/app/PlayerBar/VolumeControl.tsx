@@ -1,5 +1,6 @@
 import { Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
+import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -53,7 +54,7 @@ export const VolumeControl = ({
         {muted ? <VolumeX /> : <Volume2 />}
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
-        <div className="flex items-center gap-2">
+        <HStack>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -75,7 +76,7 @@ export const VolumeControl = ({
           <span className="w-8 text-right font-mono text-[11px] text-muted-foreground tabular-nums">
             {Math.round(volume * 100)}
           </span>
-        </div>
+        </HStack>
       </PopoverContent>
     </Popover>
   );

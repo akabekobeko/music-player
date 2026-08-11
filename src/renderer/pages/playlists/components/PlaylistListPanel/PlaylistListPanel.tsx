@@ -1,8 +1,6 @@
-import type { Playlist } from "@mp/ipc";
 import { ListMusic, Plus, Sparkles } from "lucide-react";
-import { useState } from "react";
-import { useMatch, useNavigate } from "react-router";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { HStack, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,17 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  createSmartPlaylist,
-  createStaticPlaylist,
-  removePlaylist,
-  updatePlaylist,
-} from "@/features/playlist/playlistCommands";
 import { playlistRouteId } from "@/features/playlist/routeId";
 import { cn } from "@/libs/utils";
 import { SmartRulesDialog } from "../SmartRulesDialog/SmartRulesDialog";
+import { usePlaylistListPanel } from "./usePlaylistListPanel";
 
 /**
  * Playlist list in the Sidebar's secondary area
@@ -34,57 +25,26 @@ import { SmartRulesDialog } from "../SmartRulesDialog/SmartRulesDialog";
  */
 export const PlaylistListPanel = () => {
   const t = useT();
-  const navigate = useNavigate();
-  const selectedRouteId = useMatch("/playlists/:playlistId")?.params.playlistId;
-  const playlistsState = useLibraryQuery<readonly Playlist[]>(
-    queryKeys.playlists,
-  );
-  /** Route id of the playlist being renamed inline, or `null`. */
-  const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
-  /** Playlist pending delete confirmation, or `null`. */
-  const [deleting, setDeleting] = useState<Playlist | null>(null);
-  /** Whether the smart-playlist creation dialog is open. */
-  const [creatingSmart, setCreatingSmart] = useState(false);
-
-  const playlists =
-    playlistsState.status === "success" ? playlistsState.value : [];
-
-  const create = async (): Promise<void> => {
-    const created = await createStaticPlaylist(t("playlist.defaultName"));
-    if (created !== null) {
-      const routeId = playlistRouteId(created);
-      navigate(`/playlists/${routeId}`);
-      setEditingRouteId(routeId); // Name straight away — inline edit.
-    }
-  };
-
-  const rename = async (playlist: Playlist, name: string): Promise<void> => {
-    setEditingRouteId(null);
-    const trimmed = name.trim();
-    if (trimmed !== "" && trimmed !== playlist.name) {
-      await updatePlaylist({
-        id: playlist.id,
-        kind: playlist.kind,
-        name: trimmed,
-      });
-    }
-  };
-
-  const confirmDelete = async (): Promise<void> => {
-    if (deleting === null) {
-      return;
-    }
-
-    const routeId = playlistRouteId(deleting);
-    setDeleting(null);
-    if ((await removePlaylist(deleting)) && routeId === selectedRouteId) {
-      navigate("/playlists");
-    }
-  };
+  const {
+    playlists,
+    playlistsState,
+    selectedRouteId,
+    editingRouteId,
+    setEditingRouteId,
+    deleting,
+    setDeleting,
+    creatingSmart,
+    setCreatingSmart,
+    openPlaylist,
+    create,
+    createSmart,
+    rename,
+    confirmDelete,
+  } = usePlaylistListPanel();
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-col gap-1 p-2">
+    <Stack className="h-full gap-0">
+      <Stack className="p-2">
         <Button
           variant="outline"
           size="sm"
@@ -101,7 +61,7 @@ export const PlaylistListPanel = () => {
         >
           <Sparkles /> {t("playlist.newSmart")}
         </Button>
-      </div>
+      </Stack>
       {playlistsState.status === "error" && (
         <p className="break-all px-3 py-2 text-destructive text-xs">
           {t("library.loadFailed", { message: playlistsState.error.message })}
@@ -117,10 +77,10 @@ export const PlaylistListPanel = () => {
           const routeId = playlistRouteId(playlist);
           const selected = routeId === selectedRouteId;
           return (
-            <div
+            <HStack
               key={routeId}
               className={cn(
-                "group flex w-full items-center gap-2 px-2 py-1",
+                "group w-full px-2 py-1",
                 selected
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50",
@@ -156,7 +116,7 @@ export const PlaylistListPanel = () => {
                 <button
                   type="button"
                   className="min-w-0 flex-1 truncate py-1 text-left text-sm"
-                  onClick={() => navigate(`/playlists/${routeId}`)}
+                  onClick={() => openPlaylist(routeId)}
                   onDoubleClick={() => setEditingRouteId(routeId)}
                 >
                   {playlist.name}
@@ -183,7 +143,7 @@ export const PlaylistListPanel = () => {
                   ]}
                 />
               </span>
-            </div>
+            </HStack>
           );
         })}
       </div>
@@ -193,18 +153,7 @@ export const PlaylistListPanel = () => {
           title={t("playlist.newSmart")}
           initialName={t("playlist.defaultName")}
           onClose={() => setCreatingSmart(false)}
-          onSubmit={(rules, name) => {
-            setCreatingSmart(false);
-            void (async () => {
-              const created = await createSmartPlaylist(
-                name !== "" ? name : t("playlist.defaultName"),
-                rules,
-              );
-              if (created !== null) {
-                navigate(`/playlists/${playlistRouteId(created)}`);
-              }
-            })();
-          }}
+          onSubmit={(rules, name) => void createSmart(rules, name)}
         />
       )}
 
@@ -233,6 +182,6 @@ export const PlaylistListPanel = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Stack>
   );
 };
