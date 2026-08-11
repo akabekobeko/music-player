@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
-import { CONDITION_FIELDS, operatorsFor } from "./rulesForm";
+import { CONDITION_FIELDS } from "./conditionFields";
+import { operatorsFor } from "./operatorsFor";
 import { useConditionRow } from "./useConditionRow";
 
 type Props = {

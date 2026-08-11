@@ -1,5 +1,6 @@
 import type { SmartCondition } from "@mp/ipc";
-import { type ConditionField, defaultCondition } from "./rulesForm";
+import type { ConditionField } from "./conditionFields";
+import { defaultCondition } from "./defaultCondition";
 
 /**
  * Logic of `ConditionRow`: the field-kind derivation and the change

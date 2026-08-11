@@ -1,6 +1,6 @@
 import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
-import type { ImportEntryState } from "@/features/import/importStore";
+import type { ImportEntryState } from "@/features/import/importStore/types";
 
 type Props = {
   readonly state: Extract<ImportEntryState, { status: "done" }>;

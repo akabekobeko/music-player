@@ -1,5 +1,5 @@
 import { getDatabase } from "../db/connection";
-import { runImport } from "../library/importMusics";
+import { runImport } from "../library/runImport";
 import { IpcKeys } from "./ipcKeys";
 import type { ImportMusicsRequest, ImportSummary, IpcResult } from "./types";
 import { broadcast } from "./utils/broadcast";

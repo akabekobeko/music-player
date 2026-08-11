@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
-import { importStore } from "@/features/import/importStore";
+import { importStore } from "@/features/import/importStore/importStore";
 import { formatTime } from "@/libs/formatTime";
 import { SettingsRow } from "./SettingsRow";
 import { SettingsSection } from "./SettingsSection";

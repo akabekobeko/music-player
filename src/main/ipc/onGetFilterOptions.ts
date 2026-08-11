@@ -1,5 +1,5 @@
 import { getDatabase } from "../db/connection";
-import { getFilterOptions } from "../library/albumQueries";
+import { getFilterOptions } from "../library/getFilterOptions";
 import type { FilterOptions, IpcResult } from "./types";
 import { toIpcError } from "./utils/toIpcError";
 

@@ -6,7 +6,7 @@ import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
-import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useArtistContent } from "./useArtistContent";
 
 type Props = {

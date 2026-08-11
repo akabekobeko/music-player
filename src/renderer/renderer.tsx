@@ -5,12 +5,12 @@ import { HashRouter } from "react-router";
 import App from "./App";
 import "./App.css";
 import { aboutStore } from "./features/about/aboutStore";
-import { importStore } from "./features/import/importStore";
+import { importStore } from "./features/import/importStore/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
-import { libraryStore } from "./features/library/queryStore";
+import { libraryStore } from "./features/library/queryStore/libraryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
 import { PlayerProvider } from "./features/player/PlayerProvider";
-import { registerPlayerHotkeys } from "./features/player/registerPlayerHotkeys";
+import { registerPlayerHotkeys } from "./features/player/registerPlayerHotkeys/registerPlayerHotkeys";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
 import {
   applyThemePreference,

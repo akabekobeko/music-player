@@ -1,5 +1,5 @@
 import type { MenuItemConstructorOptions } from "electron";
-import { tFor } from "../../shared/locales/t";
+import { tFor } from "../../shared/locales/t/tFor";
 import type { Locale } from "../../shared/locales/types";
 import type { MenuAction, MenuStateSnapshot } from "../ipc/types";
 

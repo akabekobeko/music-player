@@ -1,9 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { useT } from "@/features/i18n/useT";
-import {
-  type ImportEntryState,
-  importStore,
-} from "@/features/import/importStore";
+import { importStore } from "@/features/import/importStore/importStore";
+import type { ImportEntryState } from "@/features/import/importStore/types";
 
 /** Body copy for each store state (details rendered separately). */
 const description = (

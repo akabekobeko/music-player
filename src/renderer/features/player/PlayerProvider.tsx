@@ -8,19 +8,18 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { toMediaStreamUrl } from "@/libs/mediaUrl";
+import { toMediaStreamUrl } from "@/libs/toMediaStreamUrl";
+import { createAudioEngine } from "../audio/createAudioEngine";
 import type { PlaybackSnapshot } from "../audio/types";
-import { createAudioEngine } from "../audio/WebAudioEngine";
-import { nextOf, previousOf } from "./derive";
 import { createEngineHost, type EngineHost } from "./engineHost";
-import {
-  registerMediaSessionHandlers,
-  syncMediaSessionPlayback,
-  updateMediaSessionMetadata,
-} from "./mediaSession";
+import { registerMediaSessionHandlers } from "./mediaSession/registerMediaSessionHandlers";
+import { syncMediaSessionPlayback } from "./mediaSession/syncMediaSessionPlayback";
+import { updateMediaSessionMetadata } from "./mediaSession/updateMediaSessionMetadata";
 import { isNaturalEnd } from "./naturalEnd";
+import { nextOf } from "./nextOf";
 import { setActivePlayer } from "./playerBridge";
 import { type PlayerAction, playerReducer } from "./playerReducer";
+import { previousOf } from "./previousOf";
 import {
   INITIAL_PLAYER_STATE,
   type PlayerState,

@@ -1,12 +1,13 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import { usePlayerCommands } from "@/features/player/PlayerProvider";
 import { albumFilterStore } from "./albumFilterStore";
-import { computeAlbumGridLayout } from "./albumGridLayout";
-import { buildAlbumGridRows, estimateDetailHeight } from "./gridRows";
+import { buildAlbumGridRows } from "./buildAlbumGridRows";
+import { computeAlbumGridLayout } from "./computeAlbumGridLayout";
+import { estimateDetailHeight } from "./estimateDetailHeight";
 import { sortAlbums } from "./sortAlbums";
 import { useElementWidth } from "./useElementWidth";
 

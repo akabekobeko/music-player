@@ -1,7 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Disc3, Play } from "lucide-react";
 import { useT } from "@/features/i18n/useT";
-import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
 
 type Props = {

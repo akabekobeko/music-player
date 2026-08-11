@@ -12,15 +12,13 @@ import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
 import { onMenuSetState } from "./onMenuSetState";
 import { onOpenImportTargets } from "./onOpenImportTargets";
-import {
-  onPlaylistCreate,
-  onPlaylistGetMusics,
-  onPlaylistList,
-  onPlaylistRemove,
-  onPlaylistUpdate,
-} from "./onPlaylist";
+import { onPlaylistCreate } from "./onPlaylistCreate";
+import { onPlaylistGetMusics } from "./onPlaylistGetMusics";
+import { onPlaylistList } from "./onPlaylistList";
+import { onPlaylistRemove } from "./onPlaylistRemove";
+import { onPlaylistUpdate } from "./onPlaylistUpdate";
 import { onRemoveMusics } from "./onRemoveMusics";
-import { onSetSettings } from "./onSetSettings";
+import { onSetSettings } from "./onSetSettings/onSetSettings";
 
 /**
  * Tracks whether {@link initializeIpcEvents} has already wired the handlers.

@@ -1,8 +1,9 @@
 import type { FilterOptions } from "@mp/ipc";
 import { useSyncExternalStore } from "react";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import { albumFilterStore, hasActiveFilter } from "../albumFilterStore";
+import { albumFilterStore } from "../albumFilterStore";
+import { hasActiveFilter } from "../hasActiveFilter";
 
 /**
  * Logic of `AlbumFilterPanel`: the draft filter, the selectable genre /

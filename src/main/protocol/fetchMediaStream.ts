@@ -6,8 +6,8 @@ import { PROTOCOL_MEDIA_STREAM } from "../../shared/constants";
 import { getDatabase } from "../db/connection";
 import { audioContentType } from "./contentType";
 import { fileStreamToWebStream } from "./fileStreamToWebStream";
+import { isLibraryMusicPath } from "./isLibraryMusicPath";
 import { parseByteRange } from "./parseByteRange";
-import { isLibraryMusicPath } from "./pathValidation";
 import { urlToFilePath } from "./urlToFilePath";
 
 /**

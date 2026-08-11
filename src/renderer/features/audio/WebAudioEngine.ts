@@ -1,13 +1,12 @@
-import {
-  createInitialPlayback,
-  type InternalPlayback,
-  type PlaybackEvent,
-  playbackSnapshotsEqual,
-  reducePlayback,
-  snapshotOfPlayback,
-} from "./playbackReducer";
-import { clampResumeOffset, clampVolume, isTimeBuffered } from "./timeMath";
-import type { AudioEngine, PlaybackSnapshot } from "./types";
+import { clampResumeOffset } from "./clampResumeOffset";
+import { clampVolume } from "./clampVolume";
+import { isTimeBuffered } from "./isTimeBuffered";
+import { createInitialPlayback } from "./playbackReducer/createInitialPlayback";
+import { playbackSnapshotsEqual } from "./playbackReducer/playbackSnapshotsEqual";
+import { reducePlayback } from "./playbackReducer/reducePlayback";
+import { snapshotOfPlayback } from "./playbackReducer/snapshotOfPlayback";
+import type { InternalPlayback, PlaybackEvent } from "./playbackReducer/types";
+import type { PlaybackSnapshot } from "./types";
 
 /** Interval of the position timer (also the `currentTime` throttle). */
 const TICK_INTERVAL_MS = 250;
@@ -514,17 +513,3 @@ export class WebAudioEngine {
     source.disconnect();
   }
 }
-
-/**
- * Factory for the engine — the seam later phases call
- * (`docs/specs/v1.0/renderer/audio-engine.md`). PlayerProvider never uses
- * `new` directly, so the class remains an implementation detail.
- *
- * @param url - `media-stream://` URL of the audio file.
- * @param options.volume - Initial volume (`[0, 1]`).
- * @returns The engine handle.
- */
-export const createAudioEngine = (
-  url: string,
-  options: { readonly volume?: number } = {},
-): AudioEngine => new WebAudioEngine(url, options);

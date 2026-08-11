@@ -1,5 +1,5 @@
 import { getDatabase } from "../db/connection";
-import { getMusicsByArtist } from "../library/musicQueries";
+import { getMusicsByArtist } from "../library/getMusicsByArtist";
 import type { GetMusicsByArtistRequest, IpcResult, Music } from "./types";
 import { toIpcError } from "./utils/toIpcError";
 

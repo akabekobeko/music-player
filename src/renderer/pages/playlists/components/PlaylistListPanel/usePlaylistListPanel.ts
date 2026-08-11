@@ -2,15 +2,13 @@ import type { Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  createSmartPlaylist,
-  createStaticPlaylist,
-  removePlaylist,
-  updatePlaylist,
-} from "@/features/playlist/playlistCommands";
-import { playlistRouteId } from "@/features/playlist/routeId";
+import { createSmartPlaylist } from "@/features/playlist/playlistCommands/createSmartPlaylist";
+import { createStaticPlaylist } from "@/features/playlist/playlistCommands/createStaticPlaylist";
+import { removePlaylist } from "@/features/playlist/playlistCommands/removePlaylist";
+import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
+import { playlistRouteId } from "@/features/playlist/playlistRouteId";
 
 /**
  * Logic of `PlaylistListPanel`: the playlist list, creation (static /

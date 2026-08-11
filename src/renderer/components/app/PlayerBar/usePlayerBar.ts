@@ -1,11 +1,12 @@
 import { useState } from "react";
 import type { PlaybackError } from "@/features/audio/types";
-import { nextOf, previousOf } from "@/features/player/derive";
+import { nextOf } from "@/features/player/nextOf";
 import {
   useAudioPlayer,
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
+import { previousOf } from "@/features/player/previousOf";
 
 /**
  * Logic of `PlayerBar`: the queue-derived transport availability, the

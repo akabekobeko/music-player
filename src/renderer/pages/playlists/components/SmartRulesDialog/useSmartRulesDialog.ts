@@ -1,12 +1,9 @@
 import type { SmartCondition, SmartPlaylistRules } from "@mp/ipc";
 import { useState } from "react";
-import {
-  defaultCondition,
-  EMPTY_DRAFT,
-  fromDraft,
-  type RulesDraft,
-  toDraft,
-} from "./rulesForm";
+import { defaultCondition } from "./defaultCondition";
+import { fromDraft } from "./fromDraft";
+import { EMPTY_DRAFT, type RulesDraft } from "./rulesDraft";
+import { toDraft } from "./toDraft";
 
 /**
  * Logic of `SmartRulesDialog`: the editable rules draft, the optional name

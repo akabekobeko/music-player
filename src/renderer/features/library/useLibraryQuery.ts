@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
-import { type FetchState, libraryStore, type QueryKey } from "./queryStore";
+import { libraryStore } from "./queryStore/libraryStore";
+import type { FetchState, QueryKey } from "./queryStore/types";
 
 /**
  * Per-key stable subscribe / getSnapshot pairs.

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useT } from "@/features/i18n/useT";
-import { parsePlaylistRouteId } from "@/features/playlist/routeId";
+import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
 import { PlaylistContent } from "./PlaylistContent";
 
 /**

@@ -2,9 +2,9 @@ import { HStack, Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { AlbumCard } from "./AlbumCard";
 import { AlbumDetail } from "./AlbumDetail/AlbumDetail";
-import { hasActiveFilter } from "./albumFilterStore";
-import { GRID_GAP } from "./albumGridLayout";
+import { GRID_GAP } from "./computeAlbumGridLayout";
 import { EmptyState } from "./EmptyState";
+import { hasActiveFilter } from "./hasActiveFilter";
 import { usePageContent } from "./usePageContent";
 
 /**
