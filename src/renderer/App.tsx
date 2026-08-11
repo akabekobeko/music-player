@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from "react-router";
 import { AppLayout } from "@/components/app/AppLayout/AppLayout";
-import { AlbumsPage } from "@/pages/albums/AlbumsPage";
-import { ArtistsPage } from "@/pages/artists/ArtistsPage";
-import { PlaylistsPage } from "@/pages/playlists/PlaylistsPage";
-import { SettingsPage } from "@/pages/settings/SettingsPage";
+import { AlbumsPage } from "@/pages/albums/route";
+import { ArtistsPage } from "@/pages/artists/route";
+import { PlaylistsPage } from "@/pages/playlists/route";
+import { SettingsPage } from "@/pages/settings/route";
 
 /**
  * Route table (`docs/specs/v1.0/renderer/routing-layout.md`). Selection

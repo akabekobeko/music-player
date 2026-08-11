@@ -5,15 +5,15 @@ import {
   useSettings,
   useSettingsCommands,
 } from "@/features/settings/SettingsProvider";
-import type { LocalePreference } from "../../../shared/locales/types";
+import type { LocalePreference } from "../../../../shared/locales/types";
 
 /**
- * Logic of `SettingsPage`: the current settings, the library stats, and the
+ * Logic of `PageContent`: the current settings, the library stats, and the
  * update handlers. Every change goes through `mp:settings:set`; the merged
  * response is the single source of truth (SettingsProvider), so the page
  * holds no local settings state.
  */
-export const useSettingsPage = () => {
+export const usePageContent = () => {
   const settings = useSettings();
   const commands = useSettingsCommands();
   const statsState = useLibraryQuery<LibraryStats>(queryKeys.stats);

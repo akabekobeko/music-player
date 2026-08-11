@@ -2,6 +2,27 @@
 
 本リポジトリーのコーディングルール集です。リファクタリングの指針として随時追記します。
 
+## ディレクトリー構成
+
+### ページは route.tsx + components/PageContent.tsx で構成する
+
+- ページのエントリーポイントは `pages/<page>/route.tsx` へ統一する
+  - route.tsx はルート用コンポーネント (例: `AlbumsPage`) を export し、`<PageContent />` を返すだけにする
+- ページの実装は `pages/<page>/components/PageContent.tsx` へ置く
+  - コンポーネント名は `PageContent`、専用 Hooks は `usePageContent` とする
+- PageContent が依存するページ固有のモジュール (Hooks・store・純関数・テスト) も `pages/<page>/components/` 配下へ置く
+
+```
+pages/albums/
+├── route.tsx                  # エントリーポイント (PageContent を返すだけ)
+└── components/
+    ├── PageContent.tsx        # ページの実装
+    ├── usePageContent.ts      # PageContent 専用 Hooks
+    ├── albumFilterStore.ts    # ページ固有のモジュール
+    ├── ...
+    └── AlbumDetail/           # ページ固有の子コンポーネント
+```
+
 ## コンポーネント設計
 
 ### ロジックは Custom Hooks へ分離する

@@ -6,13 +6,13 @@ import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
 import { cn } from "@/libs/utils";
+import { AlbumDetail } from "./AlbumDetail/AlbumDetail";
 import { albumFilterStore, hasActiveFilter } from "./albumFilterStore";
 import { GRID_GAP } from "./albumGridLayout";
-import { AlbumDetail } from "./components/AlbumDetail/AlbumDetail";
-import { useAlbumsPage } from "./useAlbumsPage";
+import { usePageContent } from "./usePageContent";
 
 /**
- * Album view route (`/albums`)
+ * Album view content (`/albums`)
  * (`docs/specs/v1.0/features/album-view.md`): the filtered album summaries
  * as an artwork-first card grid, virtualised by row, with the expanded
  * album's track list spliced in as an inline full-width row — no route
@@ -20,7 +20,7 @@ import { useAlbumsPage } from "./useAlbumsPage";
  * playback. The filter itself lives in the sidebar panel; this page only
  * reads the applied filter's query key.
  */
-export const AlbumsPage = () => {
+export const PageContent = () => {
   const t = useT();
   const {
     applied,
@@ -34,7 +34,7 @@ export const AlbumsPage = () => {
     expandedKey,
     toggleExpanded,
     playAlbum,
-  } = useAlbumsPage();
+  } = usePageContent();
 
   return (
     <Stack className="h-full gap-0">
