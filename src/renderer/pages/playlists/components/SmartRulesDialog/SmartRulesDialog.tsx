@@ -1,6 +1,5 @@
 import type { SmartCondition, SmartPlaylistRules } from "@mp/ipc";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,17 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
-import {
-  CONDITION_FIELDS,
-  type ConditionField,
-  defaultCondition,
-  EMPTY_DRAFT,
-  fromDraft,
-  operatorsFor,
-  type RulesDraft,
-  SORT_CHOICES,
-  toDraft,
-} from "./rulesForm";
+import { CONDITION_FIELDS, operatorsFor, SORT_CHOICES } from "./rulesForm";
+import { useConditionRow } from "./useConditionRow";
+import { useSmartRulesDialog } from "./useSmartRulesDialog";
 
 /**
  * Smart-playlist rules editor
@@ -55,19 +46,19 @@ export const SmartRulesDialog = ({
   readonly onClose: () => void;
 }) => {
   const t = useT();
-  const [draft, setDraft] = useState<RulesDraft>(() =>
-    initialRules !== undefined ? toDraft(initialRules) : EMPTY_DRAFT,
-  );
-  const [name, setName] = useState(initialName ?? "");
-
-  const setCondition = (index: number, condition: SmartCondition): void => {
-    setDraft({
-      ...draft,
-      conditions: draft.conditions.map((entry, entryIndex) =>
-        entryIndex === index ? condition : entry,
-      ),
-    });
-  };
+  const {
+    draft,
+    name,
+    setName,
+    setMatch,
+    setCondition,
+    addCondition,
+    removeCondition,
+    setSort,
+    setOrder,
+    setLimit,
+    submit,
+  } = useSmartRulesDialog({ initialRules, initialName, onSubmit });
 
   return (
     <Dialog
@@ -101,9 +92,7 @@ export const SmartRulesDialog = ({
             // items maps value → label so SelectValue shows the display
             // name in the trigger instead of the raw value.
             items={{ all: t("smart.matchAll"), any: t("smart.matchAny") }}
-            onValueChange={(match) =>
-              setDraft({ ...draft, match: match as RulesDraft["match"] })
-            }
+            onValueChange={setMatch}
           >
             <SelectTrigger size="sm">
               <SelectValue />
@@ -122,26 +111,14 @@ export const SmartRulesDialog = ({
               key={index}
               condition={condition}
               onChange={(next) => setCondition(index, next)}
-              onRemove={() =>
-                setDraft({
-                  ...draft,
-                  conditions: draft.conditions.filter(
-                    (_, entryIndex) => entryIndex !== index,
-                  ),
-                })
-              }
+              onRemove={() => removeCondition(index)}
             />
           ))}
           <Button
             variant="outline"
             size="sm"
             className="self-start"
-            onClick={() =>
-              setDraft({
-                ...draft,
-                conditions: [...draft.conditions, defaultCondition("artist")],
-              })
-            }
+            onClick={addCondition}
           >
             <Plus /> {t("smart.addCondition")}
           </Button>
@@ -156,9 +133,7 @@ export const SmartRulesDialog = ({
             items={Object.fromEntries(
               SORT_CHOICES.map((choice) => [choice, t(`smart.sort.${choice}`)]),
             )}
-            onValueChange={(sort) =>
-              setDraft({ ...draft, sort: sort as RulesDraft["sort"] })
-            }
+            onValueChange={setSort}
           >
             <SelectTrigger size="sm">
               <SelectValue />
@@ -175,9 +150,7 @@ export const SmartRulesDialog = ({
             <Select
               value={draft.order}
               items={{ asc: t("smart.orderAsc"), desc: t("smart.orderDesc") }}
-              onValueChange={(order) =>
-                setDraft({ ...draft, order: order as RulesDraft["order"] })
-              }
+              onValueChange={setOrder}
             >
               <SelectTrigger size="sm">
                 <SelectValue />
@@ -197,9 +170,7 @@ export const SmartRulesDialog = ({
             className="w-24"
             placeholder={t("smart.limitNone")}
             value={draft.limit}
-            onChange={(event) =>
-              setDraft({ ...draft, limit: event.target.value })
-            }
+            onChange={(event) => setLimit(event.target.value)}
           />
         </div>
 
@@ -207,9 +178,7 @@ export const SmartRulesDialog = ({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={() => onSubmit(fromDraft(draft), name.trim())}>
-            {t("smart.save")}
-          </Button>
+          <Button onClick={submit}>{t("smart.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -227,19 +196,10 @@ const ConditionRow = ({
   readonly onRemove: () => void;
 }) => {
   const t = useT();
-  const isText =
-    condition.field === "artist" ||
-    condition.field === "albumArtist" ||
-    condition.field === "album" ||
-    condition.field === "genre" ||
-    condition.field === "title";
-
-  const setNumber = (raw: string, key: "value" | "value2"): void => {
-    const value = Number(raw);
-    if (!Number.isNaN(value)) {
-      onChange({ ...condition, [key]: value } as SmartCondition);
-    }
-  };
+  const { isText, setField, setOperator, setText, setNumber } = useConditionRow(
+    condition,
+    onChange,
+  );
 
   return (
     <div className="flex items-center gap-2">
@@ -248,9 +208,7 @@ const ConditionRow = ({
         items={Object.fromEntries(
           CONDITION_FIELDS.map((field) => [field, t(`smart.field.${field}`)]),
         )}
-        onValueChange={(field) =>
-          onChange(defaultCondition(field as ConditionField))
-        }
+        onValueChange={setField}
       >
         <SelectTrigger size="sm" className="w-32">
           <SelectValue />
@@ -271,9 +229,7 @@ const ConditionRow = ({
             t(`smart.op.${operator}`),
           ]),
         )}
-        onValueChange={(operator) =>
-          onChange({ ...condition, operator } as SmartCondition)
-        }
+        onValueChange={setOperator}
       >
         <SelectTrigger size="sm" className="w-36">
           <SelectValue />
@@ -290,12 +246,7 @@ const ConditionRow = ({
         <Input
           className="flex-1"
           value={condition.value as string}
-          onChange={(event) =>
-            onChange({
-              ...condition,
-              value: event.target.value,
-            } as SmartCondition)
-          }
+          onChange={(event) => setText(event.target.value)}
         />
       ) : (
         <>

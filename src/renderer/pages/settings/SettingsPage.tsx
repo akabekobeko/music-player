@@ -1,4 +1,3 @@
-import type { LibraryStats, ThemePreference } from "@mp/ipc";
 import { FolderInput } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,27 +10,17 @@ import {
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  useSettings,
-  useSettingsCommands,
-} from "@/features/settings/SettingsProvider";
 import { formatTime } from "@/libs/formatTime";
-import type { LocalePreference } from "../../../shared/locales/types";
+import { useSettingsPage } from "./useSettingsPage";
 
 /**
  * Settings route (`/settings`)
  * (`docs/specs/v1.0/architecture/process-model.md`): theme, language, and
- * the library section (stats + import entrance). Every change goes through
- * `mp:settings:set`; the merged response is the single source of truth
- * (SettingsProvider), so the page holds no local settings state.
+ * the library section (stats + import entrance).
  */
 export const SettingsPage = () => {
   const t = useT();
-  const settings = useSettings();
-  const commands = useSettingsCommands();
-  const statsState = useLibraryQuery<LibraryStats>(queryKeys.stats);
+  const { settings, statsState, setTheme, setLocale } = useSettingsPage();
 
   return (
     <section className="max-w-2xl p-6">
@@ -46,9 +35,7 @@ export const SettingsPage = () => {
               light: t("settings.theme.light"),
               dark: t("settings.theme.dark"),
             }}
-            onValueChange={(theme) =>
-              void commands.update({ theme: theme as ThemePreference })
-            }
+            onValueChange={setTheme}
           >
             <SelectTrigger className="w-48">
               <SelectValue />
@@ -72,9 +59,7 @@ export const SettingsPage = () => {
               en: "English",
               ja: "日本語",
             }}
-            onValueChange={(locale) =>
-              void commands.update({ locale: locale as LocalePreference })
-            }
+            onValueChange={setLocale}
           >
             <SelectTrigger className="w-48">
               <SelectValue />

@@ -1,6 +1,5 @@
-import type { FilterOptions } from "@mp/ipc";
 import { FilterX } from "lucide-react";
-import { type ReactNode, useSyncExternalStore } from "react";
+import type { ReactNode } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -11,40 +10,31 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import { albumFilterStore, hasActiveFilter } from "../../albumFilterStore";
 import { decadeOptions } from "./decadeOptions";
+import { useAlbumFilterPanel } from "./useAlbumFilterPanel";
 
 /**
  * Album filter panel in the Sidebar's secondary area
  * (`docs/specs/v1.0/features/album-view.md`): text search, genre and decade
  * checkboxes (choices from `mp:library:getFilterOptions`), and Clear filters.
  * The genre / decade sections are accordion items (both open by default,
- * open state is view-local). Controls only dispatch to the shared filter
- * store — the albums page reads the applied filter from the same store for
- * its query key.
+ * open state is view-local).
  */
 export const AlbumFilterPanel = () => {
   const t = useT();
-  const { draft } = useSyncExternalStore(
-    albumFilterStore.subscribe,
-    albumFilterStore.getSnapshot,
-  );
-  const optionsState = useLibraryQuery<FilterOptions>(queryKeys.filterOptions);
-  const options = optionsState.status === "success" ? optionsState.value : null;
-
-  // Persisted genres that no longer exist in the library (e.g. after a
-  // remove) stay visible as checked zero-count items instead of filtering
-  // invisibly.
-  const selectedGenres = draft.genres ?? [];
-  const genres = [
-    ...(options?.genres ?? []),
-    ...selectedGenres
-      .filter((name) => !options?.genres.some((genre) => genre.name === name))
-      .map((name) => ({ name, count: 0 })),
-  ];
-  const decades = draft.decades ?? [];
+  const {
+    draft,
+    optionsState,
+    options,
+    selectedGenres,
+    genres,
+    decades,
+    canClear,
+    setText,
+    toggleGenre,
+    toggleDecade,
+    clear,
+  } = useAlbumFilterPanel();
 
   return (
     <div className="flex h-full flex-col gap-3 overflow-y-auto p-2">
@@ -52,12 +42,7 @@ export const AlbumFilterPanel = () => {
         type="search"
         placeholder={t("album.filter.search")}
         value={draft.text ?? ""}
-        onChange={(event) => {
-          albumFilterStore.dispatch({
-            type: "textChanged",
-            text: event.target.value,
-          });
-        }}
+        onChange={(event) => setText(event.target.value)}
       />
       {optionsState.status === "error" && (
         <p className="break-all px-1 text-destructive text-xs">
@@ -73,12 +58,7 @@ export const AlbumFilterPanel = () => {
                 label={genre.name}
                 count={genre.count}
                 checked={selectedGenres.includes(genre.name)}
-                onToggle={() => {
-                  albumFilterStore.dispatch({
-                    type: "genreToggled",
-                    genre: genre.name,
-                  });
-                }}
+                onToggle={() => toggleGenre(genre.name)}
               />
             ))}
           </FilterSection>
@@ -90,20 +70,13 @@ export const AlbumFilterPanel = () => {
                 key={decade}
                 label={`${decade}s`}
                 checked={decades.includes(decade)}
-                onToggle={() => {
-                  albumFilterStore.dispatch({ type: "decadeToggled", decade });
-                }}
+                onToggle={() => toggleDecade(decade)}
               />
             ))}
             <FilterCheckbox
               label={t("album.filter.unknownYear")}
               checked={decades.includes(null)}
-              onToggle={() => {
-                albumFilterStore.dispatch({
-                  type: "decadeToggled",
-                  decade: null,
-                });
-              }}
+              onToggle={() => toggleDecade(null)}
             />
           </FilterSection>
         )}
@@ -112,8 +85,8 @@ export const AlbumFilterPanel = () => {
         variant="outline"
         size="sm"
         className="shrink-0"
-        disabled={!hasActiveFilter(draft)}
-        onClick={() => albumFilterStore.dispatch({ type: "cleared" })}
+        disabled={!canClear}
+        onClick={clear}
       >
         <FilterX /> {t("album.filter.clear")}
       </Button>

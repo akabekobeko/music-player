@@ -8,7 +8,6 @@ import {
   Square,
   X,
 } from "lucide-react";
-import { useState } from "react";
 import {
   Alert,
   AlertAction,
@@ -16,17 +15,11 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import type { PlaybackError } from "@/features/audio/types";
 import { useT } from "@/features/i18n/useT";
-import { nextOf, previousOf } from "@/features/player/derive";
-import {
-  useAudioPlayer,
-  usePlayerCommands,
-  usePlayerState,
-} from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
 import { QueuePopover } from "./QueuePopover";
 import { SeekBar } from "./SeekBar";
+import { usePlayerBar } from "./usePlayerBar";
 import { VolumeControl } from "./VolumeControl";
 
 /**
@@ -37,35 +30,23 @@ import { VolumeControl } from "./VolumeControl";
  * opts out with `.app-region-no-drag`. The center block (artwork + track
  * info + seek bar) uses the band's full height; transport controls sit
  * bottom-left, volume bottom-right, so the top edge stays clear of the
- * window controls. All display state comes from the player state and the
- * engine snapshot — no polling.
+ * window controls.
  */
 export const PlayerBar = () => {
   const t = useT();
-  const { queue, current } = usePlayerState();
-  const commands = usePlayerCommands();
-  const snapshot = useAudioPlayer();
-  const [dismissedError, setDismissedError] = useState<PlaybackError | null>(
-    null,
-  );
-
-  const previous = previousOf(queue, current);
-  const next = nextOf(queue, current);
-  const hasTrack = current !== null;
-  const isPlaying = snapshot.state === "playing";
-  const isLoading = snapshot.state === "loading";
-  // A new engine (track switch) resets `error` to null — auto-clear;
-  // dismissing hides exactly this error object until a new one appears.
-  const visibleError =
-    snapshot.error !== null && snapshot.error !== dismissedError
-      ? snapshot.error
-      : null;
-  // While the engine has no duration yet, fall back to mme's value for the
-  // display only (VBR MP3 may be inaccurate — never used for seeking).
-  const displayDuration =
-    snapshot.duration > 0
-      ? snapshot.duration
-      : (current?.durationMs ?? 0) / 1000;
+  const {
+    current,
+    commands,
+    snapshot,
+    previous,
+    next,
+    hasTrack,
+    isPlaying,
+    isLoading,
+    visibleError,
+    displayDuration,
+    dismissError,
+  } = usePlayerBar();
 
   return (
     <div className="col-span-2">
@@ -173,7 +154,7 @@ export const PlayerBar = () => {
               variant="ghost"
               size="icon-sm"
               aria-label={t("player.dismiss")}
-              onClick={() => setDismissedError(visibleError)}
+              onClick={dismissError}
             >
               <X />
             </Button>

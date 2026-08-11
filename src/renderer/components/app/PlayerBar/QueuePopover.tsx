@@ -1,7 +1,4 @@
-import type { Music } from "@mp/ipc";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { ListMusic, Pause, Trash2, Volume2 } from "lucide-react";
-import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -10,18 +7,12 @@ import {
 } from "@/components/ui/popover";
 import { useT } from "@/features/i18n/useT";
 import {
-  usePlaybackState,
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
-
-/** Row height of one queue entry (px) — drives the virtualizer. */
-const ROW_HEIGHT = 44;
-
-/** Height of the scrolling list viewport (px). */
-const LIST_HEIGHT = 320;
+import { LIST_HEIGHT, useQueueList } from "./useQueueList";
 
 /**
  * Queue popover behind the PlayerBar's queue button
@@ -92,28 +83,8 @@ const ClearQueueButton = () => {
  * imperative scroll effect.
  */
 const QueueList = () => {
-  const { queue, queueSource, current } = usePlayerState();
-  const commands = usePlayerCommands();
-  const playbackState = usePlaybackState();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const currentIndex =
-    current !== null ? queue.findIndex((music) => music.id === current.id) : -1;
-  const virtualizer = useVirtualizer({
-    count: queue.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
-    overscan: 10,
-    initialOffset: Math.max(
-      0,
-      currentIndex * ROW_HEIGHT - (LIST_HEIGHT - ROW_HEIGHT) / 2,
-    ),
-  });
-
-  /** Jump playback to this queue position (same queue, same source). */
-  const jumpTo = (music: Music): void => {
-    void commands.playMusic(music, queue, queueSource);
-  };
+  const { queue, playbackState, currentIndex, scrollRef, virtualizer, jumpTo } =
+    useQueueList();
 
   return (
     <div

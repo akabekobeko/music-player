@@ -1,18 +1,12 @@
-import type { AlbumSummary, Music } from "@mp/ipc";
+import type { AlbumSummary } from "@mp/ipc";
 import { Play } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  usePlaybackState,
-  usePlayerCommands,
-  usePlayerState,
-} from "@/features/player/PlayerProvider";
 import { formatTime } from "@/libs/formatTime";
+import { useAlbumDetail } from "./useAlbumDetail";
 
 /**
  * Inline album detail under the expanded card
@@ -23,40 +17,16 @@ import { formatTime } from "@/libs/formatTime";
  */
 export const AlbumDetail = ({ album }: { readonly album: AlbumSummary }) => {
   const t = useT();
-  const musicsState = useLibraryQuery<readonly Music[]>(
-    queryKeys.musicsByAlbum(album.albumKey),
-  );
-  const commands = usePlayerCommands();
-  const { current } = usePlayerState();
-  const playbackState = usePlaybackState();
-
-  const musics = musicsState.status === "success" ? musicsState.value : [];
-  const discNumbers = [...new Set(musics.map((music) => music.disc))];
-
-  const playFrom = (music: Music): void => {
-    void commands.playMusic(music, [...musics], "album");
-  };
-
-  const playAll = (): void => {
-    const first = musics[0];
-    if (first !== undefined) {
-      playFrom(first);
-    }
-  };
-
-  const removeFromLibrary = (music: Music): void => {
-    void window.mp.library.removeMusics({ musicIds: [music.id] });
-    // The broadcast mp:library:changed invalidates the query store, which
-    // refetches this panel automatically.
-  };
-
-  const playingStateOf = (music: Music): "playing" | "paused" | null => {
-    if (current === null || current.id !== music.id) {
-      return null;
-    }
-
-    return playbackState === "playing" ? "playing" : "paused";
-  };
+  const {
+    musics,
+    musicsState,
+    discNumbers,
+    commands,
+    playFrom,
+    playAll,
+    removeFromLibrary,
+    playingStateOf,
+  } = useAlbumDetail(album.albumKey);
 
   return (
     <div className="rounded-md border bg-muted/30 px-4 py-3">

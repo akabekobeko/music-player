@@ -1,34 +1,16 @@
-import type { Music, Playlist } from "@mp/ipc";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { ListMusic, Pencil, Play, Shuffle as ShuffleIcon } from "lucide-react";
-import { useRef, useState } from "react";
 import { useParams } from "react-router";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
-import {
-  MUSIC_ROW_HEIGHT,
-  MusicRow,
-} from "@/components/app/MusicList/MusicList";
+import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
-import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import {
-  usePlaybackState,
-  usePlayerCommands,
-  usePlayerState,
-} from "@/features/player/PlayerProvider";
-import { shuffle } from "@/features/player/shuffle";
-import {
-  replacePlaylistMusics,
-  updatePlaylist,
-} from "@/features/playlist/playlistCommands";
 import { parsePlaylistRouteId } from "@/features/playlist/routeId";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 import { SmartRulesDialog } from "./components/SmartRulesDialog/SmartRulesDialog";
-import { moveItem, removeAt } from "./reorder";
+import { usePlaylistContent } from "./usePlaylistContent";
 
 /**
  * Playlist view route (`/playlists/:playlistId?`)
@@ -63,103 +45,34 @@ export const PlaylistsPage = () => {
   );
 };
 
-/**
- * Optimistic track order pending server confirmation. Valid only while
- * `base` is still the identity the query store serves — a completed refetch
- * replaces the value and thereby retires the override, no effect needed.
- */
-type PendingOrder = {
-  readonly base: readonly Music[];
-  readonly order: readonly Music[];
-};
-
 /** Selected-playlist content; remounted per playlist via `key` above. */
 const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
   const t = useT();
-  // Parse cannot fail here — the parent only mounts this for valid ids.
-  const ref = parsePlaylistRouteId(routeId) as NonNullable<
-    ReturnType<typeof parsePlaylistRouteId>
-  >;
-  const playlistsState = useLibraryQuery<readonly Playlist[]>(
-    queryKeys.playlists,
-  );
-  const musicsState = useLibraryQuery<readonly Music[]>(
-    queryKeys.musicsByPlaylist(routeId),
-  );
-  const commands = usePlayerCommands();
-  const { current } = usePlayerState();
-  const playbackState = usePlaybackState();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [pending, setPending] = useState<PendingOrder | null>(null);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
-  /** Whether the smart-rules editor is open (smart playlists only). */
-  const [editingRules, setEditingRules] = useState(false);
-
-  const playlist =
-    playlistsState.status === "success"
-      ? (playlistsState.value.find(
-          (entry) => entry.id === ref.id && entry.kind === ref.kind,
-        ) ?? null)
-      : null;
-  const fetched = musicsState.status === "success" ? musicsState.value : [];
-  // The optimistic order only applies while it was derived from the list
-  // the store still serves; a refetch retires it by identity.
-  const musics =
-    pending !== null && pending.base === fetched ? pending.order : fetched;
-  const totalDurationMs = musics.reduce(
-    (total, music) => total + music.durationMs,
-    0,
-  );
-
-  const virtualizer = useVirtualizer({
-    count: musics.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => MUSIC_ROW_HEIGHT,
-    overscan: 12,
-  });
-
-  const playFrom = (music: Music): void => {
-    void commands.playMusic(music, [...musics], "playlist");
-  };
-
-  const playAll = (): void => {
-    const first = musics[0];
-    if (first !== undefined) {
-      playFrom(first);
-    }
-  };
-
-  const playShuffled = (): void => {
-    const shuffled = shuffle(musics);
-    const first = shuffled[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, shuffled, "playlist");
-    }
-  };
-
-  /** Persist a new order optimistically (reorder / row removal). */
-  const commitOrder = (order: readonly Music[]): void => {
-    setPending({ base: fetched, order });
-    void replacePlaylistMusics(ref.id, order);
-  };
-
-  const dropOn = (index: number): void => {
-    if (dragIndex !== null && dragIndex !== index) {
-      commitOrder(moveItem(musics, dragIndex, index));
-    }
-
-    setDragIndex(null);
-    setOverIndex(null);
-  };
-
-  const playingStateOf = (music: Music): "playing" | "paused" | null => {
-    if (current === null || current.id !== music.id) {
-      return null;
-    }
-
-    return playbackState === "playing" ? "playing" : "paused";
-  };
+  const {
+    ref,
+    playlist,
+    musics,
+    musicsState,
+    totalDurationMs,
+    scrollRef,
+    virtualizer,
+    commands,
+    dragIndex,
+    overIndex,
+    startDrag,
+    dragOver,
+    dropOn,
+    endDrag,
+    editingRules,
+    openRulesEditor,
+    closeRulesEditor,
+    submitRules,
+    playFrom,
+    playAll,
+    playShuffled,
+    removeRowAt,
+    playingStateOf,
+  } = usePlaylistContent(routeId);
 
   return (
     <div className="flex h-full flex-col">
@@ -192,11 +105,7 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
               <ShuffleIcon /> {t("player.shuffle")}
             </Button>
             {ref.kind === "smart" && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setEditingRules(true)}
-              >
+              <Button size="sm" variant="outline" onClick={openRulesEditor}>
                 <Pencil /> {t("smart.editRules")}
               </Button>
             )}
@@ -208,11 +117,8 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
         <SmartRulesDialog
           title={t("smart.editRules")}
           initialRules={playlist.rules}
-          onClose={() => setEditingRules(false)}
-          onSubmit={(rules) => {
-            setEditingRules(false);
-            void updatePlaylist({ id: ref.id, kind: "smart", rules });
-          }}
+          onClose={closeRulesEditor}
+          onSubmit={(rules) => submitRules(rules)}
         />
       )}
 
@@ -252,16 +158,13 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
                   height: item.size,
                   transform: `translateY(${item.start}px)`,
                 }}
-                onDragStart={() => setDragIndex(item.index)}
+                onDragStart={() => startDrag(item.index)}
                 onDragOver={(event) => {
                   event.preventDefault();
-                  setOverIndex(item.index);
+                  dragOver(item.index);
                 }}
                 onDrop={() => dropOn(item.index)}
-                onDragEnd={() => {
-                  setDragIndex(null);
-                  setOverIndex(null);
-                }}
+                onDragEnd={endDrag}
               >
                 <MusicRow
                   music={music}
@@ -301,8 +204,7 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
                           ? [
                               {
                                 label: t("menu.removeFromPlaylist"),
-                                onSelect: () =>
-                                  commitOrder(removeAt(musics, item.index)),
+                                onSelect: () => removeRowAt(item.index),
                                 destructive: true,
                                 separatorBefore: true,
                               },

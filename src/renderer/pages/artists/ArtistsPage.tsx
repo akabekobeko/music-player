@@ -1,33 +1,13 @@
-import type { Music } from "@mp/ipc";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { Disc3, Play, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
-import { useRef, useState } from "react";
 import { useParams } from "react-router";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
-import {
-  type AlbumGroup,
-  flattenAlbumMusics,
-  groupAlbums,
-} from "@/features/library/groupAlbums";
-import { useArtistMusics, useArtists } from "@/features/library/useArtists";
-import {
-  usePlaybackState,
-  usePlayerCommands,
-  usePlayerState,
-} from "@/features/player/PlayerProvider";
-import { shuffle } from "@/features/player/shuffle";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/mediaUrl";
-import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./albumRows";
-import {
-  applySelectionClick,
-  EMPTY_SELECTION,
-  type SelectionState,
-} from "./selection";
+import { useArtistContent } from "./useArtistContent";
 
 /**
  * Artist view content (`/artists/:artistName`)
@@ -56,88 +36,27 @@ export const ArtistsPage = () => {
 /** Selected-artist content; remounted per artist via the `key` above. */
 const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
   const t = useT();
-  const artistsState = useArtists();
-  const musicsState = useArtistMusics(artistName);
-  const commands = usePlayerCommands();
-  const { current } = usePlayerState();
-  const playbackState = usePlaybackState();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
-
-  const musics = musicsState.status === "success" ? musicsState.value : [];
-  const groups = groupAlbums(musics);
-  const rows = buildAlbumRows(groups);
-  // The artist's full play order — every playback action queues this
-  // (album year order → disc → track), so listening continues across albums.
-  const playOrder = flattenAlbumMusics(groups);
-  const orderedIds = playOrder.map((music) => music.id);
-  const artist =
-    artistsState.status === "success"
-      ? (artistsState.value.find((entry) => entry.name === artistName) ?? null)
-      : null;
-
-  const playAll = (): void => {
-    const first = playOrder[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, playOrder, "artist");
-    }
-  };
-
-  const playShuffled = (): void => {
-    const shuffled = shuffle(playOrder);
-    const first = shuffled[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, shuffled, "artist");
-    }
-  };
-
-  const playFrom = (music: Music): void => {
-    void commands.playMusic(music, playOrder, "artist");
-  };
-
-  const playAlbum = (group: AlbumGroup): void => {
-    const albumMusics = group.discs.flatMap((disc) => [...disc.musics]);
-    const first = albumMusics[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, albumMusics, "artist");
-    }
-  };
-
-  const albumMusicsOf = (group: AlbumGroup): Music[] =>
-    group.discs.flatMap((disc) => [...disc.musics]);
-
-  /**
-   * Tracks a row's "Add to playlist" targets: the whole multi-selection (in
-   * play order) when the row is part of it, otherwise the row alone.
-   */
-  const playlistTargetsOf = (music: Music): Music[] =>
-    selection.selectedIds.has(music.id) && selection.selectedIds.size > 1
-      ? playOrder.filter((entry) => selection.selectedIds.has(entry.id))
-      : [music];
-
-  const removeFromLibrary = (music: Music): void => {
-    void window.mp.library.removeMusics({ musicIds: [music.id] });
-    // The broadcast mp:library:changed invalidates the query store, which
-    // refetches this view automatically.
-  };
-
-  const playingStateOf = (music: Music): "playing" | "paused" | null => {
-    if (current === null || current.id !== music.id) {
-      return null;
-    }
-
-    return playbackState === "playing" ? "playing" : "paused";
-  };
-
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: (index) => {
-      const row = rows[index];
-      return row !== undefined ? ALBUM_ROW_HEIGHTS[row.type] : 36;
-    },
-    overscan: 12,
-  });
+  const {
+    artist,
+    musics,
+    musicsState,
+    groups,
+    rows,
+    playOrder,
+    selection,
+    selectRow,
+    scrollRef,
+    virtualizer,
+    commands,
+    playAll,
+    playShuffled,
+    playFrom,
+    playAlbum,
+    albumMusicsOf,
+    playlistTargetsOf,
+    removeFromLibrary,
+    playingStateOf,
+  } = useArtistContent(artistName);
 
   return (
     <div className="flex h-full flex-col">
@@ -284,17 +203,10 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                     playing={playingStateOf(row.music)}
                     selected={selection.selectedIds.has(row.music.id)}
                     onClick={(event) => {
-                      setSelection(
-                        applySelectionClick(
-                          selection,
-                          orderedIds,
-                          row.music.id,
-                          {
-                            shift: event.shiftKey,
-                            meta: event.metaKey || event.ctrlKey,
-                          },
-                        ),
-                      );
+                      selectRow(row.music.id, {
+                        shift: event.shiftKey,
+                        meta: event.metaKey || event.ctrlKey,
+                      });
                     }}
                     onPlay={() => playFrom(row.music)}
                     menu={
