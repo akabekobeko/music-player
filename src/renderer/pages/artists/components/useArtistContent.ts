@@ -1,24 +1,23 @@
 import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState } from "react";
-import {
-  type AlbumGroup,
-  flattenAlbumMusics,
-  groupAlbums,
-} from "@/features/library/groupAlbums";
-import { useArtistMusics, useArtists } from "@/features/library/useArtists";
+import { flattenAlbumMusics } from "@/features/library/flattenAlbumMusics";
+import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
+import type { AlbumGroup } from "@/features/library/groupAlbums/types";
+import { useArtistMusics } from "@/features/library/useArtistMusics";
+import { useArtists } from "@/features/library/useArtists";
 import {
   usePlaybackState,
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { shuffle } from "@/features/player/shuffle";
-import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./albumRows";
 import {
   applySelectionClick,
   EMPTY_SELECTION,
   type SelectionState,
-} from "./selection";
+} from "./applySelectionClick";
+import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./buildAlbumRows";
 
 /**
  * Logic of `ArtistContent`: the artist's albums / play order, the row

@@ -1,7 +1,7 @@
 import type { Dirent } from "node:fs";
 import { lstat, readdir } from "node:fs/promises";
 import path from "node:path";
-import { isAudioFile } from "./audioExtensions";
+import { isAudioFile } from "./isAudioFile";
 
 /**
  * Maximum directory depth walked below a dropped root

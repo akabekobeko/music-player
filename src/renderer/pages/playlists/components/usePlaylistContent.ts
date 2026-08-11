@@ -2,7 +2,7 @@ import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicList/MusicList";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {
   usePlaybackState,
@@ -10,12 +10,11 @@ import {
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { shuffle } from "@/features/player/shuffle";
-import {
-  replacePlaylistMusics,
-  updatePlaylist,
-} from "@/features/playlist/playlistCommands";
-import { parsePlaylistRouteId } from "@/features/playlist/routeId";
-import { moveItem, removeAt } from "./reorder";
+import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
+import { replacePlaylistMusics } from "@/features/playlist/playlistCommands/replacePlaylistMusics";
+import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
+import { moveItem } from "./moveItem";
+import { removeAt } from "./removeAt";
 
 /**
  * Optimistic track order pending server confirmation. Valid only while

@@ -17,6 +17,21 @@ export type Locale = "en" | "ja";
  */
 export type LocalePreference = Locale | "system";
 
+/** Map of placeholder name to substitution value (numbers are coerced to string). */
+export type TranslationParams = Readonly<Record<string, string | number>>;
+
+/**
+ * Locale-bound translation helper produced by
+ * {@link import("./t/tFor").tFor}.
+ *
+ * Always shaped as `(key, params?)` so callers do not need to repeat the
+ * locale on every call.
+ */
+export type BoundTranslate = (
+  key: string,
+  params?: TranslationParams,
+) => string;
+
 /**
  * Single dictionary mapping translation keys to display strings.
  *

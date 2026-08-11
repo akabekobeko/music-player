@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
-import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { QueuePopover } from "./QueuePopover";
 import { SeekBar } from "./SeekBar";
 import { usePlayerBar } from "./usePlayerBar";

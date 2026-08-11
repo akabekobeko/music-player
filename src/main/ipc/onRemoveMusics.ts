@@ -1,8 +1,6 @@
 import { getDatabase } from "../db/connection";
-import {
-  deleteArtworkFiles,
-  removeMusicsFromLibrary,
-} from "../library/removeMusics";
+import { deleteArtworkFiles } from "../library/deleteArtworkFiles";
+import { removeMusicsFromLibrary } from "../library/removeMusicsFromLibrary";
 import { IpcKeys } from "./ipcKeys";
 import type { IpcResult, RemoveMusicsRequest } from "./types";
 import { broadcast } from "./utils/broadcast";

@@ -1,9 +1,9 @@
 import { afterEach, expect, it } from "vitest";
+import { DEFAULT_SETTINGS } from "../settings/DEFAULT_SETTINGS";
 import {
   resetSettingsForTest,
   updateSettings,
 } from "../settings/settingsManager";
-import { DEFAULT_SETTINGS } from "../settings/settingsStore";
 import { onGetSettings } from "./onGetSettings";
 
 const ev = {} as Electron.IpcMainInvokeEvent;

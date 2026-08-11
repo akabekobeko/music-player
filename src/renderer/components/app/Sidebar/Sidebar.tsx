@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
-import { importStore } from "@/features/import/importStore";
+import { importStore } from "@/features/import/importStore/importStore";
 import { cn } from "@/libs/utils";
 import { AlbumFilterPanel } from "@/pages/albums/components/AlbumFilterPanel/AlbumFilterPanel";
 import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";

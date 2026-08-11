@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { playlistRouteId } from "@/features/playlist/routeId";
+import { playlistRouteId } from "@/features/playlist/playlistRouteId";
 import { cn } from "@/libs/utils";
 import { SmartRulesDialog } from "../SmartRulesDialog/SmartRulesDialog";
 import { usePlaylistListPanel } from "./usePlaylistListPanel";

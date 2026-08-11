@@ -1,4 +1,4 @@
-import { importStore } from "./importStore";
+import { importStore } from "./importStore/importStore";
 
 /**
  * Accept file drops anywhere in the window

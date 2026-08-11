@@ -1,5 +1,5 @@
 import type { Music } from "@mp/ipc";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {
   usePlaybackState,

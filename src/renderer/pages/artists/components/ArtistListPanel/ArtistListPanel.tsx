@@ -5,9 +5,9 @@ import { useMatch, useNavigate } from "react-router";
 import { Stack } from "@/components/app/stacks";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle";
+import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle/compareNameWithoutArticle";
 import { useArtists } from "@/features/library/useArtists";
-import { toMediaFileUrl } from "@/libs/mediaUrl";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
 
 /** Fixed row height for the virtualizer (px). */

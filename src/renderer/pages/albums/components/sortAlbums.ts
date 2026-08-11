@@ -1,5 +1,5 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle";
+import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle/compareNameWithoutArticle";
 
 /**
  * Album grid order (`docs/specs/v1.0/features/album-view.md`): artist name

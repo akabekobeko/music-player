@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useT } from "@/features/i18n/useT";
 import { ConditionRow } from "./ConditionRow";
-import { SORT_CHOICES } from "./rulesForm";
+import { SORT_CHOICES } from "./sortChoices";
 import { useSmartRulesDialog } from "./useSmartRulesDialog";
 
 type Props = {

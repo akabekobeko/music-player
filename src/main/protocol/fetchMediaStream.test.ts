@@ -4,7 +4,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { net } from "electron";
 import { afterEach, expect, it, vi } from "vitest";
-import { runMigrations } from "../db/migrate";
+import { runMigrations } from "../db/runMigrations";
 import { fetchMediaStream } from "./fetchMediaStream";
 
 let db: DatabaseSync | null = null;

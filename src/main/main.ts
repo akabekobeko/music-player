@@ -2,10 +2,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, dialog, nativeTheme, screen } from "electron";
 import { resolveLocale } from "../shared/locales/resolveLocale";
+import { buildWindowChrome } from "./buildWindowChrome";
 import { closeDatabase, openDatabase } from "./db/connection";
 import { buildStartupErrorContent } from "./db/startupError";
+import { applyTitleBarOverlayTheme } from "./ipc/applyTitleBarOverlayTheme";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
-import { applyTitleBarOverlayTheme } from "./ipc/onSetSettings";
 import { installApplicationMenu } from "./menu/applicationMenu";
 // Importing also registers the privileged schemes (must run before `ready`).
 import { registerProtocolHandlers } from "./protocol/registerProtocol";
@@ -15,7 +16,6 @@ import {
   initializeSettings,
   updateSettings,
 } from "./settings/settingsManager";
-import { buildWindowChrome } from "./windowOptions";
 import { resolveWindowBounds } from "./windowState";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

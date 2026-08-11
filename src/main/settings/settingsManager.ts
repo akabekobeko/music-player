@@ -1,11 +1,9 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { AppSettings, DeepPartial } from "../ipc/types";
-import {
-  DEFAULT_SETTINGS,
-  mergeSettings,
-  sanitizeSettings,
-} from "./settingsStore";
+import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { mergeSettings } from "./mergeSettings";
+import { sanitizeSettings } from "./sanitizeSettings";
 
 /**
  * Owner of `<userData>/settings.json`. Main is the only process touching the

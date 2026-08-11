@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { runMigrations } from "../db/migrate";
+import { runMigrations } from "../db/runMigrations";
 import { upsertMusic } from "./musicRepository";
 import { getLibraryStats } from "./statsQueries";
 import type { MusicRowInput } from "./trackMapping";

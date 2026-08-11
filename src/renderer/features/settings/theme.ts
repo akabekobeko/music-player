@@ -1,4 +1,5 @@
 import type { ThemePreference } from "@mp/ipc";
+import { resolveTheme } from "./resolveTheme";
 
 /**
  * Theme application (`docs/specs/v1.0/renderer/routing-layout.md`).
@@ -6,28 +7,10 @@ import type { ThemePreference } from "@mp/ipc";
  * The `.dark` class on `<html>` is set directly by the three handlers that
  * can change the effective theme — bootstrap, the `setTheme` command, and the
  * OS theme listener — never by a `useEffect` syncing after render.
- */
-
-/** The theme actually rendered ("system" resolves to one of these). */
-export type ResolvedTheme = "light" | "dark";
-
-/**
- * Resolve a preference against the current OS appearance.
  *
- * @param preference - Persisted preference; `undefined` behaves as "system".
- * @param systemPrefersDark - `prefers-color-scheme: dark` match state.
- * @returns The theme to render.
+ * `applyThemePreference` and `watchSystemTheme` stay in one module because
+ * they share {@link currentPreference}.
  */
-export const resolveTheme = (
-  preference: ThemePreference | undefined,
-  systemPrefersDark: boolean,
-): ResolvedTheme => {
-  if (preference === "light" || preference === "dark") {
-    return preference;
-  }
-
-  return systemPrefersDark ? "dark" : "light";
-};
 
 /**
  * Last preference passed to {@link applyThemePreference}; the OS theme

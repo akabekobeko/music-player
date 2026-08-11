@@ -1,31 +1,24 @@
 import fs from "node:fs";
-import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { app, net } from "electron";
+import { net } from "electron";
 import { PROTOCOL_MEDIA_FILE } from "../../shared/constants";
-import { resolveImagePath } from "./pathValidation";
+import { imagesDirectory } from "./imagesDirectory";
+import { resolveImagePath } from "./resolveImagePath";
 import { urlToFilePath } from "./urlToFilePath";
-
-/**
- * Artwork directory the importer writes SHA-256-named images into. The only
- * location `media-file://` is allowed to serve.
- *
- * @returns Absolute path of `userData/images`.
- */
-export const imagesDirectory = (): string =>
-  path.join(app.getPath("userData"), "images");
 
 /**
  * Handle a `media-file://` request for an artwork image.
  *
- * Serves only paths that resolve inside {@link imagesDirectory} — traversal
- * attempts and everything else get `403`
+ * Serves only paths that resolve inside
+ * {@link import("./imagesDirectory").imagesDirectory} — traversal attempts
+ * and everything else get `403`
  * (`docs/specs/v1.0/architecture/process-model.md`). Delivery goes through
  * `net.fetch(file://…)`, which fills in the image `Content-Type`.
  *
  * @param request - Protocol request from the Renderer.
- * @param imagesDir - Allowed directory; defaults to {@link imagesDirectory}
- *   (injectable for unit tests).
+ * @param imagesDir - Allowed directory; defaults to
+ *   {@link import("./imagesDirectory").imagesDirectory} (injectable for unit
+ *   tests).
  * @returns The HTTP response.
  */
 export const fetchMediaFile = async (

@@ -1,4 +1,4 @@
-import { clampVolume } from "../audio/timeMath";
+import { clampVolume } from "../audio/clampVolume";
 import type { AudioEngine, PlaybackSnapshot } from "../audio/types";
 
 /**

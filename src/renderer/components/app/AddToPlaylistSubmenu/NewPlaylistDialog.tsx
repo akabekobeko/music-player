@@ -10,10 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { addToPlaylistStore } from "@/features/playlist/addToPlaylistStore";
-import {
-  appendMusicsToPlaylist,
-  createStaticPlaylist,
-} from "@/features/playlist/playlistCommands";
+import { appendMusicsToPlaylist } from "@/features/playlist/playlistCommands/appendMusicsToPlaylist";
+import { createStaticPlaylist } from "@/features/playlist/playlistCommands/createStaticPlaylist";
 import { toastStore } from "@/features/toast/toastStore";
 
 /**

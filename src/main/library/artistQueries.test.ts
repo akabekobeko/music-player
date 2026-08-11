@@ -1,12 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { runMigrations } from "../db/migrate";
+import { runMigrations } from "../db/runMigrations";
 import { getArtists } from "./artistQueries";
+import { getOrCreatePictureId } from "./getOrCreatePictureId";
 import { upsertMusic } from "./musicRepository";
-import {
-  getOrCreatePictureId,
-  registerArtistPictureIfMissing,
-} from "./pictureRepository";
+import { registerArtistPictureIfMissing } from "./registerArtistPictureIfMissing";
 import type { MusicRowInput } from "./trackMapping";
 
 let db: DatabaseSync;

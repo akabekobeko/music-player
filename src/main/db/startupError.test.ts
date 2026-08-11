@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { DatabaseDowngradeError } from "./migrate";
+import { DatabaseDowngradeError } from "./DatabaseDowngradeError";
 import { buildStartupErrorContent } from "./startupError";
 
 it("builds the downgrade dialog with the app name interpolated", () => {

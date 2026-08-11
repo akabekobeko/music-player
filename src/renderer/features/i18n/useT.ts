@@ -1,5 +1,6 @@
 import { resolveLocale } from "../../../shared/locales/resolveLocale";
-import { type BoundTranslate, tFor } from "../../../shared/locales/t";
+import { tFor } from "../../../shared/locales/t/tFor";
+import type { BoundTranslate } from "../../../shared/locales/types";
 import { useSettings } from "../settings/SettingsProvider";
 
 /**

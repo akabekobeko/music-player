@@ -7,10 +7,10 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useT } from "@/features/i18n/useT";
-import { queryKeys } from "@/features/library/queryStore";
+import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import { addToPlaylistStore } from "@/features/playlist/addToPlaylistStore";
-import { appendMusicsToPlaylist } from "@/features/playlist/playlistCommands";
+import { appendMusicsToPlaylist } from "@/features/playlist/playlistCommands/appendMusicsToPlaylist";
 import { toastStore } from "@/features/toast/toastStore";
 
 type Props = {

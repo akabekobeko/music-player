@@ -2,7 +2,7 @@ import { FilterX, FolderInput } from "lucide-react";
 import { VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
-import { importStore } from "@/features/import/importStore";
+import { importStore } from "@/features/import/importStore/importStore";
 import { albumFilterStore } from "./albumFilterStore";
 
 type Props = {
