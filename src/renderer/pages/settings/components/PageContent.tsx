@@ -1,6 +1,4 @@
 import { FolderInput } from "lucide-react";
-import type { ReactNode } from "react";
-import { HStack, Spacer, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,6 +10,9 @@ import {
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { formatTime } from "@/libs/formatTime";
+import { SettingsRow } from "./SettingsRow";
+import { SettingsSection } from "./SettingsSection";
+import { StatRow } from "./StatRow";
 import { usePageContent } from "./usePageContent";
 
 /**
@@ -118,48 +119,3 @@ export const PageContent = () => {
     </section>
   );
 };
-
-/** One titled settings block. */
-const SettingsSection = ({
-  label,
-  children,
-}: {
-  readonly label: string;
-  readonly children: ReactNode;
-}) => (
-  <div className="mt-6">
-    <h2 className="border-b pb-1 font-medium text-muted-foreground text-sm">
-      {label}
-    </h2>
-    <Stack className="gap-4 pt-3">{children}</Stack>
-  </div>
-);
-
-/** Label + control pair. */
-const SettingsRow = ({
-  label,
-  children,
-}: {
-  readonly label: string;
-  readonly children: ReactNode;
-}) => (
-  <HStack>
-    <span className="text-sm">{label}</span>
-    <Spacer />
-    {children}
-  </HStack>
-);
-
-/** One statistics line of the library section. */
-const StatRow = ({
-  label,
-  value,
-}: {
-  readonly label: string;
-  readonly value: string;
-}) => (
-  <>
-    <dt className="text-muted-foreground">{label}</dt>
-    <dd className="tabular-nums">{value}</dd>
-  </>
-);

@@ -14,19 +14,18 @@ import { useT } from "@/features/i18n/useT";
 const asNumber = (value: number | readonly number[]): number =>
   Array.isArray(value) ? (value[0] ?? 0) : (value as number);
 
+type Props = {
+  /** Current volume in `[0, 1]`. */
+  readonly volume: number;
+  readonly onChange: (volume: number) => void;
+};
+
 /**
  * Volume popover (`docs/specs/v1.0/features/player-ui.md`): a 0–100 slider
  * over the internal `[0, 1]` volume, plus a mute toggle that remembers the
  * last audible level.
  */
-export const VolumeControl = ({
-  volume,
-  onChange,
-}: {
-  /** Current volume in `[0, 1]`. */
-  readonly volume: number;
-  readonly onChange: (volume: number) => void;
-}) => {
+export const VolumeControl = ({ volume, onChange }: Props) => {
   const t = useT();
   const [lastAudible, setLastAudible] = useState(1);
   const muted = volume === 0;

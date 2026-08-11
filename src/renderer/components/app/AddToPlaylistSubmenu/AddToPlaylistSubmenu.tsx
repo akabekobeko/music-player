@@ -13,6 +13,11 @@ import { addToPlaylistStore } from "@/features/playlist/addToPlaylistStore";
 import { appendMusicsToPlaylist } from "@/features/playlist/playlistCommands";
 import { toastStore } from "@/features/toast/toastStore";
 
+type Props = {
+  /** Tracks to add, already in the intended append order. */
+  readonly musics: readonly Music[];
+};
+
 /**
  * "Add to playlist ▸" submenu shared by every track / album / artist menu
  * (`docs/specs/v1.0/features/playlist.md`): existing static playlists plus
@@ -22,12 +27,7 @@ import { toastStore } from "@/features/toast/toastStore";
  * "New playlist" only stashes the tracks in the app-level flow store — the
  * name dialog lives in the AppLayout because this menu unmounts on close.
  */
-export const AddToPlaylistSubmenu = ({
-  musics,
-}: {
-  /** Tracks to add, already in the intended append order. */
-  readonly musics: readonly Music[];
-}) => {
+export const AddToPlaylistSubmenu = ({ musics }: Props) => {
   const t = useT();
   const playlistsState = useLibraryQuery<readonly Playlist[]>(
     queryKeys.playlists,

@@ -18,6 +18,10 @@ export type RowMenuItem = {
   readonly separatorBefore?: boolean;
 };
 
+type Props = {
+  readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
+};
+
 /**
  * The [⋯] dropdown shared by list headers, album sections, and track rows
  * (Artist / Album / Playlist views). Promoted out of the Artist page when
@@ -26,11 +30,7 @@ export type RowMenuItem = {
  * Entries are plain items or ready-made menu elements — the latter lets
  * views splice in composite pieces like the "Add to playlist ▸" submenu.
  */
-export const RowMenu = ({
-  items,
-}: {
-  readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
-}) => (
+export const RowMenu = ({ items }: Props) => (
   <DropdownMenu>
     <DropdownMenuTrigger
       render={<Button variant="ghost" size="icon-sm" aria-label="Menu" />}

@@ -28,18 +28,16 @@ type SettingsCommands = {
 const SettingsStateContext = createContext<AppSettings | null>(null);
 const SettingsCommandsContext = createContext<SettingsCommands | null>(null);
 
-/**
- * Provide settings state and commands to the app.
- *
- * @param props.initialSettings - Settings loaded by the bootstrap.
- */
-export const SettingsProvider = ({
-  initialSettings,
-  children,
-}: {
+type Props = {
+  /** Settings loaded by the bootstrap. */
   readonly initialSettings: AppSettings;
   readonly children: ReactNode;
-}) => {
+};
+
+/**
+ * Provide settings state and commands to the app.
+ */
+export const SettingsProvider = ({ initialSettings, children }: Props) => {
   const [settings, setSettings] = useState(initialSettings);
   // useState initializer: created exactly once, stable without useCallback.
   const [commands] = useState<SettingsCommands>(() => ({

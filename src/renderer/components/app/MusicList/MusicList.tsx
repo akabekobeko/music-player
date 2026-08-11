@@ -8,27 +8,7 @@ import { cn } from "@/libs/utils";
 /** Row height in px — shared with virtualizers embedding these rows. */
 export const MUSIC_ROW_HEIGHT = 36;
 
-/**
- * One track row shared by the Artist / Album / Playlist views
- * (`docs/specs/v1.0/features/artist-view.md`): track number / title /
- * duration / menu slot, with receptacles for the playing highlight,
- * selection, and playback wiring (#43 / later views).
- *
- * A row, not a list: the views own their (virtualized) list structure and
- * render one `MusicRow` per item, so the shared piece stays layout-agnostic.
- * The title is a real `<button>` (click = select, double-click = play,
- * Enter = select), keeping the container itself non-interactive.
- */
-export const MusicRow = ({
-  music,
-  ordinal,
-  columns,
-  playing = null,
-  selected = false,
-  onClick,
-  onPlay,
-  menu,
-}: {
+type Props = {
   readonly music: Music;
   /**
    * Number shown in the leading cell instead of the track number (the
@@ -50,7 +30,29 @@ export const MusicRow = ({
   readonly onPlay?: () => void;
   /** Per-track menu slot (the [⋯] dropdown, #43). */
   readonly menu?: ReactNode;
-}) => (
+};
+
+/**
+ * One track row shared by the Artist / Album / Playlist views
+ * (`docs/specs/v1.0/features/artist-view.md`): track number / title /
+ * duration / menu slot, with receptacles for the playing highlight,
+ * selection, and playback wiring (#43 / later views).
+ *
+ * A row, not a list: the views own their (virtualized) list structure and
+ * render one `MusicRow` per item, so the shared piece stays layout-agnostic.
+ * The title is a real `<button>` (click = select, double-click = play,
+ * Enter = select), keeping the container itself non-interactive.
+ */
+export const MusicRow = ({
+  music,
+  ordinal,
+  columns,
+  playing = null,
+  selected = false,
+  onClick,
+  onPlay,
+  menu,
+}: Props) => (
   <HStack
     data-selected={selected || undefined}
     className={cn(

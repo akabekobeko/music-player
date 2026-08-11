@@ -190,14 +190,14 @@ const createCommands = (
   return commands;
 };
 
+type Props = {
+  readonly children: ReactNode;
+};
+
 /**
  * Provide player state, commands, and the engine host to the app.
  */
-export const PlayerProvider = ({
-  children,
-}: {
-  readonly children: ReactNode;
-}) => {
+export const PlayerProvider = ({ children }: Props) => {
   const [state, dispatch] = useReducer(playerReducer, INITIAL_PLAYER_STATE);
 
   // Commands read the latest state through this ref (a dispatch cannot

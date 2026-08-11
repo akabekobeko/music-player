@@ -8,6 +8,10 @@ import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
 import { useAlbumDetail } from "./useAlbumDetail";
 
+type Props = {
+  readonly album: AlbumSummary;
+};
+
 /**
  * Inline album detail under the expanded card
  * (`docs/specs/v1.0/features/album-view.md`): header (Play / menu) and the
@@ -15,7 +19,7 @@ import { useAlbumDetail } from "./useAlbumDetail";
  * highlight). Every playback action queues **only this album's tracks** —
  * unlike the Artist view, the filter context means "listen to this album".
  */
-export const AlbumDetail = ({ album }: { readonly album: AlbumSummary }) => {
+export const AlbumDetail = ({ album }: Props) => {
   const t = useT();
   const {
     musics,
