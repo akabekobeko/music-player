@@ -1,5 +1,6 @@
 import { FilterX } from "lucide-react";
 import type { ReactNode } from "react";
+import { Stack } from "@/components/app/stacks";
 import {
   Accordion,
   AccordionContent,
@@ -37,7 +38,7 @@ export const AlbumFilterPanel = () => {
   } = useAlbumFilterPanel();
 
   return (
-    <div className="flex h-full flex-col gap-3 overflow-y-auto p-2">
+    <Stack className="h-full gap-4 overflow-y-auto p-2">
       <Input
         type="search"
         placeholder={t("album.filter.search")}
@@ -90,7 +91,7 @@ export const AlbumFilterPanel = () => {
       >
         <FilterX /> {t("album.filter.clear")}
       </Button>
-    </div>
+    </Stack>
   );
 };
 

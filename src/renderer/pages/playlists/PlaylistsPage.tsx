@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
@@ -75,11 +76,11 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
   } = usePlaylistContent(routeId);
 
   return (
-    <div className="flex h-full flex-col">
+    <Stack className="h-full gap-0">
       <header className="flex items-center gap-4 border-b px-6 py-4">
-        <span className="flex size-16 shrink-0 items-center justify-center rounded-md bg-muted">
+        <VStack className="size-16 shrink-0 rounded-md bg-muted">
           <ListMusic aria-hidden className="size-7 text-muted-foreground" />
-        </span>
+        </VStack>
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-2 truncate font-semibold text-lg">
             {playlist?.name ?? ""}
@@ -92,7 +93,7 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
             {" · "}
             {formatTime(totalDurationMs / 1000)}
           </p>
-          <div className="mt-2 flex items-center gap-2">
+          <HStack className="mt-2">
             <Button size="sm" disabled={musics.length === 0} onClick={playAll}>
               <Play /> {t("player.play")}
             </Button>
@@ -109,7 +110,7 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
                 <Pencil /> {t("smart.editRules")}
               </Button>
             )}
-          </div>
+          </HStack>
         </div>
       </header>
 
@@ -219,6 +220,6 @@ const PlaylistContent = ({ routeId }: { readonly routeId: string }) => {
           })}
         </ul>
       </div>
-    </div>
+    </Stack>
   );
 };

@@ -1,4 +1,5 @@
 import { ListMusic, Pause, Trash2, Volume2 } from "lucide-react";
+import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -38,7 +39,7 @@ export const QueuePopover = () => {
         <ListMusic />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center gap-2 border-b px-3 py-2">
+        <HStack className="border-b px-3 py-2">
           <span className="flex-1 font-medium text-sm">
             {t("player.queue")}
           </span>
@@ -46,7 +47,7 @@ export const QueuePopover = () => {
             {t("artist.songs", { count: queue.length })}
           </span>
           <ClearQueueButton />
-        </div>
+        </HStack>
         {queue.length === 0 ? (
           <p className="px-3 py-4 text-muted-foreground text-sm">
             {t("player.queueEmpty")}

@@ -1,5 +1,6 @@
 import type { SmartCondition, SmartPlaylistRules } from "@mp/ipc";
 import { Plus, X } from "lucide-react";
+import { HStack, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -83,7 +84,7 @@ export const SmartRulesDialog = ({
           />
         )}
 
-        <div className="flex items-center gap-2">
+        <HStack>
           <span className="text-muted-foreground text-sm">
             {t("smart.match")}
           </span>
@@ -102,9 +103,9 @@ export const SmartRulesDialog = ({
               <SelectItem value="any">{t("smart.matchAny")}</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </HStack>
 
-        <div className="flex flex-col gap-2">
+        <Stack>
           {draft.conditions.map((condition, index) => (
             <ConditionRow
               // biome-ignore lint/suspicious/noArrayIndexKey: rows have no identity beyond their position; the list is short and replaced wholesale.
@@ -122,9 +123,9 @@ export const SmartRulesDialog = ({
           >
             <Plus /> {t("smart.addCondition")}
           </Button>
-        </div>
+        </Stack>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <HStack className="flex-wrap">
           <span className="text-muted-foreground text-sm">
             {t("smart.sort")}
           </span>
@@ -172,7 +173,7 @@ export const SmartRulesDialog = ({
             value={draft.limit}
             onChange={(event) => setLimit(event.target.value)}
           />
-        </div>
+        </HStack>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -202,7 +203,7 @@ const ConditionRow = ({
   );
 
   return (
-    <div className="flex items-center gap-2">
+    <HStack>
       <Select
         value={condition.field}
         items={Object.fromEntries(
@@ -278,6 +279,6 @@ const ConditionRow = ({
       >
         <X />
       </Button>
-    </div>
+    </HStack>
   );
 };

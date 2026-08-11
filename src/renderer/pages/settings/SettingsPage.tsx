@@ -1,5 +1,6 @@
 import { FolderInput } from "lucide-react";
 import type { ReactNode } from "react";
+import { HStack, Spacer, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -130,7 +131,7 @@ const SettingsSection = ({
     <h2 className="border-b pb-1 font-medium text-muted-foreground text-sm">
       {label}
     </h2>
-    <div className="flex flex-col gap-3 pt-3">{children}</div>
+    <Stack className="gap-4 pt-3">{children}</Stack>
   </div>
 );
 
@@ -142,10 +143,11 @@ const SettingsRow = ({
   readonly label: string;
   readonly children: ReactNode;
 }) => (
-  <div className="flex items-center justify-between gap-4">
+  <HStack>
     <span className="text-sm">{label}</span>
+    <Spacer />
     {children}
-  </div>
+  </HStack>
 );
 
 /** One statistics line of the library section. */

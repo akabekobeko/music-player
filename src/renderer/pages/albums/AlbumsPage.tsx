@@ -1,5 +1,6 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Disc3, FilterX, FolderInput, Play } from "lucide-react";
+import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
@@ -36,7 +37,7 @@ export const AlbumsPage = () => {
   } = useAlbumsPage();
 
   return (
-    <div className="flex h-full flex-col">
+    <Stack className="h-full gap-0">
       {albumsState.status === "error" && (
         <p className="break-all px-6 py-3 text-destructive text-sm">
           {t("library.loadFailed", { message: albumsState.error.message })}
@@ -72,7 +73,10 @@ export const AlbumsPage = () => {
                 style={{ transform: `translateY(${item.start}px)` }}
               >
                 {row.type === "cards" ? (
-                  <div className="flex pb-4" style={{ gap: GRID_GAP }}>
+                  <HStack
+                    className="items-stretch pb-4"
+                    style={{ gap: GRID_GAP }}
+                  >
                     {row.albums.map((album) => (
                       <AlbumCard
                         key={album.albumKey}
@@ -83,7 +87,7 @@ export const AlbumsPage = () => {
                         onPlay={() => void playAlbum(album)}
                       />
                     ))}
-                  </div>
+                  </HStack>
                 ) : (
                   <div className="pb-4">
                     <AlbumDetail album={row.album} />
@@ -94,7 +98,7 @@ export const AlbumsPage = () => {
           })}
         </div>
       </div>
-    </div>
+    </Stack>
   );
 };
 
@@ -102,7 +106,7 @@ export const AlbumsPage = () => {
 const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
   const t = useT();
   return (
-    <div className="flex flex-col items-center gap-3 px-6 py-16">
+    <VStack className="gap-4 px-6 py-16">
       <p className="text-muted-foreground text-sm">
         {filtered ? t("album.noMatch") : t("album.empty")}
       </p>
@@ -123,7 +127,7 @@ const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
           <FolderInput /> {t("sidebar.import")}
         </Button>
       )}
-    </div>
+    </VStack>
   );
 };
 

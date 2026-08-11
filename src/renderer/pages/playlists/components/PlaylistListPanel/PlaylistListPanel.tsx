@@ -1,5 +1,6 @@
 import { ListMusic, Plus, Sparkles } from "lucide-react";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { HStack, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,8 +43,8 @@ export const PlaylistListPanel = () => {
   } = usePlaylistListPanel();
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-col gap-1 p-2">
+    <Stack className="h-full gap-0">
+      <Stack className="p-2">
         <Button
           variant="outline"
           size="sm"
@@ -60,7 +61,7 @@ export const PlaylistListPanel = () => {
         >
           <Sparkles /> {t("playlist.newSmart")}
         </Button>
-      </div>
+      </Stack>
       {playlistsState.status === "error" && (
         <p className="break-all px-3 py-2 text-destructive text-xs">
           {t("library.loadFailed", { message: playlistsState.error.message })}
@@ -76,10 +77,10 @@ export const PlaylistListPanel = () => {
           const routeId = playlistRouteId(playlist);
           const selected = routeId === selectedRouteId;
           return (
-            <div
+            <HStack
               key={routeId}
               className={cn(
-                "group flex w-full items-center gap-2 px-2 py-1",
+                "group w-full px-2 py-1",
                 selected
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50",
@@ -142,7 +143,7 @@ export const PlaylistListPanel = () => {
                   ]}
                 />
               </span>
-            </div>
+            </HStack>
           );
         })}
       </div>
@@ -181,6 +182,6 @@ export const PlaylistListPanel = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Stack>
   );
 };

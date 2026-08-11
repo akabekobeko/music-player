@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
@@ -59,7 +60,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
   } = useArtistContent(artistName);
 
   return (
-    <div className="flex h-full flex-col">
+    <Stack className="h-full gap-0">
       <header className="flex items-center gap-4 border-b px-6 py-4">
         {artist?.picturePath != null ? (
           <img
@@ -68,9 +69,9 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
             className="size-16 shrink-0 rounded-full object-cover"
           />
         ) : (
-          <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-muted">
+          <VStack className="size-16 shrink-0 rounded-full bg-muted">
             <UserRound aria-hidden className="size-7 text-muted-foreground" />
-          </span>
+          </VStack>
         )}
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-semibold text-lg">{artistName}</h1>
@@ -79,7 +80,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
             {" · "}
             {t("artist.songs", { count: musics.length })}
           </p>
-          <div className="mt-2 flex items-center gap-2">
+          <HStack className="mt-2">
             <Button
               size="sm"
               disabled={playOrder.length === 0}
@@ -95,7 +96,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
             >
               <ShuffleIcon /> {t("player.shuffle")}
             </Button>
-          </div>
+          </HStack>
         </div>
         <span className="self-start">
           <RowMenu
@@ -141,7 +142,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                 }}
               >
                 {row.type === "album" && (
-                  <div className="flex items-end gap-4 pt-6 pb-2">
+                  <HStack className="items-end gap-4 pt-6 pb-2">
                     {row.group.picturePath !== null ? (
                       <img
                         src={toMediaFileUrl(row.group.picturePath)}
@@ -149,12 +150,12 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                         className="size-28 shrink-0 rounded-md object-cover"
                       />
                     ) : (
-                      <span className="flex size-28 shrink-0 items-center justify-center rounded-md bg-muted">
+                      <VStack className="size-28 shrink-0 rounded-md bg-muted">
                         <Disc3
                           aria-hidden
                           className="size-10 text-muted-foreground"
                         />
-                      </span>
+                      </VStack>
                     )}
                     <div className="min-w-0 flex-1 pb-1">
                       <h2 className="truncate font-medium text-base">
@@ -190,7 +191,7 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
                         />,
                       ]}
                     />
-                  </div>
+                  </HStack>
                 )}
                 {row.type === "disc" && (
                   <p className="flex h-8 items-end px-2 font-medium text-muted-foreground text-xs">
@@ -244,6 +245,6 @@ const ArtistContent = ({ artistName }: { readonly artistName: string }) => {
           })}
         </div>
       </div>
-    </div>
+    </Stack>
   );
 };

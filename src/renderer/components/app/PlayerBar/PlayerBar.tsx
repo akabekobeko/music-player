@@ -8,6 +8,7 @@ import {
   Square,
   X,
 } from "lucide-react";
+import { HStack, VStack } from "@/components/app/stacks";
 import {
   Alert,
   AlertAction,
@@ -51,7 +52,7 @@ export const PlayerBar = () => {
   return (
     <div className="col-span-2">
       <header className="app-region-drag flex h-(--playerbar-height) items-stretch gap-3 border-b bg-sidebar pr-(--titlebar-safe-right) pl-(--titlebar-safe-left)">
-        <div className="app-region-no-drag flex items-end gap-0.5 pb-1.5 pl-2">
+        <HStack className="app-region-no-drag items-end gap-0.5 pb-1.5 pl-2">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -94,9 +95,9 @@ export const PlayerBar = () => {
           >
             <Square />
           </Button>
-        </div>
+        </HStack>
 
-        <div className="flex min-w-0 flex-1 items-center gap-3 pt-2.5 pb-1.5">
+        <HStack className="min-w-0 flex-1 gap-4 pt-2.5 pb-1.5">
           {current?.picturePath != null ? (
             <img
               src={toMediaFileUrl(current.picturePath)}
@@ -104,9 +105,9 @@ export const PlayerBar = () => {
               className="size-11 shrink-0 rounded object-cover"
             />
           ) : (
-            <div className="flex size-11 shrink-0 items-center justify-center rounded bg-muted">
+            <VStack className="size-11 shrink-0 rounded bg-muted">
               <Music aria-hidden className="size-5 text-muted-foreground" />
-            </div>
+            </VStack>
           )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm">
@@ -133,15 +134,15 @@ export const PlayerBar = () => {
               onSeek={commands.seek}
             />
           </div>
-        </div>
+        </HStack>
 
-        <div className="app-region-no-drag flex items-end gap-0.5 pr-2 pb-1.5">
+        <HStack className="app-region-no-drag items-end gap-0.5 pr-2 pb-1.5">
           <QueuePopover />
           <VolumeControl
             volume={snapshot.volume}
             onChange={commands.setVolume}
           />
-        </div>
+        </HStack>
       </header>
       {visibleError !== null && (
         <Alert variant="destructive" className="rounded-none border-x-0">

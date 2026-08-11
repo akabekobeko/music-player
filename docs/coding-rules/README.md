@@ -20,3 +20,28 @@
   - 専用 Hooks を持たない表示専用サブコンポーネントも `useT` を呼ぶので、戻り値へ含めても「依存 Hooks の単一化」は徹底できない
 - ロジック自体が翻訳文字列を必要とする場合のみ、Hooks 内で `useT` を呼んでよい
   - 例: `usePlaylistListPanel` (プレイリストの既定名)、`useImportConfirmDialog` (状態別の説明文)
+
+## スタイリング
+
+### Flex レイアウトは stacks コンポーネントを利用する
+
+- Flex レイアウトには基本的に `src/renderer/components/app/stacks.tsx` のコンポーネントを利用する
+  - レイアウトが統一的になり、コンポーネント名からレイアウト方向を把握しやすくなる
+- 使いわけ
+  - 通常の縦レイアウトは `Stack`
+  - 水平レイアウトは `HStack`
+  - 中央寄せは `VStack`
+  - Stack 系の中で上下・左右に分割したい場合は `justify-between` ではなく `Spacer` で間を埋める
+- 例外 (素の flex クラスを許容するケース)
+  - `header` / `nav` / `label` / `ul` などのセマンティック要素 (stacks は `div` を描画するため置き換えない)
+  - `button` の子要素などインライン要素が必要な箇所
+  - shadcn/ui 由来の `components/ui` 配下
+  - 仮想スクロールの絶対配置行など、レイアウトが特殊な箇所
+
+### gap のスケール
+
+- 領域内の大項目は `gap-6`
+- 中項目は `gap-4`
+- 小項目は `gap-2`
+  - `Stack` / `HStack` / `VStack` の規定値
+  - 機能凝集の観点で密なものはこれを採用する (例: Form の Label と入力 UI)

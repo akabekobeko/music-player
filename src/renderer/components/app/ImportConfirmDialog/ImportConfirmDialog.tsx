@@ -1,3 +1,4 @@
+import { Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +25,7 @@ const ImportProgress = ({
       ? progress.current / progress.total
       : 0;
   return (
-    <div className="flex flex-col gap-2">
+    <Stack>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-primary transition-[width]"
@@ -47,7 +48,7 @@ const ImportProgress = ({
           {t("import.progress.cancelling")}
         </p>
       )}
-    </div>
+    </Stack>
   );
 };
 
@@ -60,7 +61,7 @@ const ImportSummaryView = ({
   const t = useT();
   const { summary } = state;
   return (
-    <div className="flex flex-col gap-2 text-sm">
+    <Stack className="text-sm">
       <p>{t("import.summary.imported", { count: summary.imported })}</p>
       <p>{t("import.summary.updated", { count: summary.updated })}</p>
       {summary.failed.length > 0 && (
@@ -80,7 +81,7 @@ const ImportSummaryView = ({
           </ul>
         </details>
       )}
-    </div>
+    </Stack>
   );
 };
 

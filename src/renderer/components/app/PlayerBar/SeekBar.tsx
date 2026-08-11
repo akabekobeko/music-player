@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { HStack } from "@/components/app/stacks";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/libs/formatTime";
 
@@ -37,7 +38,7 @@ export const SeekBar = ({
   const shown = dragValue ?? Math.min(currentTime, duration || currentTime);
 
   return (
-    <div className="app-region-no-drag flex items-center gap-2">
+    <HStack className="app-region-no-drag">
       <span className="w-10 text-right font-mono text-[11px] text-muted-foreground tabular-nums">
         {formatTime(shown)}
       </span>
@@ -64,6 +65,6 @@ export const SeekBar = ({
       <span className="w-10 font-mono text-[11px] text-muted-foreground tabular-nums">
         {formatTime(displayDuration)}
       </span>
-    </div>
+    </HStack>
   );
 };

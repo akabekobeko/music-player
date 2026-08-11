@@ -1,6 +1,7 @@
 import type { Music } from "@mp/ipc";
 import { Pause, Play, Volume2 } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
+import { HStack } from "@/components/app/stacks";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 
@@ -50,10 +51,10 @@ export const MusicRow = ({
   /** Per-track menu slot (the [⋯] dropdown, #43). */
   readonly menu?: ReactNode;
 }) => (
-  <div
+  <HStack
     data-selected={selected || undefined}
     className={cn(
-      "group flex h-9 w-full items-center gap-2 rounded-md px-2 text-sm",
+      "group h-9 w-full rounded-md px-2 text-sm",
       selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
     )}
   >
@@ -102,5 +103,5 @@ export const MusicRow = ({
       {formatTime(music.durationMs / 1000)}
     </span>
     {menu !== undefined && <span className="shrink-0">{menu}</span>}
-  </div>
+  </HStack>
 );
