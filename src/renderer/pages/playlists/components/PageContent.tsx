@@ -10,17 +10,17 @@ import { useT } from "@/features/i18n/useT";
 import { parsePlaylistRouteId } from "@/features/playlist/routeId";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
-import { SmartRulesDialog } from "./components/SmartRulesDialog/SmartRulesDialog";
+import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
 import { usePlaylistContent } from "./usePlaylistContent";
 
 /**
- * Playlist view route (`/playlists/:playlistId?`)
+ * Playlist view content (`/playlists/:playlistId?`)
  * (`docs/specs/v1.0/features/playlist.md`): header (name, counts, Play /
  * Shuffle) and the position-ordered track list — ordinal numbers, artist /
  * album columns, drag & drop reorder, and per-row removal. Every playback
  * action queues the playlist's tracks (`QueueSource: "playlist"`).
  */
-export const PlaylistsPage = () => {
+export const PageContent = () => {
   const t = useT();
   const { playlistId } = useParams();
   const ref =

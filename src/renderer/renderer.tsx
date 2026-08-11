@@ -17,7 +17,7 @@ import {
   watchSystemTheme,
 } from "./features/settings/theme";
 import { detectPlatform } from "./libs/platform";
-import { albumFilterStore } from "./pages/albums/albumFilterStore";
+import { albumFilterStore } from "./pages/albums/components/albumFilterStore";
 
 /**
  * Fallback when `mp:settings:get` fails: the app still starts with defaults

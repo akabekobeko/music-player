@@ -12,16 +12,16 @@ import {
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore";
 import { formatTime } from "@/libs/formatTime";
-import { useSettingsPage } from "./useSettingsPage";
+import { usePageContent } from "./usePageContent";
 
 /**
- * Settings route (`/settings`)
+ * Settings view content (`/settings`)
  * (`docs/specs/v1.0/architecture/process-model.md`): theme, language, and
  * the library section (stats + import entrance).
  */
-export const SettingsPage = () => {
+export const PageContent = () => {
   const t = useT();
-  const { settings, statsState, setTheme, setLocale } = useSettingsPage();
+  const { settings, statsState, setTheme, setLocale } = usePageContent();
 
   return (
     <section className="max-w-2xl p-6">

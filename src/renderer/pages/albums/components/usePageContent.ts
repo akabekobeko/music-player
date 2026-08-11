@@ -11,11 +11,11 @@ import { sortAlbums } from "./sortAlbums";
 import { useElementWidth } from "./useElementWidth";
 
 /**
- * Logic of `AlbumsPage`: the applied filter's album summaries, the
+ * Logic of `PageContent`: the applied filter's album summaries, the
  * responsive grid geometry, the row virtualiser, and the expansion /
  * playback handlers. The component only renders what this hook returns.
  */
-export const useAlbumsPage = () => {
+export const usePageContent = () => {
   const { applied } = useSyncExternalStore(
     albumFilterStore.subscribe,
     albumFilterStore.getSnapshot,

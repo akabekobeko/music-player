@@ -16,7 +16,7 @@ import { useArtistContent } from "./useArtistContent";
  * menu), album sections, and the playback wiring — every action only calls
  * PlayerCommands; the view never manages queue contents itself.
  */
-export const ArtistsPage = () => {
+export const PageContent = () => {
   const t = useT();
   const { artistName } = useParams();
   return (
