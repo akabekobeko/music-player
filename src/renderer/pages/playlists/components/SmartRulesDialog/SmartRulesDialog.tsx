@@ -127,54 +127,61 @@ export const SmartRulesDialog = ({
           </Button>
         </Stack>
 
-        <HStack className="flex-wrap">
-          <span className="text-muted-foreground text-sm">
-            {t("smart.sort")}
-          </span>
-          <Select
-            value={draft.sort}
-            items={Object.fromEntries(
-              SORT_CHOICES.map((choice) => [choice, t(`smart.sort.${choice}`)]),
-            )}
-            onValueChange={setSort}
-          >
-            <SelectTrigger size="sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_CHOICES.map((choice) => (
-                <SelectItem key={choice} value={choice}>
-                  {t(`smart.sort.${choice}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {draft.sort !== "none" && draft.sort !== "random" && (
+        <HStack className="flex-wrap gap-4">
+          <HStack>
+            <span className="text-muted-foreground text-sm">
+              {t("smart.sort")}
+            </span>
             <Select
-              value={draft.order}
-              items={{ asc: t("smart.orderAsc"), desc: t("smart.orderDesc") }}
-              onValueChange={setOrder}
+              value={draft.sort}
+              items={Object.fromEntries(
+                SORT_CHOICES.map((choice) => [
+                  choice,
+                  t(`smart.sort.${choice}`),
+                ]),
+              )}
+              onValueChange={setSort}
             >
               <SelectTrigger size="sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">{t("smart.orderAsc")}</SelectItem>
-                <SelectItem value="desc">{t("smart.orderDesc")}</SelectItem>
+                {SORT_CHOICES.map((choice) => (
+                  <SelectItem key={choice} value={choice}>
+                    {t(`smart.sort.${choice}`)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-          )}
-          <span className="ml-2 text-muted-foreground text-sm">
-            {t("smart.limit")}
-          </span>
-          <Input
-            type="number"
-            min={1}
-            className="w-24"
-            placeholder={t("smart.limitNone")}
-            value={draft.limit}
-            onChange={(event) => setLimit(event.target.value)}
-          />
+            {draft.sort !== "none" && draft.sort !== "random" && (
+              <Select
+                value={draft.order}
+                items={{ asc: t("smart.orderAsc"), desc: t("smart.orderDesc") }}
+                onValueChange={setOrder}
+              >
+                <SelectTrigger size="sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">{t("smart.orderAsc")}</SelectItem>
+                  <SelectItem value="desc">{t("smart.orderDesc")}</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </HStack>
+          <HStack>
+            <span className="text-muted-foreground text-sm">
+              {t("smart.limit")}
+            </span>
+            <Input
+              type="number"
+              min={1}
+              className="w-24"
+              placeholder={t("smart.limitNone")}
+              value={draft.limit}
+              onChange={(event) => setLimit(event.target.value)}
+            />
+          </HStack>
         </HStack>
 
         <DialogFooter>

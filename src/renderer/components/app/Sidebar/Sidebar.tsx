@@ -49,20 +49,28 @@ export const Sidebar = () => {
   return (
     <aside className="flex flex-col overflow-hidden border-r bg-sidebar">
       <TooltipProvider>
-        <nav className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1 m-2">
-          {NAV_ITEMS.map(({ to, label, Icon }) => (
-            <Tooltip key={to}>
-              <TooltipTrigger
-                render={
-                  <NavLink to={to} aria-label={label} className={tabClassName}>
-                    <Icon aria-hidden className="size-4" />
-                  </NavLink>
-                }
-              />
-              <TooltipContent side="bottom">{label}</TooltipContent>
-            </Tooltip>
-          ))}
-        </nav>
+        {/* Padded wrapper instead of margin on the nav pill: the sibling
+            secondary area's border-t must keep spanning edge to edge. */}
+        <div className="p-2">
+          <nav className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+            {NAV_ITEMS.map(({ to, label, Icon }) => (
+              <Tooltip key={to}>
+                <TooltipTrigger
+                  render={
+                    <NavLink
+                      to={to}
+                      aria-label={label}
+                      className={tabClassName}
+                    >
+                      <Icon aria-hidden className="size-4" />
+                    </NavLink>
+                  }
+                />
+                <TooltipContent side="bottom">{label}</TooltipContent>
+              </Tooltip>
+            ))}
+          </nav>
+        </div>
       </TooltipProvider>
       {/* Route-specific secondary area. */}
       <div className="flex-1 overflow-hidden border-t">

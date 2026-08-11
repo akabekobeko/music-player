@@ -52,14 +52,16 @@ export const ArtistContent = ({ artistName }: Props) => {
             <UserRound aria-hidden className="size-7 text-muted-foreground" />
           </VStack>
         )}
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-semibold text-lg">{artistName}</h1>
-          <p className="text-muted-foreground text-sm">
-            {t("artist.albumCount", { count: groups.length })}
-            {" · "}
-            {t("artist.songs", { count: musics.length })}
-          </p>
-          <HStack className="mt-2">
+        <Stack className="min-w-0 flex-1">
+          <div>
+            <h1 className="truncate font-semibold text-lg">{artistName}</h1>
+            <p className="text-muted-foreground text-sm">
+              {t("artist.albumCount", { count: groups.length })}
+              {" · "}
+              {t("artist.songs", { count: musics.length })}
+            </p>
+          </div>
+          <HStack>
             <Button
               size="sm"
               disabled={playOrder.length === 0}
@@ -76,7 +78,7 @@ export const ArtistContent = ({ artistName }: Props) => {
               <ShuffleIcon /> {t("player.shuffle")}
             </Button>
           </HStack>
-        </div>
+        </Stack>
         <span className="self-start">
           <RowMenu
             items={[
