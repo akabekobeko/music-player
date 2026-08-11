@@ -1,14 +1,10 @@
-import type { AlbumSummary } from "@mp/ipc";
-import { Disc3, FilterX, FolderInput, Play } from "lucide-react";
-import { HStack, Stack, VStack } from "@/components/app/stacks";
-import { Button } from "@/components/ui/button";
+import { HStack, Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
-import { importStore } from "@/features/import/importStore";
-import { toMediaFileUrl } from "@/libs/mediaUrl";
-import { cn } from "@/libs/utils";
+import { AlbumCard } from "./AlbumCard";
 import { AlbumDetail } from "./AlbumDetail/AlbumDetail";
-import { albumFilterStore, hasActiveFilter } from "./albumFilterStore";
+import { hasActiveFilter } from "./albumFilterStore";
 import { GRID_GAP } from "./albumGridLayout";
+import { EmptyState } from "./EmptyState";
 import { usePageContent } from "./usePageContent";
 
 /**
@@ -99,98 +95,5 @@ export const PageContent = () => {
         </div>
       </div>
     </Stack>
-  );
-};
-
-/** Empty state: no filter match vs. an entirely empty library. */
-const EmptyState = ({ filtered }: { readonly filtered: boolean }) => {
-  const t = useT();
-  return (
-    <VStack className="gap-4 px-6 py-16">
-      <p className="text-muted-foreground text-sm">
-        {filtered ? t("album.noMatch") : t("album.empty")}
-      </p>
-      {filtered ? (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => albumFilterStore.dispatch({ type: "cleared" })}
-        >
-          <FilterX /> {t("album.filter.clear")}
-        </Button>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => void importStore.openFromDialog()}
-        >
-          <FolderInput /> {t("sidebar.import")}
-        </Button>
-      )}
-    </VStack>
-  );
-};
-
-/**
- * One album card: artwork (click = toggle the inline detail) with a hover
- * ▶ overlay, then name / artist / year.
- */
-const AlbumCard = ({
-  album,
-  width,
-  expanded,
-  onToggle,
-  onPlay,
-}: {
-  readonly album: AlbumSummary;
-  readonly width: number;
-  readonly expanded: boolean;
-  readonly onToggle: () => void;
-  readonly onPlay: () => void;
-}) => {
-  const t = useT();
-  return (
-    <div className="group shrink-0" style={{ width }}>
-      <div className="relative">
-        <button
-          type="button"
-          aria-expanded={expanded}
-          aria-label={album.album}
-          className={cn(
-            "block w-full overflow-hidden rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-            expanded && "ring-2 ring-primary",
-          )}
-          onClick={onToggle}
-        >
-          {album.picturePath !== null ? (
-            <img
-              src={toMediaFileUrl(album.picturePath)}
-              alt=""
-              loading="lazy"
-              className="aspect-square w-full bg-muted object-cover"
-            />
-          ) : (
-            <span className="flex aspect-square w-full items-center justify-center bg-muted">
-              <Disc3 aria-hidden className="size-10 text-muted-foreground" />
-            </span>
-          )}
-        </button>
-        <button
-          type="button"
-          aria-label={`${t("player.play")}: ${album.album}`}
-          className="absolute right-2 bottom-2 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-          onClick={onPlay}
-        >
-          <Play className="size-4" />
-        </button>
-      </div>
-      <p className="truncate pt-2 font-medium text-sm" title={album.album}>
-        {album.album}
-      </p>
-      <p className="truncate text-muted-foreground text-xs">{album.artist}</p>
-      <p className="text-muted-foreground text-xs tabular-nums">
-        {album.year !== null ? album.year : "—"}
-      </p>
-    </div>
   );
 };

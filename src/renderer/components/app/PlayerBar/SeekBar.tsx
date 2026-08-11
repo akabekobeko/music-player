@@ -8,6 +8,20 @@ import { formatTime } from "@/libs/formatTime";
 const asNumber = (value: number | readonly number[]): number =>
   Array.isArray(value) ? (value[0] ?? 0) : (value as number);
 
+type Props = {
+  readonly currentTime: number;
+  /** Engine duration; `0` = unknown, the slider is disabled until it resolves. */
+  readonly duration: number;
+  /**
+   * Duration shown as the total-time label. Falls back to mme's value while
+   * the engine has not resolved one (display only — never used for seeking).
+   */
+  readonly displayDuration: number;
+  /** Deferred seek in progress — shows the spinner over the bar. */
+  readonly seeking: boolean;
+  readonly onSeek: (timeSec: number) => void;
+};
+
 /**
  * Seek bar with optimistic updates
  * (`docs/specs/v1.0/features/player-ui.md`): while dragging, the local
@@ -21,19 +35,7 @@ export const SeekBar = ({
   displayDuration,
   seeking,
   onSeek,
-}: {
-  readonly currentTime: number;
-  /** Engine duration; `0` = unknown, the slider is disabled until it resolves. */
-  readonly duration: number;
-  /**
-   * Duration shown as the total-time label. Falls back to mme's value while
-   * the engine has not resolved one (display only — never used for seeking).
-   */
-  readonly displayDuration: number;
-  /** Deferred seek in progress — shows the spinner over the bar. */
-  readonly seeking: boolean;
-  readonly onSeek: (timeSec: number) => void;
-}) => {
+}: Props) => {
   const [dragValue, setDragValue] = useState<number | null>(null);
   const shown = dragValue ?? Math.min(currentTime, duration || currentTime);
 

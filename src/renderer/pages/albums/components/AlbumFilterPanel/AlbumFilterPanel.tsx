@@ -1,17 +1,12 @@
 import { FilterX } from "lucide-react";
-import type { ReactNode } from "react";
 import { Stack } from "@/components/app/stacks";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { decadeOptions } from "./decadeOptions";
+import { FilterCheckbox } from "./FilterCheckbox";
+import { FilterSection } from "./FilterSection";
 import { useAlbumFilterPanel } from "./useAlbumFilterPanel";
 
 /**
@@ -94,49 +89,3 @@ export const AlbumFilterPanel = () => {
     </Stack>
   );
 };
-
-/** Collapsible heading + checkbox list of one filter kind. */
-const FilterSection = ({
-  value,
-  label,
-  children,
-}: {
-  /** Accordion item value (identifies the section's open state). */
-  readonly value: string;
-  readonly label: string;
-  readonly children: ReactNode;
-}) => (
-  <AccordionItem value={value}>
-    <AccordionTrigger className="px-1 py-2 text-muted-foreground text-xs hover:no-underline">
-      {label}
-    </AccordionTrigger>
-    <AccordionContent className="flex flex-col gap-0.5 pb-2">
-      {children}
-    </AccordionContent>
-  </AccordionItem>
-);
-
-/** One checkbox row; the whole row is the click target. */
-const FilterCheckbox = ({
-  label,
-  count,
-  checked,
-  onToggle,
-}: {
-  readonly label: string;
-  /** Album count badge; omitted for decade items. */
-  readonly count?: number;
-  readonly checked: boolean;
-  readonly onToggle: () => void;
-}) => (
-  // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Checkbox renders a hidden native input inside the label, which the lint cannot see.
-  <label className="flex cursor-default items-center gap-2 rounded-md px-1 py-1 text-sm hover:bg-sidebar-accent/50">
-    <Checkbox checked={checked} onCheckedChange={onToggle} />
-    <span className="min-w-0 flex-1 truncate">{label}</span>
-    {count !== undefined && (
-      <span className="shrink-0 text-muted-foreground text-xs tabular-nums">
-        {count}
-      </span>
-    )}
-  </label>
-);
