@@ -19,16 +19,20 @@ export const ImportSummaryView = ({ state }: Props) => {
           <summary className="cursor-pointer text-destructive">
             {t("import.summary.failed", { count: summary.failed.length })}
           </summary>
-          <ul className="mt-2 max-h-48 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
-            {summary.failed.map((failure) => (
-              <li key={failure.filePath} className="py-0.5">
-                <span className="block break-all">{failure.filePath}</span>
-                <span className="block break-all text-muted-foreground">
-                  {failure.error.message}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {/* details cannot become a flex container (summary marker breaks),
+              so the expanded body spaces itself with padding. */}
+          <div className="pt-2">
+            <ul className="max-h-48 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
+              {summary.failed.map((failure) => (
+                <li key={failure.filePath} className="py-0.5">
+                  <span className="block break-all">{failure.filePath}</span>
+                  <span className="block break-all text-muted-foreground">
+                    {failure.error.message}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </details>
       )}
     </Stack>

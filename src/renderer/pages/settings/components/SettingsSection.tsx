@@ -9,10 +9,10 @@ type Props = {
 
 /** One titled settings block. */
 export const SettingsSection = ({ label, children }: Props) => (
-  <div className="mt-6">
+  <Stack className="gap-3">
     <h2 className="border-b pb-1 font-medium text-muted-foreground text-sm">
       {label}
     </h2>
-    <Stack className="gap-4 pt-3">{children}</Stack>
-  </div>
+    <Stack className="gap-4">{children}</Stack>
+  </Stack>
 );

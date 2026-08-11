@@ -1,4 +1,5 @@
 import { FolderInput } from "lucide-react";
+import { Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -25,7 +26,7 @@ export const PageContent = () => {
   const { settings, statsState, setTheme, setLocale } = usePageContent();
 
   return (
-    <section className="max-w-2xl p-6">
+    <Stack className="max-w-2xl gap-6 p-6">
       <h1 className="font-semibold text-lg">{t("settings.title")}</h1>
 
       <SettingsSection label={t("settings.appearance")}>
@@ -116,6 +117,6 @@ export const PageContent = () => {
           {t("settings.library.removeHint")}
         </p>
       </SettingsSection>
-    </section>
+    </Stack>
   );
 };

@@ -50,19 +50,21 @@ export const PlaylistContent = ({ routeId }: Props) => {
         <VStack className="size-16 shrink-0 rounded-md bg-muted">
           <ListMusic aria-hidden className="size-7 text-muted-foreground" />
         </VStack>
-        <div className="min-w-0 flex-1">
-          <h1 className="flex items-center gap-2 truncate font-semibold text-lg">
-            {playlist?.name ?? ""}
-            {ref.kind === "smart" && (
-              <Badge variant="secondary">{t("playlist.smartBadge")}</Badge>
-            )}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {t("artist.songs", { count: musics.length })}
-            {" · "}
-            {formatTime(totalDurationMs / 1000)}
-          </p>
-          <HStack className="mt-2">
+        <Stack className="min-w-0 flex-1">
+          <div>
+            <h1 className="flex items-center gap-2 truncate font-semibold text-lg">
+              {playlist?.name ?? ""}
+              {ref.kind === "smart" && (
+                <Badge variant="secondary">{t("playlist.smartBadge")}</Badge>
+              )}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {t("artist.songs", { count: musics.length })}
+              {" · "}
+              {formatTime(totalDurationMs / 1000)}
+            </p>
+          </div>
+          <HStack>
             <Button size="sm" disabled={musics.length === 0} onClick={playAll}>
               <Play /> {t("player.play")}
             </Button>
@@ -80,7 +82,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
               </Button>
             )}
           </HStack>
-        </div>
+        </Stack>
       </header>
 
       {editingRules && playlist !== null && (
