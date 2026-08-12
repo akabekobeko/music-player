@@ -10,11 +10,11 @@ function Slider({
   max = 100,
   ...props
 }: SliderPrimitive.Root.Props) {
-  const _values = Array.isArray(value)
-    ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max];
+  // One thumb per value. A scalar (or absent) value must map to a single
+  // thumb: rendering extras breaks Base UI's track clicks, because the
+  // closest-thumb search can resolve to an index outside the value array.
+  const currentValue = value ?? defaultValue ?? min;
+  const _values = Array.isArray(currentValue) ? currentValue : [currentValue];
 
   return (
     <SliderPrimitive.Root
@@ -27,7 +27,10 @@ function Slider({
       thumbAlignment="edge"
       {...props}
     >
-      <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
+      {/* Thumbs are absolutely positioned (thumbAlignment="edge"), so without an
+          explicit cross-axis size the Control collapses to the 4px track and
+          clicks barely register — keep it as tall as the thumb circle. */}
+      <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:h-4 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-4 data-vertical:flex-col">
         <SliderPrimitive.Track
           data-slot="slider-track"
           className="relative grow overflow-hidden rounded-full bg-muted select-none data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
