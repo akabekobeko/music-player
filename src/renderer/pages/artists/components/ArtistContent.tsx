@@ -1,5 +1,6 @@
 import { Disc3, Play, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Stack, VStack } from "@/components/app/stacks";
@@ -54,7 +55,9 @@ export const ArtistContent = ({ artistName }: Props) => {
         )}
         <Stack className="min-w-0 flex-1">
           <div>
-            <h1 className="truncate font-semibold text-lg">{artistName}</h1>
+            <h1 className="font-semibold text-lg">
+              <EllipsisText text={artistName} />
+            </h1>
             <p className="text-muted-foreground text-sm">
               {t("artist.albumCount", { count: groups.length })}
               {" · "}
@@ -139,11 +142,12 @@ export const ArtistContent = ({ artistName }: Props) => {
                       </VStack>
                     )}
                     <div className="min-w-0 flex-1 pb-1">
-                      <h2 className="truncate font-medium text-base">
-                        {row.group.album}
+                      <h2 className="font-medium text-base">
+                        <EllipsisText text={row.group.album} />
                       </h2>
-                      <p className="truncate text-muted-foreground text-xs">
-                        {[
+                      <EllipsisText
+                        className="text-muted-foreground text-xs"
+                        text={[
                           row.group.year !== null
                             ? String(row.group.year)
                             : null,
@@ -153,7 +157,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                         ]
                           .filter((part) => part !== null)
                           .join(" · ")}
-                      </p>
+                      />
                     </div>
                     <RowMenu
                       items={[

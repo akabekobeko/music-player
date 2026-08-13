@@ -1,6 +1,7 @@
 import type { Music } from "@mp/ipc";
 import { Pause, Play, Volume2 } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { HStack } from "@/components/app/stacks";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
@@ -91,14 +92,14 @@ export const MusicRow = ({
     </span>
     <button
       type="button"
-      className={cn(
-        "min-w-0 flex-1 cursor-default truncate text-left outline-none",
-        playing !== null && "font-medium text-primary",
-      )}
+      className="min-w-0 flex-1 cursor-default text-left outline-none"
       onClick={onClick}
       onDoubleClick={onPlay}
     >
-      {music.title}
+      <EllipsisText
+        className={cn(playing !== null && "font-medium text-primary")}
+        text={music.title}
+      />
     </button>
     {columns}
     <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">

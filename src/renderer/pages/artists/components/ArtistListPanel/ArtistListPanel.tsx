@@ -2,6 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { UserRound } from "lucide-react";
 import { useRef, useState } from "react";
 import { useMatch, useNavigate } from "react-router";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { Stack } from "@/components/app/stacks";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
@@ -112,9 +113,11 @@ export const ArtistListPanel = () => {
                   </span>
                 )}
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate">
-                    {artist.name !== "" ? artist.name : t("artist.unknown")}
-                  </span>
+                  <EllipsisText
+                    text={
+                      artist.name !== "" ? artist.name : t("artist.unknown")
+                    }
+                  />
                   <span className="block truncate text-[11px] text-muted-foreground">
                     {t("artist.songs", { count: artist.musicCount })}
                   </span>

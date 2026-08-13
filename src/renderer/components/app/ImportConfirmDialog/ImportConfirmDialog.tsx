@@ -48,7 +48,7 @@ export const ImportConfirmDialog = () => {
         {confirmingFiles.length > 0 && (
           <ul className="max-h-64 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
             {confirmingFiles.map((file) => (
-              <li key={file} title={file} className="truncate py-0.5">
+              <li key={file} className="break-all py-0.5">
                 {file}
               </li>
             ))}
