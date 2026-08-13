@@ -1,5 +1,6 @@
 import { ListMusic, Pencil, Play, Shuffle as ShuffleIcon } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Stack, VStack } from "@/components/app/stacks";
@@ -52,8 +53,8 @@ export const PlaylistContent = ({ routeId }: Props) => {
         </VStack>
         <Stack className="min-w-0 flex-1">
           <div>
-            <h1 className="flex items-center gap-2 truncate font-semibold text-lg">
-              {playlist?.name ?? ""}
+            <h1 className="flex min-w-0 items-center gap-2 font-semibold text-lg">
+              <EllipsisText className="min-w-0" text={playlist?.name ?? ""} />
               {ref.kind === "smart" && (
                 <Badge variant="secondary">{t("playlist.smartBadge")}</Badge>
               )}
@@ -143,12 +144,14 @@ export const PlaylistContent = ({ routeId }: Props) => {
                   ordinal={item.index + 1}
                   columns={
                     <>
-                      <span className="w-1/4 shrink-0 truncate text-muted-foreground text-xs">
-                        {music.artist}
-                      </span>
-                      <span className="w-1/4 shrink-0 truncate text-muted-foreground text-xs">
-                        {music.album}
-                      </span>
+                      <EllipsisText
+                        className="w-1/4 shrink-0 text-muted-foreground text-xs"
+                        text={music.artist}
+                      />
+                      <EllipsisText
+                        className="w-1/4 shrink-0 text-muted-foreground text-xs"
+                        text={music.album}
+                      />
                     </>
                   }
                   playing={playingStateOf(music)}

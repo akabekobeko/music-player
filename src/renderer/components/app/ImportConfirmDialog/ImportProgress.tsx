@@ -22,10 +22,7 @@ export const ImportProgress = ({ state }: Props) => {
           style={{ width: `${Math.round(ratio * 100)}%` }}
         />
       </div>
-      <p
-        className="truncate font-mono text-xs text-muted-foreground"
-        title={progress?.filePath}
-      >
+      <p className="break-all font-mono text-xs text-muted-foreground">
         {progress?.filePath ?? ""}
       </p>
       {progress !== null && progress.errors > 0 && (

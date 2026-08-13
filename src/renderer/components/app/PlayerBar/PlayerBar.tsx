@@ -8,6 +8,7 @@ import {
   Square,
   X,
 } from "lucide-react";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { HStack, VStack } from "@/components/app/stacks";
 import {
   Alert,
@@ -48,6 +49,9 @@ export const PlayerBar = () => {
     displayDuration,
     dismissError,
   } = usePlayerBar();
+
+  const albumSuffix =
+    current !== null && current.album !== "" ? ` — ${current.album}` : "";
 
   return (
     <div className="col-span-2">
@@ -110,14 +114,21 @@ export const PlayerBar = () => {
             </VStack>
           )}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm">
+            <EllipsisText
+              className="text-sm"
+              text={
+                current !== null
+                  ? `${current.title} / ${current.artist}${albumSuffix}`
+                  : t("player.noMusic")
+              }
+            >
               {current !== null ? (
                 <>
                   <span className="font-medium">{current.title}</span>
                   <span className="text-muted-foreground">
                     {" / "}
                     {current.artist}
-                    {current.album !== "" ? ` — ${current.album}` : ""}
+                    {albumSuffix}
                   </span>
                 </>
               ) : (
@@ -125,7 +136,7 @@ export const PlayerBar = () => {
                   {t("player.noMusic")}
                 </span>
               )}
-            </p>
+            </EllipsisText>
             <SeekBar
               currentTime={snapshot.currentTime}
               duration={snapshot.duration}

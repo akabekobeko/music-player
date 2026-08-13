@@ -1,5 +1,6 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Disc3, Play } from "lucide-react";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
@@ -61,10 +62,11 @@ export const AlbumCard = ({
           <Play className="size-4" />
         </button>
       </div>
-      <p className="truncate pt-2 font-medium text-sm" title={album.album}>
-        {album.album}
-      </p>
-      <p className="truncate text-muted-foreground text-xs">{album.artist}</p>
+      <EllipsisText className="pt-2 font-medium text-sm" text={album.album} />
+      <EllipsisText
+        className="text-muted-foreground text-xs"
+        text={album.artist}
+      />
       <p className="text-muted-foreground text-xs tabular-nums">
         {album.year !== null ? album.year : "—"}
       </p>

@@ -1,4 +1,5 @@
 import { Pause, Volume2 } from "lucide-react";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 import { LIST_HEIGHT, useQueueList } from "./useQueueList";
@@ -52,17 +53,17 @@ export const QueueList = () => {
                   ))}
               </span>
               <span className="min-w-0 flex-1">
-                <span
+                <EllipsisText
                   className={cn(
-                    "block truncate text-sm",
+                    "text-sm",
                     isCurrent && "font-medium text-primary",
                   )}
-                >
-                  {music.title}
-                </span>
-                <span className="block truncate text-[11px] text-muted-foreground">
-                  {music.artist}
-                </span>
+                  text={music.title}
+                />
+                <EllipsisText
+                  className="text-[11px] text-muted-foreground"
+                  text={music.artist}
+                />
               </span>
               <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
                 {formatTime(music.durationMs / 1000)}

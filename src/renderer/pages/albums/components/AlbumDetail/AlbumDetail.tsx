@@ -1,6 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Play } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
@@ -36,9 +37,12 @@ export const AlbumDetail = ({ album }: Props) => {
     <div className="rounded-md border bg-muted/30 px-4 py-3">
       <header className="flex items-center gap-3 pb-2">
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-medium text-base">{album.album}</h2>
-          <p className="truncate text-muted-foreground text-xs">
-            {[
+          <h2 className="font-medium text-base">
+            <EllipsisText text={album.album} />
+          </h2>
+          <EllipsisText
+            className="text-muted-foreground text-xs"
+            text={[
               album.artist,
               album.year !== null ? String(album.year) : null,
               album.genre !== "" ? album.genre : null,
@@ -47,7 +51,7 @@ export const AlbumDetail = ({ album }: Props) => {
             ]
               .filter((part) => part !== null)
               .join(" · ")}
-          </p>
+          />
         </div>
         <Button size="sm" disabled={musics.length === 0} onClick={playAll}>
           <Play /> {t("player.play")}

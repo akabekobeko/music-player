@@ -1,4 +1,5 @@
 import { ListMusic, Plus, Sparkles } from "lucide-react";
+import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Stack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
@@ -115,11 +116,11 @@ export const PlaylistListPanel = () => {
               ) : (
                 <button
                   type="button"
-                  className="min-w-0 flex-1 truncate py-1 text-left text-sm"
+                  className="min-w-0 flex-1 py-1 text-left text-sm"
                   onClick={() => openPlaylist(routeId)}
                   onDoubleClick={() => setEditingRouteId(routeId)}
                 >
-                  {playlist.name}
+                  <EllipsisText text={playlist.name} />
                 </button>
               )}
               <span

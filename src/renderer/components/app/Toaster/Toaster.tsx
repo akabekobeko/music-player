@@ -17,7 +17,7 @@ export const Toaster = () => {
         <button
           key={toast.id}
           type="button"
-          className="pointer-events-auto max-w-xs truncate rounded-md border bg-popover px-3 py-2 text-left text-popover-foreground text-sm shadow-md"
+          className="pointer-events-auto max-w-xs break-all rounded-md border bg-popover px-3 py-2 text-left text-popover-foreground text-sm shadow-md"
           onClick={() => toastStore.dismiss(toast.id)}
         >
           {toast.message}
