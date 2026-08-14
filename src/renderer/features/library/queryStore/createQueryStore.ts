@@ -86,6 +86,23 @@ export const createQueryStore = (fetch: QueryFetcher): QueryStore => {
     },
     getSnapshot: <T>(key: QueryKey): FetchState<T> =>
       (entries.get(key)?.state ?? LOADING) as FetchState<T>,
+    patch: <T>(key: QueryKey, updater: (value: T) => T): void => {
+      const entry = entries.get(key);
+      if (entry === undefined || entry.state.status !== "success") {
+        return;
+      }
+
+      // Bump the generation so an in-flight response cannot overwrite the
+      // patch: the patch reflects a mutation that response predates.
+      entry.generation += 1;
+      entry.state = {
+        status: "success",
+        value: updater(entry.state.value as T),
+      };
+      for (const listener of [...entry.listeners]) {
+        listener();
+      }
+    },
     invalidate: (key) => {
       const targets =
         key === undefined ? [...entries.keys()] : entries.has(key) ? [key] : [];

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
 
 /**
  * Delete tracks from the library and garbage-collect orphaned artwork.
@@ -36,22 +37,9 @@ export const removeMusicsFromLibrary = (
       "DELETE FROM artist_pictures WHERE artist NOT IN (SELECT DISTINCT artist FROM musics)",
     ).run();
 
-    const orphans = db
-      .prepare(
-        `SELECT id, file_path FROM pictures
-         WHERE id NOT IN (SELECT picture_id FROM musics WHERE picture_id IS NOT NULL)
-           AND id NOT IN (SELECT picture_id FROM artist_pictures)`,
-      )
-      .all() as Array<{ id: number; file_path: string }>;
-    if (orphans.length > 0) {
-      const ids = orphans.map(() => "?").join(", ");
-      db.prepare(`DELETE FROM pictures WHERE id IN (${ids})`).run(
-        ...orphans.map((o) => o.id),
-      );
-    }
-
+    const orphaned = deleteOrphanedPictures(db);
     db.exec("COMMIT");
-    return orphans.map((o) => o.file_path);
+    return orphaned;
   } catch (error) {
     db.exec("ROLLBACK");
     throw error;

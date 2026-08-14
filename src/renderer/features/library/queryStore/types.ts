@@ -44,4 +44,13 @@ export type QueryStore = {
    * @param key - Single key to invalidate, or omit for the whole store.
    */
   readonly invalidate: (key?: QueryKey) => void;
+  /**
+   * Update a cached success value in place — no refetch. Used by mutation
+   * commands whose IPC response already tells the new state, so views update
+   * without a loading flicker. A no-op unless the key holds a success state.
+   *
+   * @param key - Query key to patch.
+   * @param updater - Maps the cached value to the next one.
+   */
+  readonly patch: <T>(key: QueryKey, updater: (value: T) => T) => void;
 };

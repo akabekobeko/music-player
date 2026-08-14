@@ -163,3 +163,51 @@ it("subscribe → unsubscribe → subscribe around a pending fetch stays stable"
     value: ["a"],
   });
 });
+
+it("patch updates a cached success value and notifies listeners", async () => {
+  const { fetch, pending } = createManualFetcher();
+  const store = createQueryStore(fetch);
+  const listener = vi.fn();
+  store.subscribe("artists", listener);
+  pending[0]?.resolve(ok(["a", "b"]));
+  await flush();
+
+  store.patch<readonly string[]>("artists", (value) => [...value, "c"]);
+  expect(listener).toHaveBeenCalledTimes(2);
+  expect(store.getSnapshot("artists")).toEqual({
+    status: "success",
+    value: ["a", "b", "c"],
+  });
+});
+
+it("patch is a no-op for unknown or non-success keys", () => {
+  const { fetch, pending } = createManualFetcher();
+  const store = createQueryStore(fetch);
+  store.patch("missing", () => ["x"]);
+  expect(store.getSnapshot("missing")).toEqual({ status: "loading" });
+
+  const listener = vi.fn();
+  store.subscribe("artists", listener); // Still loading.
+  store.patch("artists", () => ["x"]);
+  expect(listener).not.toHaveBeenCalled();
+  expect(pending).toHaveLength(1);
+  expect(store.getSnapshot("artists")).toEqual({ status: "loading" });
+});
+
+it("invalidate after a patch still refetches and applies the response", async () => {
+  const { fetch, pending } = createManualFetcher();
+  const store = createQueryStore(fetch);
+  store.subscribe("artists", vi.fn());
+  pending[0]?.resolve(ok(["a"]));
+  await flush();
+
+  store.patch<readonly string[]>("artists", (value) => [...value, "b"]);
+  store.invalidate("artists");
+  expect(pending).toHaveLength(2);
+  pending[1]?.resolve(ok(["fresh"]));
+  await flush();
+  expect(store.getSnapshot("artists")).toEqual({
+    status: "success",
+    value: ["fresh"],
+  });
+});
