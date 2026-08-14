@@ -1,15 +1,6 @@
 import { createHash } from "node:crypto";
 import type { PictureInfo } from "@akabeko/music-metadata-editor";
-
-/** File extension per image MIME type; unknown types keep a generic ext. */
-const EXTENSION_BY_MIME: Readonly<Record<string, string>> = {
-  "image/jpeg": "jpg",
-  "image/jpg": "jpg",
-  "image/png": "png",
-  "image/gif": "gif",
-  "image/webp": "webp",
-  "image/bmp": "bmp",
-};
+import { IMAGE_EXTENSION_BY_MIME } from "./IMAGE_EXTENSION_BY_MIME";
 
 /**
  * Content-hash file name for an image: SHA-256 of the bytes plus a
@@ -25,6 +16,7 @@ const EXTENSION_BY_MIME: Readonly<Record<string, string>> = {
  */
 export const artworkFileName = (picture: PictureInfo): string => {
   const hash = createHash("sha256").update(picture.data).digest("hex");
-  const extension = EXTENSION_BY_MIME[picture.mimeType.toLowerCase()] ?? "img";
+  const extension =
+    IMAGE_EXTENSION_BY_MIME[picture.mimeType.toLowerCase()] ?? "img";
   return `${hash}.${extension}`;
 };

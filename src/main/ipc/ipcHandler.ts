@@ -18,6 +18,7 @@ import { onPlaylistList } from "./onPlaylistList";
 import { onPlaylistRemove } from "./onPlaylistRemove";
 import { onPlaylistUpdate } from "./onPlaylistUpdate";
 import { onRemoveMusics } from "./onRemoveMusics";
+import { onSetArtistPicture } from "./onSetArtistPicture";
 import { onSetSettings } from "./onSetSettings/onSetSettings";
 
 /**
@@ -57,6 +58,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
   ipcMain.handle(IpcKeys.GetFilterOptions, onGetFilterOptions);
   ipcMain.handle(IpcKeys.GetStats, onGetStats);
+  ipcMain.handle(IpcKeys.SetArtistPicture, onSetArtistPicture);
   ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
   ipcMain.handle(IpcKeys.PlaylistList, onPlaylistList);
   ipcMain.handle(IpcKeys.PlaylistCreate, onPlaylistCreate);
@@ -92,6 +94,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetAlbums);
   ipcMain.removeHandler(IpcKeys.GetFilterOptions);
   ipcMain.removeHandler(IpcKeys.GetStats);
+  ipcMain.removeHandler(IpcKeys.SetArtistPicture);
   ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);
   ipcMain.removeHandler(IpcKeys.PlaylistList);
   ipcMain.removeHandler(IpcKeys.PlaylistCreate);

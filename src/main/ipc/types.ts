@@ -394,6 +394,22 @@ export type RemoveMusicsRequest = {
   readonly musicIds: readonly number[];
 };
 
+/** Request payload for `mp:library:setArtistPicture`. */
+export type SetArtistPictureRequest = {
+  /** Artist name (the `musics.artist` value); must not be empty. */
+  readonly artist: string;
+  /** MIME type of the image (`"image/jpeg"`, `"image/png"`, …). */
+  readonly mimeType: string;
+  /** Raw image bytes read from the user-selected file. */
+  readonly data: Uint8Array;
+};
+
+/** Successful payload of `mp:library:setArtistPicture`. */
+export type SetArtistPictureOk = {
+  /** Absolute path of the stored image under `userData/images/`. */
+  readonly picturePath: string;
+};
+
 /** Request payload for `mp:library:getMusicsByArtist`. */
 export type GetMusicsByArtistRequest = {
   readonly artist: string;
@@ -511,6 +527,10 @@ export type MpBridge = {
     ) => Promise<IpcResult<readonly Music[]>>;
     readonly getFilterOptions: () => Promise<IpcResult<FilterOptions>>;
     readonly getStats: () => Promise<IpcResult<LibraryStats>>;
+    /** Set (or replace) an artist's representative picture. */
+    readonly setArtistPicture: (
+      request: SetArtistPictureRequest,
+    ) => Promise<IpcResult<SetArtistPictureOk>>;
     /** Subscribe to import progress pushes. */
     readonly onImportProgress: (
       listener: (payload: ImportProgressPayload) => void,

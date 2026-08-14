@@ -6,6 +6,7 @@ import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
+import { artistEditStore } from "@/features/library/artistEditStore";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useArtistContent } from "./useArtistContent";
@@ -88,6 +89,15 @@ export const ArtistContent = ({ artistName }: Props) => {
               { label: t("player.play"), onSelect: playAll },
               { label: t("player.shuffle"), onSelect: playShuffled },
               <AddToPlaylistSubmenu key="playlist" musics={playOrder} />,
+              {
+                label: t("artistEdit.menu"),
+                onSelect: () =>
+                  artistEditStore.open({
+                    name: artistName,
+                    picturePath: artist?.picturePath ?? null,
+                  }),
+                separatorBefore: true,
+              },
             ]}
           />
         </span>

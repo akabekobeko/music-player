@@ -1,11 +1,18 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { UserRound } from "lucide-react";
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useMatch, useNavigate } from "react-router";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { Stack } from "@/components/app/stacks";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
+import { artistEditStore } from "@/features/library/artistEditStore";
 import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle/compareNameWithoutArticle";
 import { useArtists } from "@/features/library/useArtists";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
@@ -80,9 +87,8 @@ export const ArtistListPanel = () => {
             }
 
             const selected = artist.name === artistName;
-            return (
+            const row = (
               <button
-                key={artist.name}
                 type="button"
                 className={cn(
                   "absolute top-0 left-0 flex w-full items-center gap-2 px-3 text-left text-sm",
@@ -123,6 +129,29 @@ export const ArtistListPanel = () => {
                   </span>
                 </span>
               </button>
+            );
+            // Editing keys off the artist name; the empty-name bucket
+            // ("Unknown Artist") cannot hold a picture, so no menu there.
+            if (artist.name === "") {
+              return <Fragment key="">{row}</Fragment>;
+            }
+
+            return (
+              <ContextMenu key={artist.name}>
+                <ContextMenuTrigger render={row} />
+                <ContextMenuContent>
+                  <ContextMenuItem
+                    onClick={() => {
+                      artistEditStore.open({
+                        name: artist.name,
+                        picturePath: artist.picturePath,
+                      });
+                    }}
+                  >
+                    {t("artistEdit.menu")}
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
             );
           })}
         </div>
