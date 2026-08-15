@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@akabeko/music-metadata-editor':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.1.0
+        version: 1.1.0
       '@base-ui/react':
         specifier: ^1.7.0
         version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -92,8 +92,8 @@ importers:
 
 packages:
 
-  '@akabeko/music-metadata-editor@1.0.4':
-    resolution: {integrity: sha512-OXRBca8/M8KIsmSdipQ0WWuS+acvuatYPmvhoZ2PLouax3eMb9lU2gutPWtO0joyNtQLcO2lgZV+svHjCrG9Ng==}
+  '@akabeko/music-metadata-editor@1.1.0':
+    resolution: {integrity: sha512-VjJaTxUdIFrZOScQXVSLaXWvkK79I/lWhZN5AcUVuFR9j9sI3D47KdT0RyYknmWuUISX+By+vXEoSvC2m0BFkw==}
     engines: {node: '>=24'}
 
   '@babel/code-frame@7.29.7':
@@ -3215,7 +3215,7 @@ packages:
 
 snapshots:
 
-  '@akabeko/music-metadata-editor@1.0.4': {}
+  '@akabeko/music-metadata-editor@1.1.0': {}
 
   '@babel/code-frame@7.29.7':
     dependencies:
