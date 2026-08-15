@@ -9,6 +9,9 @@ type AlbumRow = {
   album: string;
   year: number | null;
   genre: string;
+  producer: string;
+  conductor: string;
+  publisher: string;
   musicCount: number;
   totalDurationMs: number;
   picturePath: string | null;
@@ -51,6 +54,9 @@ export const getAlbums = (
          m.album             AS album,
          MIN(m.year)         AS year,
          MAX(m.genre)        AS genre,
+         MAX(m.producer)     AS producer,
+         MAX(m.conductor)    AS conductor,
+         MAX(m.publisher)    AS publisher,
          COUNT(*)            AS musicCount,
          SUM(m.duration_ms)  AS totalDurationMs,
          MAX(p.file_path)    AS picturePath
@@ -69,6 +75,9 @@ export const getAlbums = (
     artist: row.artist,
     year: row.year,
     genre: row.genre,
+    producer: row.producer,
+    conductor: row.conductor,
+    publisher: row.publisher,
     musicCount: row.musicCount,
     totalDurationMs: row.totalDurationMs,
     picturePath: row.picturePath,

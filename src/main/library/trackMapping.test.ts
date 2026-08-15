@@ -26,6 +26,10 @@ it("maps a fully tagged track", () => {
         year: 2001,
         genre: "Rock",
         composer: "Composer",
+        lyricist: "Lyricist",
+        producer: "Producer",
+        conductor: "Conductor",
+        publisher: "Publisher",
         bpm: 120,
         rating: 0.8,
       },
@@ -44,6 +48,10 @@ it("maps a fully tagged track", () => {
     year: 2001,
     genre: "Rock",
     composer: "Composer",
+    lyricist: "Lyricist",
+    producer: "Producer",
+    conductor: "Conductor",
+    publisher: "Publisher",
     durationMs: 1234,
     bpm: 120,
     rating: 0.8,
@@ -66,6 +74,10 @@ it("defaults unset text tags to empty strings", () => {
   expect(row.album).toBe("");
   expect(row.genre).toBe("");
   expect(row.composer).toBe("");
+  expect(row.lyricist).toBe("");
+  expect(row.producer).toBe("");
+  expect(row.conductor).toBe("");
+  expect(row.publisher).toBe("");
 });
 
 it("defaults disc to 1 and track to 0", () => {

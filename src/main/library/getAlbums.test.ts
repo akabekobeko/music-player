@@ -32,6 +32,10 @@ const row = (
   year: null,
   genre: "",
   composer: "",
+  lyricist: "",
+  producer: "",
+  conductor: "",
+  publisher: "",
   durationMs: 0,
   bpm: null,
   rating: null,
@@ -61,6 +65,9 @@ it("groups tracks by album identity and aggregates the summary", () => {
       artist: "Artist",
       year: 1999,
       genre: "",
+      producer: "",
+      conductor: "",
+      publisher: "",
       musicCount: 1,
       totalDurationMs: 0,
       picturePath: null,
@@ -71,11 +78,37 @@ it("groups tracks by album identity and aggregates the summary", () => {
       artist: "Artist",
       year: 2001,
       genre: "Rock",
+      producer: "",
+      conductor: "",
+      publisher: "",
       musicCount: 2,
       totalDurationMs: 150,
       picturePath: null,
     },
   ]);
+});
+
+it("aggregates representative producer / conductor / publisher (non-empty wins)", () => {
+  upsertMusic(
+    db,
+    row("/m/1.mp3", { producer: "", conductor: "", publisher: "" }),
+    NOW,
+  );
+  upsertMusic(
+    db,
+    row("/m/2.mp3", {
+      producer: "Producer",
+      conductor: "Conductor",
+      publisher: "Publisher",
+    }),
+    NOW,
+  );
+
+  expect(getAlbums(db, {})[0]).toMatchObject({
+    producer: "Producer",
+    conductor: "Conductor",
+    publisher: "Publisher",
+  });
 });
 
 it("keeps same-named albums by different album artists separate", () => {

@@ -14,6 +14,10 @@ CREATE TABLE musics (
   year         INTEGER,                       -- unknown is NULL (avoid conflating with 0)
   genre        TEXT    NOT NULL DEFAULT '',
   composer     TEXT    NOT NULL DEFAULT '',
+  lyricist     TEXT    NOT NULL DEFAULT '',
+  producer     TEXT    NOT NULL DEFAULT '',
+  conductor    TEXT    NOT NULL DEFAULT '',
+  publisher    TEXT    NOT NULL DEFAULT '',
   duration_ms  INTEGER NOT NULL DEFAULT 0,    -- from mme; may be inaccurate for VBR MP3
   bpm          INTEGER,
   rating       REAL,                          -- mme normalised value [0,1]

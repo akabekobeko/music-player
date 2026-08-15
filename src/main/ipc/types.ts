@@ -65,6 +65,11 @@ export type Music = {
   readonly year: number | null;
   readonly genre: string;
   readonly composer: string;
+  readonly lyricist: string;
+  readonly producer: string;
+  readonly conductor: string;
+  /** Publisher / record label. */
+  readonly publisher: string;
   /** Duration reported by mme; may be inaccurate for VBR MP3 without Xing. */
   readonly durationMs: number;
   readonly bpm: number | null;
@@ -110,6 +115,12 @@ export type AlbumSummary = {
   /** Representative release year. `null` when unknown. */
   readonly year: number | null;
   readonly genre: string;
+  /** Representative producer (any non-empty value of the group). */
+  readonly producer: string;
+  /** Representative conductor (any non-empty value of the group). */
+  readonly conductor: string;
+  /** Representative publisher / record label (any non-empty value of the group). */
+  readonly publisher: string;
   readonly musicCount: number;
   readonly totalDurationMs: number;
   /** Absolute path of the representative artwork, or `null`. */

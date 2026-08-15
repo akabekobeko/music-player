@@ -44,6 +44,7 @@ for each file (セマフォで並列数 8):
 | `tag.title` | `title` | 空なら拡張子を除いたファイル名で補完 |
 | `tag.artist` / `tag.albumArtist` | `artist` / `album_artist` | 未設定は空文字 |
 | `tag.album` / `tag.genre` / `tag.composer` | `album` / `genre` / `composer` | 〃 |
+| `tag.lyricist` / `tag.producer` / `tag.conductor` / `tag.publisher` | `lyricist` / `producer` / `conductor` / `publisher` | 〃 |
 | `tag.discNumber` / `tag.trackNumber` | `disc` / `track` | 未設定は 1 / 0 |
 | `tag.year` | `year` | 未設定は NULL |
 | `tag.bpm` / `tag.rating` | `bpm` / `rating` | 未設定は NULL。rating は [0,1] 正規化値のまま |

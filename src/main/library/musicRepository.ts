@@ -14,12 +14,12 @@ import type { MusicRowInput } from "./trackMapping";
 const UPSERT_SQL = `
 INSERT INTO musics (
   file_path, audio_format, title, artist, album_artist, album,
-  disc, track, year, genre, composer, duration_ms, bpm, rating,
-  picture_id, added_at, updated_at
+  disc, track, year, genre, composer, lyricist, producer, conductor,
+  publisher, duration_ms, bpm, rating, picture_id, added_at, updated_at
 ) VALUES (
   :filePath, :audioFormat, :title, :artist, :albumArtist, :album,
-  :disc, :track, :year, :genre, :composer, :durationMs, :bpm, :rating,
-  :pictureId, :now, :now
+  :disc, :track, :year, :genre, :composer, :lyricist, :producer, :conductor,
+  :publisher, :durationMs, :bpm, :rating, :pictureId, :now, :now
 )
 ON CONFLICT(file_path) DO UPDATE SET
   audio_format = excluded.audio_format,
@@ -32,6 +32,10 @@ ON CONFLICT(file_path) DO UPDATE SET
   year         = excluded.year,
   genre        = excluded.genre,
   composer     = excluded.composer,
+  lyricist     = excluded.lyricist,
+  producer     = excluded.producer,
+  conductor    = excluded.conductor,
+  publisher    = excluded.publisher,
   duration_ms  = excluded.duration_ms,
   bpm          = excluded.bpm,
   rating       = excluded.rating,
@@ -70,6 +74,10 @@ export const upsertMusic = (
     year: row.year,
     genre: row.genre,
     composer: row.composer,
+    lyricist: row.lyricist,
+    producer: row.producer,
+    conductor: row.conductor,
+    publisher: row.publisher,
     durationMs: row.durationMs,
     bpm: row.bpm,
     rating: row.rating,
