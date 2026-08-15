@@ -9,14 +9,14 @@ type Props = {
   readonly album: AlbumSummary;
   /** Card width in px, computed by the grid layout. */
   readonly width: number;
-  /** Whether this card's inline detail row is expanded. */
+  /** Whether this card's album is shown in the detail pane below the grid. */
   readonly expanded: boolean;
   readonly onToggle: () => void;
   readonly onPlay: () => void;
 };
 
 /**
- * One album card: artwork (click = toggle the inline detail) with a hover
+ * One album card: artwork (click = toggle the detail pane) with a hover
  * ▶ overlay, then name / artist / year.
  */
 export const AlbumCard = ({

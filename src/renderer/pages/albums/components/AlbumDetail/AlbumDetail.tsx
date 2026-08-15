@@ -14,7 +14,7 @@ type Props = {
 };
 
 /**
- * Inline album detail under the expanded card
+ * Album detail in the resizable pane below the grid
  * (`docs/specs/v1.0/features/album-view.md`): header (Play / menu) and the
  * track list via the shared `MusicRow` (disc split, row menu, playing
  * highlight). Every playback action queues **only this album's tracks** —
