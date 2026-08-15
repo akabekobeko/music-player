@@ -60,6 +60,11 @@ v1.0 の開発計画と設計仕様を、機能・粒度ごとに分割して管
 - [ルーティングとレイアウト](renderer/routing-layout.md)
   - React Router による画面遷移、アプリ全体のレイアウト
 
+### クロスプラットフォーム
+
+- [システムメニュー](cross-platform/system-menu.md)
+  - タイトルバーレス構成でのメニュー表示位置の調査と対応方針の選択肢
+
 ### 機能仕様
 
 - [ライブラリー管理](features/library.md)
