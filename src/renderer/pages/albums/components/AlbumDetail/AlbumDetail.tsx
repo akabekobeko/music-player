@@ -14,11 +14,12 @@ type Props = {
 };
 
 /**
- * Album detail in the resizable pane below the grid
- * (`docs/specs/v1.0/features/album-view.md`): header (Play / menu) and the
- * track list via the shared `MusicRow` (disc split, row menu, playing
- * highlight). Every playback action queues **only this album's tracks** —
- * unlike the Artist view, the filter context means "listen to this album".
+ * Album detail filling the resizable pane below the grid
+ * (`docs/specs/v1.0/features/album-view.md`): a fixed header (album info,
+ * Play / menu) over the scrollable track list via the shared `MusicRow`
+ * (disc split, row menu, playing highlight). Every playback action queues
+ * **only this album's tracks** — unlike the Artist view, the filter context
+ * means "listen to this album".
  */
 export const AlbumDetail = ({ album }: Props) => {
   const t = useT();
@@ -34,8 +35,8 @@ export const AlbumDetail = ({ album }: Props) => {
   } = useAlbumDetail(album.albumKey);
 
   return (
-    <div className="rounded-md border bg-muted/30 px-4 py-3">
-      <header className="flex items-center gap-3 pb-2">
+    <div className="flex h-full flex-col">
+      <header className="flex items-center gap-3 border-b px-6 py-3">
         <div className="min-w-0 flex-1">
           <h2 className="font-medium text-base">
             <EllipsisText text={album.album} />
@@ -69,56 +70,61 @@ export const AlbumDetail = ({ album }: Props) => {
         />
       </header>
 
-      {musicsState.status === "error" && (
-        <p className="break-all py-2 text-destructive text-sm">
-          {t("library.loadFailed", { message: musicsState.error.message })}
-        </p>
-      )}
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-2">
+        {musicsState.status === "error" && (
+          <p className="break-all py-2 text-destructive text-sm">
+            {t("library.loadFailed", { message: musicsState.error.message })}
+          </p>
+        )}
 
-      {discNumbers.map((disc) => (
-        <div key={disc}>
-          {discNumbers.length > 1 && (
-            <p className="flex h-8 items-end px-2 font-medium text-muted-foreground text-xs">
-              {t("album.disc", { number: disc })}
-            </p>
-          )}
-          {musics
-            .filter((music) => music.disc === disc)
-            .map((music) => (
-              <MusicRow
-                key={music.id}
-                music={music}
-                playing={playingStateOf(music)}
-                onPlay={() => playFrom(music)}
-                menu={
-                  <RowMenu
-                    items={[
-                      {
-                        label: t("player.play"),
-                        onSelect: () => playFrom(music),
-                      },
-                      {
-                        label: t("menu.playNext"),
-                        onSelect: () => commands.insertNext([music]),
-                      },
-                      {
-                        label: t("menu.addToQueue"),
-                        onSelect: () => commands.appendToQueue([music]),
-                      },
-                      <AddToPlaylistSubmenu key="playlist" musics={[music]} />,
-                      {
-                        label: t("menu.removeFromLibrary"),
-                        onSelect: () => removeFromLibrary(music),
-                        destructive: true,
-                        separatorBefore: true,
-                      },
-                    ]}
-                  />
-                }
-              />
-            ))}
-        </div>
-      ))}
+        {discNumbers.map((disc) => (
+          <div key={disc}>
+            {discNumbers.length > 1 && (
+              <p className="flex h-8 items-end px-2 font-medium text-muted-foreground text-xs">
+                {t("album.disc", { number: disc })}
+              </p>
+            )}
+            {musics
+              .filter((music) => music.disc === disc)
+              .map((music) => (
+                <MusicRow
+                  key={music.id}
+                  music={music}
+                  playing={playingStateOf(music)}
+                  onPlay={() => playFrom(music)}
+                  menu={
+                    <RowMenu
+                      items={[
+                        {
+                          label: t("player.play"),
+                          onSelect: () => playFrom(music),
+                        },
+                        {
+                          label: t("menu.playNext"),
+                          onSelect: () => commands.insertNext([music]),
+                        },
+                        {
+                          label: t("menu.addToQueue"),
+                          onSelect: () => commands.appendToQueue([music]),
+                        },
+                        <AddToPlaylistSubmenu
+                          key="playlist"
+                          musics={[music]}
+                        />,
+                        {
+                          label: t("menu.removeFromLibrary"),
+                          onSelect: () => removeFromLibrary(music),
+                          destructive: true,
+                          separatorBefore: true,
+                        },
+                      ]}
+                    />
+                  }
+                />
+              ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

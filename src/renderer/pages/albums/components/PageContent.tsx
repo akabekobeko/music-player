@@ -100,9 +100,7 @@ export const PageContent = () => {
           <>
             <ResizableHandle withHandle />
             <ResizablePanel className="min-h-0" defaultSize="40" minSize="15">
-              <div className="h-full overflow-x-hidden overflow-y-auto px-6 py-4">
-                <AlbumDetail album={selectedAlbum} />
-              </div>
+              <AlbumDetail album={selectedAlbum} />
             </ResizablePanel>
           </>
         )}
