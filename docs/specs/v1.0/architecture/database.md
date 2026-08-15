@@ -93,6 +93,10 @@ CREATE TABLE musics (
   year         INTEGER,                       -- 不明は NULL (0 との混同を避ける)
   genre        TEXT    NOT NULL DEFAULT '',
   composer     TEXT    NOT NULL DEFAULT '',
+  lyricist     TEXT    NOT NULL DEFAULT '',
+  producer     TEXT    NOT NULL DEFAULT '',
+  conductor    TEXT    NOT NULL DEFAULT '',
+  publisher    TEXT    NOT NULL DEFAULT '',
   duration_ms  INTEGER NOT NULL DEFAULT 0,    -- mme 由来。VBR MP3 は不正確な場合あり
   bpm          INTEGER,
   rating       REAL,                          -- mme 正規化値 [0,1]
@@ -180,5 +184,5 @@ ON CONFLICT(file_path) DO UPDATE SET
 一覧系クエリの結果型 (`Artist`, `AlbumSummary`, `Music` など) は `src/main/ipc/types.ts` に定義します ([IPC 設計](ipc.md))。代表的なもの:
 
 - アーティスト一覧: `DISTINCT artist` + `artist_pictures` / `pictures` の LEFT JOIN
-- アルバム一覧 (Album ビュー): アルバムキーで GROUP BY し、曲数・総時間・年・ジャンル・代表アートワークを集計。フィルター条件 (`genre`, `year` 範囲、テキスト) は WHERE 句に変換
+- アルバム一覧 (Album ビュー): アルバムキーで GROUP BY し、曲数・総時間・年・ジャンル・プロデューサー・指揮者・パブリッシャー・代表アートワークを集計。フィルター条件 (`genre`, `year` 範囲、テキスト) は WHERE 句に変換
 - フィルター選択肢: `DISTINCT genre` (空文字除く)、`MIN(year) / MAX(year)`

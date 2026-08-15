@@ -18,6 +18,10 @@ export type MusicRow = {
   year: number | null;
   genre: string;
   composer: string;
+  lyricist: string;
+  producer: string;
+  conductor: string;
+  publisher: string;
   durationMs: number;
   bpm: number | null;
   rating: number | null;
@@ -40,6 +44,10 @@ export const MUSIC_COLUMNS = `
   m.year         AS year,
   m.genre        AS genre,
   m.composer     AS composer,
+  m.lyricist     AS lyricist,
+  m.producer     AS producer,
+  m.conductor    AS conductor,
+  m.publisher    AS publisher,
   m.duration_ms  AS durationMs,
   m.bpm          AS bpm,
   m.rating       AS rating,

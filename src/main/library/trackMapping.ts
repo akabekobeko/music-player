@@ -21,6 +21,10 @@ export type MusicRowInput = {
   readonly year: number | null;
   readonly genre: string;
   readonly composer: string;
+  readonly lyricist: string;
+  readonly producer: string;
+  readonly conductor: string;
+  readonly publisher: string;
   readonly durationMs: number;
   readonly bpm: number | null;
   readonly rating: number | null;
@@ -54,6 +58,10 @@ export const mapTrackToMusicRow = (
     year: track.tag.year ?? null,
     genre: track.tag.genre ?? "",
     composer: track.tag.composer ?? "",
+    lyricist: track.tag.lyricist ?? "",
+    producer: track.tag.producer ?? "",
+    conductor: track.tag.conductor ?? "",
+    publisher: track.tag.publisher ?? "",
     durationMs: track.durationMs ?? 0,
     bpm: track.tag.bpm ?? null,
     rating: track.tag.rating ?? null,

@@ -17,6 +17,12 @@ export type AlbumGroup = {
   readonly year: number | null;
   /** Representative genre (first non-empty). */
   readonly genre: string;
+  /** Representative producer (first non-empty). */
+  readonly producer: string;
+  /** Representative conductor (first non-empty). */
+  readonly conductor: string;
+  /** Representative publisher / record label (first non-empty). */
+  readonly publisher: string;
   readonly musicCount: number;
   readonly totalDurationMs: number;
   /** Representative artwork (first track that has one). */

@@ -50,6 +50,11 @@ export const groupAlbums = (musics: readonly Music[]): AlbumGroup[] => {
         null,
       ),
       genre: sorted.find((music) => music.genre !== "")?.genre ?? "",
+      producer: sorted.find((music) => music.producer !== "")?.producer ?? "",
+      conductor:
+        sorted.find((music) => music.conductor !== "")?.conductor ?? "",
+      publisher:
+        sorted.find((music) => music.publisher !== "")?.publisher ?? "",
       musicCount: sorted.length,
       totalDurationMs: sorted.reduce(
         (total, music) => total + music.durationMs,

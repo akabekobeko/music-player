@@ -17,6 +17,10 @@ const music = (patch: Partial<Music>): Music =>
     year: null,
     genre: "",
     composer: "",
+    lyricist: "",
+    producer: "",
+    conductor: "",
+    publisher: "",
     durationMs: 1000,
     bpm: null,
     rating: null,
@@ -80,6 +84,23 @@ it("derives representative year, genre, artwork, and totals", () => {
     musicCount: 2,
     totalDurationMs: 300,
     picturePath: "/img/a.jpg",
+  });
+});
+
+it("derives representative producer / conductor / publisher (first non-empty)", () => {
+  const groups = groupAlbums([
+    music({ album: "A", producer: "", conductor: "", publisher: "" }),
+    music({
+      album: "A",
+      producer: "Producer",
+      conductor: "Conductor",
+      publisher: "Publisher",
+    }),
+  ]);
+  expect(groups[0]).toMatchObject({
+    producer: "Producer",
+    conductor: "Conductor",
+    publisher: "Publisher",
   });
 });
 
