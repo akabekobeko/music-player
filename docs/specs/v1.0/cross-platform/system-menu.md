@@ -1,6 +1,6 @@
 # システムメニュー
 
-タイトルバーレス構成におけるシステムメニュー (アプリケーションメニュー) の扱いに関する調査結果です。
+タイトルバーレス構成におけるシステムメニュー (アプリケーションメニュー) の扱いに関する調査結果と採用方針です。
 
 ## 背景: 現在の実装
 
@@ -42,3 +42,11 @@ VS Code も同系統で、自前ヘッダー内のメニューボタン (ハン�
 | 自前メニューボタン + `Menu.popup()` | PlayerBar 帯内のボタンからドロップダウン | Slack / VS Code 方式。既存の 40px 帯にデザインを揃えられる。Alt キーで popup を開く導線も併設可能 |
 
 いずれの場合も macOS はシステムメニューバーを使うため現状のままとし、Windows (と Linux) のみ表示方法を分岐させます。
+
+## 採用方針: 自前メニューボタン + `Menu.popup()`
+
+Slack / VS Code 方式を採用しました。
+
+- Windows / Linux は、サイドバーツールバー左端のメニューボタン (Lucide `Menu`) から `mp:menu:popup` (send) を経由して `Menu.getApplicationMenu().popup()` を開きます。popup 位置は Renderer がボタンの矩形から算出して渡します ([ルーティングとレイアウト](../renderer/routing-layout.md) のツールバー節)
+- `Menu.setApplicationMenu` は従来どおり全プラットフォームで呼び続けます (アクセラレーターと popup の供給源)。Windows / Linux の BrowserWindow には `autoHideMenuBar: true` を設定し、ネイティブメニューバーの帯を常時表示させません。Alt キー押下時のみネイティブバーが現れる、Slack 旧版相当のアクセシビリティフォールバックが残ります
+- macOS はシステムメニューバーのため変更なし。メニューボタンも表示しません

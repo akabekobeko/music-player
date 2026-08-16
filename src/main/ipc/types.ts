@@ -135,6 +135,12 @@ export type AlbumSummary = {
 export type AlbumFilter = {
   /** Case-insensitive partial match against album and artist names. */
   readonly text?: string;
+  /**
+   * Case-insensitive partial match against track titles — only albums
+   * containing a matching track survive. Fed by the content toolbar's song
+   * filter; never persisted in `AppSettings.albumFilter`.
+   */
+  readonly musicTitle?: string;
   /** Selected genres. */
   readonly genres?: readonly string[];
   /**
@@ -459,6 +465,18 @@ export type MenuStateSnapshot = {
 };
 
 /**
+ * Request payload for `mp:menu:popup` — open the application menu as a
+ * dropdown at the given position (Windows / Linux menu button,
+ * `docs/specs/v1.0/cross-platform/system-menu.md`).
+ */
+export type MenuPopupRequest = {
+  /** Popup x position in CSS pixels, relative to the web contents. */
+  readonly x: number;
+  /** Popup y position in CSS pixels, relative to the web contents. */
+  readonly y: number;
+};
+
+/**
  * Severity of a `mp:log:forward` entry. Mirrors the subset of `console`
  * methods Renderer is allowed to forward.
  */
@@ -587,6 +605,8 @@ export type MpBridge = {
     ) => Unsubscribe;
     /** Push the latest menu-relevant state so Main can rebuild the menu. */
     readonly setState: (snapshot: MenuStateSnapshot) => void;
+    /** Open the application menu as a dropdown (Windows / Linux). */
+    readonly popup: (request: MenuPopupRequest) => void;
   };
   /** Log-forwarding channel for Renderer `console` output. */
   readonly log: {

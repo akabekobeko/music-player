@@ -12,6 +12,7 @@ import type { AlbumFilter } from "@mp/ipc";
  */
 export const serializeAlbumFilter = (filter: AlbumFilter): string => {
   const text = filter.text?.trim() ?? "";
+  const musicTitle = filter.musicTitle?.trim() ?? "";
   const genres = [...(filter.genres ?? [])].sort();
   const decades = [...(filter.decades ?? [])].sort(
     // Numeric ascending with the unknown-year marker (null) last.
@@ -19,6 +20,7 @@ export const serializeAlbumFilter = (filter: AlbumFilter): string => {
   );
   return JSON.stringify({
     ...(text !== "" ? { text } : {}),
+    ...(musicTitle !== "" ? { musicTitle } : {}),
     ...(genres.length > 0 ? { genres } : {}),
     ...(decades.length > 0 ? { decades } : {}),
   });

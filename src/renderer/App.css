@@ -120,9 +120,9 @@
 /*
  * Title-bar-less window support (docs/specs/v1.0/renderer/routing-layout.md).
  *
- * The PlayerBar band is the drag region; interactive elements inside it opt
- * out with .app-region-no-drag. Text in drag regions is unselectable so
- * window dragging never fights text selection.
+ * The sidebar / content toolbars are the drag regions; interactive elements
+ * inside them opt out with .app-region-no-drag. Text in drag regions is
+ * unselectable so window dragging never fights text selection.
  */
 @utility app-region-drag {
   -webkit-app-region: drag;
@@ -143,6 +143,8 @@
  */
 :root {
   --playerbar-height: 72px;
+  /* Toolbar band height; matches TITLE_BAR_OVERLAY_HEIGHT on the Main side. */
+  --toolbar-height: 40px;
   --titlebar-safe-left: env(titlebar-area-x, 0px);
   --titlebar-safe-right: calc(
     100vw -

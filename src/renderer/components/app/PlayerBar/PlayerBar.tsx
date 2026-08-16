@@ -25,14 +25,12 @@ import { usePlayerBar } from "./usePlayerBar";
 import { VolumeControl } from "./VolumeControl";
 
 /**
- * Top full-width player band doubling as the title bar
- * (`docs/specs/v1.0/features/player-ui.md`).
+ * Bottom full-width player band (`docs/specs/v1.0/features/player-ui.md`).
  *
- * Background and padding are the drag region; every interactive element
- * opts out with `.app-region-no-drag`. The center block (artwork + track
- * info + seek bar) uses the band's full height; transport controls sit
- * bottom-left, volume bottom-right, so the top edge stays clear of the
- * window controls.
+ * Sits below the sidebar and content columns, clear of the OS window
+ * controls — the title-bar duties (drag region, safe areas) belong to the
+ * toolbars now. Transport controls left, artwork + track info + seek bar
+ * center, queue and volume right, all vertically centered.
  */
 export const PlayerBar = () => {
   const t = useT();
@@ -55,8 +53,26 @@ export const PlayerBar = () => {
 
   return (
     <div className="col-span-2">
-      <header className="app-region-drag flex h-(--playerbar-height) items-stretch gap-3 border-b bg-sidebar pr-(--titlebar-safe-right) pl-(--titlebar-safe-left)">
-        <HStack className="app-region-no-drag items-end gap-0.5 pb-1.5 pl-2">
+      {visibleError !== null && (
+        <Alert variant="destructive" className="rounded-none border-x-0">
+          <AlertTitle>{t("player.errorTitle")}</AlertTitle>
+          <AlertDescription className="break-all">
+            [{visibleError.kind}] {visibleError.message}
+          </AlertDescription>
+          <AlertAction>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("player.dismiss")}
+              onClick={dismissError}
+            >
+              <X />
+            </Button>
+          </AlertAction>
+        </Alert>
+      )}
+      <footer className="flex h-(--playerbar-height) items-center gap-3 border-t bg-sidebar">
+        <HStack className="gap-0.5 pl-2">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -101,7 +117,7 @@ export const PlayerBar = () => {
           </Button>
         </HStack>
 
-        <HStack className="min-w-0 flex-1 gap-4 pt-2.5 pb-1.5">
+        <HStack className="min-w-0 flex-1 gap-4">
           {current?.picturePath != null ? (
             <img
               src={toMediaFileUrl(current.picturePath)}
@@ -147,32 +163,14 @@ export const PlayerBar = () => {
           </div>
         </HStack>
 
-        <HStack className="app-region-no-drag items-end gap-0.5 pr-2 pb-1.5">
+        <HStack className="gap-0.5 pr-2">
           <QueuePopover />
           <VolumeControl
             volume={snapshot.volume}
             onChange={commands.setVolume}
           />
         </HStack>
-      </header>
-      {visibleError !== null && (
-        <Alert variant="destructive" className="rounded-none border-x-0">
-          <AlertTitle>{t("player.errorTitle")}</AlertTitle>
-          <AlertDescription className="break-all">
-            [{visibleError.kind}] {visibleError.message}
-          </AlertDescription>
-          <AlertAction>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("player.dismiss")}
-              onClick={dismissError}
-            >
-              <X />
-            </Button>
-          </AlertAction>
-        </Alert>
-      )}
+      </footer>
     </div>
   );
 };

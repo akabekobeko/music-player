@@ -1,6 +1,6 @@
 import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { flattenAlbumMusics } from "@/features/library/flattenAlbumMusics";
 import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
@@ -12,6 +12,8 @@ import {
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { shuffle } from "@/features/player/shuffle";
+import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
+import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import {
   applySelectionClick,
   EMPTY_SELECTION,
@@ -33,7 +35,16 @@ export const useArtistContent = (artistName: string) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
 
-  const musics = musicsState.status === "success" ? musicsState.value : [];
+  const { applied: trackFilter } = useSyncExternalStore(
+    trackFilterStore.subscribe,
+    trackFilterStore.getSnapshot,
+  );
+
+  // The toolbar's song filter narrows the artist's tracks; albums regroup
+  // from the filtered list, so albums without a matching track disappear.
+  const musics = (
+    musicsState.status === "success" ? musicsState.value : []
+  ).filter((music) => matchesTrackFilter(music.title, trackFilter.artists));
   const groups = groupAlbums(musics);
   const rows = buildAlbumRows(groups);
   // The artist's full play order — every playback action queues this

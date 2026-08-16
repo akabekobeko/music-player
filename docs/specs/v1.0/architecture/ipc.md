@@ -77,6 +77,7 @@ Renderer は `import type { Music } from "@mp/ipc"` と書けます。`import ty
 | --- | --- |
 | `mp:log:forward` | Renderer のログを Main のログへ転送 |
 | `mp:menu:setState` | メニューの有効・無効状態の同期 (再生中かどうか等) |
+| `mp:menu:popup` | アプリケーションメニューをドロップダウン表示 (Windows / Linux のメニューボタン。[システムメニュー](../cross-platform/system-menu.md)) |
 
 ### Main → Renderer (push)
 

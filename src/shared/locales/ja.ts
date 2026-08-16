@@ -16,6 +16,9 @@ export const ja: Dictionary = {
   "dialog.db.migrationFailed.message":
     "ライブラリー データベースの更新に失敗しました: {message}",
   "sidebar.import": "インポート…",
+  "toolbar.toggleSidebar": "サイドバーを開閉",
+  "toolbar.menu": "メニュー",
+  "toolbar.filterSongs": "曲を絞り込む",
   "import.dialog.title": "音楽のインポート",
   "import.dialog.expanding": "音楽ファイルを検索しています…",
   "import.dialog.count": "{count} 件のファイルをインポートします。",

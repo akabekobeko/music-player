@@ -24,6 +24,15 @@ import {
 export type WindowChromeOptions = {
   readonly titleBarStyle: "hiddenInset" | "hidden";
   readonly titleBarOverlay?: TitleBarOverlayOptions;
+  /**
+   * Windows / Linux: keep Chromium from rendering the native menu bar as a
+   * layout-consuming band above the web contents. The application menu stays
+   * installed (accelerators keep working) and opens as a dropdown from the
+   * in-app menu button via `mp:menu:popup`; Alt still reveals the native bar
+   * as an accessibility fallback
+   * (`docs/specs/v1.0/cross-platform/system-menu.md`).
+   */
+  readonly autoHideMenuBar?: true;
 };
 
 /**
@@ -39,4 +48,8 @@ export const buildWindowChrome = (
 ): WindowChromeOptions =>
   platform === "darwin"
     ? { titleBarStyle: "hiddenInset" }
-    : { titleBarStyle: "hidden", titleBarOverlay: buildTitleBarOverlay(dark) };
+    : {
+        titleBarStyle: "hidden",
+        titleBarOverlay: buildTitleBarOverlay(dark),
+        autoHideMenuBar: true,
+      };

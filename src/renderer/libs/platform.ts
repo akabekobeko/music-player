@@ -25,3 +25,14 @@ export const detectPlatform = (userAgent: string): UiPlatform => {
 
   return "linux";
 };
+
+/**
+ * Read the platform bucket the bootstrap stamped on `<html data-platform>`.
+ *
+ * @returns The stamped bucket; `"linux"` when the attribute is missing
+ * (matches the {@link detectPlatform} fallback).
+ */
+export const getUiPlatform = (): UiPlatform => {
+  const value = document.documentElement.dataset.platform;
+  return value === "mac" || value === "windows" ? value : "linux";
+};

@@ -22,8 +22,9 @@ export const PlaylistContent = ({ routeId }: Props) => {
   const {
     ref,
     playlist,
-    musics,
+    rows,
     musicsState,
+    filterActive,
     totalDurationMs,
     scrollRef,
     virtualizer,
@@ -60,19 +61,19 @@ export const PlaylistContent = ({ routeId }: Props) => {
               )}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {t("artist.songs", { count: musics.length })}
+              {t("artist.songs", { count: rows.length })}
               {" · "}
               {formatTime(totalDurationMs / 1000)}
             </p>
           </div>
           <HStack>
-            <Button size="sm" disabled={musics.length === 0} onClick={playAll}>
+            <Button size="sm" disabled={rows.length === 0} onClick={playAll}>
               <Play /> {t("player.play")}
             </Button>
             <Button
               size="sm"
               variant="outline"
-              disabled={musics.length === 0}
+              disabled={rows.length === 0}
               onClick={playShuffled}
             >
               <ShuffleIcon /> {t("player.shuffle")}
@@ -100,11 +101,13 @@ export const PlaylistContent = ({ routeId }: Props) => {
           {t("library.loadFailed", { message: musicsState.error.message })}
         </p>
       )}
-      {musicsState.status === "success" && musics.length === 0 && (
-        <p className="px-6 py-6 text-muted-foreground text-sm">
-          {t("playlist.emptyTracks")}
-        </p>
-      )}
+      {musicsState.status === "success" &&
+        rows.length === 0 &&
+        !filterActive && (
+          <p className="px-6 py-6 text-muted-foreground text-sm">
+            {t("playlist.emptyTracks")}
+          </p>
+        )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-2">
         <ul
@@ -112,15 +115,16 @@ export const PlaylistContent = ({ routeId }: Props) => {
           style={{ height: virtualizer.getTotalSize() }}
         >
           {virtualizer.getVirtualItems().map((item) => {
-            const music = musics[item.index];
-            if (music === undefined) {
+            const row = rows[item.index];
+            if (row === undefined) {
               return null;
             }
 
+            const music = row.music;
             return (
               <li
                 key={item.index}
-                draggable={ref.kind === "static"}
+                draggable={ref.kind === "static" && !filterActive}
                 className={cn(
                   "absolute top-0 left-0 w-full",
                   overIndex === item.index &&
@@ -141,7 +145,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
               >
                 <MusicRow
                   music={music}
-                  ordinal={item.index + 1}
+                  ordinal={row.index + 1}
                   columns={
                     <>
                       <EllipsisText
@@ -179,7 +183,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                           ? [
                               {
                                 label: t("menu.removeFromPlaylist"),
-                                onSelect: () => removeRowAt(item.index),
+                                onSelect: () => removeRowAt(row.index),
                                 destructive: true,
                                 separatorBefore: true,
                               },

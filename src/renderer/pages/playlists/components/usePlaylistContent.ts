@@ -1,6 +1,6 @@
 import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicList/MusicList";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
@@ -13,6 +13,8 @@ import { shuffle } from "@/features/player/shuffle";
 import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
 import { replacePlaylistMusics } from "@/features/playlist/playlistCommands/replacePlaylistMusics";
 import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
+import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
+import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { moveItem } from "./moveItem";
 import { removeAt } from "./removeAt";
 
@@ -64,31 +66,47 @@ export const usePlaylistContent = (routeId: string) => {
   // the store still serves; a refetch retires it by identity.
   const musics =
     pending !== null && pending.base === fetched ? pending.order : fetched;
-  const totalDurationMs = musics.reduce(
+
+  const { applied: trackFilter } = useSyncExternalStore(
+    trackFilterStore.subscribe,
+    trackFilterStore.getSnapshot,
+  );
+  const filterActive = trackFilter.playlists.trim() !== "";
+  // The toolbar's song filter narrows what the list shows and plays. Rows
+  // carry their position in the unfiltered order because mutations
+  // (removal) address the playlist itself, not the filtered view; reorder
+  // is disabled while filtering so drag indices always match positions.
+  const rows = musics
+    .map((music, index) => ({ music, index }))
+    .filter(({ music }) =>
+      matchesTrackFilter(music.title, trackFilter.playlists),
+    );
+  const visibleMusics = rows.map(({ music }) => music);
+  const totalDurationMs = visibleMusics.reduce(
     (total, music) => total + music.durationMs,
     0,
   );
 
   const virtualizer = useVirtualizer({
-    count: musics.length,
+    count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => MUSIC_ROW_HEIGHT,
     overscan: 12,
   });
 
   const playFrom = (music: Music): void => {
-    void commands.playMusic(music, [...musics], "playlist");
+    void commands.playMusic(music, visibleMusics, "playlist");
   };
 
   const playAll = (): void => {
-    const first = musics[0];
+    const first = visibleMusics[0];
     if (first !== undefined) {
       playFrom(first);
     }
   };
 
   const playShuffled = (): void => {
-    const shuffled = shuffle(musics);
+    const shuffled = shuffle(visibleMusics);
     const first = shuffled[0];
     if (first !== undefined) {
       void commands.playMusic(first, shuffled, "playlist");
@@ -115,7 +133,7 @@ export const usePlaylistContent = (routeId: string) => {
   };
 
   const dropOn = (index: number): void => {
-    if (dragIndex !== null && dragIndex !== index) {
+    if (dragIndex !== null && dragIndex !== index && !filterActive) {
       commitOrder(moveItem(musics, dragIndex, index));
     }
 
@@ -153,8 +171,9 @@ export const usePlaylistContent = (routeId: string) => {
   return {
     ref,
     playlist,
-    musics,
+    rows,
     musicsState,
+    filterActive,
     totalDurationMs,
     scrollRef,
     virtualizer,

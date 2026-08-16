@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import { usePlayerCommands } from "@/features/player/PlayerProvider";
+import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { albumFilterStore } from "./albumFilterStore";
 import { buildAlbumGridRows } from "./buildAlbumGridRows";
 import { computeAlbumGridLayout } from "./computeAlbumGridLayout";
@@ -20,8 +21,15 @@ export const usePageContent = () => {
     albumFilterStore.subscribe,
     albumFilterStore.getSnapshot,
   );
+  const { applied: trackFilter } = useSyncExternalStore(
+    trackFilterStore.subscribe,
+    trackFilterStore.getSnapshot,
+  );
+  // The toolbar's song filter joins the sidebar filter for the query only —
+  // it never enters albumFilterStore, so it is not persisted with the rest.
+  const musicTitle = trackFilter.albums.trim();
   const albumsState = useLibraryQuery<readonly AlbumSummary[]>(
-    queryKeys.albums(applied),
+    queryKeys.albums(musicTitle === "" ? applied : { ...applied, musicTitle }),
   );
   const commands = usePlayerCommands();
   const scrollRef = useRef<HTMLDivElement | null>(null);
