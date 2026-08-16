@@ -4,6 +4,7 @@ import { AboutDialog } from "@/components/app/AboutDialog/AboutDialog";
 import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
 import { ArtistEditDialog } from "@/components/app/ArtistEditDialog/ArtistEditDialog";
 import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
+import { MusicInfoDialog } from "@/components/app/MusicInfoDialog/MusicInfoDialog";
 import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
 import { Sidebar } from "@/components/app/Sidebar/Sidebar";
 import { Toaster } from "@/components/app/Toaster/Toaster";
@@ -79,6 +80,7 @@ export const AppLayout = () => {
       <ImportConfirmDialog />
       <NewPlaylistDialog />
       <ArtistEditDialog />
+      <MusicInfoDialog />
       <AboutDialog />
       <Toaster />
     </div>

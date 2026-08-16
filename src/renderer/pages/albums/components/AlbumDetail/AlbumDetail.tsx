@@ -6,6 +6,7 @@ import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { useAlbumDetail } from "./useAlbumDetail";
 
@@ -111,6 +112,11 @@ export const AlbumDetail = ({ album }: Props) => {
                           key="playlist"
                           musics={[music]}
                         />,
+                        {
+                          label: t("menu.musicInfo"),
+                          onSelect: () => musicInfoStore.open(music),
+                          separatorBefore: true,
+                        },
                         {
                           label: t("menu.removeFromLibrary"),
                           onSelect: () => removeFromLibrary(music),

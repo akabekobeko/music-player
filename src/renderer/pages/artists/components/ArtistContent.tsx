@@ -7,6 +7,7 @@ import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { artistEditStore } from "@/features/library/artistEditStore";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useArtistContent } from "./useArtistContent";
@@ -224,6 +225,11 @@ export const ArtistContent = ({ artistName }: Props) => {
                             key="playlist"
                             musics={playlistTargetsOf(row.music)}
                           />,
+                          {
+                            label: t("menu.musicInfo"),
+                            onSelect: () => musicInfoStore.open(row.music),
+                            separatorBefore: true,
+                          },
                           {
                             label: t("menu.removeFromLibrary"),
                             onSelect: () => removeFromLibrary(row.music),

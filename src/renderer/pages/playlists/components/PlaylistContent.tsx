@@ -7,6 +7,7 @@ import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
@@ -179,6 +180,11 @@ export const PlaylistContent = ({ routeId }: Props) => {
                           key="playlist"
                           musics={[music]}
                         />,
+                        {
+                          label: t("menu.musicInfo"),
+                          onSelect: () => musicInfoStore.open(music),
+                          separatorBefore: true,
+                        },
                         ...(ref.kind === "static"
                           ? [
                               {
