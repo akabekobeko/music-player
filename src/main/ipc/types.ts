@@ -346,6 +346,13 @@ export type AppSettings = {
   readonly theme?: ThemePreference;
   /** Album view filter, restored on next launch. */
   readonly albumFilter?: AlbumFilter;
+  /** Sidebar layout state, restored on next launch. */
+  readonly sidebar?: {
+    /** Whether the sidebar column is visible. */
+    readonly open: boolean;
+    /** Sidebar column width in pixels. */
+    readonly width: number;
+  };
 };
 
 /**

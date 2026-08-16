@@ -37,6 +37,22 @@ it("replaces albumFilter wholesale", () => {
   expect(merged.albumFilter).toEqual({ genres: ["Rock"] });
 });
 
+it("replaces sidebar wholesale", () => {
+  const current = { ...DEFAULT_SETTINGS, sidebar: { open: true, width: 224 } };
+  const merged = mergeSettings(current, {
+    sidebar: { open: false, width: 300 },
+  });
+  expect(merged.sidebar).toEqual({ open: false, width: 300 });
+});
+
+it("keeps the current sidebar when the patch value is invalid", () => {
+  const current = { ...DEFAULT_SETTINGS, sidebar: { open: true, width: 224 } };
+  const merged = mergeSettings(current, {
+    sidebar: { open: true, width: Number.NaN },
+  });
+  expect(merged.sidebar).toEqual({ open: true, width: 224 });
+});
+
 it("does not mutate the current settings object", () => {
   const current = structuredClone(DEFAULT_SETTINGS);
   mergeSettings(current, { window: { width: 100 }, theme: "dark" });
