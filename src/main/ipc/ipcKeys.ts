@@ -33,6 +33,7 @@ export const IpcKeys = {
   // Renderer → Main (send)
   LogForward: "mp:log:forward",
   MenuSetState: "mp:menu:setState",
+  MenuPopup: "mp:menu:popup",
   // Main → Renderer (push)
   ImportProgress: "mp:library:importProgress",
   LibraryChanged: "mp:library:changed",

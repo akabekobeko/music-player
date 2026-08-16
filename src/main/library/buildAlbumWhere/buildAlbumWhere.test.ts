@@ -3,7 +3,20 @@ import { buildAlbumWhere } from "./buildAlbumWhere";
 
 it("builds no fragment for an empty filter", () => {
   expect(buildAlbumWhere({})).toEqual([]);
-  expect(buildAlbumWhere({ text: "  ", genres: [], decades: [] })).toEqual([]);
+  expect(
+    buildAlbumWhere({ text: "  ", musicTitle: "  ", genres: [], decades: [] }),
+  ).toEqual([]);
+});
+
+it("builds a musicTitle fragment matching track titles", () => {
+  expect(buildAlbumWhere({ musicTitle: "rain" })).toEqual([
+    { sql: "m.title LIKE ? ESCAPE '\\'", params: ["%rain%"] },
+  ]);
+});
+
+it("escapes LIKE metacharacters in the musicTitle", () => {
+  const [fragment] = buildAlbumWhere({ musicTitle: "100%_\\" });
+  expect(fragment?.params[0]).toBe("%100\\%\\_\\\\%");
 });
 
 it("builds a text fragment matching album and artist", () => {
@@ -47,8 +60,9 @@ it("maps the null decade to year IS NULL", () => {
 it("combines filter kinds with AND (one fragment per kind)", () => {
   const fragments = buildAlbumWhere({
     text: "a",
+    musicTitle: "b",
     genres: ["Rock"],
     decades: [2000],
   });
-  expect(fragments).toHaveLength(3);
+  expect(fragments).toHaveLength(4);
 });

@@ -17,6 +17,9 @@ export const en: Dictionary = {
   "dialog.db.migrationFailed.message":
     "Failed to update the library database: {message}",
   "sidebar.import": "Import…",
+  "toolbar.toggleSidebar": "Toggle sidebar",
+  "toolbar.menu": "Menu",
+  "toolbar.filterSongs": "Filter songs",
   "import.dialog.title": "Import Music",
   "import.dialog.expanding": "Scanning for audio files…",
   "import.dialog.count": "{count} files will be imported.",

@@ -31,6 +31,14 @@ export const buildAlbumWhere = (filter: AlbumFilter): WhereFragment[] => {
     });
   }
 
+  const musicTitle = filter.musicTitle?.trim() ?? "";
+  if (musicTitle !== "") {
+    fragments.push({
+      sql: `m.title LIKE ? ESCAPE '\\'`,
+      params: [`%${escapeLikePattern(musicTitle)}%`],
+    });
+  }
+
   const genres = filter.genres ?? [];
   if (genres.length > 0) {
     fragments.push({

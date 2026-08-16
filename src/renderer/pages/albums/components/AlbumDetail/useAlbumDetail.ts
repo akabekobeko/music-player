@@ -1,4 +1,5 @@
 import type { Music } from "@mp/ipc";
+import { useSyncExternalStore } from "react";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {
@@ -6,6 +7,8 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
+import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
+import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 
 /**
  * Logic of `AlbumDetail`: the album's tracks, the disc split, and every
@@ -20,7 +23,16 @@ export const useAlbumDetail = (albumKey: string) => {
   const { current } = usePlayerState();
   const playbackState = usePlaybackState();
 
-  const musics = musicsState.status === "success" ? musicsState.value : [];
+  const { applied: trackFilter } = useSyncExternalStore(
+    trackFilterStore.subscribe,
+    trackFilterStore.getSnapshot,
+  );
+
+  // The toolbar's song filter narrows the track list to match the grid,
+  // which the same text filters through SQL (`AlbumFilter.musicTitle`).
+  const musics = (
+    musicsState.status === "success" ? musicsState.value : []
+  ).filter((music) => matchesTrackFilter(music.title, trackFilter.albums));
   const discNumbers = [...new Set(musics.map((music) => music.disc))];
 
   const playFrom = (music: Music): void => {

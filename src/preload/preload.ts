@@ -84,6 +84,7 @@ const buildBridge = (): MpBridge => ({
     onAction: (listener) =>
       subscribe<MenuActionPayload>(IpcKeys.MenuAction, listener),
     setState: (snapshot) => ipcRenderer.send(IpcKeys.MenuSetState, snapshot),
+    popup: (request) => ipcRenderer.send(IpcKeys.MenuPopup, request),
   },
   log: {
     forward: (request) => ipcRenderer.send(IpcKeys.LogForward, request),

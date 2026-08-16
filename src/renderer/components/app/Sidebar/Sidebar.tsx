@@ -1,13 +1,12 @@
-import { Disc3, FolderInput, ListMusic, Settings, Users } from "lucide-react";
+import { Disc3, ListMusic, Users } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
+import { SidebarToolbar } from "@/components/app/Toolbar/SidebarToolbar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useT } from "@/features/i18n/useT";
-import { importStore } from "@/features/import/importStore/importStore";
 import { cn } from "@/libs/utils";
 import { AlbumFilterPanel } from "@/pages/albums/components/AlbumFilterPanel/AlbumFilterPanel";
 import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";
@@ -20,15 +19,6 @@ const NAV_ITEMS = [
   { to: "/playlists", label: "Playlists", Icon: ListMusic },
 ] as const;
 
-/** Shared classes for every sidebar navigation link. */
-const linkClassName = ({ isActive }: { isActive: boolean }): string =>
-  cn(
-    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium",
-    isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
-  );
-
 /** Classes for the horizontal mode-switch tabs (styled after audio-player). */
 const tabClassName = ({ isActive }: { isActive: boolean }): string =>
   cn(
@@ -39,15 +29,16 @@ const tabClassName = ({ isActive }: { isActive: boolean }): string =>
   );
 
 /**
- * Left sidebar: horizontal mode-switch tabs on top (audio-player style) + a
- * route-specific secondary area whose content is decided by the active route
- * (artist list, album filters, playlists).
+ * Left sidebar: the title-bar-height toolbar on top, horizontal mode-switch
+ * tabs (audio-player style) below it, then a route-specific secondary area
+ * whose content is decided by the active route (artist list, album filters,
+ * playlists). Import / Settings moved into the toolbar's icon cluster.
  */
 export const Sidebar = () => {
-  const t = useT();
   const { pathname } = useLocation();
   return (
-    <aside className="flex flex-col overflow-hidden border-r bg-sidebar">
+    <aside className="flex w-56 flex-col overflow-hidden border-r bg-sidebar">
+      <SidebarToolbar />
       <TooltipProvider>
         {/* Padded wrapper instead of margin on the nav pill: the sibling
             secondary area's border-t must keep spanning edge to edge. */}
@@ -78,20 +69,6 @@ export const Sidebar = () => {
         {pathname.startsWith("/albums") && <AlbumFilterPanel />}
         {pathname.startsWith("/playlists") && <PlaylistListPanel />}
       </div>
-      <nav className="flex flex-col gap-1 border-t p-2">
-        <button
-          type="button"
-          className={cn(linkClassName({ isActive: false }), "text-left")}
-          onClick={() => void importStore.openFromDialog()}
-        >
-          <FolderInput aria-hidden className="size-4" />
-          {t("sidebar.import")}
-        </button>
-        <NavLink to="/settings" className={linkClassName}>
-          <Settings aria-hidden className="size-4" />
-          Settings
-        </NavLink>
-      </nav>
     </aside>
   );
 };

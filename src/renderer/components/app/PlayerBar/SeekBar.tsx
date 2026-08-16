@@ -40,7 +40,7 @@ export const SeekBar = ({
   const shown = dragValue ?? Math.min(currentTime, duration || currentTime);
 
   return (
-    <HStack className="app-region-no-drag">
+    <HStack>
       <span className="w-10 text-right font-mono text-[11px] text-muted-foreground tabular-nums">
         {formatTime(shown)}
       </span>

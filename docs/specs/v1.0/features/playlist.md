@@ -19,6 +19,7 @@
 - Sidebar (Playlist ビュー) の「+ New playlist」で作成。名前はインライン編集
 - 曲の追加: 各ビューの曲・アルバム・アーティストメニューの「Add to playlist ▸ (一覧 + New playlist)」
 - 並べ替え: プレイリスト内で Drag & Drop。確定時に `mp:playlist:update` で全並びを保存 ([データベース](../architecture/database.md))
+- 曲絞り込み (コンテンツツールバーのテキストボックス。[ルーティングとレイアウト](../renderer/routing-layout.md)): 選択中プレイリストの曲をタイトルの部分一致で絞り込み (クライアント側)。絞り込み中は Drag & Drop 並べ替えを無効化し、行番号は元の並び順を維持します
 - 削除: 曲の削除 (プレイリストから外す)、プレイリスト自体の削除 (確認ダイアログ)
 - 同一曲の重複追加は許可します (position が identity のため構造上も問題ない)
 
