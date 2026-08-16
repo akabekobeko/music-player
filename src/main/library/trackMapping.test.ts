@@ -93,6 +93,18 @@ it("keeps unset year / bpm / rating as NULL (never 0)", () => {
   expect(row.rating).toBeNull();
 });
 
+it("nullifies a junk year of 0 or less, keeping historic years", () => {
+  expect(
+    mapTrackToMusicRow(track({ tag: { year: -1 } }), "/m/a.mp3").year,
+  ).toBeNull();
+  expect(
+    mapTrackToMusicRow(track({ tag: { year: 0 } }), "/m/a.mp3").year,
+  ).toBeNull();
+  expect(
+    mapTrackToMusicRow(track({ tag: { year: 1709 } }), "/m/a.mp3").year,
+  ).toBe(1709);
+});
+
 it("defaults an unknown duration to 0", () => {
   expect(
     mapTrackToMusicRow(track({ durationMs: undefined }), "/m/a.mp3").durationMs,

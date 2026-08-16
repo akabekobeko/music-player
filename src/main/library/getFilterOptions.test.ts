@@ -56,16 +56,18 @@ it("lists distinct genres with album counts, excluding empty", () => {
   ]);
 });
 
-it("reports the library-wide year range", () => {
+it("lists only the decades that contain tracks, ascending", () => {
   upsertMusic(db, row("/m/1.mp3", { album: "A", year: 1987 }), NOW);
-  upsertMusic(db, row("/m/2.mp3", { album: "B", year: 2020 }), NOW);
-  upsertMusic(db, row("/m/3.mp3", { album: "C", year: null }), NOW);
+  upsertMusic(db, row("/m/2.mp3", { album: "B", year: 1985 }), NOW);
+  upsertMusic(db, row("/m/3.mp3", { album: "C", year: 2020 }), NOW);
+  upsertMusic(db, row("/m/4.mp3", { album: "D", year: 1709 }), NOW);
+  upsertMusic(db, row("/m/5.mp3", { album: "E", year: null }), NOW);
 
-  expect(getFilterOptions(db).yearRange).toEqual({ min: 1987, max: 2020 });
+  expect(getFilterOptions(db).decades).toEqual([1700, 1980, 2020]);
 });
 
-it("returns a null year range for an empty or year-less library", () => {
-  expect(getFilterOptions(db).yearRange).toBeNull();
+it("returns no decades for an empty or year-less library", () => {
+  expect(getFilterOptions(db).decades).toEqual([]);
   upsertMusic(db, row("/m/1.mp3", { year: null }), NOW);
-  expect(getFilterOptions(db).yearRange).toBeNull();
+  expect(getFilterOptions(db).decades).toEqual([]);
 });

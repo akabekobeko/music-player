@@ -6,8 +6,9 @@ import type { Track } from "@akabeko/music-metadata-editor";
  *
  * Mirrors the import mapping table in `docs/specs/v1.0/features/library.md`:
  * unset text tags become empty strings, unset year / bpm / rating become
- * `NULL`, disc defaults to 1 and track to 0. `lyrics` / `chapters` are
- * deliberately absent (v1.x scope).
+ * `NULL`, disc defaults to 1 and track to 0. A year tag of 0 or less is junk
+ * (e.g. ID3 TYE = "-1" written by some taggers) and also becomes `NULL`.
+ * `lyrics` / `chapters` are deliberately absent (v1.x scope).
  */
 export type MusicRowInput = {
   readonly filePath: string;
@@ -55,7 +56,10 @@ export const mapTrackToMusicRow = (
     album: track.tag.album ?? "",
     disc: track.tag.discNumber ?? 1,
     track: track.tag.trackNumber ?? 0,
-    year: track.tag.year ?? null,
+    year:
+      track.tag.year !== undefined && track.tag.year > 0
+        ? track.tag.year
+        : null,
     genre: track.tag.genre ?? "",
     composer: track.tag.composer ?? "",
     lyricist: track.tag.lyricist ?? "",
