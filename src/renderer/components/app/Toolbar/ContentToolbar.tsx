@@ -19,7 +19,7 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
  */
 export const ContentToolbar = () => {
   const t = useT();
-  const sidebarOpen = useSyncExternalStore(
+  const sidebar = useSyncExternalStore(
     sidebarStore.subscribe,
     sidebarStore.getSnapshot,
   );
@@ -32,7 +32,12 @@ export const ContentToolbar = () => {
 
   return (
     <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 border-b pr-[calc(var(--titlebar-safe-right)+0.375rem)]">
-      {!sidebarOpen && <ToolbarIconCluster />}
+      {!sidebar.open && (
+        <ToolbarIconCluster
+          className="shrink-0"
+          style={{ width: sidebar.width }}
+        />
+      )}
       <div className="min-w-0 flex-1" />
       {section !== null && (
         <Input

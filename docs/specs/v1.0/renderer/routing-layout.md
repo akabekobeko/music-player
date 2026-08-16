@@ -44,7 +44,7 @@ audio-player の方式を踏襲し、CSS の `-webkit-app-region` で制御し�
 
 ## レイアウト
 
-audio-player の構成 (左サイドバー + 右コンテンツ) を基本に、プレーヤーは**最下段・全幅の帯**、最上段はサイドバー / コンテンツ領域それぞれが持つ**タイトルバー相当のツールバー帯** (高さ `--toolbar-height: 40px` = `titleBarOverlay.height`) です。react-resizable-panels は使わずシンプルな CSS Grid で開始します (パネルリサイズは要望が出てから)。
+audio-player の構成 (左サイドバー + 右コンテンツ) を基本に、プレーヤーは**最下段・全幅の帯**、最上段はサイドバー / コンテンツ領域それぞれが持つ**タイトルバー相当のツールバー帯** (高さ `--toolbar-height: 40px` = `titleBarOverlay.height`) です。サイドバー / コンテンツの左右分割は react-resizable-panels (`ResizablePanelGroup` horizontal) で、サイドバーはドラッグでリサイズできます。ウィンドウリサイズ時はサイドバーのピクセル幅を維持します (`groupResizeBehavior="preserve-pixel-size"`)。
 
 VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Music のプレーヤー下段配置に倣った構成です。ウィンドウ操作コントロールを避けて PlayerBar をレイアウトする必要がなくなり、美観・機能の両面で調整が単純になります。
 
@@ -61,7 +61,7 @@ VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Mu
 ```
 
 - **PlayerBar**: 全ルートで常時表示。最下段・全幅で、ウィンドウ操作コントロールと衝突しないためセーフエリア調整は不要です。内部レイアウトは [プレーヤー UI](../features/player-ui.md)
-- **Sidebar**: 最上段にツールバー、その下にナビゲーション (Artists / Albums / Playlists)、下段にビュー固有のセカンダリー領域。幅は 14rem (`w-56`) 固定
+- **Sidebar**: 最上段にツールバー、その下にナビゲーション (Artists / Albums / Playlists)、下段にビュー固有のセカンダリー領域。幅はリサイズ可能 (160〜480px、初期値 224px = 14rem)
   - Artist ビュー: アーティスト一覧
   - Album ビュー: フィルター UI ([Album ビュー](../features/album-view.md))
   - Playlist ビュー: プレイリスト一覧 + 新規作成
@@ -88,7 +88,7 @@ VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Mu
 - Album ビュー: `AlbumFilter.musicTitle` として SQL WHERE に合流し、一致曲を含むアルバムだけをグリッドに表示。下段の曲リストも同じテキストで絞り込み
 - Playlist ビュー: 選択中プレイリストの曲をタイトルで絞り込み。絞り込み中は並べ替えドラッグを無効化 (行番号は元の並び順を維持)
 
-**サイドバー開閉** — 開閉状態は `sidebarStore` (React 外ストア、非永続) が持ちます。閉じている間はサイドバーのアイコンクラスターがコンテンツ領域ツールバーの左端に移り、クラスターの幅・配置をサイドバー幅 (14rem) と揃えることで、**開閉を操作しても各アイコンの画面上の位置が変わりません**。
+**サイドバー開閉・幅** — 開閉状態と幅は `sidebarStore` (React 外ストア) が持ち、変更のたびに `AppSettings.sidebar` へ永続化して再起動時に復元します (幅の保存はドラッグ確定時 = `onLayoutChanged`)。閉じている間はサイドバーのアイコンクラスターがコンテンツ領域ツールバーの左端に移り、クラスターの幅・配置を保存済みサイドバー幅と揃えることで、**開閉を操作しても各アイコンの画面上の位置が変わりません**。
 
 ## ブートストラップと Provider 構成
 

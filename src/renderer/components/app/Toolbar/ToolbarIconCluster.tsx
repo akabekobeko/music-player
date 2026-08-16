@@ -1,5 +1,5 @@
 import { FolderInput, Menu, PanelLeft, Settings } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import { NavLink } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,14 @@ import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore/importStore";
 import { sidebarStore } from "@/features/layout/sidebarStore";
 import { getUiPlatform } from "@/libs/platform";
+import { cn } from "@/libs/utils";
+
+type ToolbarIconClusterProps = {
+  /** Host-specific sizing classes (the cluster has no width of its own). */
+  readonly className?: string;
+  /** Host-specific inline sizing, e.g. the persisted sidebar width. */
+  readonly style?: CSSProperties;
+};
 
 /**
  * Icon cluster of the toolbar band
@@ -20,18 +28,28 @@ import { getUiPlatform } from "@/libs/platform";
  * (`docs/specs/v1.0/cross-platform/system-menu.md`).
  *
  * Lives in the sidebar toolbar while the sidebar is open and in the content
- * toolbar while it is closed. The fixed sidebar width (`w-56`) and the
- * per-platform arrangement are identical in both hosts, so every icon —
- * including the toggle itself — keeps its screen position across a toggle:
+ * toolbar while it is closed. The host decides the width: the sidebar
+ * toolbar lets it fill the (resizable) sidebar, the content toolbar sizes
+ * it to the persisted sidebar width, so every icon — including the toggle
+ * itself — keeps its screen position across a toggle:
  * - macOS: traffic-lights safe area on the left, then the icons.
  * - Windows / Linux: menu button on the left edge, the rest on the right.
  */
-export const ToolbarIconCluster = () => {
+export const ToolbarIconCluster = ({
+  className,
+  style,
+}: ToolbarIconClusterProps) => {
   const t = useT();
   const platform = getUiPlatform();
   return (
     <TooltipProvider delay={TOOLTIP_DELAY_MS}>
-      <div className="flex h-full w-56 shrink-0 items-center gap-0.5 pr-1.5 pl-[calc(var(--titlebar-safe-left)+0.375rem)]">
+      <div
+        className={cn(
+          "flex h-full items-center gap-0.5 pr-1.5 pl-[calc(var(--titlebar-safe-left)+0.375rem)]",
+          className,
+        )}
+        style={style}
+      >
         {platform !== "mac" && (
           <>
             <ClusterButton

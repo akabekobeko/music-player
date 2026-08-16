@@ -37,7 +37,7 @@ const tabClassName = ({ isActive }: { isActive: boolean }): string =>
 export const Sidebar = () => {
   const { pathname } = useLocation();
   return (
-    <aside className="flex w-56 flex-col overflow-hidden border-r bg-sidebar">
+    <aside className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar">
       <SidebarToolbar />
       <TooltipProvider>
         {/* Padded wrapper instead of margin on the nav pill: the sibling

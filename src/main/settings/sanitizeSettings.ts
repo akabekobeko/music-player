@@ -4,6 +4,7 @@ import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
 import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
+import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
  * Validate raw JSON read from `settings.json` into an {@link AppSettings}.
@@ -43,6 +44,9 @@ export const sanitizeSettings = (raw: unknown): AppSettings => {
     ...(isThemePreference(source.theme) ? { theme: source.theme } : {}),
     ...(sanitizeAlbumFilter(source.albumFilter)
       ? { albumFilter: sanitizeAlbumFilter(source.albumFilter) }
+      : {}),
+    ...(sanitizeSidebar(source.sidebar)
+      ? { sidebar: sanitizeSidebar(source.sidebar) }
       : {}),
   };
 };

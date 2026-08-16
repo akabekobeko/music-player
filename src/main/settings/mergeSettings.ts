@@ -3,6 +3,7 @@ import { asFiniteNumber } from "./asFiniteNumber";
 import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
+import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
  * Apply a `mp:settings:set` patch onto the current settings.
@@ -55,5 +56,13 @@ export const mergeSettings = (
     patch.albumFilter !== undefined
       ? sanitizeAlbumFilter(patch.albumFilter)
       : current.albumFilter;
-  return albumFilter !== undefined ? { ...merged, albumFilter } : merged;
+  const sidebar =
+    patch.sidebar !== undefined
+      ? (sanitizeSidebar(patch.sidebar) ?? current.sidebar)
+      : current.sidebar;
+  return {
+    ...merged,
+    ...(albumFilter !== undefined ? { albumFilter } : {}),
+    ...(sidebar !== undefined ? { sidebar } : {}),
+  };
 };

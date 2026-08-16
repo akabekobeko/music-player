@@ -52,7 +52,7 @@ export const PlayerBar = () => {
     current !== null && current.album !== "" ? ` — ${current.album}` : "";
 
   return (
-    <div className="col-span-2">
+    <div className="shrink-0">
       {visibleError !== null && (
         <Alert variant="destructive" className="rounded-none border-x-0">
           <AlertTitle>{t("player.errorTitle")}</AlertTitle>

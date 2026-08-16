@@ -8,6 +8,6 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
  */
 export const SidebarToolbar = () => (
   <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center border-b">
-    <ToolbarIconCluster />
+    <ToolbarIconCluster className="flex-1" />
   </div>
 );
