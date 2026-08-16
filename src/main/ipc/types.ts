@@ -157,8 +157,12 @@ export type FilterOptions = {
     readonly name: string;
     readonly count: number;
   }>;
-  /** Library-wide year range, or `null` when no track has a year. */
-  readonly yearRange: { readonly min: number; readonly max: number } | null;
+  /**
+   * Distinct decade start years (e.g. `1990` = 1990s) that actually contain
+   * tracks, ascending. Empty when no track has a year — unknown-year tracks
+   * are handled by the panel's separate "Unknown" item, not this list.
+   */
+  readonly decades: readonly number[];
 };
 
 /** Library-wide counters shown by the settings page's library section. */

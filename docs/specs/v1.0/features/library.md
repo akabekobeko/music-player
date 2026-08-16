@@ -46,7 +46,7 @@ for each file (セマフォで並列数 8):
 | `tag.album` / `tag.genre` / `tag.composer` | `album` / `genre` / `composer` | 〃 |
 | `tag.lyricist` / `tag.producer` / `tag.conductor` / `tag.publisher` | `lyricist` / `producer` / `conductor` / `publisher` | 〃 |
 | `tag.discNumber` / `tag.trackNumber` | `disc` / `track` | 未設定は 1 / 0 |
-| `tag.year` | `year` | 未設定は NULL |
+| `tag.year` | `year` | 未設定・0 以下 (ジャンクタグ) は NULL |
 | `tag.bpm` / `tag.rating` | `bpm` / `rating` | 未設定は NULL。rating は [0,1] 正規化値のまま |
 | `durationMs` | `duration_ms` | VBR MP3 では推定値 ([技術選定](../architecture/tech-stack.md) の注意) |
 | `audioFormat` | `audio_format` | |

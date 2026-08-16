@@ -4,7 +4,6 @@ import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { decadeOptions } from "./decadeOptions";
 import { FilterCheckbox } from "./FilterCheckbox";
 import { FilterSection } from "./FilterSection";
 import { useAlbumFilterPanel } from "./useAlbumFilterPanel";
@@ -61,7 +60,7 @@ export const AlbumFilterPanel = () => {
         )}
         {options !== null && (
           <FilterSection value="decade" label={t("album.filter.decade")}>
-            {decadeOptions(options.yearRange).map((decade) => (
+            {options.decades.map((decade) => (
               <FilterCheckbox
                 key={decade}
                 label={`${decade}s`}

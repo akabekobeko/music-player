@@ -26,7 +26,7 @@
 - フィルター種別 (v1.0):
   - **テキスト検索**: アルバム名・アーティスト名の部分一致 (大文字小文字無視)
   - **ジャンル**: チェックボックス複数選択。選択肢は `mp:library:getFilterOptions` (件数つき)。複数選択は OR
-  - **年代**: 10 年区切り (1970s, 1980s, ...) のチェックボックス複数選択 (OR)。範囲はライブラリーの `MIN(year)` / `MAX(year)` から生成。year NULL のアルバムは「Unknown」項目で拾う
+  - **年代**: 10 年区切り (1970s, 1980s, ...) のチェックボックス複数選択 (OR)。選択肢は曲が実在する年代の distinct リスト (`mp:library:getFilterOptions`) — min–max の全列挙にすると外れ値 (作曲年タグなど) で空の年代が大量に並ぶため。year NULL のアルバムは「Unknown」項目で拾う
 - 種別間は **AND** で結合します (例: 「Rock」かつ「2000s」)
 - フィルター条件は `AlbumFilter` 型として `mp:library:getAlbums` に渡し、Main が WHERE 句に変換します ([データベース](../architecture/database.md))。Renderer 側での全件フィルターは行いません (1 万曲規模への備え)
 - 適用は即時 (Apply ボタンなし)。フィルター変更ハンドラーが state 更新とともにクエリストアの取得を起動し、IPC 呼び出しは 200ms debounce します (useEffect でフィルター state を監視して fetch する形は取らない)

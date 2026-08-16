@@ -75,6 +75,23 @@ it("rolls back a failed script and keeps the previous version", () => {
   expect(tableNames(db)).not.toContain("second");
 });
 
+it("nullifies junk years (<= 0) when migrating an existing library", () => {
+  db = new DatabaseSync(":memory:");
+  runMigrations(db, [migrations[0] as string]);
+  db.exec(
+    `INSERT INTO musics (file_path, audio_format, title, year, added_at, updated_at)
+     VALUES ('/m/a.mp3', 'mp3', 'T', -1, '', ''),
+            ('/m/b.mp3', 'mp3', 'T', 1987, '', '')`,
+  );
+
+  runMigrations(db);
+
+  const years = db
+    .prepare("SELECT year FROM musics ORDER BY file_path")
+    .all() as Array<{ year: number | null }>;
+  expect(years).toEqual([{ year: null }, { year: 1987 }]);
+});
+
 it("throws DatabaseDowngradeError when user_version is newer than the list", () => {
   db = new DatabaseSync(":memory:");
   db.exec("PRAGMA user_version = 99");

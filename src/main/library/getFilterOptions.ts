@@ -6,11 +6,13 @@ import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
  * Collect the filter choices for the sidebar (`mp:library:getFilterOptions`).
  *
  * Genres are distinct non-empty values with the number of albums (identity
- * key groups) they appear on; the year range spans the whole library so the
- * decade checkboxes can be generated from it.
+ * key groups) they appear on; decades are the distinct 10-year buckets that
+ * actually contain tracks — never a min–max sweep, which a single outlier
+ * year (a junk tag, a classical composition year) would blow up into
+ * hundreds of empty checkboxes.
  *
  * @param db - The open library connection.
- * @returns Genre choices and the library-wide year range.
+ * @returns Genre choices and the populated decade start years.
  */
 export const getFilterOptions = (db: DatabaseSync): FilterOptions => {
   const genres = db
@@ -26,14 +28,15 @@ export const getFilterOptions = (db: DatabaseSync): FilterOptions => {
        ORDER BY name`,
     )
     .all() as Array<{ name: string; count: number }>;
-  const range = db
-    .prepare("SELECT MIN(year) AS min, MAX(year) AS max FROM musics")
-    .get() as { min: number | null; max: number | null };
-  return {
-    genres,
-    yearRange:
-      range.min !== null && range.max !== null
-        ? { min: range.min, max: range.max }
-        : null,
-  };
+  // Decade bucketing happens in JS (Math.floor) — SQLite's integer division
+  // truncates toward zero, which would mis-bucket negative years.
+  const years = db
+    .prepare(
+      "SELECT DISTINCT year FROM musics WHERE year IS NOT NULL ORDER BY year",
+    )
+    .all() as Array<{ year: number }>;
+  const decades = [
+    ...new Set(years.map(({ year }) => Math.floor(year / 10) * 10)),
+  ];
+  return { genres, decades };
 };
