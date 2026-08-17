@@ -16,7 +16,11 @@ type Props = {
   readonly artistName: string;
 };
 
-/** Selected-artist content; remounted per artist via the parent's `key`. */
+/**
+ * Selected-artist content; remounted per artist via the parent's `key`.
+ * The empty name is the "Unknown Artist" bucket — it renders with the
+ * localised label and cannot hold a representative picture.
+ */
 export const ArtistContent = ({ artistName }: Props) => {
   const t = useT();
   const {
@@ -58,7 +62,9 @@ export const ArtistContent = ({ artistName }: Props) => {
         <Stack className="min-w-0 flex-1">
           <div>
             <h1 className="font-semibold text-lg">
-              <EllipsisText text={artistName} />
+              <EllipsisText
+                text={artistName !== "" ? artistName : t("artist.unknown")}
+              />
             </h1>
             <p className="text-muted-foreground text-sm">
               {t("artist.albumCount", { count: groups.length })}
@@ -90,15 +96,19 @@ export const ArtistContent = ({ artistName }: Props) => {
               { label: t("player.play"), onSelect: playAll },
               { label: t("player.shuffle"), onSelect: playShuffled },
               <AddToPlaylistSubmenu key="playlist" musics={playOrder} />,
-              {
-                label: t("artistEdit.menu"),
-                onSelect: () =>
-                  artistEditStore.open({
-                    name: artistName,
-                    picturePath: artist?.picturePath ?? null,
-                  }),
-                separatorBefore: true,
-              },
+              ...(artistName !== ""
+                ? [
+                    {
+                      label: t("artistEdit.menu"),
+                      onSelect: () =>
+                        artistEditStore.open({
+                          name: artistName,
+                          picturePath: artist?.picturePath ?? null,
+                        }),
+                      separatorBefore: true,
+                    },
+                  ]
+                : []),
             ]}
           />
         </span>

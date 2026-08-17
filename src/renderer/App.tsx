@@ -14,7 +14,11 @@ const App = () => (
   <Routes>
     <Route element={<AppLayout />}>
       <Route index element={<Navigate to="/artists" replace />} />
-      <Route path="artists/:artistName?" element={<ArtistsPage />} />
+      <Route path="artists" element={<ArtistsPage />} />
+      {/* Reserved path of the empty-name bucket; real names live under
+          artists/name/ so a literal "unknown" artist cannot collide. */}
+      <Route path="artists/unknown" element={<ArtistsPage />} />
+      <Route path="artists/name/:artistName" element={<ArtistsPage />} />
       <Route path="albums" element={<AlbumsPage />} />
       <Route path="playlists/:playlistId?" element={<PlaylistsPage />} />
       <Route path="settings" element={<SettingsPage />} />
