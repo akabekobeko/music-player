@@ -116,6 +116,14 @@ it("re-setting the same picture is a no-op without GC", () => {
   expect(artistPicturePath("Artist")).toBe("/images/same.jpg");
 });
 
+it("drops the association and GCs the picture when the artist has no tracks", () => {
+  const pictureId = getOrCreatePictureId(db, "/images/ghost.jpg");
+  const orphaned = setArtistPicture(db, "Ghost", pictureId);
+  expect(orphaned).toEqual(["/images/ghost.jpg"]);
+  expect(count("artist_pictures")).toBe(0);
+  expect(count("pictures")).toBe(0);
+});
+
 it("rejects an empty artist name", () => {
   const pictureId = getOrCreatePictureId(db, "/images/new.jpg");
   expect(() => setArtistPicture(db, "", pictureId)).toThrow(

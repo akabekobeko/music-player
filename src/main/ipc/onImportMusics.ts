@@ -1,4 +1,6 @@
 import { getDatabase } from "../db/connection";
+import { cleanupLibraryOrphans } from "../library/cleanupLibraryOrphans";
+import { deleteArtworkFiles } from "../library/deleteArtworkFiles";
 import { runImport } from "../library/runImport";
 import { IpcKeys } from "./ipcKeys";
 import type { ImportMusicsRequest, ImportSummary, IpcResult } from "./types";
@@ -53,6 +55,11 @@ export const onImportMusics = async (
       onProgress: (payload) => broadcast(IpcKeys.ImportProgress, payload),
       isCancelled: () => isCancelRequested,
     });
+    // Re-importing a file whose tags changed (artist renamed, artwork
+    // replaced) can strand artist_pictures / pictures rows — GC them and
+    // their files once per run, after every batch committed.
+    const orphanedFiles = cleanupLibraryOrphans(getDatabase());
+    await deleteArtworkFiles(orphanedFiles);
     if (summary.imported > 0 || summary.updated > 0) {
       broadcast(IpcKeys.LibraryChanged, { kind: "imported" });
     }

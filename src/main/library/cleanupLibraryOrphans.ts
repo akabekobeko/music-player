@@ -3,37 +3,26 @@ import { deleteOrphanedArtistPictures } from "./deleteOrphanedArtistPictures";
 import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
 
 /**
- * Delete tracks from the library and garbage-collect orphaned artwork.
+ * Cascade-style orphan GC over the whole library, in one transaction.
  *
- * Library removal (`docs/specs/v1.0/features/library.md`) deletes `musics`
- * rows — **never the audio files on disk**. Playlist entries disappear via
- * `ON DELETE CASCADE`.
- *
- * GC order inside one transaction:
+ * Every mutation that can strand referencing rows (library removal,
+ * re-import with changed tags, artist-picture replacement) funnels through
+ * the same two steps:
  * 1. Drop `artist_pictures` rows whose artist no longer has any track.
  * 2. Drop `pictures` rows referenced by neither `musics.picture_id` nor
  *    `artist_pictures.picture_id`, collecting their file paths.
  *
+ * Callers that already hold a transaction call the two step functions
+ * directly instead (this wrapper would nest a `BEGIN`).
+ *
  * @param db - The open library connection.
- * @param musicIds - `musics.id` values to remove.
  * @returns Artwork file paths whose rows were GC'd — the caller deletes the
  *   files after the transaction committed (a file is never removed while a
  *   row still references it).
  */
-export const removeMusicsFromLibrary = (
-  db: DatabaseSync,
-  musicIds: readonly number[],
-): string[] => {
-  if (musicIds.length === 0) {
-    return [];
-  }
-
-  const placeholders = musicIds.map(() => "?").join(", ");
+export const cleanupLibraryOrphans = (db: DatabaseSync): string[] => {
   db.exec("BEGIN");
   try {
-    db.prepare(`DELETE FROM musics WHERE id IN (${placeholders})`).run(
-      ...musicIds,
-    );
     deleteOrphanedArtistPictures(db);
     const orphaned = deleteOrphanedPictures(db);
     db.exec("COMMIT");
