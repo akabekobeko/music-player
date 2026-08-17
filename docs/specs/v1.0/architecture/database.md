@@ -183,6 +183,6 @@ ON CONFLICT(file_path) DO UPDATE SET
 
 一覧系クエリの結果型 (`Artist`, `AlbumSummary`, `Music` など) は `src/main/ipc/types.ts` に定義します ([IPC 設計](ipc.md))。代表的なもの:
 
-- アーティスト一覧: `DISTINCT artist` + `artist_pictures` / `pictures` の LEFT JOIN
+- アーティスト一覧: `DISTINCT COALESCE(NULLIF(album_artist, ''), artist)` (表示アーティスト) + `artist_pictures` / `pictures` の LEFT JOIN。`artist_pictures.artist` も表示アーティスト名をキーとする (003 マイグレーションで再キー)
 - アルバム一覧 (Album ビュー): アルバムキーで GROUP BY し、曲数・総時間・年・ジャンル・プロデューサー・指揮者・パブリッシャー・代表アートワークを集計。フィルター条件 (`genre`, `year` 範囲、テキスト) は WHERE 句に変換
 - フィルター選択肢: `DISTINCT genre` (空文字除く)、`MIN(year) / MAX(year)`

@@ -7,7 +7,7 @@ import { queryKeys } from "./queryStore/queryKeys";
  * cached artist list in place so every view showing the artist (sidebar
  * list, artist header) updates immediately without a refetch.
  *
- * @param artist - Artist name (the `musics.artist` value).
+ * @param artist - Display-artist name (the artist list's entry).
  * @param file - Image file picked in the edit dialog.
  * @returns `null` on success, the IPC error otherwise.
  */

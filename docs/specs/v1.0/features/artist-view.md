@@ -22,6 +22,7 @@
 ## アーティスト一覧 (Sidebar)
 
 - データ: `mp:library:getArtists` (名前、曲数、アートワーク)。`mp:library:changed` で自動再取得
+- 一覧の単位は表示アーティスト = `album_artist`、なければ `artist` (アルバム identity と同じ規則)。選択時の曲取得・アーティスト単位削除・アーティスト画像のキーも同じ規則で一致させる
 - ソート: 冠詞 (`The` / `A` / `Thee`) を無視した名前順 (audio-player の `compareNameWithoutThe` を移植)
 - テキスト検索ボックスで部分一致フィルター (クライアント側)
 - アーティスト画像は `artist_pictures` 由来。なければ Lucide `UserRound` アイコン (v1.0 では自動登録により基本的に埋まる。[ライブラリー管理](library.md))

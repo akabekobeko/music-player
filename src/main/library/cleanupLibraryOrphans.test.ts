@@ -65,6 +65,24 @@ it("is a no-op on a library without orphans", () => {
   expect(count("pictures")).toBe(1);
 });
 
+it("keeps a picture keyed by the display artist of an album-artist track", () => {
+  // The track artist differs from the album artist; the association is
+  // keyed by the display artist ("Various") and must survive the GC.
+  const pictureId = getOrCreatePictureId(db, "/images/v.jpg");
+  upsertMusic(
+    db,
+    { ...row("/m/c.mp3", "Feat A"), albumArtist: "Various" },
+    NOW,
+    pictureId,
+  );
+  registerArtistPictureIfMissing(db, "Various", pictureId);
+
+  expect(cleanupLibraryOrphans(db)).toEqual([]);
+  expect(db.prepare("SELECT artist FROM artist_pictures").all()).toEqual([
+    { artist: "Various" },
+  ]);
+});
+
 it("drops the artist picture stranded by a re-import that renamed the artist", () => {
   importTrack("/m/a.mp3", "Old Name", "/images/a.jpg");
   // Same file re-imported after its artist tag changed.

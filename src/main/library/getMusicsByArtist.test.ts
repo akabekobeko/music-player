@@ -80,6 +80,21 @@ it("orders by album, disc, then track as a stable base", () => {
   ]);
 });
 
+it("matches by display artist — album_artist wins over artist", () => {
+  upsertMusic(
+    db,
+    row("/m/c.mp3", { artist: "Feat", albumArtist: "Various" }),
+    NOW,
+  );
+  upsertMusic(db, row("/m/a.mp3"), NOW);
+
+  expect(getMusicsByArtist(db, "Various").map((m) => m.filePath)).toEqual([
+    "/m/c.mp3",
+  ]);
+  // The plain track artist is no longer a list entry of its own.
+  expect(getMusicsByArtist(db, "Feat")).toEqual([]);
+});
+
 it("returns an empty list for an unknown artist", () => {
   expect(getMusicsByArtist(db, "Nobody")).toEqual([]);
 });

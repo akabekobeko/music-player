@@ -12,7 +12,10 @@
 export type LibraryRemoveTarget =
   | {
       readonly kind: "artist";
-      /** Exact `musics.artist` value; empty = the unknown-artist bucket. */
+      /**
+       * Display-artist name (`album_artist` falling back to `artist`);
+       * empty = the unknown-artist bucket.
+       */
       readonly artist: string;
     }
   | {

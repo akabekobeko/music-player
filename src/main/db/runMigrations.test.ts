@@ -92,6 +92,30 @@ it("nullifies junk years (<= 0) when migrating an existing library", () => {
   expect(years).toEqual([{ year: null }, { year: 1987 }]);
 });
 
+it("re-keys artist_pictures to display artists when migrating", () => {
+  db = new DatabaseSync(":memory:");
+  runMigrations(db, migrations.slice(0, 2));
+  db.exec(
+    `INSERT INTO pictures (id, file_path) VALUES (1, '/img/1.jpg'), (2, '/img/2.jpg');
+     INSERT INTO musics (file_path, audio_format, title, artist, album_artist, picture_id, added_at, updated_at)
+     VALUES ('/m/1.mp3', 'mp3', 'T', 'Feat A', 'Various', 1, '', ''),
+            ('/m/2.mp3', 'mp3', 'T', 'Solo', '', 2, '', '');
+     INSERT INTO artist_pictures (artist, picture_id) VALUES ('Feat A', 1), ('Solo', 2)`,
+  );
+
+  runMigrations(db);
+
+  // 'Feat A' is unreachable (its display artist is 'Various') — dropped;
+  // 'Various' gains a representative picture; 'Solo' keeps its row.
+  const rows = db
+    .prepare("SELECT artist, picture_id FROM artist_pictures ORDER BY artist")
+    .all();
+  expect(rows).toEqual([
+    { artist: "Solo", picture_id: 2 },
+    { artist: "Various", picture_id: 1 },
+  ]);
+});
+
 it("throws DatabaseDowngradeError when user_version is newer than the list", () => {
   db = new DatabaseSync(":memory:");
   db.exec("PRAGMA user_version = 99");

@@ -12,7 +12,7 @@ import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
  * an association for an artist with no remaining track never survives.
  *
  * @param db - The open library connection.
- * @param artist - Artist name (the `musics.artist` value); must not be empty.
+ * @param artist - Display-artist name (the artist list's entry); must not be empty.
  * @param pictureId - Picture row to associate.
  * @returns Artwork file paths whose rows were GC'd — the caller deletes the
  *   files after the transaction committed.

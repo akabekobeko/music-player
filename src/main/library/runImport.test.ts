@@ -220,6 +220,26 @@ it("stores artwork, links picture_id, and registers the artist picture", async (
   expect(artistPicture.picture_id).toBe(music.picture_id);
 });
 
+it("registers the artist picture under the display artist (album_artist)", async () => {
+  await runImport(
+    db,
+    ["/m/a.mp3"],
+    events(),
+    deps({
+      loadTrack: vi.fn(async () =>
+        pictured([2], {
+          tag: { title: "T", artist: "Feat", albumArtist: "Various" },
+        }),
+      ),
+    }),
+  );
+
+  const artistPicture = db
+    .prepare("SELECT artist FROM artist_pictures")
+    .get() as Record<string, unknown>;
+  expect(artistPicture.artist).toBe("Various");
+});
+
 it("identical artwork across files shares one pictures row", async () => {
   await runImport(
     db,
