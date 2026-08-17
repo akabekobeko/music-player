@@ -422,6 +422,18 @@ export type RemoveMusicsRequest = {
   readonly musicIds: readonly number[];
 };
 
+/** Request payload for `mp:library:removeArtist`. */
+export type RemoveArtistRequest = {
+  /** Exact `musics.artist` value; the empty string is the unknown bucket. */
+  readonly artist: string;
+};
+
+/** Request payload for `mp:library:removeAlbum`. */
+export type RemoveAlbumRequest = {
+  /** Identity key from {@link AlbumSummary.albumKey} / `AlbumGroup.key`. */
+  readonly albumKey: string;
+};
+
 /** Request payload for `mp:library:setArtistPicture`. */
 export type SetArtistPictureRequest = {
   /** Artist name (the `musics.artist` value); must not be empty. */
@@ -554,6 +566,14 @@ export type MpBridge = {
     /** Remove tracks from the library (files on disk are kept). */
     readonly removeMusics: (
       request: RemoveMusicsRequest,
+    ) => Promise<IpcResult<void>>;
+    /** Remove every track of one artist from the library. */
+    readonly removeArtist: (
+      request: RemoveArtistRequest,
+    ) => Promise<IpcResult<void>>;
+    /** Remove every track of one album from the library. */
+    readonly removeAlbum: (
+      request: RemoveAlbumRequest,
     ) => Promise<IpcResult<void>>;
     readonly getArtists: () => Promise<IpcResult<readonly Artist[]>>;
     readonly getMusicsByArtist: (

@@ -161,6 +161,12 @@ export const en: Dictionary = {
   "musicInfo.field.addedAt": "Date added",
   "musicInfo.field.updatedAt": "Date modified",
   "library.loadFailed": "Failed to load: {message}",
+  "library.removeTitle": "Remove from Library",
+  "library.removeArtistMessage":
+    "{name}\nwill be removed from the library, along with its songs and albums. Are you sure?",
+  "library.removeAlbumMessage":
+    "{name}\nwill be removed from the library, along with its songs. Are you sure?",
+  "library.remove": "Remove",
   "settings.title": "Settings",
   "settings.appearance": "Appearance",
   "settings.theme": "Theme",

@@ -161,6 +161,12 @@ export const ja: Dictionary = {
   "musicInfo.field.addedAt": "追加日時",
   "musicInfo.field.updatedAt": "更新日時",
   "library.loadFailed": "読み込みに失敗しました: {message}",
+  "library.removeTitle": "ライブラリーから削除",
+  "library.removeArtistMessage":
+    "{name}\nをライブラリーから削除します。関連する曲とアルバムも削除されますが、よろしいですか？",
+  "library.removeAlbumMessage":
+    "{name}\nをライブラリーから削除します。関連する曲も削除されますが、よろしいですか？",
+  "library.remove": "削除",
   "settings.title": "設定",
   "settings.appearance": "外観",
   "settings.theme": "テーマ",

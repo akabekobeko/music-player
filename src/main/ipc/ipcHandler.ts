@@ -18,6 +18,8 @@ import { onPlaylistGetMusics } from "./onPlaylistGetMusics";
 import { onPlaylistList } from "./onPlaylistList";
 import { onPlaylistRemove } from "./onPlaylistRemove";
 import { onPlaylistUpdate } from "./onPlaylistUpdate";
+import { onRemoveAlbum } from "./onRemoveAlbum";
+import { onRemoveArtist } from "./onRemoveArtist";
 import { onRemoveMusics } from "./onRemoveMusics";
 import { onSetArtistPicture } from "./onSetArtistPicture";
 import { onSetSettings } from "./onSetSettings/onSetSettings";
@@ -54,6 +56,8 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.ImportMusics, onImportMusics);
   ipcMain.handle(IpcKeys.CancelImport, onCancelImport);
   ipcMain.handle(IpcKeys.RemoveMusics, onRemoveMusics);
+  ipcMain.handle(IpcKeys.RemoveArtist, onRemoveArtist);
+  ipcMain.handle(IpcKeys.RemoveAlbum, onRemoveAlbum);
   ipcMain.handle(IpcKeys.GetArtists, onGetArtists);
   ipcMain.handle(IpcKeys.GetMusicsByArtist, onGetMusicsByArtist);
   ipcMain.handle(IpcKeys.GetAlbums, onGetAlbums);
@@ -91,6 +95,8 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.ImportMusics);
   ipcMain.removeHandler(IpcKeys.CancelImport);
   ipcMain.removeHandler(IpcKeys.RemoveMusics);
+  ipcMain.removeHandler(IpcKeys.RemoveArtist);
+  ipcMain.removeHandler(IpcKeys.RemoveAlbum);
   ipcMain.removeHandler(IpcKeys.GetArtists);
   ipcMain.removeHandler(IpcKeys.GetMusicsByArtist);
   ipcMain.removeHandler(IpcKeys.GetAlbums);

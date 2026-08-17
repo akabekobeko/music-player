@@ -53,6 +53,9 @@ const buildBridge = (): MpBridge => ({
     cancelImport: () => ipcRenderer.invoke(IpcKeys.CancelImport),
     removeMusics: (request) =>
       ipcRenderer.invoke(IpcKeys.RemoveMusics, request),
+    removeArtist: (request) =>
+      ipcRenderer.invoke(IpcKeys.RemoveArtist, request),
+    removeAlbum: (request) => ipcRenderer.invoke(IpcKeys.RemoveAlbum, request),
     getArtists: () => ipcRenderer.invoke(IpcKeys.GetArtists),
     getMusicsByArtist: (request) =>
       ipcRenderer.invoke(IpcKeys.GetMusicsByArtist, request),

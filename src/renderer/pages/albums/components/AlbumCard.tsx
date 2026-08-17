@@ -1,7 +1,14 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Disc3, Play } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useT } from "@/features/i18n/useT";
+import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
 
@@ -17,7 +24,8 @@ type Props = {
 
 /**
  * One album card: artwork (click = toggle the detail pane) with a hover
- * ▶ overlay, then name / artist / year.
+ * ▶ overlay, then name / artist / year. Right-click opens the context menu
+ * with "Remove from library" (confirmation via `LibraryRemoveDialog`).
  */
 export const AlbumCard = ({
   album,
@@ -27,7 +35,7 @@ export const AlbumCard = ({
   onPlay,
 }: Props) => {
   const t = useT();
-  return (
+  const card = (
     <div className="group shrink-0" style={{ width }}>
       <div className="relative">
         <button
@@ -71,5 +79,24 @@ export const AlbumCard = ({
         {album.year !== null ? album.year : "—"}
       </p>
     </div>
+  );
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger render={card} />
+      <ContextMenuContent>
+        <ContextMenuItem
+          variant="destructive"
+          onClick={() => {
+            libraryRemoveStore.open({
+              kind: "album",
+              albumKey: album.albumKey,
+              album: album.album,
+            });
+          }}
+        >
+          {t("menu.removeFromLibrary")}
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };

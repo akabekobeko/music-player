@@ -61,6 +61,8 @@ Renderer は `import type { Music } from "@mp/ipc"` と書けます。`import ty
 | `mp:library:import` | `{ paths } → ImportSummary` | インポート実行。進捗は push で通知 |
 | `mp:library:cancelImport` | `void → void` | インポートのキャンセル要求 |
 | `mp:library:removeMusics` | `{ musicIds } → void` | ライブラリーから削除 (ファイルは消さない) |
+| `mp:library:removeArtist` | `{ artist } → void` | アーティスト単位のライブラリー削除 (空文字 = 不明なアーティスト) |
+| `mp:library:removeAlbum` | `{ albumKey } → void` | アルバム単位のライブラリー削除 (identity key 指定) |
 | `mp:library:getArtists` | `void → Artist[]` | アーティスト一覧 |
 | `mp:library:getMusicsByArtist` | `{ artist } → Music[]` | アーティストの全曲 |
 | `mp:library:getAlbums` | `AlbumFilter → AlbumSummary[]` | フィルター条件つきアルバム一覧 (Album ビュー用) |

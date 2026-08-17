@@ -7,6 +7,7 @@ import { HStack, Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 import { artistEditStore } from "@/features/library/artistEditStore";
+import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
@@ -195,6 +196,17 @@ export const ArtistContent = ({ artistName }: Props) => {
                           key="playlist"
                           musics={albumMusicsOf(row.group)}
                         />,
+                        {
+                          label: t("menu.removeFromLibrary"),
+                          onSelect: () =>
+                            libraryRemoveStore.open({
+                              kind: "album",
+                              albumKey: row.group.key,
+                              album: row.group.album,
+                            }),
+                          destructive: true,
+                          separatorBefore: true,
+                        },
                       ]}
                     />
                   </HStack>
