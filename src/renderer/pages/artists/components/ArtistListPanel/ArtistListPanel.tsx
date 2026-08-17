@@ -17,6 +17,11 @@ import { compareNameWithoutArticle } from "@/features/library/compareNameWithout
 import { useArtists } from "@/features/library/useArtists";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
+import {
+  ARTIST_NAME_PATTERN,
+  artistPathOf,
+  UNKNOWN_ARTIST_PATH,
+} from "../../artistPath";
 
 /** Fixed row height for the virtualizer (px). */
 const ROW_HEIGHT = 48;
@@ -25,15 +30,17 @@ const ROW_HEIGHT = 48;
  * Artist list in the Sidebar's secondary area
  * (`docs/specs/v1.0/features/artist-view.md`): article-blind sort, client
  * text filter, virtual scrolling, and route-driven selection — the URL
- * (`/artists/:artistName`) is the single source of the selected artist
- * (no Context state like audio-player's `artistTab`).
+ * (`/artists/name/:artistName`, `/artists/unknown` for the empty-name
+ * bucket) is the single source of the selected artist (no Context state
+ * like audio-player's `artistTab`).
  */
 export const ArtistListPanel = () => {
   const t = useT();
   const navigate = useNavigate();
   // The Sidebar lives in the layout route, whose context does not carry the
-  // child route's params — match the pattern against the location instead.
-  const artistName = useMatch("/artists/:artistName")?.params.artistName;
+  // child route's params — match the patterns against the location instead.
+  const artistName = useMatch(ARTIST_NAME_PATTERN)?.params.artistName;
+  const unknownSelected = useMatch(UNKNOWN_ARTIST_PATH) !== null;
   const artistsState = useArtists();
   const [query, setQuery] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -86,7 +93,8 @@ export const ArtistListPanel = () => {
               return null;
             }
 
-            const selected = artist.name === artistName;
+            const selected =
+              artist.name === "" ? unknownSelected : artist.name === artistName;
             const row = (
               <button
                 type="button"
@@ -101,7 +109,7 @@ export const ArtistListPanel = () => {
                   transform: `translateY(${item.start}px)`,
                 }}
                 onClick={() => {
-                  navigate(`/artists/${encodeURIComponent(artist.name)}`);
+                  navigate(artistPathOf(artist.name));
                 }}
               >
                 {artist.picturePath !== null ? (

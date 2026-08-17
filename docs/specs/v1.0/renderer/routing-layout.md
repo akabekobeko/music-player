@@ -10,7 +10,8 @@ React Router v8 の HashRouter を使用します (file:// ロードのため。
 | --- | --- | --- |
 | `/` | `/artists` へリダイレクト | |
 | `/artists` | Artist ビュー (未選択状態) | |
-| `/artists/:artistName` | Artist ビュー (選択済み) | アーティスト名は encodeURIComponent |
+| `/artists/unknown` | Artist ビュー (「不明なアーティスト」= 空名バケット選択) | 空文字はパスセグメントにできないため予約パスで表現 |
+| `/artists/name/:artistName` | Artist ビュー (選択済み) | アーティスト名は encodeURIComponent。`name/` 配下なので予約語 `unknown` と衝突しない |
 | `/albums` | Album ビュー | フィルター状態は URL に持たず state + settings 永続化 |
 | `/playlists` | Playlist ビュー (未選択状態) | |
 | `/playlists/:playlistId` | Playlist ビュー (選択済み) | 静的・動的とも。id は `p<id>` / `s<id>` で種別を区別 |

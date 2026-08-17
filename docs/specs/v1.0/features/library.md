@@ -67,6 +67,6 @@ audio-player の content-hash 方式を継承します。
 
 ## ライブラリーの更新・削除
 
-- **再インポート**: 同じパスをインポートすると upsert でメタデータを更新します ([データベース](../architecture/database.md))
-- **削除** (`mp:library:removeMusics`): musics から行を削除します。**音楽ファイル自体は削除しません**。プレイリストからは CASCADE で消えます。参照されなくなった pictures 行と画像ファイルは削除時にガベージコレクトします
+- **再インポート**: 同じパスをインポートすると upsert でメタデータを更新します ([データベース](../architecture/database.md))。タグ変更 (アーティスト名やアートワークの差し替え) で参照されなくなった `artist_pictures` / `pictures` 行と画像ファイルはインポート完了後にガベージコレクトします
+- **削除** (`mp:library:removeMusics`): musics から行を削除します。**音楽ファイル自体は削除しません**。プレイリストからは CASCADE で消えます。曲が皆無になったアーティストの `artist_pictures` 行、どこからも参照されなくなった `pictures` 行と画像ファイルは削除と同一トランザクションでガベージコレクトします
 - 存在しないファイル (移動・リネーム) の検出は v1.0 では行いません。再生時に open エラーとして通知されます ([オーディオエンジン](../renderer/audio-engine.md))

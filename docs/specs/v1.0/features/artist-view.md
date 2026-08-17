@@ -5,7 +5,7 @@
 ## 画面構成
 
 ```
-┌ Sidebar ────────┬ コンテンツ (/artists/:artistName) ─────────────┐
+┌ Sidebar ────────┬ コンテンツ (/artists/name/:artistName) ────────┐
 │ [検索ボックス]    │ ┌──────────────────────────────────────────┐ │
 │ ● Artist A      │ │ (丸画像) Artist B                          │ │
 │ ● Artist B ←選択 │ │          3 albums · 34 songs               │ │
@@ -25,7 +25,7 @@
 - ソート: 冠詞 (`The` / `A` / `Thee`) を無視した名前順 (audio-player の `compareNameWithoutThe` を移植)
 - テキスト検索ボックスで部分一致フィルター (クライアント側)
 - アーティスト画像は `artist_pictures` 由来。なければ Lucide `UserRound` アイコン (v1.0 では自動登録により基本的に埋まる。[ライブラリー管理](library.md))
-- クリックで `/artists/<name>` へ遷移
+- クリックで `/artists/name/<name>` へ遷移。アーティスト名が空の「不明なアーティスト」は予約パス `/artists/unknown` へ遷移 (空文字はパスセグメントにできないため)
 
 ## アーティストヘッダー
 
@@ -59,6 +59,6 @@
 
 ## 状態とデータフロー
 
-- 選択アーティストはルートパラメーター (`/artists/:artistName`) が正。audio-player の `artistTab` Context state は廃止します
+- 選択アーティストはルートパラメーター (`/artists/name/:artistName`、空名バケットは `/artists/unknown`) が正。audio-player の `artistTab` Context state は廃止します
 - 曲データはページのフック (`useArtistMusics(artistName)`) が `mp:library:getMusicsByArtist` で取得します。グローバル状態に持ちません
 - 再生・キュー操作はすべて PlayerCommands ([状態管理](../renderer/state-management.md)) を呼ぶだけで、ビューはキューの中身を管理しません
