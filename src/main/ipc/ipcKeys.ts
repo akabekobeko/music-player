@@ -16,6 +16,8 @@ export const IpcKeys = {
   ImportMusics: "mp:library:import",
   CancelImport: "mp:library:cancelImport",
   RemoveMusics: "mp:library:removeMusics",
+  RemoveArtist: "mp:library:removeArtist",
+  RemoveAlbum: "mp:library:removeAlbum",
   GetArtists: "mp:library:getArtists",
   GetMusicsByArtist: "mp:library:getMusicsByArtist",
   GetAlbums: "mp:library:getAlbums",

@@ -26,6 +26,7 @@
 - テキスト検索ボックスで部分一致フィルター (クライアント側)
 - アーティスト画像は `artist_pictures` 由来。なければ Lucide `UserRound` アイコン (v1.0 では自動登録により基本的に埋まる。[ライブラリー管理](library.md))
 - クリックで `/artists/name/<name>` へ遷移。アーティスト名が空の「不明なアーティスト」は予約パス `/artists/unknown` へ遷移 (空文字はパスセグメントにできないため)
+- 項目の右クリックメニュー: アーティストを編集 (空名バケットを除く) / ライブラリーから削除。削除は確認ダイアログを経て `mp:library:removeArtist` を実行し、選択中アーティストを削除した場合は未選択状態 (`/artists`) へ戻る
 
 ## アーティストヘッダー
 
@@ -46,7 +47,7 @@
 - 並び: アルバムは year 昇順 (NULL は末尾)、曲は disc → track 昇順
 - **disc 番号が複数ある場合は「Disc N」の小見出しで分割表示**します (audio-player では未使用だった `disc` 列の活用)
 - アルバム行の表示: アートワーク (112px 角)、名前、年、ジャンル、曲数、総時間、メニュー
-- アルバムメニュー: Play (このアルバムをキューに設定して再生) / Add to queue / Add to playlist
+- アルバムメニュー: Play (このアルバムをキューに設定して再生) / Add to queue / Add to playlist / Remove from library (確認ダイアログを経て `mp:library:removeAlbum` を実行)
 
 ## 曲行
 

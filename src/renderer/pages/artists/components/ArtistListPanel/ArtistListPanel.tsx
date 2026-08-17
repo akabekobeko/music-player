@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { UserRound } from "lucide-react";
-import { Fragment, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMatch, useNavigate } from "react-router";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { Stack } from "@/components/app/stacks";
@@ -8,12 +8,14 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { artistEditStore } from "@/features/library/artistEditStore";
 import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle/compareNameWithoutArticle";
+import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
 import { useArtists } from "@/features/library/useArtists";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
@@ -139,24 +141,37 @@ export const ArtistListPanel = () => {
               </button>
             );
             // Editing keys off the artist name; the empty-name bucket
-            // ("Unknown Artist") cannot hold a picture, so no menu there.
-            if (artist.name === "") {
-              return <Fragment key="">{row}</Fragment>;
-            }
-
+            // ("Unknown Artist") cannot hold a picture, so no edit there —
+            // removal applies to every bucket.
             return (
               <ContextMenu key={artist.name}>
                 <ContextMenuTrigger render={row} />
                 <ContextMenuContent>
+                  {artist.name !== "" && (
+                    <>
+                      <ContextMenuItem
+                        onClick={() => {
+                          artistEditStore.open({
+                            name: artist.name,
+                            picturePath: artist.picturePath,
+                          });
+                        }}
+                      >
+                        {t("artistEdit.menu")}
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                    </>
+                  )}
                   <ContextMenuItem
+                    variant="destructive"
                     onClick={() => {
-                      artistEditStore.open({
-                        name: artist.name,
-                        picturePath: artist.picturePath,
+                      libraryRemoveStore.open({
+                        kind: "artist",
+                        artist: artist.name,
                       });
                     }}
                   >
-                    {t("artistEdit.menu")}
+                    {t("menu.removeFromLibrary")}
                   </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
