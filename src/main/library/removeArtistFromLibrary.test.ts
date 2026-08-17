@@ -75,6 +75,26 @@ it("is a no-op for an artist without tracks", () => {
   expect(count("musics")).toBe(1);
 });
 
+it("removes by display artist — album_artist wins over artist", () => {
+  upsertMusic(
+    db,
+    { ...row("/m/c1.mp3", "Feat A"), albumArtist: "Various" },
+    NOW,
+    null,
+  );
+  upsertMusic(
+    db,
+    { ...row("/m/c2.mp3", "Feat B"), albumArtist: "Various" },
+    NOW,
+    null,
+  );
+  insert("/m/solo.mp3", "Solo");
+
+  const result = removeArtistFromLibrary(db, "Various");
+  expect(result.removed).toBe(2);
+  expect(count("musics")).toBe(1);
+});
+
 it("removes the unknown-artist bucket via the empty name", () => {
   insert("/m/untagged.mp3", "");
   insert("/m/b.mp3", "Other");

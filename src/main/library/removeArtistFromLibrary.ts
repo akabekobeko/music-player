@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 import { removeMusicsFromLibrary } from "./removeMusicsFromLibrary";
 
 /** Outcome of an artist / album removal. */
@@ -13,12 +14,13 @@ export type RemoveByGroupResult = {
  * Delete every track of one artist from the library
  * (`mp:library:removeArtist`).
  *
- * Resolves the artist's `musics.id` values and delegates to
- * {@link removeMusicsFromLibrary}, so playlist cascade and orphan GC behave
- * exactly like a manual multi-track removal.
+ * Matches on the display artist (`album_artist` falling back to `artist`) —
+ * the same identity the artist list groups by — then delegates the resolved
+ * `musics.id` values to {@link removeMusicsFromLibrary}, so playlist cascade
+ * and orphan GC behave exactly like a manual multi-track removal.
  *
  * @param db - The open library connection.
- * @param artist - Exact `musics.artist` value; the empty string removes the
+ * @param artist - Display-artist name; the empty string removes the
  *   unknown-artist bucket.
  * @returns Removed row count and GC'd artwork file paths.
  */
@@ -27,9 +29,9 @@ export const removeArtistFromLibrary = (
   artist: string,
 ): RemoveByGroupResult => {
   const ids = (
-    db.prepare("SELECT id FROM musics WHERE artist = ?").all(artist) as Array<{
-      id: number;
-    }>
+    db
+      .prepare(`SELECT id FROM musics m WHERE ${ALBUM_ARTIST_SQL} = ?`)
+      .all(artist) as Array<{ id: number }>
   ).map((row) => row.id);
   return {
     removed: ids.length,

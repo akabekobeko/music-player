@@ -66,7 +66,7 @@ it("counts tracks, artists, album identities, and total duration", () => {
   });
 });
 
-it("groups albums by album_artist when present", () => {
+it("groups albums and artists by album_artist when present", () => {
   upsertMusic(
     db,
     row("/m/1.mp3", { artist: "Feat A", albumArtist: "VA", album: "Comp" }),
@@ -79,5 +79,6 @@ it("groups albums by album_artist when present", () => {
   );
 
   expect(getLibraryStats(db).albumCount).toBe(1);
-  expect(getLibraryStats(db).artistCount).toBe(2);
+  // Artists count by the display artist — both tracks belong to "VA".
+  expect(getLibraryStats(db).artistCount).toBe(1);
 });

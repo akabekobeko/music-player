@@ -3,8 +3,9 @@ import type { LibraryStats } from "../ipc/types";
 
 /**
  * Library-wide counters for the settings page (`mp:library:getStats`).
- * Albums count by the identity key `(COALESCE(NULLIF(album_artist, ''),
- * artist), album)` — the same grouping the Album view uses.
+ * Artists count by the display artist (`album_artist` falling back to
+ * `artist`) and albums by the identity key `(display artist, album)` — the
+ * same groupings the Artist / Album views use.
  */
 
 /**
@@ -18,7 +19,8 @@ export const getLibraryStats = (db: DatabaseSync): LibraryStats => {
     .prepare(
       `SELECT
          COUNT(*)                       AS musicCount,
-         COUNT(DISTINCT artist)         AS artistCount,
+         COUNT(DISTINCT COALESCE(NULLIF(album_artist, ''), artist))
+                                        AS artistCount,
          COALESCE(SUM(duration_ms), 0)  AS totalDurationMs,
          (SELECT COUNT(*) FROM (
             SELECT 1 FROM musics

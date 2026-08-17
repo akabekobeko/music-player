@@ -16,7 +16,7 @@ export const ARTIST_NAME_PATTERN = "/artists/name/:artistName";
 /**
  * Resolve an artist's route path (the empty name → unknown bucket).
  *
- * @param name - Exact `musics.artist` value.
+ * @param name - Display-artist name (the artist list's entry).
  * @returns Path to navigate to.
  */
 export const artistPathOf = (name: string): string =>

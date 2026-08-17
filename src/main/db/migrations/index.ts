@@ -1,5 +1,6 @@
 import m001 from "./001_initial.sql?raw";
 import m002 from "./002_nullify_invalid_years.sql?raw";
+import m003 from "./003_artist_pictures_display_artist.sql?raw";
 
 /**
  * Ordered migration scripts. Index `i` migrates the database from
@@ -13,4 +14,4 @@ import m002 from "./002_nullify_invalid_years.sql?raw";
  * - an applied file must never change; schema changes go into a NEW numbered
  *   file appended here
  */
-export const migrations: readonly string[] = [m001, m002];
+export const migrations: readonly string[] = [m001, m002, m003];

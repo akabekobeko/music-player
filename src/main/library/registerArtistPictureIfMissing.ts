@@ -9,7 +9,7 @@ import type { DatabaseSync } from "node:sqlite";
  * goes through `setArtistPicture` instead. Empty artist names are skipped.
  *
  * @param db - The open library connection.
- * @param artist - Artist name (the `musics.artist` value).
+ * @param artist - Display-artist name (`album_artist` falling back to `artist`).
  * @param pictureId - Picture row to associate.
  */
 export const registerArtistPictureIfMissing = (

@@ -62,7 +62,7 @@ audio-player の content-hash 方式を継承します。
 - `Track.pictures` から `kind === CoverFront (3)` を優先、なければ先頭の 1 枚を採用
 - 画像データの SHA-256 をファイル名として `userData/images/<hash>.<ext>` に保存 (既存なら書き込みスキップ = 重複排除)
 - `pictures` テーブルにパスを登録し、`musics.picture_id` で参照
-- **アーティスト画像**: そのアーティストの曲を初めてインポートしたとき、その曲のアートワークを `artist_pictures` に自動登録します (audio-player で欠落していた機能)。以後のインポートでは上書きしません
+- **アーティスト画像**: その表示アーティスト (`album_artist`、なければ `artist`) の曲を初めてインポートしたとき、その曲のアートワークを `artist_pictures` に自動登録します (audio-player で欠落していた機能)。以後のインポートでは上書きしません
 - 表示は `media-file://` プロトコル経由 ([プロセス構成](../architecture/process-model.md))
 
 ## ライブラリーの更新・削除

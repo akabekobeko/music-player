@@ -88,7 +88,10 @@ export type Music = {
   readonly updatedAt: string;
 };
 
-/** One artist row of the Artist view (derived via `DISTINCT artist`). */
+/**
+ * One artist row of the Artist view, grouped by the display artist
+ * (`album_artist` falling back to `artist`).
+ */
 export type Artist = {
   readonly name: string;
   /** Number of tracks by this artist. */
@@ -424,7 +427,10 @@ export type RemoveMusicsRequest = {
 
 /** Request payload for `mp:library:removeArtist`. */
 export type RemoveArtistRequest = {
-  /** Exact `musics.artist` value; the empty string is the unknown bucket. */
+  /**
+   * Display-artist name (`album_artist` falling back to `artist`); the
+   * empty string is the unknown bucket.
+   */
   readonly artist: string;
 };
 
@@ -436,7 +442,7 @@ export type RemoveAlbumRequest = {
 
 /** Request payload for `mp:library:setArtistPicture`. */
 export type SetArtistPictureRequest = {
-  /** Artist name (the `musics.artist` value); must not be empty. */
+  /** Display-artist name (the artist list's entry); must not be empty. */
   readonly artist: string;
   /** MIME type of the image (`"image/jpeg"`, `"image/png"`, …). */
   readonly mimeType: string;

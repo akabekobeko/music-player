@@ -1,10 +1,12 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { Artist } from "../ipc/types";
+import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 
 /**
  * Artist-list query for `mp:library:getArtists`
- * (`docs/specs/v1.0/features/artist-view.md`): distinct artists with their
- * track counts and representative artwork (`artist_pictures` → `pictures`).
+ * (`docs/specs/v1.0/features/artist-view.md`): distinct display artists
+ * (`album_artist` falling back to `artist`) with their track counts and
+ * representative artwork (`artist_pictures` → `pictures`).
  *
  * Sorting is intentionally a plain name ORDER BY here — the article-blind
  * ordering ("The" / "A" / "Thee") is locale-ish presentation logic and lives
@@ -13,14 +15,14 @@ import type { Artist } from "../ipc/types";
 
 const SELECT_ARTISTS_SQL = `
 SELECT
-  m.artist            AS name,
+  ${ALBUM_ARTIST_SQL} AS name,
   COUNT(*)            AS musicCount,
   p.file_path         AS picturePath
 FROM musics m
-LEFT JOIN artist_pictures ap ON ap.artist = m.artist
+LEFT JOIN artist_pictures ap ON ap.artist = ${ALBUM_ARTIST_SQL}
 LEFT JOIN pictures p         ON p.id = ap.picture_id
-GROUP BY m.artist
-ORDER BY m.artist
+GROUP BY ${ALBUM_ARTIST_SQL}
+ORDER BY name
 `;
 
 /**
@@ -28,7 +30,8 @@ ORDER BY m.artist
  *
  * @param db - The open library connection.
  * @returns Artists with counts and artwork paths (empty-name artists — files
- *   without an artist tag — are included; the UI decides their label).
+ *   without artist and album-artist tags — are included; the UI decides
+ *   their label).
  */
 export const getArtists = (db: DatabaseSync): Artist[] => {
   const rows = db.prepare(SELECT_ARTISTS_SQL).all() as Array<{

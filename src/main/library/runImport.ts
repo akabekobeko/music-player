@@ -185,7 +185,15 @@ export const runImport = async (
               : null;
           const outcome = upsertMusic(db, result.row, now, pictureId);
           if (pictureId !== null) {
-            registerArtistPictureIfMissing(db, result.row.artist, pictureId);
+            // Key by the display artist (album_artist falling back to
+            // artist) — the identity the artist list groups by.
+            registerArtistPictureIfMissing(
+              db,
+              result.row.albumArtist !== ""
+                ? result.row.albumArtist
+                : result.row.artist,
+              pictureId,
+            );
           }
 
           if (outcome === "inserted") {
