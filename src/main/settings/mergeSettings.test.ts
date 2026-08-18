@@ -58,3 +58,20 @@ it("does not mutate the current settings object", () => {
   mergeSettings(current, { window: { width: 100 }, theme: "dark" });
   expect(current).toEqual(DEFAULT_SETTINGS);
 });
+
+it("sets and keeps importDialogPath", () => {
+  const merged = mergeSettings(DEFAULT_SETTINGS, {
+    importDialogPath: "/music/albums",
+  });
+  expect(merged.importDialogPath).toBe("/music/albums");
+  expect(mergeSettings(merged, { theme: "dark" }).importDialogPath).toBe(
+    "/music/albums",
+  );
+});
+
+it("keeps the current importDialogPath when the patch value is invalid", () => {
+  const current = { ...DEFAULT_SETTINGS, importDialogPath: "/music" };
+  expect(
+    mergeSettings(current, { importDialogPath: "" }).importDialogPath,
+  ).toBe("/music");
+});

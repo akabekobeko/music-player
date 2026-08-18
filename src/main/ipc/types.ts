@@ -360,6 +360,12 @@ export type AppSettings = {
     /** Sidebar column width in pixels. */
     readonly width: number;
   };
+  /**
+   * Last path picked in the import target dialog, restored as its
+   * `defaultPath` (app-own history — never the OS-shared one). May no longer
+   * exist; the dialog opener climbs to the nearest existing ancestor.
+   */
+  readonly importDialogPath?: string;
 };
 
 /**

@@ -56,3 +56,15 @@ it("ignores unknown keys instead of persisting them", () => {
     (settings as unknown as { polluted?: boolean }).polluted,
   ).toBeUndefined();
 });
+
+it("keeps a non-empty importDialogPath and drops other values", () => {
+  expect(
+    sanitizeSettings({ importDialogPath: "/music/albums" }).importDialogPath,
+  ).toBe("/music/albums");
+  expect(
+    sanitizeSettings({ importDialogPath: "" }).importDialogPath,
+  ).toBeUndefined();
+  expect(
+    sanitizeSettings({ importDialogPath: 42 }).importDialogPath,
+  ).toBeUndefined();
+});

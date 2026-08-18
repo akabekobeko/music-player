@@ -5,6 +5,7 @@
 ## インポートの入口
 
 1. **ダイアログ**: `mp:dialog:openImportTargets` → `dialog.showOpenDialog` (`openFile` + `openDirectory` + `multiSelections`、対応拡張子フィルター)
+   - 最後に選択したパスを `AppSettings.importDialogPath` に保存し、次回は `defaultPath` として復元する (アプリ固有の履歴。OS 共有の履歴には影響しない)。保存パスが存在しない場合は親を遡り、最も近い存在するパスで開く。ルート (Windows はドライブレター直下) まで遡っても見つからない場合はパス指定せず OS に委ねる
 2. **Drag & Drop**: ウィンドウ全域へのドロップを受け付ける
    - `webUtils.getPathForFile(file)` で絶対パスを取得 (preload の `mp.dnd.pathFor`)
    - `mp:dnd:expandPaths` で Main 側が再帰展開する

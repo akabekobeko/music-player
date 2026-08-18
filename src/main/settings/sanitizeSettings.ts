@@ -48,5 +48,9 @@ export const sanitizeSettings = (raw: unknown): AppSettings => {
     ...(sanitizeSidebar(source.sidebar)
       ? { sidebar: sanitizeSidebar(source.sidebar) }
       : {}),
+    ...(typeof source.importDialogPath === "string" &&
+    source.importDialogPath !== ""
+      ? { importDialogPath: source.importDialogPath }
+      : {}),
   };
 };
