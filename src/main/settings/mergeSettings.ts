@@ -60,9 +60,14 @@ export const mergeSettings = (
     patch.sidebar !== undefined
       ? (sanitizeSidebar(patch.sidebar) ?? current.sidebar)
       : current.sidebar;
+  const importDialogPath =
+    typeof patch.importDialogPath === "string" && patch.importDialogPath !== ""
+      ? patch.importDialogPath
+      : current.importDialogPath;
   return {
     ...merged,
     ...(albumFilter !== undefined ? { albumFilter } : {}),
     ...(sidebar !== undefined ? { sidebar } : {}),
+    ...(importDialogPath !== undefined ? { importDialogPath } : {}),
   };
 };
