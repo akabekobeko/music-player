@@ -68,6 +68,13 @@ export const ja: Dictionary = {
   "album.filter.decade": "年代",
   "album.filter.unknownYear": "不明",
   "album.filter.clear": "フィルターをクリア",
+  "album.filter.selectAll": "{label}をすべて選択 / 解除",
+  "album.filter.expandAll": "すべて展開",
+  "album.filter.collapseAll": "すべて折りたたむ",
+  "album.filter.clearTooltip": "すべての検索条件を解除します",
+  "album.filter.toggleOpenTooltip":
+    "検索条件をすべて展開、または折りたたみます",
+  "album.filter.selectAllTooltip": "検索条件をすべて選択、または解除します",
   "album.noMatch": "条件に一致するアルバムがありません。",
   "album.empty": "アルバムがありません。音楽をインポートしてください。",
   "player.shuffle": "シャッフル",

@@ -25,6 +25,21 @@ it("toggles genres on and off, dropping the empty array", () => {
   ).toEqual({});
 });
 
+it("replaces all genres at once, dropping the empty array", () => {
+  expect(
+    reduceAlbumFilter(
+      { genres: ["Rock"] },
+      { type: "genresReplaced", genres: ["Rock", "Jazz"] },
+    ),
+  ).toEqual({ genres: ["Rock", "Jazz"] });
+  expect(
+    reduceAlbumFilter(
+      { genres: ["Rock"] },
+      { type: "genresReplaced", genres: [] },
+    ),
+  ).toEqual({});
+});
+
 it("toggles decades including the unknown-year marker", () => {
   const withUnknown = reduceAlbumFilter(
     {},
@@ -36,6 +51,21 @@ it("toggles decades including the unknown-year marker", () => {
   ).toEqual({ decades: [null, 1990] });
   expect(
     reduceAlbumFilter(withUnknown, { type: "decadeToggled", decade: null }),
+  ).toEqual({});
+});
+
+it("replaces all decades at once, dropping the empty array", () => {
+  expect(
+    reduceAlbumFilter(
+      { decades: [1990] },
+      { type: "decadesReplaced", decades: [1990, 2000, null] },
+    ),
+  ).toEqual({ decades: [1990, 2000, null] });
+  expect(
+    reduceAlbumFilter(
+      { decades: [1990] },
+      { type: "decadesReplaced", decades: [] },
+    ),
   ).toEqual({});
 });
 

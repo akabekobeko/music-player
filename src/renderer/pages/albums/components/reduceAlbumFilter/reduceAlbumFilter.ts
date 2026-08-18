@@ -5,7 +5,12 @@ import { toggle } from "./toggle";
 export type AlbumFilterAction =
   | { readonly type: "textChanged"; readonly text: string }
   | { readonly type: "genreToggled"; readonly genre: string }
+  | { readonly type: "genresReplaced"; readonly genres: readonly string[] }
   | { readonly type: "decadeToggled"; readonly decade: number | null }
+  | {
+      readonly type: "decadesReplaced";
+      readonly decades: readonly (number | null)[];
+    }
   | { readonly type: "cleared" };
 
 /**
@@ -32,10 +37,22 @@ export const reduceAlbumFilter = (
       const genres = toggle(filter.genres ?? [], action.genre);
       return genres.length > 0 ? { ...rest, genres } : rest;
     }
+    case "genresReplaced": {
+      const { genres: _, ...rest } = filter;
+      return action.genres.length > 0
+        ? { ...rest, genres: action.genres }
+        : rest;
+    }
     case "decadeToggled": {
       const { decades: _, ...rest } = filter;
       const decades = toggle(filter.decades ?? [], action.decade);
       return decades.length > 0 ? { ...rest, decades } : rest;
+    }
+    case "decadesReplaced": {
+      const { decades: _, ...rest } = filter;
+      return action.decades.length > 0
+        ? { ...rest, decades: action.decades }
+        : rest;
     }
     case "cleared":
       return {};
