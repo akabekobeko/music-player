@@ -4,7 +4,8 @@ import { artistEditStore } from "@/features/library/artistEditStore";
 import { setArtistPicture } from "@/features/library/setArtistPicture";
 
 /**
- * Logic of `ArtistEditDialog`: the artist under edit (from the store), the
+ * Logic of `ArtistEditDialog` (context / row menu → "Artist Info"): the
+ * artist under edit (from the store), the
  * picked file with its object-URL preview, and the apply / close flow. The
  * component only renders what this hook returns.
  */

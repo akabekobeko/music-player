@@ -1,5 +1,6 @@
 /**
- * Pending state of the artist edit flow (context / row menu → "Edit").
+ * Pending state of the artist edit flow (context / row menu → "Artist
+ * Info").
  *
  * The menu that starts the flow unmounts when it closes, so the edit dialog
  * cannot live inside it — the menu item stashes the artist here and the
@@ -12,6 +13,8 @@ export type ArtistEditTarget = {
   readonly name: string;
   /** Current picture path, or `null` when the artist has none. */
   readonly picturePath: string | null;
+  /** Number of songs credited to the artist, shown as dialog metadata. */
+  readonly musicCount: number;
 };
 
 /** The store class: the artist waiting in the edit dialog, or `null`. */
