@@ -11,21 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { PropertyRow } from "./PropertyRow";
 import { useArtistEditDialog } from "./useArtistEditDialog";
-
-/** Label + plain-text row for the artist metadata under the image UI. */
-const PropertyRow = ({
-  label,
-  value,
-}: {
-  readonly label: string;
-  readonly value: string;
-}) => (
-  <div className="grid grid-cols-[7.5rem_1fr] items-baseline gap-2">
-    <span className="text-muted-foreground text-xs">{label}</span>
-    <span className="break-all">{value}</span>
-  </div>
-);
 
 /**
  * Artist info dialog (context / row menu → "Artist Info"), mounted once in
