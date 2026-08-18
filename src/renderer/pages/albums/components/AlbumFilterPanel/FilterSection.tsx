@@ -3,6 +3,11 @@ import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
 
 type Props = {
@@ -38,14 +43,23 @@ export const FilterSection = ({
   return (
     <AccordionItem value={value}>
       <AccordionPrimitive.Header className="flex items-stretch text-muted-foreground text-xs">
-        {/* biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Checkbox renders a hidden native input inside the label, which the lint cannot see. */}
-        <label className="flex cursor-default items-center pl-1 pr-2">
-          <Checkbox
-            aria-label={t("album.filter.selectAll", { label })}
-            checked={allSelected}
-            onCheckedChange={onToggleAll}
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Checkbox renders a hidden native input inside the label, which the lint cannot see.
+              <label className="flex cursor-default items-center pl-1 pr-2">
+                <Checkbox
+                  aria-label={t("album.filter.selectAll", { label })}
+                  checked={allSelected}
+                  onCheckedChange={onToggleAll}
+                />
+              </label>
+            }
           />
-        </label>
+          <TooltipContent side="bottom">
+            {t("album.filter.selectAllTooltip")}
+          </TooltipContent>
+        </Tooltip>
         <AccordionPrimitive.Trigger className="group/filter-trigger flex flex-1 items-center rounded-md border border-transparent py-2 pr-1 text-left outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
           <span className="flex-1">{label}</span>
           <ChevronDownIcon

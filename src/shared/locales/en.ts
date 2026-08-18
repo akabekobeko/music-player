@@ -72,6 +72,10 @@ export const en: Dictionary = {
   "album.filter.selectAll": "Select / clear all {label}",
   "album.filter.expandAll": "Expand all",
   "album.filter.collapseAll": "Collapse all",
+  "album.filter.clearTooltip": "Clears every search condition",
+  "album.filter.toggleOpenTooltip":
+    "Expands or collapses all search conditions",
+  "album.filter.selectAllTooltip": "Selects or clears all search conditions",
   "album.noMatch": "No albums match the filters.",
   "album.empty": "No albums yet. Import music to get started.",
   "player.shuffle": "Shuffle",
