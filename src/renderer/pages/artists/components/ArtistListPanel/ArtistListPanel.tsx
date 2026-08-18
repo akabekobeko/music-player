@@ -154,6 +154,7 @@ export const ArtistListPanel = () => {
                           artistEditStore.open({
                             name: artist.name,
                             picturePath: artist.picturePath,
+                            musicCount: artist.musicCount,
                           });
                         }}
                       >

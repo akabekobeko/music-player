@@ -11,13 +11,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { PropertyRow } from "./PropertyRow";
 import { useArtistEditDialog } from "./useArtistEditDialog";
 
 /**
- * Artist edit dialog (context / row menu → "Edit"), mounted once in the
- * AppLayout (the menu that started the flow is gone by the time this
+ * Artist info dialog (context / row menu → "Artist Info"), mounted once in
+ * the AppLayout (the menu that started the flow is gone by the time this
  * opens). Shows the current picture, previews a newly picked image file,
- * and applies it to the library on confirm.
+ * applies it to the library on confirm, and lists the artist's metadata
+ * (name, song count) below the image UI.
  */
 export const ArtistEditDialog = () => {
   const t = useT();
@@ -40,9 +42,7 @@ export const ArtistEditDialog = () => {
     >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>
-            {target !== null && t("artistEdit.title", { name: target.name })}
-          </DialogTitle>
+          <DialogTitle>{t("artistEdit.title")}</DialogTitle>
         </DialogHeader>
         {/* Mounted only while open so the native file input resets between
             edit sessions. */}
@@ -73,6 +73,16 @@ export const ArtistEditDialog = () => {
                 }
               }}
             />
+            <div className="grid w-full gap-2">
+              <PropertyRow
+                label={t("artistEdit.field.name")}
+                value={target.name}
+              />
+              <PropertyRow
+                label={t("artistEdit.field.songCount")}
+                value={String(target.musicCount)}
+              />
+            </div>
           </VStack>
         )}
         {error !== null && (

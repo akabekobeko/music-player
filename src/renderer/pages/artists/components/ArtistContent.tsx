@@ -105,6 +105,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                         artistEditStore.open({
                           name: artistName,
                           picturePath: artist?.picturePath ?? null,
+                          musicCount: artist?.musicCount ?? musics.length,
                         }),
                       separatorBefore: true,
                     },
