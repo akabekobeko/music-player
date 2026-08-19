@@ -1,18 +1,19 @@
 import type { MenuItemConstructorOptions } from "electron";
 import { expect, it } from "vitest";
-import type { MenuAction } from "../ipc/types";
+import type { MenuAction, MenuStateSnapshot } from "../ipc/types";
 import { buildMenuTemplate } from "./menuBuilder";
 
 const build = (
   platform: NodeJS.Platform,
   locale: "en" | "ja" = "en",
   onAction: (action: MenuAction) => void = () => {},
+  state: MenuStateSnapshot = { isPlaying: false, hasTrack: false },
 ) =>
   buildMenuTemplate({
     platform,
     locale,
     appName: "Music Player",
-    state: { isPlaying: false },
+    state,
     onAction,
   });
 
@@ -79,6 +80,36 @@ it("puts about into the app menu on macOS and Help elsewhere", () => {
     findItem([winHelp as MenuItemConstructorOptions], "About Music Player"),
   ).toBeDefined();
   expect(findItem(mac, "About Music Player")).toBeDefined();
+});
+
+it("forwards Controls > Stop clicks as the stop action", () => {
+  const actions: MenuAction[] = [];
+  const template = build("darwin", "en", (action) => actions.push(action), {
+    isPlaying: true,
+    hasTrack: true,
+  });
+  expect(findItem(template, "Stop")?.accelerator).toBe("CmdOrCtrl+.");
+
+  clickItem(template, "Stop");
+  expect(actions).toEqual(["stop"]);
+});
+
+it("gates Controls > Stop on hasTrack", () => {
+  const withoutTrack = build("darwin");
+  expect(findItem(withoutTrack, "Stop")?.enabled).toBe(false);
+
+  const withTrack = build("darwin", "en", () => {}, {
+    isPlaying: false,
+    hasTrack: true,
+  });
+  expect(findItem(withTrack, "Stop")?.enabled).toBe(true);
+});
+
+it("places Controls between View and Window", () => {
+  const labels = build("win32").map((item) => item.label ?? item.role);
+  const controls = labels.indexOf("Controls");
+  expect(controls).toBeGreaterThan(labels.indexOf("View"));
+  expect(labels[controls + 1]).toBe("Window");
 });
 
 it("includes the standard edit / view / window role menus", () => {

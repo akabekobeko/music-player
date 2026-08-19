@@ -137,6 +137,8 @@ export const ja: Dictionary = {
   "menu.about": "{appName} について",
   "menu.edit": "編集",
   "menu.view": "表示",
+  "menu.controls": "コントロール",
+  "menu.stop": "停止",
   "menu.window": "ウィンドウ",
   "menu.help": "ヘルプ",
   "about.version": "バージョン {version}",
