@@ -5,7 +5,6 @@ import {
   Play,
   SkipBack,
   SkipForward,
-  Square,
   X,
 } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -17,6 +16,12 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { QueuePopover } from "./QueuePopover";
@@ -51,6 +56,99 @@ export const PlayerBar = () => {
   const albumSuffix =
     current !== null && current.album !== "" ? ` — ${current.album}` : "";
 
+  // Stop has no transport button (Apple Music-style) — it lives in the
+  // Controls menu (CmdOrCtrl+.) and in this right-click menu on the bar.
+  const bar = (
+    <footer className="flex h-(--playerbar-height) items-center gap-3 border-t bg-sidebar">
+      <HStack className="gap-0.5 pl-2">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t("player.previous")}
+          disabled={previous === null}
+          onClick={() => void commands.playPrevious()}
+        >
+          <SkipBack />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={isPlaying ? t("player.pause") : t("player.play")}
+          disabled={!hasTrack}
+          onClick={() => commands.togglePlayPause()}
+        >
+          {isLoading ? (
+            <Loader2 className="animate-spin" />
+          ) : isPlaying ? (
+            <Pause />
+          ) : (
+            <Play />
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t("player.next")}
+          disabled={next === null}
+          onClick={() => void commands.playNext()}
+        >
+          <SkipForward />
+        </Button>
+      </HStack>
+
+      <HStack className="min-w-0 flex-1 gap-4">
+        {current?.picturePath != null ? (
+          <img
+            src={toMediaFileUrl(current.picturePath)}
+            alt=""
+            className="size-11 shrink-0 rounded object-cover"
+          />
+        ) : (
+          <VStack className="size-11 shrink-0 rounded bg-muted">
+            <Music aria-hidden className="size-5 text-muted-foreground" />
+          </VStack>
+        )}
+        <div className="min-w-0 flex-1">
+          <EllipsisText
+            className="text-sm"
+            text={
+              current !== null
+                ? `${current.title} / ${current.artist}${albumSuffix}`
+                : t("player.noMusic")
+            }
+          >
+            {current !== null ? (
+              <>
+                <span className="font-medium">{current.title}</span>
+                <span className="text-muted-foreground">
+                  {" / "}
+                  {current.artist}
+                  {albumSuffix}
+                </span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">
+                {t("player.noMusic")}
+              </span>
+            )}
+          </EllipsisText>
+          <SeekBar
+            currentTime={snapshot.currentTime}
+            duration={snapshot.duration}
+            displayDuration={displayDuration}
+            seeking={snapshot.seeking}
+            onSeek={commands.seek}
+          />
+        </div>
+      </HStack>
+
+      <HStack className="gap-0.5 pr-2">
+        <QueuePopover />
+        <VolumeControl volume={snapshot.volume} onChange={commands.setVolume} />
+      </HStack>
+    </footer>
+  );
+
   return (
     <div className="shrink-0">
       {visibleError !== null && (
@@ -71,106 +169,14 @@ export const PlayerBar = () => {
           </AlertAction>
         </Alert>
       )}
-      <footer className="flex h-(--playerbar-height) items-center gap-3 border-t bg-sidebar">
-        <HStack className="gap-0.5 pl-2">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("player.previous")}
-            disabled={previous === null}
-            onClick={() => void commands.playPrevious()}
-          >
-            <SkipBack />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={isPlaying ? t("player.pause") : t("player.play")}
-            disabled={!hasTrack}
-            onClick={() => commands.togglePlayPause()}
-          >
-            {isLoading ? (
-              <Loader2 className="animate-spin" />
-            ) : isPlaying ? (
-              <Pause />
-            ) : (
-              <Play />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("player.next")}
-            disabled={next === null}
-            onClick={() => void commands.playNext()}
-          >
-            <SkipForward />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("player.stop")}
-            disabled={!hasTrack}
-            onClick={() => commands.stop()}
-          >
-            <Square />
-          </Button>
-        </HStack>
-
-        <HStack className="min-w-0 flex-1 gap-4">
-          {current?.picturePath != null ? (
-            <img
-              src={toMediaFileUrl(current.picturePath)}
-              alt=""
-              className="size-11 shrink-0 rounded object-cover"
-            />
-          ) : (
-            <VStack className="size-11 shrink-0 rounded bg-muted">
-              <Music aria-hidden className="size-5 text-muted-foreground" />
-            </VStack>
-          )}
-          <div className="min-w-0 flex-1">
-            <EllipsisText
-              className="text-sm"
-              text={
-                current !== null
-                  ? `${current.title} / ${current.artist}${albumSuffix}`
-                  : t("player.noMusic")
-              }
-            >
-              {current !== null ? (
-                <>
-                  <span className="font-medium">{current.title}</span>
-                  <span className="text-muted-foreground">
-                    {" / "}
-                    {current.artist}
-                    {albumSuffix}
-                  </span>
-                </>
-              ) : (
-                <span className="text-muted-foreground">
-                  {t("player.noMusic")}
-                </span>
-              )}
-            </EllipsisText>
-            <SeekBar
-              currentTime={snapshot.currentTime}
-              duration={snapshot.duration}
-              displayDuration={displayDuration}
-              seeking={snapshot.seeking}
-              onSeek={commands.seek}
-            />
-          </div>
-        </HStack>
-
-        <HStack className="gap-0.5 pr-2">
-          <QueuePopover />
-          <VolumeControl
-            volume={snapshot.volume}
-            onChange={commands.setVolume}
-          />
-        </HStack>
-      </footer>
+      <ContextMenu>
+        <ContextMenuTrigger render={bar} />
+        <ContextMenuContent>
+          <ContextMenuItem disabled={!hasTrack} onClick={() => commands.stop()}>
+            {t("player.stop")}
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 };

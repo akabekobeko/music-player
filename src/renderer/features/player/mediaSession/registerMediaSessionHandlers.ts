@@ -33,6 +33,9 @@ export const registerMediaSessionHandlers = (): void => {
       player.commands.togglePlayPause();
     }
   });
+  session.setActionHandler("stop", () => {
+    getActivePlayer()?.commands.stop();
+  });
   session.setActionHandler("previoustrack", () => {
     void getActivePlayer()?.commands.playPrevious();
   });

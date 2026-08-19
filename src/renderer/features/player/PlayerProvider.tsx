@@ -209,11 +209,15 @@ export const PlayerProvider = ({ children }: Props) => {
     // Keep the native menu's playback state in sync (mp:menu:setState).
     // Deduplicated here because snapshots also tick on currentTime updates.
     let lastIsPlaying = false;
+    let lastHasTrack = false;
     created.subscribe(() => {
       const isPlaying = created.getSnapshot().state === "playing";
-      if (isPlaying !== lastIsPlaying) {
+      // An engine exists exactly while a current track is loaded.
+      const hasTrack = created.get() !== null;
+      if (isPlaying !== lastIsPlaying || hasTrack !== lastHasTrack) {
         lastIsPlaying = isPlaying;
-        window.mp.menu.setState({ isPlaying });
+        lastHasTrack = hasTrack;
+        window.mp.menu.setState({ isPlaying, hasTrack });
       }
     });
     return created;

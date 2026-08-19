@@ -11,6 +11,7 @@ import { sidebarStore } from "./features/layout/sidebarStore";
 import { libraryStore } from "./features/library/queryStore/libraryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
 import { PlayerProvider } from "./features/player/PlayerProvider";
+import { getActivePlayer } from "./features/player/playerBridge";
 import { registerPlayerHotkeys } from "./features/player/registerPlayerHotkeys/registerPlayerHotkeys";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
 import {
@@ -95,6 +96,10 @@ const bootstrap = async (): Promise<void> => {
         break;
       case "showAbout":
         aboutStore.open();
+        break;
+      case "stop":
+        // Null-safe: the bridge is set once PlayerProvider mounts.
+        getActivePlayer()?.commands.stop();
         break;
     }
   });

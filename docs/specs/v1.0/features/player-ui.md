@@ -9,14 +9,18 @@ PlayerBar はウィンドウ最下段・全幅の帯です。タイトルバー�
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │              [Art] Title / Artist — Album                    │
-│ [⏮][⏯][⏭][⏹]   0:42 ─────────●───────── 3:28    [キュー][🔊] │ ← 全要素を垂直中央揃え
+│ [⏮][⏯][⏭]      0:42 ─────────●───────── 3:28    [キュー][🔊] │ ← 全要素を垂直中央揃え
 └──────────────────────────────────────────────────────────────┘
 ```
 
 - 中央ブロック (アートワーク + 曲情報 + SeekBar) が帯の幅を最大に使います
 - コントロールは左右へ振り分け、**垂直中央揃え**で配置します
-  - 左: 前曲・再生/一時停止・次曲・停止
+  - 左: 前曲・再生/一時停止・次曲
   - 右: キュー ([Playlist](playlist.md) のキュー Popover)、音量
+- 停止はボタンを置かず (Apple Music と同様)、以下の導線で提供します
+  - アプリメニュー「コントロール > 停止」(`CmdOrCtrl+.`)。現在曲がない間は disabled (`mp:menu:setState` の `hasTrack` で gate)
+  - PlayerBar の右クリックメニュー「停止」
+  - MediaSession の `stop` action
 
 ## 表示要素
 
@@ -26,7 +30,7 @@ PlayerBar はウィンドウ最下段・全幅の帯です。タイトルバー�
 | 曲情報 | タイトル / アーティスト — アルバム。未再生時は「No music playing」相当の文言 (i18n) |
 | 前曲・次曲 | キュー上の前後が null なら disabled ([Playlist](playlist.md) のキュー仕様で決まる) |
 | 再生・一時停止 | `state` に応じてトグル。`loading` 中はスピナー |
-| 停止 | `stop()`。audio-player には停止導線がなかったため明示的に追加 |
+| 停止 | `stop()`。ボタンは置かず、メニュー / 右クリック / MediaSession から呼ぶ (上記レイアウト参照) |
 | SeekBar | shadcn Slider。step 1 秒。`duration` 未確定 (0) の間は disabled |
 | 時間表示 | 経過 / 総時間。`stopped` でも現在曲があれば 0:00 / 総時間を表示 |
 | 音量 | Popover 内 Slider (0-100 表示、内部は 0-1)。ミュートトグルつき |
@@ -56,6 +60,7 @@ audio-player の「シーク直後に摘まみが巻き戻る」「停止中の�
 | --- | --- |
 | Space | 再生 / 一時停止 (入力フォーカスが input 系にない場合) |
 | ← / → | 5 秒シーク |
+| Cmd/Ctrl + . | 停止 (アプリメニュー「コントロール > 停止」のアクセラレーター) |
 | メディアキー | 下記 MediaSession 経由 |
 
 ## MediaSession 連携
@@ -66,7 +71,7 @@ MediaSession への同期も useEffect では行いません ([状態管理](../
 
 - `navigator.mediaSession.metadata` (title / artist / album / artwork) は、**現在曲を変更するコマンド (`playMusic` / `playNext` / `playPrevious` / `stop`) の中で**更新します
   - artwork の URL は `media-file://` を指定します。MediaSession が受け付けない場合は Blob URL へフォールバックします (実装時に検証。Phase 3 の確認項目)
-- action handler (`play` / `pause` / `previoustrack` / `nexttrack` / `seekto` → PlayerCommands) の登録は PlayerProvider の初期化時に 1 回だけ行います (コマンド参照は React 外のディスパッチャー経由で常に最新を呼ぶ)
+- action handler (`play` / `pause` / `stop` / `previoustrack` / `nexttrack` / `seekto` → PlayerCommands) の登録は PlayerProvider の初期化時に 1 回だけ行います (コマンド参照は React 外のディスパッチャー経由で常に最新を呼ぶ)
 - `navigator.mediaSession.playbackState` と `setPositionState()` は、エンジン生成時にコマンド内で登録する snapshot 購読 (`engine.subscribe`) の中で同期します。React のレンダリングを経由しません
 
 ## 再生中表示 (各ビューとの連携)

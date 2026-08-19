@@ -21,9 +21,8 @@ export type MenuBuildOptions = {
   /** App display name (the macOS app menu title / about label). */
   readonly appName: string;
   /**
-   * Latest `mp:menu:setState` snapshot. No current item gates on it — the
-   * plumbing exists so playback menu items (v1.x) can enable / disable
-   * without a new channel.
+   * Latest `mp:menu:setState` snapshot — gates the playback items
+   * (Controls > Stop enables only while a track is loaded).
    */
   readonly state: MenuStateSnapshot;
   /** Receives the action of a clicked custom item. */
@@ -39,7 +38,7 @@ export type MenuBuildOptions = {
 export const buildMenuTemplate = (
   options: MenuBuildOptions,
 ): MenuItemConstructorOptions[] => {
-  const { platform, locale, appName, onAction } = options;
+  const { platform, locale, appName, state, onAction } = options;
   const t = tFor(locale);
   const isMac = platform === "darwin";
 
@@ -93,6 +92,18 @@ export const buildMenuTemplate = (
     },
     { label: t("menu.edit"), role: "editMenu" },
     { label: t("menu.view"), role: "viewMenu" },
+    {
+      // Playback controls (Apple Music-style: between View and Window).
+      label: t("menu.controls"),
+      submenu: [
+        {
+          label: t("menu.stop"),
+          accelerator: "CmdOrCtrl+.",
+          enabled: state.hasTrack,
+          click: () => onAction("stop"),
+        },
+      ],
+    },
     { label: t("menu.window"), role: "windowMenu" },
     {
       label: t("menu.help"),

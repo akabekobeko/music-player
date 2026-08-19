@@ -137,6 +137,8 @@ export const en: Dictionary = {
   "menu.about": "About {appName}",
   "menu.edit": "Edit",
   "menu.view": "View",
+  "menu.controls": "Controls",
+  "menu.stop": "Stop",
   "menu.window": "Window",
   "menu.help": "Help",
   "about.version": "Version {version}",

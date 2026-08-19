@@ -483,7 +483,7 @@ export type PlaylistGetMusicsRequest = {
  * Identifier of a native menu item routed through `mp:menu:action`.
  * Extended in Phase 7 when the application menu is fleshed out.
  */
-export type MenuAction = "import" | "openSettings" | "showAbout";
+export type MenuAction = "import" | "openSettings" | "showAbout" | "stop";
 
 /** Payload of the `mp:menu:action` push channel. */
 export type MenuActionPayload = {
@@ -497,6 +497,8 @@ export type MenuActionPayload = {
 export type MenuStateSnapshot = {
   /** Whether playback is running — gates playback-related items. */
   readonly isPlaying: boolean;
+  /** Whether a current track is loaded — gates Stop. */
+  readonly hasTrack: boolean;
 };
 
 /**
