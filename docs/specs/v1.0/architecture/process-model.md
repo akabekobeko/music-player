@@ -109,6 +109,7 @@ src/
   - Windows: `titleBarStyle: "hidden"` + `titleBarOverlay: { color, symbolColor, height }` (コントロールは右上端のオーバーレイ) + `autoHideMenuBar: true` (ネイティブメニューバーの帯を常時表示しない。[システムメニュー](../cross-platform/system-menu.md))
   - Linux: `titleBarStyle: "hidden"` + `autoHideMenuBar: true`。`titleBarOverlay` の対応状況は実装時に検証し、非対応なら Renderer に自前の最小コントロール (最小化・最大化・閉じる) を右上へ置きます
   - テーマ変更時、Main は `mp:settings:set` の theme 変更を検知し `setTitleBarOverlay()` で配色を同期します
+  - `backgroundColor` は保存済みテーマ (system は OS テーマで解決) に応じた `--background` 相当色 (light `#ffffff` / dark `#0a0a0a`) を指定します。Renderer の初回描画まで Electron 規定の白が表示され、ダークテーマで起動時にチラつくのを防ぐためです
   - ドラッグ領域とセーフエリアの扱いは [ルーティングとレイアウト](../renderer/routing-layout.md)
 - 起動時の keychain ダイアログ抑止スイッチ (`use-mock-keychain` など) は electron-starter の実装を維持します
 

@@ -2,6 +2,7 @@ import {
   buildTitleBarOverlay,
   type TitleBarOverlayOptions,
 } from "./buildTitleBarOverlay";
+import { buildWindowBackgroundColor } from "./buildWindowBackgroundColor";
 
 /**
  * Pure builder for the title-bar-less BrowserWindow configuration
@@ -22,6 +23,11 @@ import {
 
 /** Subset of `BrowserWindowConstructorOptions` this builder decides. */
 export type WindowChromeOptions = {
+  /**
+   * Painted until the Renderer's first frame; follows the persisted theme so
+   * a dark-theme launch does not flash Electron's default white.
+   */
+  readonly backgroundColor: string;
   readonly titleBarStyle: "hiddenInset" | "hidden";
   readonly titleBarOverlay?: TitleBarOverlayOptions;
   /**
@@ -39,7 +45,7 @@ export type WindowChromeOptions = {
  * Decide the title-bar options for a platform.
  *
  * @param platform - `process.platform` value (`"darwin"` / `"win32"` / …).
- * @param dark - Whether the dark theme is in effect (overlay colors).
+ * @param dark - Whether the dark theme is in effect (background / overlay colors).
  * @returns Options to spread into the `BrowserWindow` constructor.
  */
 export const buildWindowChrome = (
@@ -47,8 +53,12 @@ export const buildWindowChrome = (
   dark: boolean,
 ): WindowChromeOptions =>
   platform === "darwin"
-    ? { titleBarStyle: "hiddenInset" }
+    ? {
+        backgroundColor: buildWindowBackgroundColor(dark),
+        titleBarStyle: "hiddenInset",
+      }
     : {
+        backgroundColor: buildWindowBackgroundColor(dark),
         titleBarStyle: "hidden",
         titleBarOverlay: buildTitleBarOverlay(dark),
         autoHideMenuBar: true,
