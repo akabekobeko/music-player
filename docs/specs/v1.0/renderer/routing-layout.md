@@ -126,6 +126,7 @@ createRoot(rootElement).render(
   1. 起動時: ブートストラップの `applyTheme()`
   2. 設定変更時: 設定コマンド (`setTheme`) の中で保存と同時に適用
   3. OS テーマ変更時: ブートストラップで登録した `matchMedia("(prefers-color-scheme: dark)")` リスナー (設定が system の場合のみ反映)
+- 起動時のチラつき防止のため、Main は `BrowserWindow` の `backgroundColor` を保存済みテーマに合わせて指定します ([プロセス構成](../architecture/process-model.md))
 - Windows / Linux の `titleBarOverlay` の配色もテーマへ追従させます。Main が `mp:settings:set` の theme 変更を検知して `setTitleBarOverlay()` を呼ぶため、新規 IPC チャネルは不要です ([プロセス構成](../architecture/process-model.md))
 
 ## i18n
