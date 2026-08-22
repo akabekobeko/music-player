@@ -20,6 +20,7 @@ type Props = {
   /** Deferred seek in progress — shows the spinner over the bar. */
   readonly seeking: boolean;
   readonly onSeek: (timeSec: number) => void;
+  readonly className?: string;
 };
 
 /**
@@ -35,12 +36,13 @@ export const SeekBar = ({
   displayDuration,
   seeking,
   onSeek,
+  className,
 }: Props) => {
   const [dragValue, setDragValue] = useState<number | null>(null);
   const shown = dragValue ?? Math.min(currentTime, duration || currentTime);
 
   return (
-    <HStack>
+    <HStack className={className}>
       <span className="w-10 text-right font-mono text-[11px] text-muted-foreground tabular-nums">
         {formatTime(shown)}
       </span>
