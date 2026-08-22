@@ -1,7 +1,7 @@
 import { useMatch, useParams } from "react-router";
 import { useT } from "@/features/i18n/useT";
 import { UNKNOWN_ARTIST_PATH } from "../artistPath";
-import { ArtistContent } from "./ArtistContent";
+import { ArtistContent } from "./ArtistContent/ArtistContent";
 
 /**
  * Artist view content (`/artists/name/:artistName`, `/artists/unknown`)
