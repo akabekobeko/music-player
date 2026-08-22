@@ -40,8 +40,6 @@ export const Sidebar = () => {
     <aside className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar">
       <SidebarToolbar />
       <TooltipProvider delay={1000}>
-        {/* Padded wrapper instead of margin on the nav pill: the sibling
-            secondary area's border-t must keep spanning edge to edge. */}
         <div className="p-2">
           <nav className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
             {NAV_ITEMS.map(({ to, label, Icon }) => (
@@ -64,7 +62,7 @@ export const Sidebar = () => {
         </div>
       </TooltipProvider>
       {/* Route-specific secondary area. */}
-      <div className="flex-1 overflow-hidden border-t">
+      <div className="flex-1 overflow-hidden">
         {pathname.startsWith("/artists") && <ArtistListPanel />}
         {pathname.startsWith("/albums") && <AlbumFilterPanel />}
         {pathname.startsWith("/playlists") && <PlaylistListPanel />}
