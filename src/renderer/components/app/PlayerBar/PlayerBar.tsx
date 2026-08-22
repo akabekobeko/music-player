@@ -8,7 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { HStack, VStack } from "@/components/app/stacks";
+import { HStack, Stack, VStack } from "@/components/app/stacks";
 import {
   Alert,
   AlertAction,
@@ -34,8 +34,9 @@ import { VolumeControl } from "./VolumeControl";
  *
  * Sits below the sidebar and content columns, clear of the OS window
  * controls — the title-bar duties (drag region, safe areas) belong to the
- * toolbars now. Transport controls left, artwork + track info + seek bar
- * center, queue and volume right, all vertically centered.
+ * toolbars now. Left to right: artwork, two-line track info (title /
+ * artist - album) in a fixed-width column, transport controls, seek bar
+ * with time labels, queue and volume — all vertically centered.
  */
 export const PlayerBar = () => {
   const t = useT();
@@ -53,14 +54,48 @@ export const PlayerBar = () => {
     dismissError,
   } = usePlayerBar();
 
-  const albumSuffix =
-    current !== null && current.album !== "" ? ` — ${current.album}` : "";
+  const artistAlbum =
+    current !== null && current.album !== ""
+      ? `${current.artist} - ${current.album}`
+      : (current?.artist ?? "");
 
   // Stop has no transport button (Apple Music-style) — it lives in the
   // Controls menu (CmdOrCtrl+.) and in this right-click menu on the bar.
   const bar = (
-    <footer className="flex h-(--playerbar-height) items-center gap-3 border-t bg-sidebar">
-      <HStack className="gap-0.5 pl-2">
+    <footer className="flex h-(--playerbar-height) items-center gap-3 border-t bg-sidebar px-3">
+      {current?.picturePath != null ? (
+        <img
+          src={toMediaFileUrl(current.picturePath)}
+          alt=""
+          className="size-11 shrink-0 rounded object-cover"
+        />
+      ) : (
+        <VStack className="size-11 shrink-0 rounded bg-muted">
+          <Music aria-hidden className="size-5 text-muted-foreground" />
+        </VStack>
+      )}
+
+      <Stack className="w-[30rem] shrink-0 gap-0.5">
+        {current !== null ? (
+          <>
+            <EllipsisText
+              className="font-medium text-sm"
+              text={current.title}
+            />
+            <EllipsisText
+              className="text-muted-foreground text-xs"
+              text={artistAlbum}
+            />
+          </>
+        ) : (
+          <EllipsisText
+            className="text-muted-foreground text-sm"
+            text={t("player.noMusic")}
+          />
+        )}
+      </Stack>
+
+      <HStack className="gap-0.5">
         <Button
           variant="ghost"
           size="icon-sm"
@@ -96,53 +131,16 @@ export const PlayerBar = () => {
         </Button>
       </HStack>
 
-      <HStack className="min-w-0 flex-1 gap-4">
-        {current?.picturePath != null ? (
-          <img
-            src={toMediaFileUrl(current.picturePath)}
-            alt=""
-            className="size-11 shrink-0 rounded object-cover"
-          />
-        ) : (
-          <VStack className="size-11 shrink-0 rounded bg-muted">
-            <Music aria-hidden className="size-5 text-muted-foreground" />
-          </VStack>
-        )}
-        <div className="min-w-0 flex-1">
-          <EllipsisText
-            className="text-sm"
-            text={
-              current !== null
-                ? `${current.title} / ${current.artist}${albumSuffix}`
-                : t("player.noMusic")
-            }
-          >
-            {current !== null ? (
-              <>
-                <span className="font-medium">{current.title}</span>
-                <span className="text-muted-foreground">
-                  {" / "}
-                  {current.artist}
-                  {albumSuffix}
-                </span>
-              </>
-            ) : (
-              <span className="text-muted-foreground">
-                {t("player.noMusic")}
-              </span>
-            )}
-          </EllipsisText>
-          <SeekBar
-            currentTime={snapshot.currentTime}
-            duration={snapshot.duration}
-            displayDuration={displayDuration}
-            seeking={snapshot.seeking}
-            onSeek={commands.seek}
-          />
-        </div>
-      </HStack>
+      <SeekBar
+        className="min-w-0 flex-1"
+        currentTime={snapshot.currentTime}
+        duration={snapshot.duration}
+        displayDuration={displayDuration}
+        seeking={snapshot.seeking}
+        onSeek={commands.seek}
+      />
 
-      <HStack className="gap-0.5 pr-2">
+      <HStack className="gap-0.5">
         <QueuePopover />
         <VolumeControl volume={snapshot.volume} onChange={commands.setVolume} />
       </HStack>
