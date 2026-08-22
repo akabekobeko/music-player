@@ -22,10 +22,10 @@ const NAV_ITEMS = [
 /** Classes for the horizontal mode-switch tabs (styled after audio-player). */
 const tabClassName = ({ isActive }: { isActive: boolean }): string =>
   cn(
-    "flex items-center justify-center rounded-md py-1.5 transition-colors",
+    "flex items-center justify-center rounded-md py-1.5 transition-all duration-400 ease-in-out",
     isActive
       ? "bg-background text-foreground shadow-sm"
-      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground",
+      : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
   );
 
 /**
