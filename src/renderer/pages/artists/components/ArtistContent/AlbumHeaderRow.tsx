@@ -31,7 +31,7 @@ export const AlbumHeaderRow = ({
   const t = useT();
 
   return (
-    <HStack className="items-end gap-4 pt-6 pb-2">
+    <HStack className="items-end gap-4 pt-6 pb-4">
       {group.picturePath !== null ? (
         <img
           src={toMediaFileUrl(group.picturePath)}
