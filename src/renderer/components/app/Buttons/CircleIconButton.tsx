@@ -18,7 +18,7 @@ export const CircleIconButton = ({ className, ...props }: Props) => (
     className={cn(
       "rounded-full border border-foreground bg-transparent text-foreground transition-shadow duration-200",
       "hover:bg-transparent hover:text-foreground dark:hover:bg-transparent",
-      "hover:shadow-[0_0_0_1px_var(--foreground),0_0_8px_2px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+      "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
       className,
     )}
     {...props}
