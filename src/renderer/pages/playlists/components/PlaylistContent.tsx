@@ -1,15 +1,12 @@
-import { ListMusic, Pencil, Play, Shuffle as ShuffleIcon } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
-import { HStack, Stack, VStack } from "@/components/app/stacks";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
-import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
+import { PlaylistHeader } from "./PlaylistHeader";
 import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
 import { usePlaylistContent } from "./usePlaylistContent";
 
@@ -49,44 +46,15 @@ export const PlaylistContent = ({ routeId }: Props) => {
 
   return (
     <Stack className="h-full gap-0">
-      <header className="flex items-center gap-4 border-b px-6 py-4">
-        <VStack className="size-16 shrink-0 rounded-md bg-muted">
-          <ListMusic aria-hidden className="size-7 text-muted-foreground" />
-        </VStack>
-        <Stack className="min-w-0 flex-1">
-          <div>
-            <h1 className="flex min-w-0 items-center gap-2 font-semibold text-lg">
-              <EllipsisText className="min-w-0" text={playlist?.name ?? ""} />
-              {ref.kind === "smart" && (
-                <Badge variant="secondary">{t("playlist.smartBadge")}</Badge>
-              )}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {t("artist.songs", { count: rows.length })}
-              {" · "}
-              {formatTime(totalDurationMs / 1000)}
-            </p>
-          </div>
-          <HStack>
-            <Button size="sm" disabled={rows.length === 0} onClick={playAll}>
-              <Play /> {t("player.play")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={rows.length === 0}
-              onClick={playShuffled}
-            >
-              <ShuffleIcon /> {t("player.shuffle")}
-            </Button>
-            {ref.kind === "smart" && (
-              <Button size="sm" variant="outline" onClick={openRulesEditor}>
-                <Pencil /> {t("smart.editRules")}
-              </Button>
-            )}
-          </HStack>
-        </Stack>
-      </header>
+      <PlaylistHeader
+        name={playlist?.name ?? ""}
+        smart={ref.kind === "smart"}
+        musics={rows.map((row) => row.music)}
+        totalDurationMs={totalDurationMs}
+        onPlayAll={playAll}
+        onPlayShuffled={playShuffled}
+        onEditRules={openRulesEditor}
+      />
 
       {editingRules && playlist !== null && (
         <SmartRulesDialog
