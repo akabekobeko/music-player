@@ -43,7 +43,7 @@ export const PlayerControls = ({
         disabled={!hasPrevious}
         onClick={onPrevious}
       >
-        <SkipBack />
+        <SkipBack className="fill-current" />
       </Button>
       <Button
         variant="ghost"
@@ -55,9 +55,9 @@ export const PlayerControls = ({
         {isLoading ? (
           <Loader2 className="animate-spin" />
         ) : isPlaying ? (
-          <Pause />
+          <Pause className="fill-current" />
         ) : (
-          <Play />
+          <Play className="fill-current" />
         )}
       </Button>
       <Button
@@ -67,7 +67,7 @@ export const PlayerControls = ({
         disabled={!hasNext}
         onClick={onNext}
       >
-        <SkipForward />
+        <SkipForward className="fill-current" />
       </Button>
     </HStack>
   );
