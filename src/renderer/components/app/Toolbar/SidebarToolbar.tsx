@@ -7,7 +7,7 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
  * buttons out. On macOS the traffic lights overlay the band's left edge.
  */
 export const SidebarToolbar = () => (
-  <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center border-b">
+  <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center">
     <ToolbarIconCluster className="flex-1" />
   </div>
 );

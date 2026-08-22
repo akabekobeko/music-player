@@ -63,6 +63,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
             {muted ? <VolumeX /> : <Volume2 />}
           </Button>
           <Slider
+            variant="fused"
             aria-label={t("player.volume")}
             min={0}
             max={100}

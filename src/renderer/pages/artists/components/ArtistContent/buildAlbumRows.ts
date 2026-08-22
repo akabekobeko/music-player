@@ -24,7 +24,7 @@ export type AlbumRow =
 
 /** Row heights in px, by row type (virtualizer estimates). */
 export const ALBUM_ROW_HEIGHTS: Record<AlbumRow["type"], number> = {
-  album: 136,
+  album: 152,
   disc: 32,
   music: 36,
 };

@@ -31,7 +31,7 @@ export const ContentToolbar = () => {
   const section = sectionOf(pathname);
 
   return (
-    <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 border-b pr-[calc(var(--titlebar-safe-right)+0.375rem)]">
+    <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 pr-[calc(var(--titlebar-safe-right)+0.375rem)]">
       {!sidebar.open && (
         <ToolbarIconCluster
           className="shrink-0"

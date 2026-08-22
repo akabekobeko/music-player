@@ -22,10 +22,10 @@ const NAV_ITEMS = [
 /** Classes for the horizontal mode-switch tabs (styled after audio-player). */
 const tabClassName = ({ isActive }: { isActive: boolean }): string =>
   cn(
-    "flex items-center justify-center rounded-md py-1.5 transition-colors",
+    "flex items-center justify-center rounded-md py-1.5 transition-all duration-400 ease-in-out",
     isActive
       ? "bg-background text-foreground shadow-sm"
-      : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground",
+      : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
   );
 
 /**
@@ -39,9 +39,7 @@ export const Sidebar = () => {
   return (
     <aside className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar">
       <SidebarToolbar />
-      <TooltipProvider>
-        {/* Padded wrapper instead of margin on the nav pill: the sibling
-            secondary area's border-t must keep spanning edge to edge. */}
+      <TooltipProvider delay={1000}>
         <div className="p-2">
           <nav className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
             {NAV_ITEMS.map(({ to, label, Icon }) => (
@@ -64,7 +62,7 @@ export const Sidebar = () => {
         </div>
       </TooltipProvider>
       {/* Route-specific secondary area. */}
-      <div className="flex-1 overflow-hidden border-t">
+      <div className="flex-1 overflow-hidden">
         {pathname.startsWith("/artists") && <ArtistListPanel />}
         {pathname.startsWith("/albums") && <AlbumFilterPanel />}
         {pathname.startsWith("/playlists") && <PlaylistListPanel />}
