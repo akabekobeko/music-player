@@ -39,7 +39,7 @@ export const Sidebar = () => {
   return (
     <aside className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar">
       <SidebarToolbar />
-      <TooltipProvider>
+      <TooltipProvider delay={1000}>
         {/* Padded wrapper instead of margin on the nav pill: the sibling
             secondary area's border-t must keep spanning edge to edge. */}
         <div className="p-2">
