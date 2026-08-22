@@ -10,6 +10,9 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useT } from "@/features/i18n/useT";
 
+/** スピーカー本体の path のみ塗りつぶす (音波の弧まで塗ると形が崩れるため) */
+const speakerFill = "[&>path:first-child]:fill-current";
+
 /** Coerce Base UI's single-or-array slider value into a number. */
 const asNumber = (value: number | readonly number[]): number =>
   Array.isArray(value) ? (value[0] ?? 0) : (value as number);
@@ -50,7 +53,11 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
           />
         }
       >
-        {muted ? <VolumeX /> : <Volume2 />}
+        {muted ? (
+          <VolumeX className={speakerFill} />
+        ) : (
+          <Volume2 className={speakerFill} />
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
         <HStack>
@@ -60,7 +67,11 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
             aria-label={muted ? t("player.unmute") : t("player.mute")}
             onClick={toggleMute}
           >
-            {muted ? <VolumeX /> : <Volume2 />}
+            {muted ? (
+              <VolumeX className={speakerFill} />
+            ) : (
+              <Volume2 className={speakerFill} />
+            )}
           </Button>
           <Slider
             variant="fused"
