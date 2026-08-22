@@ -31,7 +31,7 @@ export const AlbumHeaderRow = ({
   const t = useT();
 
   return (
-    <HStack className="items-end gap-4 pt-6 pb-4">
+    <HStack className="items-end gap-4 pt-6 pr-2 pb-4">
       {group.picturePath !== null ? (
         <img
           src={toMediaFileUrl(group.picturePath)}
@@ -60,6 +60,7 @@ export const AlbumHeaderRow = ({
         />
       </div>
       <RowMenu
+        triggerClassName="rounded-full bg-foreground text-background hover:bg-foreground/80 hover:text-background dark:hover:bg-foreground/80"
         items={[
           { label: t("player.play"), onSelect: onPlay },
           { label: t("menu.addToQueue"), onSelect: onAddToQueue },

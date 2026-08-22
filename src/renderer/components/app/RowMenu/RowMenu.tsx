@@ -20,6 +20,8 @@ export type RowMenuItem = {
 
 type Props = {
   readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
+  /** Extra classes for the [⋯] trigger button (e.g. a filled circle). */
+  readonly triggerClassName?: string;
 };
 
 /**
@@ -30,10 +32,17 @@ type Props = {
  * Entries are plain items or ready-made menu elements — the latter lets
  * views splice in composite pieces like the "Add to playlist ▸" submenu.
  */
-export const RowMenu = ({ items }: Props) => (
+export const RowMenu = ({ items, triggerClassName }: Props) => (
   <DropdownMenu>
     <DropdownMenuTrigger
-      render={<Button variant="ghost" size="icon-sm" aria-label="Menu" />}
+      render={
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Menu"
+          className={triggerClassName}
+        />
+      }
     >
       <MoreHorizontal />
     </DropdownMenuTrigger>
