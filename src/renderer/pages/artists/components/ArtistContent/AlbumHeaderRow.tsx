@@ -60,7 +60,7 @@ export const AlbumHeaderRow = ({
         />
       </div>
       <RowMenu
-        triggerClassName="rounded-full bg-foreground text-background hover:bg-foreground/80 hover:text-background dark:hover:bg-foreground/80"
+        variant="circle"
         items={[
           { label: t("player.play"), onSelect: onPlay },
           { label: t("menu.addToQueue"), onSelect: onAddToQueue },

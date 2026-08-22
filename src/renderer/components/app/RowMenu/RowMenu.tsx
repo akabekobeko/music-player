@@ -1,5 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
 import { isValidElement, type ReactElement } from "react";
+import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,8 +21,8 @@ export type RowMenuItem = {
 
 type Props = {
   readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
-  /** Extra classes for the [⋯] trigger button (e.g. a filled circle). */
-  readonly triggerClassName?: string;
+  /** Trigger look: the plain ghost icon (default) or a filled circle. */
+  readonly variant?: "ghost" | "circle";
 };
 
 /**
@@ -32,16 +33,15 @@ type Props = {
  * Entries are plain items or ready-made menu elements — the latter lets
  * views splice in composite pieces like the "Add to playlist ▸" submenu.
  */
-export const RowMenu = ({ items, triggerClassName }: Props) => (
+export const RowMenu = ({ items, variant = "ghost" }: Props) => (
   <DropdownMenu>
     <DropdownMenuTrigger
       render={
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Menu"
-          className={triggerClassName}
-        />
+        variant === "circle" ? (
+          <CircleIconButton aria-label="Menu" />
+        ) : (
+          <Button variant="ghost" size="icon-sm" aria-label="Menu" />
+        )
       }
     >
       <MoreHorizontal />
