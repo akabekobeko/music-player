@@ -67,15 +67,15 @@ export const PlayerBar = () => {
         <img
           src={toMediaFileUrl(current.picturePath)}
           alt=""
-          className="size-11 shrink-0 rounded object-cover"
+          className="size-12 shrink-0 rounded object-cover"
         />
       ) : (
-        <VStack className="size-11 shrink-0 rounded bg-muted">
+        <VStack className="size-12 shrink-0 rounded bg-muted">
           <Music aria-hidden className="size-5 text-muted-foreground" />
         </VStack>
       )}
 
-      <Stack className="w-[30rem] shrink-0 gap-0.5">
+      <Stack className="w-56 shrink-0 gap-0.5">
         {current !== null ? (
           <>
             <EllipsisText
