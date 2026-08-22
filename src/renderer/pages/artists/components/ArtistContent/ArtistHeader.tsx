@@ -71,7 +71,7 @@ export const ArtistHeader = ({
           disabled={musicCount === 0}
           onClick={onPlayAll}
         >
-          <Play />
+          <Play className="fill-current" />
         </CircleIconButton>
         <CircleIconButton
           aria-label={t("player.shuffle")}
