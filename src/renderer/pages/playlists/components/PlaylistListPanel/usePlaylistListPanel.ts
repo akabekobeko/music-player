@@ -11,8 +11,8 @@ import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlayl
 import { playlistRouteId } from "@/features/playlist/playlistRouteId";
 
 /**
- * Logic of `PlaylistListPanel`: the playlist list, creation (static /
- * smart), inline rename, deletion behind confirmation, and navigation to
+ * Logic of `PlaylistListPanel`: the playlist list (with a client-side name
+ * filter), creation (static / smart), inline rename, deletion behind confirmation, and navigation to
  * the selected playlist. The component only renders what this hook returns.
  */
 export const usePlaylistListPanel = () => {
@@ -28,9 +28,15 @@ export const usePlaylistListPanel = () => {
   const [deleting, setDeleting] = useState<Playlist | null>(null);
   /** Whether the smart-playlist creation dialog is open. */
   const [creatingSmart, setCreatingSmart] = useState(false);
+  /** Client-side name filter typed into the header's search box. */
+  const [query, setQuery] = useState("");
 
   const playlists =
-    playlistsState.status === "success" ? playlistsState.value : [];
+    playlistsState.status === "success"
+      ? playlistsState.value.filter((playlist) =>
+          playlist.name.toLowerCase().includes(query.trim().toLowerCase()),
+        )
+      : [];
 
   const openPlaylist = (routeId: string): void => {
     navigate(`/playlists/${routeId}`);
@@ -94,6 +100,8 @@ export const usePlaylistListPanel = () => {
     setDeleting,
     creatingSmart,
     setCreatingSmart,
+    query,
+    setQuery,
     openPlaylist,
     create,
     createSmart,

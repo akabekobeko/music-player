@@ -1,4 +1,5 @@
 import { ListMusic, Plus, Sparkles } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Stack } from "@/components/app/stacks";
@@ -12,6 +13,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
 import { playlistRouteId } from "@/features/playlist/playlistRouteId";
 import { cn } from "@/libs/utils";
@@ -20,9 +27,11 @@ import { usePlaylistListPanel } from "./usePlaylistListPanel";
 
 /**
  * Playlist list in the Sidebar's secondary area
- * (`docs/specs/v1.0/features/playlist.md`): every playlist of both kinds,
- * "+ New playlist", inline rename, and deletion behind a confirmation
- * dialog. The selected playlist lives in the URL (`/playlists/<routeId>`).
+ * (`docs/specs/v1.0/features/playlist.md`): a fixed header (name filter,
+ * icon-only "New playlist" / "New smart playlist" with delayed tooltips),
+ * every playlist of both kinds, inline rename, and deletion behind a
+ * confirmation dialog. The selected playlist lives in the URL
+ * (`/playlists/<routeId>`).
  */
 export const PlaylistListPanel = () => {
   const t = useT();
@@ -36,6 +45,8 @@ export const PlaylistListPanel = () => {
     setDeleting,
     creatingSmart,
     setCreatingSmart,
+    query,
+    setQuery,
     openPlaylist,
     create,
     createSmart,
@@ -45,34 +56,36 @@ export const PlaylistListPanel = () => {
 
   return (
     <Stack className="h-full gap-0">
-      <Stack className="p-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => void create()}
-        >
-          <Plus /> {t("playlist.new")}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => setCreatingSmart(true)}
-        >
-          <Sparkles /> {t("playlist.newSmart")}
-        </Button>
-      </Stack>
+      <TooltipProvider delay={TOOLTIP_DELAY_MS}>
+        <HStack className="shrink-0 p-2">
+          <Input
+            type="search"
+            placeholder={t("playlist.search")}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <HeaderButton label={t("playlist.new")} onClick={() => void create()}>
+            <Plus />
+          </HeaderButton>
+          <HeaderButton
+            label={t("playlist.newSmart")}
+            onClick={() => setCreatingSmart(true)}
+          >
+            <Sparkles />
+          </HeaderButton>
+        </HStack>
+      </TooltipProvider>
       {playlistsState.status === "error" && (
         <p className="break-all px-3 py-2 text-destructive text-xs">
           {t("library.loadFailed", { message: playlistsState.error.message })}
         </p>
       )}
-      {playlistsState.status === "success" && playlists.length === 0 && (
-        <p className="px-3 py-2 text-muted-foreground text-xs">
-          {t("playlist.empty")}
-        </p>
-      )}
+      {playlistsState.status === "success" &&
+        playlistsState.value.length === 0 && (
+          <p className="px-3 py-2 text-muted-foreground text-xs">
+            {t("playlist.empty")}
+          </p>
+        )}
       <div className="flex-1 overflow-y-auto">
         {playlists.map((playlist) => {
           const routeId = playlistRouteId(playlist);
@@ -186,3 +199,33 @@ export const PlaylistListPanel = () => {
     </Stack>
   );
 };
+
+/** Delay before the tooltips show — an instant popup is distracting here. */
+const TOOLTIP_DELAY_MS = 700;
+
+type HeaderButtonProps = Pick<ComponentProps<typeof Button>, "onClick"> & {
+  /** Tooltip text, doubling as the accessible name. */
+  readonly label: string;
+  /** The icon. */
+  readonly children: ReactNode;
+};
+
+/** One icon-only header button with its delayed tooltip. */
+const HeaderButton = ({ label, children, ...props }: HeaderButtonProps) => (
+  <Tooltip>
+    <TooltipTrigger
+      render={
+        <Button
+          variant="outline"
+          size="icon"
+          className="shrink-0"
+          aria-label={label}
+          {...props}
+        >
+          {children}
+        </Button>
+      }
+    />
+    <TooltipContent side="bottom">{label}</TooltipContent>
+  </Tooltip>
+);
