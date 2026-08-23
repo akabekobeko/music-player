@@ -78,6 +78,7 @@ export const ja: Dictionary = {
   "album.noMatch": "条件に一致するアルバムがありません。",
   "album.empty": "アルバムがありません。音楽をインポートしてください。",
   "player.shuffle": "シャッフル",
+  "playlist.search": "プレイリストを検索",
   "playlist.new": "新規プレイリスト",
   "playlist.defaultName": "新規プレイリスト",
   "playlist.empty": "プレイリストがありません。",

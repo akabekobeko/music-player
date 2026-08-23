@@ -79,6 +79,7 @@ export const en: Dictionary = {
   "album.noMatch": "No albums match the filters.",
   "album.empty": "No albums yet. Import music to get started.",
   "player.shuffle": "Shuffle",
+  "playlist.search": "Search playlists",
   "playlist.new": "New playlist",
   "playlist.defaultName": "New playlist",
   "playlist.empty": "No playlists yet.",
