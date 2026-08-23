@@ -1,10 +1,11 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { Play } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
+import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
-import { Button } from "@/components/ui/button";
+import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
@@ -17,8 +18,10 @@ type Props = {
 /**
  * Album detail filling the resizable pane below the grid
  * (`docs/specs/v1.0/features/album-view.md`): a fixed header (album info,
- * Play / menu) over the scrollable track list via the shared `MusicRow`
- * (disc split, row menu, playing highlight). Every playback action queues
+ * Play / menu circles) over the scrollable track list via the shared
+ * `MusicRow`. The header's right padding matches the list's `px-6` plus the
+ * rows' `px-2`, so the menu circle lines up with the track menus (as in the
+ * Artist view). Each playback action queues
  * **only this album's tracks** — unlike the Artist view, the filter context
  * means "listen to this album".
  */
@@ -37,7 +40,7 @@ export const AlbumDetail = ({ album }: Props) => {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center gap-3 border-b px-6 py-3">
+      <header className="flex items-center gap-3 border-b py-3 pr-8 pl-6">
         <div className="min-w-0 flex-1">
           <h2 className="font-medium text-base">
             <EllipsisText text={album.album} />
@@ -55,20 +58,28 @@ export const AlbumDetail = ({ album }: Props) => {
               .join(" · ")}
           />
         </div>
-        <Button size="sm" disabled={musics.length === 0} onClick={playAll}>
-          <Play /> {t("player.play")}
-        </Button>
-        <RowMenu
-          items={[
-            { label: t("player.play"), onSelect: playAll },
-            {
-              label: t("menu.addToQueue"),
-              onSelect: () => commands.appendToQueue([...musics]),
-              disabled: musics.length === 0,
-            },
-            <AddToPlaylistSubmenu key="playlist" musics={musics} />,
-          ]}
-        />
+        <HStack className="shrink-0">
+          <CircleIconButton
+            aria-label={t("player.play")}
+            title={t("player.play")}
+            disabled={musics.length === 0}
+            onClick={playAll}
+          >
+            <PlayFillIcon className="size-3.5" />
+          </CircleIconButton>
+          <RowMenu
+            variant="circle"
+            items={[
+              { label: t("player.play"), onSelect: playAll },
+              {
+                label: t("menu.addToQueue"),
+                onSelect: () => commands.appendToQueue([...musics]),
+                disabled: musics.length === 0,
+              },
+              <AddToPlaylistSubmenu key="playlist" musics={musics} />,
+            ]}
+          />
+        </HStack>
       </header>
 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-2">
