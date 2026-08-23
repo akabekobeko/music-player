@@ -1,6 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { Disc3, Play } from "lucide-react";
+import { Disc3 } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -67,7 +68,7 @@ export const AlbumCard = ({
           className="absolute right-2 bottom-2 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           onClick={onPlay}
         >
-          <Play className="size-4 fill-current" />
+          <PlayFillIcon className="size-4" />
         </button>
       </div>
       <EllipsisText className="pt-2 font-medium text-sm" text={album.album} />

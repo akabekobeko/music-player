@@ -1,7 +1,9 @@
 import type { Music } from "@mp/ipc";
-import { Pause, Play, Volume2 } from "lucide-react";
 import type { MouseEvent, ReactNode } from "react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
+import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
 import { HStack } from "@/components/app/stacks";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
@@ -64,9 +66,9 @@ export const MusicRow = ({
     <span className="relative w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
       {playing !== null ? (
         playing === "playing" ? (
-          <Volume2 aria-hidden className="ml-auto size-4 text-primary" />
+          <VolumeFillIcon aria-hidden className="ml-auto size-4 text-primary" />
         ) : (
-          <Pause aria-hidden className="ml-auto size-4 text-primary" />
+          <PauseFillIcon aria-hidden className="ml-auto size-4 text-primary" />
         )
       ) : (
         <>
@@ -84,7 +86,7 @@ export const MusicRow = ({
               className="hidden size-4 items-center justify-center group-hover:inline-flex"
               onClick={onPlay}
             >
-              <Play className="size-4" />
+              <PlayFillIcon className="size-4" />
             </button>
           )}
         </>
