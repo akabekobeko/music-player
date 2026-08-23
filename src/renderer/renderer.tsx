@@ -7,6 +7,7 @@ import "./App.css";
 import { aboutStore } from "./features/about/aboutStore";
 import { importStore } from "./features/import/importStore/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
+import { restoreLastView } from "./features/layout/lastView/restoreLastView";
 import { sidebarStore } from "./features/layout/sidebarStore";
 import { libraryStore } from "./features/library/queryStore/libraryStore";
 import { menuActionBus } from "./features/menu/menuActionBus";
@@ -70,6 +71,7 @@ const bootstrap = async (): Promise<void> => {
   watchSystemTheme();
   albumFilterStore.initialize(settings.albumFilter);
   sidebarStore.initialize(settings.sidebar);
+  await restoreLastView(settings.lastView);
 
   registerWindowDropHandler();
   registerPlayerHotkeys();

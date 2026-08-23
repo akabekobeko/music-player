@@ -15,6 +15,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { LastViewRecorder } from "@/features/layout/lastView/LastViewRecorder";
 import {
   SIDEBAR_MAX_WIDTH,
   SIDEBAR_MIN_WIDTH,
@@ -43,6 +44,7 @@ export const AppLayout = () => {
   const draggedWidth = useRef(sidebar.width);
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
+      <LastViewRecorder />
       <ResizablePanelGroup
         orientation="horizontal"
         className="min-h-0 flex-1"

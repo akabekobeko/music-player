@@ -117,7 +117,7 @@ src/
 
 `userData/settings.json` を Main プロセスが単独管理します (mme-gui 方式)。
 
-- 内容: `{ version, window: { x, y, width, height, maximized }, locale?, theme?, albumFilter?, sidebar? }`
+- 内容: `{ version, window: { x, y, width, height, maximized }, locale?, theme?, albumFilter?, sidebar?, importDialogPath?, lastView? }`
 - 書き込みは 500ms debounce + atomic write (tmp → rename)
 - 読み込みは起動時に同期。壊れていればデフォルト値にフォールバック
 - マージは deep-merge ではなく明示フィールド戦略 (prototype pollution の構造的回避)

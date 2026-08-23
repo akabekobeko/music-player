@@ -4,6 +4,7 @@ import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
 import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
+import { sanitizeLastView } from "./sanitizeLastView";
 import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
@@ -51,6 +52,9 @@ export const sanitizeSettings = (raw: unknown): AppSettings => {
     ...(typeof source.importDialogPath === "string" &&
     source.importDialogPath !== ""
       ? { importDialogPath: source.importDialogPath }
+      : {}),
+    ...(sanitizeLastView(source.lastView)
+      ? { lastView: sanitizeLastView(source.lastView) }
       : {}),
   };
 };

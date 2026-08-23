@@ -3,6 +3,7 @@ import { asFiniteNumber } from "./asFiniteNumber";
 import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
+import { sanitizeLastView } from "./sanitizeLastView";
 import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
@@ -64,10 +65,15 @@ export const mergeSettings = (
     typeof patch.importDialogPath === "string" && patch.importDialogPath !== ""
       ? patch.importDialogPath
       : current.importDialogPath;
+  const lastView =
+    patch.lastView !== undefined
+      ? (sanitizeLastView(patch.lastView) ?? current.lastView)
+      : current.lastView;
   return {
     ...merged,
     ...(albumFilter !== undefined ? { albumFilter } : {}),
     ...(sidebar !== undefined ? { sidebar } : {}),
     ...(importDialogPath !== undefined ? { importDialogPath } : {}),
+    ...(lastView !== undefined ? { lastView } : {}),
   };
 };

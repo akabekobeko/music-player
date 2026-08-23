@@ -329,6 +329,27 @@ export type PlaylistRemoveRequest = {
 /** Color theme preference persisted in `AppSettings.theme`. */
 export type ThemePreference = "light" | "dark" | "system";
 
+/** Top-level sidebar section of the renderer's main views. */
+export type ViewSection = "artists" | "albums" | "playlists";
+
+/**
+ * Last main view shown (the section tab) plus each section's last sidebar
+ * selection, so switching tabs and relaunching both return to where the
+ * user was. A selection is dropped at restore time when its target no
+ * longer exists; the Album view's selection is `albumFilter`, persisted
+ * separately.
+ */
+export type LastView = {
+  readonly section: ViewSection;
+  /**
+   * Last selected artist name in the Artist view; `""` is the "Unknown
+   * Artist" bucket. Unset when nothing was selected.
+   */
+  readonly artist?: string;
+  /** Last selected playlist route id (`p12` / `s3`) in the Playlist view. */
+  readonly playlist?: string;
+};
+
 /**
  * Persisted user preferences. Lives in `<userData>/settings.json`; only Main
  * touches the file directly
@@ -366,6 +387,8 @@ export type AppSettings = {
    * exist; the dialog opener climbs to the nearest existing ancestor.
    */
   readonly importDialogPath?: string;
+  /** Last main view (section + sidebar selection), restored on next launch. */
+  readonly lastView?: LastView;
 };
 
 /**
