@@ -3,7 +3,7 @@ import { Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { PlayIcon } from "@/components/app/Icons/Icons";
+import { PlayIcon } from "@/components/app/Icons/PlayIcon";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Spacer, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";

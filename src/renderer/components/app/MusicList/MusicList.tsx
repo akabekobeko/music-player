@@ -1,7 +1,9 @@
 import type { Music } from "@mp/ipc";
 import type { MouseEvent, ReactNode } from "react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { PauseIcon, PlayIcon, VolumeIcon } from "@/components/app/Icons/Icons";
+import { PauseIcon } from "@/components/app/Icons/PauseIcon";
+import { PlayIcon } from "@/components/app/Icons/PlayIcon";
+import { VolumeIcon } from "@/components/app/Icons/VolumeIcon";
 import { HStack } from "@/components/app/stacks";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";

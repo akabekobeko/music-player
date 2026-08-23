@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { VolumeIcon, VolumeMutedIcon } from "@/components/app/Icons/Icons";
+import { VolumeIcon } from "@/components/app/Icons/VolumeIcon";
+import { VolumeMutedIcon } from "@/components/app/Icons/VolumeMutedIcon";
 import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {

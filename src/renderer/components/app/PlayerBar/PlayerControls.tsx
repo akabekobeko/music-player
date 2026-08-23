@@ -1,10 +1,8 @@
 import { Loader2 } from "lucide-react";
-import {
-  PauseIcon,
-  PlayIcon,
-  SkipBackIcon,
-  SkipForwardIcon,
-} from "@/components/app/Icons/Icons";
+import { PauseIcon } from "@/components/app/Icons/PauseIcon";
+import { PlayIcon } from "@/components/app/Icons/PlayIcon";
+import { SkipBackIcon } from "@/components/app/Icons/SkipBackIcon";
+import { SkipForwardIcon } from "@/components/app/Icons/SkipForwardIcon";
 import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";

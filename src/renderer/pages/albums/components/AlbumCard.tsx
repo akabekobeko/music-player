@@ -1,7 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { Disc3 } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { PlayIcon } from "@/components/app/Icons/Icons";
+import { PlayIcon } from "@/components/app/Icons/PlayIcon";
 import {
   ContextMenu,
   ContextMenuContent,
