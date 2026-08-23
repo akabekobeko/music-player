@@ -1,9 +1,25 @@
 import type { LastView } from "@mp/ipc";
 import { matchPath } from "react-router";
-import {
-  ARTIST_NAME_PATTERN,
-  UNKNOWN_ARTIST_PATH,
-} from "@/pages/artists/artistPath";
+import { UNKNOWN_ARTIST_PATH } from "@/pages/artists/artistPath";
+
+/** Prefix of the named-artist route (`ARTIST_NAME_PATTERN`). */
+const ARTIST_NAME_PREFIX = "/artists/name/";
+
+/**
+ * Decode the `:artistName` segment. `matchPath` leaves params percent-encoded
+ * (`%20` stays as is), and `artistPathOf` would encode them again on the way
+ * back, so the name is decoded here — the inverse of `artistPathOf`.
+ *
+ * @param segment - Raw path segment after `/artists/name/`.
+ * @returns The artist name, or `null` when the segment is malformed.
+ */
+const decodeArtistName = (segment: string): string | null => {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return null;
+  }
+};
 
 /**
  * Derive the persisted {@link LastView} from a router pathname.
@@ -23,9 +39,11 @@ export const lastViewOf = (pathname: string): LastView | null => {
     return { section: "artists", artist: "" };
   }
 
-  const artist = matchPath(ARTIST_NAME_PATTERN, pathname)?.params.artistName;
-  if (artist !== undefined) {
-    return { section: "artists", artist };
+  if (pathname.startsWith(ARTIST_NAME_PREFIX)) {
+    const artist = decodeArtistName(pathname.slice(ARTIST_NAME_PREFIX.length));
+    return artist !== null && artist !== ""
+      ? { section: "artists", artist }
+      : { section: "artists" };
   }
 
   if (pathname === "/artists") {

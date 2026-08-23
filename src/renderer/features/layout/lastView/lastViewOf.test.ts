@@ -12,6 +12,14 @@ it("decodes the selected artist, including the unknown bucket", () => {
     section: "artists",
     artist: "AC/DC",
   });
+  expect(lastViewOf("/artists/name/Banco%20del%20Mutuo%20Soccorso")).toEqual({
+    section: "artists",
+    artist: "Banco del Mutuo Soccorso",
+  });
+  expect(lastViewOf("/artists/name/100%25")).toEqual({
+    section: "artists",
+    artist: "100%",
+  });
   expect(lastViewOf("/artists/unknown")).toEqual({
     section: "artists",
     artist: "",
@@ -23,6 +31,10 @@ it("keeps the playlist route id", () => {
     section: "playlists",
     playlist: "p12",
   });
+});
+
+it("falls back to the section root for a malformed artist segment", () => {
+  expect(lastViewOf("/artists/name/%E0%A4%A")).toEqual({ section: "artists" });
 });
 
 it("returns null for settings and unknown paths", () => {
