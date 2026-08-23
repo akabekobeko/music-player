@@ -1,6 +1,6 @@
 import { ListMusic } from "lucide-react";
+import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import { HStack } from "@/components/app/stacks";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -24,13 +24,7 @@ export const QueuePopover = () => {
   return (
     <Popover>
       <PopoverTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("player.queue")}
-          />
-        }
+        render={<GlowIconButton aria-label={t("player.queue")} />}
       >
         <ListMusic />
       </PopoverTrigger>

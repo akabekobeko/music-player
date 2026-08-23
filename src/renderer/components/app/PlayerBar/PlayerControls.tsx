@@ -1,10 +1,11 @@
 import { Loader2 } from "lucide-react";
+import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
+import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { SkipBackFillIcon } from "@/components/app/Icons/SkipBackFillIcon";
 import { SkipForwardFillIcon } from "@/components/app/Icons/SkipForwardFillIcon";
 import { HStack } from "@/components/app/stacks";
-import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
 
 type Props = {
@@ -39,19 +40,16 @@ export const PlayerControls = ({
 }: Props) => {
   const t = useT();
   return (
-    <HStack className="gap-0.5">
-      <Button
-        variant="ghost"
-        size="icon-sm"
+    <HStack className="gap-1">
+      <GlowIconButton
         aria-label={t("player.previous")}
         disabled={!hasPrevious}
         onClick={onPrevious}
       >
         <SkipBackFillIcon />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
+      </GlowIconButton>
+      <CircleIconButton
+        className="size-10"
         aria-label={isPlaying ? t("player.pause") : t("player.play")}
         disabled={!hasTrack}
         onClick={onTogglePlayPause}
@@ -63,16 +61,14 @@ export const PlayerControls = ({
         ) : (
           <PlayFillIcon />
         )}
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
+      </CircleIconButton>
+      <GlowIconButton
         aria-label={t("player.next")}
         disabled={!hasNext}
         onClick={onNext}
       >
         <SkipForwardFillIcon />
-      </Button>
+      </GlowIconButton>
     </HStack>
   );
 };
