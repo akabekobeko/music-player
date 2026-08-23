@@ -16,6 +16,7 @@ it("keeps valid persisted fields", () => {
     theme: "dark",
     albumFilter: { text: "abc", genres: ["Rock"], decades: [1990, null] },
     sidebar: { open: false, width: 300 },
+    lastView: { section: "artists", artist: "Queen" },
   });
   expect(settings.window).toEqual({
     x: 10,
@@ -32,6 +33,7 @@ it("keeps valid persisted fields", () => {
     decades: [1990, null],
   });
   expect(settings.sidebar).toEqual({ open: false, width: 300 });
+  expect(settings.lastView).toEqual({ section: "artists", artist: "Queen" });
 });
 
 it("drops invalid fields and falls back to defaults", () => {
@@ -41,12 +43,14 @@ it("drops invalid fields and falls back to defaults", () => {
     theme: "solarized",
     albumFilter: { text: 1, genres: "Rock" },
     sidebar: { open: "yes", width: -10 },
+    lastView: { section: "settings" },
   });
   expect(settings.window).toEqual(DEFAULT_SETTINGS.window);
   expect(settings.locale).toBeUndefined();
   expect(settings.theme).toBeUndefined();
   expect(settings.albumFilter).toBeUndefined();
   expect(settings.sidebar).toBeUndefined();
+  expect(settings.lastView).toBeUndefined();
 });
 
 it("ignores unknown keys instead of persisting them", () => {

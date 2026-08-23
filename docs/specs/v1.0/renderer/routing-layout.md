@@ -89,6 +89,8 @@ VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Mu
 - Album ビュー: `AlbumFilter.musicTitle` として SQL WHERE に合流し、一致曲を含むアルバムだけをグリッドに表示。下段の曲リストも同じテキストで絞り込み
 - Playlist ビュー: 選択中プレイリストの曲をタイトルで絞り込み。絞り込み中は並べ替えドラッグを無効化 (行番号は元の並び順を維持)
 
+**最後に表示したビューの復元** — Artists / Albums / Playlists のどれを表示していたかと、そのサイドバー選択 (選択中アーティスト・選択中プレイリスト) を `AppSettings.lastView` (`{ section, artist?, playlist? }`) へ保存し、次回起動時に復元します。保存はルート変更を監視する `LastViewRecorder` (`/settings` は対象外)、復元はブートストラップの `restoreLastView` が `createRoot` 前に hash を設定して行うため、既定ルートが一瞬表示されることはありません。選択対象のアーティスト・プレイリストが消えていた場合はセクションのルート (`/artists` など) だけを復元します。Albums のサイドバー条件は従来どおり `albumFilter` として別途永続化されます。
+
 **サイドバー開閉・幅** — 開閉状態と幅は `sidebarStore` (React 外ストア) が持ち、変更のたびに `AppSettings.sidebar` へ永続化して再起動時に復元します (幅の保存はドラッグ確定時 = `onLayoutChanged`)。閉じている間はサイドバーのアイコンクラスターがコンテンツ領域ツールバーの左端に移り、クラスターの幅・配置を保存済みサイドバー幅と揃えることで、**開閉を操作しても各アイコンの画面上の位置が変わりません**。
 
 ## ブートストラップと Provider 構成

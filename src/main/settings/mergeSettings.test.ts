@@ -75,3 +75,26 @@ it("keeps the current importDialogPath when the patch value is invalid", () => {
     mergeSettings(current, { importDialogPath: "" }).importDialogPath,
   ).toBe("/music");
 });
+
+it("sets and keeps lastView", () => {
+  const merged = mergeSettings(DEFAULT_SETTINGS, {
+    lastView: { section: "playlists", playlist: "p3" },
+  });
+  expect(merged.lastView).toEqual({ section: "playlists", playlist: "p3" });
+  expect(mergeSettings(merged, { theme: "dark" }).lastView).toEqual({
+    section: "playlists",
+    playlist: "p3",
+  });
+});
+
+it("keeps the current lastView when the patch value is invalid", () => {
+  const current = {
+    ...DEFAULT_SETTINGS,
+    lastView: { section: "albums" as const },
+  };
+  expect(
+    mergeSettings(current, {
+      lastView: { section: "settings" as unknown as "albums" },
+    }).lastView,
+  ).toEqual({ section: "albums" });
+});
