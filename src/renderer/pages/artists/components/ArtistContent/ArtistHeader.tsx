@@ -1,8 +1,9 @@
 import type { Artist, Music } from "@mp/ipc";
-import { Play, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
+import { Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PlayIcon } from "@/components/app/Icons/Icons";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Spacer, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
@@ -71,7 +72,7 @@ export const ArtistHeader = ({
           disabled={musicCount === 0}
           onClick={onPlayAll}
         >
-          <Play className="fill-current" />
+          <PlayIcon />
         </CircleIconButton>
         <CircleIconButton
           aria-label={t("player.shuffle")}

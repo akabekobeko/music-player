@@ -1,5 +1,5 @@
-import { Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
+import { VolumeIcon, VolumeMutedIcon } from "@/components/app/Icons/Icons";
 import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,9 +9,6 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { useT } from "@/features/i18n/useT";
-
-/** スピーカー本体の path のみ塗りつぶす (音波の弧まで塗ると形が崩れるため) */
-const speakerFill = "[&>path:first-child]:fill-current";
 
 /** Coerce Base UI's single-or-array slider value into a number. */
 const asNumber = (value: number | readonly number[]): number =>
@@ -53,11 +50,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
           />
         }
       >
-        {muted ? (
-          <VolumeX className={speakerFill} />
-        ) : (
-          <Volume2 className={speakerFill} />
-        )}
+        {muted ? <VolumeMutedIcon /> : <VolumeIcon />}
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
         <HStack>
@@ -67,11 +60,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
             aria-label={muted ? t("player.unmute") : t("player.mute")}
             onClick={toggleMute}
           >
-            {muted ? (
-              <VolumeX className={speakerFill} />
-            ) : (
-              <Volume2 className={speakerFill} />
-            )}
+            {muted ? <VolumeMutedIcon /> : <VolumeIcon />}
           </Button>
           <Slider
             variant="fused"
