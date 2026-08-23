@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
 import { VolumeMutedFillIcon } from "@/components/app/Icons/VolumeMutedFillIcon";
 import { HStack } from "@/components/app/stacks";
@@ -43,13 +44,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
   return (
     <Popover>
       <PopoverTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("player.volume")}
-          />
-        }
+        render={<GlowIconButton aria-label={t("player.volume")} />}
       >
         {muted ? <VolumeMutedFillIcon /> : <VolumeFillIcon />}
       </PopoverTrigger>
