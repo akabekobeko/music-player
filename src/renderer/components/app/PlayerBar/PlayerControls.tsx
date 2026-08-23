@@ -49,17 +49,17 @@ export const PlayerControls = ({
         <SkipBackFillIcon />
       </GlowIconButton>
       <CircleIconButton
-        className="size-9"
+        className="size-10"
         aria-label={isPlaying ? t("player.pause") : t("player.play")}
         disabled={!hasTrack}
         onClick={onTogglePlayPause}
       >
         {isLoading ? (
-          <Loader2 className="size-5 animate-spin" />
+          <Loader2 className="animate-spin" />
         ) : isPlaying ? (
-          <PauseFillIcon className="size-5" />
+          <PauseFillIcon />
         ) : (
-          <PlayFillIcon className="size-5" />
+          <PlayFillIcon />
         )}
       </CircleIconButton>
       <GlowIconButton
