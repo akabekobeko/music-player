@@ -3,7 +3,7 @@ import { ListMusic, Shuffle as ShuffleIcon } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { PlayIcon } from "@/components/app/Icons/PlayIcon";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Spacer, VStack } from "@/components/app/stacks";
 import { Badge } from "@/components/ui/badge";
@@ -66,7 +66,7 @@ export const PlaylistHeader = ({
           disabled={musicCount === 0}
           onClick={onPlayAll}
         >
-          <PlayIcon />
+          <PlayFillIcon />
         </CircleIconButton>
         <CircleIconButton
           aria-label={t("player.shuffle")}

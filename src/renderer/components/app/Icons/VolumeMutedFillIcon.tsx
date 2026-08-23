@@ -8,7 +8,7 @@ import { cn } from "@/libs/utils";
  * lucide draws outlines only, so the app-wide "solid" look lives here instead
  * of being repeated as `fill-current` at every call site.
  */
-export const VolumeMutedIcon = ({ className, ...props }: LucideProps) => (
+export const VolumeMutedFillIcon = ({ className, ...props }: LucideProps) => (
   <VolumeX
     className={cn("[&>path:first-child]:fill-current", className)}
     {...props}

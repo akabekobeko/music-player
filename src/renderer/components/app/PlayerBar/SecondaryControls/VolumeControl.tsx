@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { VolumeIcon } from "@/components/app/Icons/VolumeIcon";
-import { VolumeMutedIcon } from "@/components/app/Icons/VolumeMutedIcon";
+import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
+import { VolumeMutedFillIcon } from "@/components/app/Icons/VolumeMutedFillIcon";
 import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,7 +51,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
           />
         }
       >
-        {muted ? <VolumeMutedIcon /> : <VolumeIcon />}
+        {muted ? <VolumeMutedFillIcon /> : <VolumeFillIcon />}
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
         <HStack>
@@ -61,7 +61,7 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
             aria-label={muted ? t("player.unmute") : t("player.mute")}
             onClick={toggleMute}
           >
-            {muted ? <VolumeMutedIcon /> : <VolumeIcon />}
+            {muted ? <VolumeMutedFillIcon /> : <VolumeFillIcon />}
           </Button>
           <Slider
             variant="fused"

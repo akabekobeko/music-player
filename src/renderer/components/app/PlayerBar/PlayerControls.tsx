@@ -1,8 +1,8 @@
 import { Loader2 } from "lucide-react";
-import { PauseIcon } from "@/components/app/Icons/PauseIcon";
-import { PlayIcon } from "@/components/app/Icons/PlayIcon";
-import { SkipBackIcon } from "@/components/app/Icons/SkipBackIcon";
-import { SkipForwardIcon } from "@/components/app/Icons/SkipForwardIcon";
+import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
+import { SkipBackFillIcon } from "@/components/app/Icons/SkipBackFillIcon";
+import { SkipForwardFillIcon } from "@/components/app/Icons/SkipForwardFillIcon";
 import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/features/i18n/useT";
@@ -47,7 +47,7 @@ export const PlayerControls = ({
         disabled={!hasPrevious}
         onClick={onPrevious}
       >
-        <SkipBackIcon />
+        <SkipBackFillIcon />
       </Button>
       <Button
         variant="ghost"
@@ -59,9 +59,9 @@ export const PlayerControls = ({
         {isLoading ? (
           <Loader2 className="animate-spin" />
         ) : isPlaying ? (
-          <PauseIcon />
+          <PauseFillIcon />
         ) : (
-          <PlayIcon />
+          <PlayFillIcon />
         )}
       </Button>
       <Button
@@ -71,7 +71,7 @@ export const PlayerControls = ({
         disabled={!hasNext}
         onClick={onNext}
       >
-        <SkipForwardIcon />
+        <SkipForwardFillIcon />
       </Button>
     </HStack>
   );
