@@ -8,9 +8,9 @@ const PLAYLIST_ROUTE_ID = /^[ps]\d+$/;
 /**
  * Validate an unknown value as `AppSettings["lastView"]`.
  *
- * The section is required; a selection is kept only when it belongs to that
- * section and has the right shape. Whether the selected artist / playlist
- * still exists is decided by the renderer at restore time, not here.
+ * The section is required; each per-section selection is kept when it has
+ * the right shape. Whether the selected artist / playlist still exists is
+ * decided by the renderer at restore time, not here.
  *
  * @param value - Raw `lastView` value from disk or a patch.
  * @returns The validated view, or `undefined` when the shape is wrong.
@@ -28,12 +28,8 @@ export const sanitizeLastView = (value: unknown): LastView | undefined => {
 
   return {
     section,
-    ...(section === "artists" && typeof raw.artist === "string"
-      ? { artist: raw.artist }
-      : {}),
-    ...(section === "playlists" &&
-    typeof raw.playlist === "string" &&
-    PLAYLIST_ROUTE_ID.test(raw.playlist)
+    ...(typeof raw.artist === "string" ? { artist: raw.artist } : {}),
+    ...(typeof raw.playlist === "string" && PLAYLIST_ROUTE_ID.test(raw.playlist)
       ? { playlist: raw.playlist }
       : {}),
   };

@@ -36,11 +36,8 @@ it("keeps only well-formed playlist route ids", () => {
   });
 });
 
-it("drops selections that belong to another section", () => {
+it("keeps every section's selection regardless of the current section", () => {
   expect(
     sanitizeLastView({ section: "albums", artist: "Queen", playlist: "p1" }),
-  ).toEqual({ section: "albums" });
-  expect(sanitizeLastView({ section: "artists", playlist: "p1" })).toEqual({
-    section: "artists",
-  });
+  ).toEqual({ section: "albums", artist: "Queen", playlist: "p1" });
 });

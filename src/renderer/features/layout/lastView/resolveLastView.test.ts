@@ -8,31 +8,31 @@ const library = {
 
 it("keeps selections that still exist", () => {
   expect(
-    resolveLastView({ section: "artists", artist: "Queen" }, library),
-  ).toEqual({ section: "artists", artist: "Queen" });
+    resolveLastView(
+      { section: "albums", artist: "Queen", playlist: "s2" },
+      library,
+    ),
+  ).toEqual({ section: "albums", artist: "Queen", playlist: "s2" });
   expect(resolveLastView({ section: "artists", artist: "" }, library)).toEqual({
     section: "artists",
     artist: "",
   });
-  expect(
-    resolveLastView({ section: "playlists", playlist: "s2" }, library),
-  ).toEqual({ section: "playlists", playlist: "s2" });
 });
 
-it("falls back to the section root when the target is gone", () => {
+it("drops each selection whose target is gone, keeping the section", () => {
   expect(
-    resolveLastView({ section: "artists", artist: "Gone" }, library),
-  ).toEqual({ section: "artists" });
+    resolveLastView(
+      { section: "artists", artist: "Gone", playlist: "p1" },
+      library,
+    ),
+  ).toEqual({ section: "artists", playlist: "p1" });
   expect(
     resolveLastView({ section: "playlists", playlist: "p9" }, library),
   ).toEqual({ section: "playlists" });
 });
 
-it("passes albums and selection-less views through", () => {
+it("passes selection-less views through", () => {
   expect(resolveLastView({ section: "albums" }, library)).toEqual({
     section: "albums",
-  });
-  expect(resolveLastView({ section: "playlists" }, library)).toEqual({
-    section: "playlists",
   });
 });
