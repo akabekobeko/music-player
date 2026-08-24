@@ -9,7 +9,7 @@ import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
  * representative artwork (`artist_pictures` → `pictures`).
  *
  * Sorting is intentionally a plain name ORDER BY here — the article-blind
- * ordering ("The" / "A" / "Thee") is locale-ish presentation logic and lives
+ * ordering ("The" / "Die" / "Los" …) is locale-ish presentation logic and lives
  * in the Renderer (`compareNameWithoutArticle`).
  */
 
