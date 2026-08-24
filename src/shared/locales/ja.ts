@@ -55,6 +55,8 @@ export const ja: Dictionary = {
   "artist.empty": "アーティストがいません。音楽をインポートしてください。",
   "artist.albumCount": "{count} 枚のアルバム",
   "artist.selectPrompt": "左の一覧からアーティストを選択してください。",
+  "artist.initials": "頭文字へ移動",
+  "artist.initialOther": "その他",
   "artistEdit.menu": "アーティスト情報の確認",
   "artistEdit.title": "アーティスト情報の確認",
   "artistEdit.imageFile": "画像ファイル",

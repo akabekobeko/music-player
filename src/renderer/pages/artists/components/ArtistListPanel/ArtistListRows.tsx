@@ -1,152 +1,70 @@
-import type { Artist } from "@mp/ipc";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { UserRound } from "lucide-react";
-import { useRef } from "react";
-import { useNavigate } from "react-router";
-import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import type { Ref } from "react";
+import { ArtistRow } from "./ArtistRow";
+import type { ArtistSection } from "./groupArtistsByInitial";
+import { InitialHeading } from "./InitialHeading";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { useT } from "@/features/i18n/useT";
-import { artistEditStore } from "@/features/library/artistEditStore";
-import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
-import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
-import { cn } from "@/libs/utils";
-import { artistPathOf } from "../../artistPath";
-
-/** Fixed row height for the virtualizer (px). */
-const ROW_HEIGHT = 48;
-
-/** Rows kept above the selected artist when the list mounts. */
-const ROWS_ABOVE_SELECTED = 2;
+  type ArtistListRowsHandle,
+  useArtistListRows,
+} from "./useArtistListRows";
 
 type Props = {
-  /** Filtered + sorted artists to render. */
-  readonly artists: readonly Artist[];
+  /** Filtered + sorted artists, grouped by initial. */
+  readonly sections: readonly ArtistSection[];
   /** Selected artist name from the route (`""` = unknown bucket). */
   readonly selectedName: string | undefined;
+  /** Receives `scrollToInitial` for the panel's initial picker. */
+  readonly ref: Ref<ArtistListRowsHandle>;
 };
 
 /**
- * Virtualised rows of `ArtistListPanel`. Rendered only once the artist list
- * has loaded so the virtualiser's `initialOffset` can bring the selected
- * artist into view at mount — a restored selection (launch, tab switch) is
- * visible without scrolling, like `useQueueList` centring the current track.
+ * Virtualised rows of `ArtistListPanel`: initial headings and artist rows,
+ * plus a pinned copy of the current section's heading at the top of the
+ * scroll area (UITableView-style — translucent so the rows sliding under it
+ * stay visible; it lands exactly over the in-list heading when that heading
+ * is at the top, and the next heading takes over once it reaches the top).
+ * Rendered only once the artist list has loaded so the virtualiser's
+ * `initialOffset` can bring the selected artist into view at mount — a
+ * restored selection (launch, tab switch) is visible without scrolling.
  */
-export const ArtistListRows = ({ artists, selectedName }: Props) => {
-  const t = useT();
-  const navigate = useNavigate();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const selectedIndex =
-    selectedName !== undefined
-      ? artists.findIndex((artist) => artist.name === selectedName)
-      : -1;
-  const virtualizer = useVirtualizer({
-    count: artists.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
-    overscan: 10,
-    initialOffset: Math.max(
-      0,
-      (selectedIndex - ROWS_ABOVE_SELECTED) * ROW_HEIGHT,
-    ),
-  });
+export const ArtistListRows = ({ sections, selectedName, ref }: Props) => {
+  const { scrollRef, items, virtualizer, activeInitial, onScroll } =
+    useArtistListRows({ sections, selectedName, ref });
 
   return (
-    <div ref={scrollRef} className="flex-1 overflow-y-auto">
+    <div ref={scrollRef} className="flex-1 overflow-y-auto" onScroll={onScroll}>
+      {activeInitial !== null && (
+        <div className="sticky top-0 z-10 h-0">
+          <InitialHeading
+            initial={activeInitial}
+            className="absolute inset-x-0 top-0 bg-muted/75 backdrop-blur-sm"
+          />
+        </div>
+      )}
       <div
         className="relative w-full"
         style={{ height: virtualizer.getTotalSize() }}
       >
-        {virtualizer.getVirtualItems().map((item) => {
-          const artist = artists[item.index];
-          if (artist === undefined) {
+        {virtualizer.getVirtualItems().map((row) => {
+          const item = items[row.index];
+          if (item === undefined) {
             return null;
           }
 
-          const selected = artist.name === selectedName;
-          const row = (
-            <button
-              type="button"
-              className={cn(
-                "absolute top-0 left-0 flex w-full items-center gap-2 px-3 text-left text-sm",
-                selected
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50",
-              )}
-              style={{
-                height: item.size,
-                transform: `translateY(${item.start}px)`,
-              }}
-              onClick={() => {
-                navigate(artistPathOf(artist.name));
-              }}
-            >
-              {artist.picturePath !== null ? (
-                <img
-                  src={toMediaFileUrl(artist.picturePath)}
-                  alt=""
-                  className="size-8 shrink-0 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                  <UserRound
-                    aria-hidden
-                    className="size-4 text-muted-foreground"
-                  />
-                </span>
-              )}
-              <span className="min-w-0 flex-1">
-                <EllipsisText
-                  text={artist.name !== "" ? artist.name : t("artist.unknown")}
-                />
-                <span className="block truncate text-[11px] text-muted-foreground">
-                  {t("artist.songs", { count: artist.musicCount })}
-                </span>
-              </span>
-            </button>
-          );
-          // Editing keys off the artist name; the empty-name bucket
-          // ("Unknown Artist") cannot hold a picture, so no edit there —
-          // removal applies to every bucket.
-          return (
-            <ContextMenu key={artist.name}>
-              <ContextMenuTrigger render={row} />
-              <ContextMenuContent>
-                {artist.name !== "" && (
-                  <>
-                    <ContextMenuItem
-                      onClick={() => {
-                        artistEditStore.open({
-                          name: artist.name,
-                          picturePath: artist.picturePath,
-                          musicCount: artist.musicCount,
-                        });
-                      }}
-                    >
-                      {t("artistEdit.menu")}
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                  </>
-                )}
-                <ContextMenuItem
-                  variant="destructive"
-                  onClick={() => {
-                    libraryRemoveStore.open({
-                      kind: "artist",
-                      artist: artist.name,
-                    });
-                  }}
-                >
-                  {t("menu.removeFromLibrary")}
-                </ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
+          return item.kind === "heading" ? (
+            <InitialHeading
+              key={row.key}
+              initial={item.initial}
+              className="absolute top-0 left-0"
+              style={{ transform: `translateY(${row.start}px)` }}
+            />
+          ) : (
+            <ArtistRow
+              key={row.key}
+              artist={item.artist}
+              selected={item.artist.name === selectedName}
+              top={row.start}
+              height={row.size}
+            />
           );
         })}
       </div>

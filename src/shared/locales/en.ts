@@ -56,6 +56,8 @@ export const en: Dictionary = {
   "artist.empty": "No artists yet. Import music to get started.",
   "artist.albumCount": "{count} albums",
   "artist.selectPrompt": "Select an artist from the list.",
+  "artist.initials": "Jump to initial",
+  "artist.initialOther": "Other",
   "artistEdit.menu": "Artist Info",
   "artistEdit.title": "Artist Info",
   "artistEdit.imageFile": "Image file",
