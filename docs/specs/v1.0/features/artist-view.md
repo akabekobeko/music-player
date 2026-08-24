@@ -23,7 +23,10 @@
 
 - データ: `mp:library:getArtists` (名前、曲数、アートワーク)。`mp:library:changed` で自動再取得
 - 一覧の単位は表示アーティスト = `album_artist`、なければ `artist` (アルバム identity と同じ規則)。選択時の曲取得・アーティスト単位削除・アーティスト画像のキーも同じ規則で一致させる
-- ソート: 冠詞 (`The` / `A` / `Thee`) を無視した名前順 (audio-player の `compareNameWithoutThe` を移植)
+- ソート: 先頭の冠詞を無視した名前順 (audio-player の `compareNameWithoutThe` を拡張)
+  - 名前を lowercase にしてから判定するため、`THE WHO` / `Thee Oh Sees` / `THEE MICHELLE GUN ELEPHANT` のような大文字小文字の揺れに関わらず除去する
+  - 対象の冠詞 (空白で区切られた先頭語のみ): 英語 `the` / `a` / `an` / `thee`、フランス語 `le` / `la` / `les` / `un` / `une`、ドイツ語 `der` / `die` / `das` / `ein` / `eine`、スペイン語 `el` / `los` / `las` / `una`、イタリア語 `il` / `lo` / `gli` / `uno`、オランダ語 `de` / `het` / `een`、ポルトガル語 `o` / `os` / `uma`
+  - `L'Arc-en-Ciel` のような省略形 (アポストロフィー) と、英語の一般語と衝突するイタリア語 `i` (`I Am Kloot`)・ポルトガル語 `as` (`As I Lay Dying`) / `um` は対象外。除去は先頭の 1 語のみ (`De La Soul` → `la soul`)
 - テキスト検索ボックスで部分一致フィルター (クライアント側)
 - イニシャル分類: ソートと同じ冠詞除去後のキーの先頭文字が A–Z ならその文字 (`The Who` → W)、それ以外 (数字・記号・非ラテン文字・空名の不明なアーティスト) は「その他」。セクションは A–Z、その他の順に並べ、該当アーティストのないセクションは表示しない (その他はコードポイント順では A より前に来る数字も含めて常に末尾)
 - 各セクションの先頭にイニシャル見出し行 (アーティスト行より細い 24px、ボールド、背景色 `muted`)
