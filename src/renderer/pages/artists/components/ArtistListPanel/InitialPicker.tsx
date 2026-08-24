@@ -25,8 +25,10 @@ type Props = {
 /**
  * Icon-only header button (Lucide `TextInitial`, delayed tooltip from the
  * surrounding `TooltipProvider`) opening a popover of A–Z + "Other" tiles —
- * 9 columns × 3 rows so "Other" follows Z on the last row. Clicking a tile
- * jumps the list to that section.
+ * 7 columns × 4 rows, "Other" following Z and spanning the remaining two
+ * cells so the last row is full. Hovering a tile lights up its border with a
+ * blurred glow (same treatment as `CircleIconButton`). Clicking a tile jumps
+ * the list to that section.
  */
 export const InitialPicker = ({ available, onSelect }: Props) => {
   const t = useT();
@@ -54,7 +56,7 @@ export const InitialPicker = ({ available, onSelect }: Props) => {
         <TooltipContent side="bottom">{label}</TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-auto">
-        <div className="grid grid-cols-9 gap-1">
+        <div className="grid grid-cols-7 gap-1">
           {INITIALS.map((initial) => (
             <Button
               key={initial}
@@ -62,8 +64,12 @@ export const InitialPicker = ({ available, onSelect }: Props) => {
               size="icon"
               disabled={!available.has(initial)}
               className={cn(
-                "font-medium",
-                initial === OTHER_INITIAL ? "text-[10px]" : "text-sm",
+                "border border-transparent bg-transparent font-medium transition-[border-color,box-shadow] duration-200",
+                "hover:border-foreground hover:bg-transparent hover:text-foreground dark:hover:bg-transparent",
+                "hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+                initial === OTHER_INITIAL
+                  ? "col-span-2 w-full text-xs"
+                  : "text-sm",
               )}
               onClick={() => {
                 setOpen(false);
