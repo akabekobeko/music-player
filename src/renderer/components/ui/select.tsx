@@ -58,9 +58,15 @@ function SelectContent({
   children,
   side = "bottom",
   sideOffset = 4,
-  align = "center",
+  align = "start",
   alignOffset = 0,
-  alignItemWithTrigger = true,
+  // Deviation from stock shadcn: Base UI defaults `alignItemWithTrigger` to
+  // true, which overlaps the popup with the trigger so the selected item's
+  // text lines up with the trigger's value (macOS NSPopUpButton style). When
+  // the selected item is not the first one the popup grows upward, which
+  // reads as "the menu opens above". Disable it so the list always drops
+  // down below the trigger like a conventional dropdown.
+  alignItemWithTrigger = false,
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
