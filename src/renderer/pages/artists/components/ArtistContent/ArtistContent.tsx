@@ -53,7 +53,7 @@ export const ArtistContent = ({ artistName }: Props) => {
         </p>
       )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-6">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 pb-6">
         <div
           className="relative w-full"
           style={{ height: virtualizer.getTotalSize() }}
