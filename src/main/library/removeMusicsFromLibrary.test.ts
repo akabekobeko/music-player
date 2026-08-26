@@ -5,6 +5,7 @@ import { getOrCreatePictureId } from "./getOrCreatePictureId";
 import { upsertMusic } from "./musicRepository";
 import { registerArtistPictureIfMissing } from "./registerArtistPictureIfMissing";
 import { removeMusicsFromLibrary } from "./removeMusicsFromLibrary";
+import { setArtistInitial } from "./setArtistInitial";
 import type { MusicRowInput } from "./trackMapping";
 
 let db: DatabaseSync;
@@ -123,6 +124,17 @@ it("drops the artist picture when the artist's last track goes", () => {
   const removed = removeMusicsFromLibrary(db, [a]);
   expect(removed).toEqual(["/images/v.jpg"]);
   expect(db.prepare("SELECT artist FROM artist_pictures").all()).toEqual([
+    { artist: "Other" },
+  ]);
+});
+
+it("drops the artist initial when the artist's last track goes", () => {
+  const a = insert("/m/a.mp3", "Vanishing");
+  insert("/m/other.mp3", "Other");
+  setArtistInitial(db, "Vanishing", "V");
+  setArtistInitial(db, "Other", "O");
+  removeMusicsFromLibrary(db, [a]);
+  expect(db.prepare("SELECT artist FROM artist_initials").all()).toEqual([
     { artist: "Other" },
   ]);
 });

@@ -5,6 +5,7 @@ import { getArtists } from "./artistQueries";
 import { getOrCreatePictureId } from "./getOrCreatePictureId";
 import { upsertMusic } from "./musicRepository";
 import { registerArtistPictureIfMissing } from "./registerArtistPictureIfMissing";
+import { setArtistInitial } from "./setArtistInitial";
 import type { MusicRowInput } from "./trackMapping";
 
 let db: DatabaseSync;
@@ -51,8 +52,8 @@ it("returns distinct artists with their track counts", () => {
   upsertMusic(db, row("/m/b1.mp3", "Beta"), NOW);
 
   expect(getArtists(db)).toEqual([
-    { name: "Alpha", musicCount: 2, picturePath: null },
-    { name: "Beta", musicCount: 1, picturePath: null },
+    { name: "Alpha", musicCount: 2, picturePath: null, initial: null },
+    { name: "Beta", musicCount: 1, picturePath: null, initial: null },
   ]);
 });
 
@@ -62,7 +63,12 @@ it("joins the representative artwork path", () => {
   registerArtistPictureIfMissing(db, "Alpha", pictureId);
 
   expect(getArtists(db)).toEqual([
-    { name: "Alpha", musicCount: 1, picturePath: "/images/alpha.jpg" },
+    {
+      name: "Alpha",
+      musicCount: 1,
+      picturePath: "/images/alpha.jpg",
+      initial: null,
+    },
   ]);
 });
 
@@ -71,7 +77,7 @@ it("groups by the album artist when it differs from the track artist", () => {
   upsertMusic(db, row("/m/c2.mp3", "Feat B", "Various"), NOW);
 
   expect(getArtists(db)).toEqual([
-    { name: "Various", musicCount: 2, picturePath: null },
+    { name: "Various", musicCount: 2, picturePath: null, initial: null },
   ]);
 });
 
@@ -80,17 +86,28 @@ it("falls back to the track artist when the album artist is empty", () => {
   upsertMusic(db, row("/m/b.mp3", "Solo", "Solo"), NOW);
 
   expect(getArtists(db)).toEqual([
-    { name: "Solo", musicCount: 2, picturePath: null },
+    { name: "Solo", musicCount: 2, picturePath: null, initial: null },
   ]);
 });
 
 it("includes artists with an empty name (untagged files)", () => {
   upsertMusic(db, row("/m/x.mp3", ""), NOW);
   expect(getArtists(db)).toEqual([
-    { name: "", musicCount: 1, picturePath: null },
+    { name: "", musicCount: 1, picturePath: null, initial: null },
   ]);
 });
 
 it("returns an empty list for an empty library", () => {
   expect(getArtists(db)).toEqual([]);
+});
+
+it("joins the user-chosen initial, NULL when none is stored", () => {
+  upsertMusic(db, row("/m/a1.mp3", "Alpha"), NOW);
+  upsertMusic(db, row("/m/b1.mp3", "Beta"), NOW);
+  setArtistInitial(db, "Alpha", "X");
+
+  expect(getArtists(db)).toEqual([
+    { name: "Alpha", musicCount: 1, picturePath: null, initial: "X" },
+    { name: "Beta", musicCount: 1, picturePath: null, initial: null },
+  ]);
 });

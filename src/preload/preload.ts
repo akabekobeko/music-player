@@ -66,6 +66,8 @@ const buildBridge = (): MpBridge => ({
     getStats: () => ipcRenderer.invoke(IpcKeys.GetStats),
     setArtistPicture: (request) =>
       ipcRenderer.invoke(IpcKeys.SetArtistPicture, request),
+    setArtistInitial: (request) =>
+      ipcRenderer.invoke(IpcKeys.SetArtistInitial, request),
     onImportProgress: (listener) =>
       subscribe<ImportProgressPayload>(IpcKeys.ImportProgress, listener),
     onChanged: (listener) =>

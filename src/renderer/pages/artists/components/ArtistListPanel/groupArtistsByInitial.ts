@@ -1,5 +1,5 @@
 import type { Artist } from "@mp/ipc";
-import { initialOf } from "./initialOf";
+import { artistInitialOf } from "./artistInitialOf";
 import { INITIALS, type Initial } from "./initials";
 
 /** One initial section of the artist list. */
@@ -12,7 +12,9 @@ export type ArtistSection = {
 /**
  * Groups artists into initial sections in {@link INITIALS} order (A–Z, then
  * other), keeping the given order inside each section and dropping empty
- * sections. The other bucket always ends up last — after Z — even though
+ * sections. The section of an artist is its stored initial when the user
+ * chose one, otherwise the automatic classification of the name
+ * ({@link artistInitialOf}). The other bucket always ends up last — after Z — even though
  * digits would sort before A by code point.
  *
  * @param artists - Artists, already sorted.
@@ -25,7 +27,7 @@ export const groupArtistsByInitial = (
     INITIALS.map((initial) => [initial, []]),
   );
   for (const artist of artists) {
-    buckets.get(initialOf(artist.name))?.push(artist);
+    buckets.get(artistInitialOf(artist))?.push(artist);
   }
 
   return INITIALS.flatMap((initial) => {

@@ -5,6 +5,7 @@ import { cleanupLibraryOrphans } from "./cleanupLibraryOrphans";
 import { getOrCreatePictureId } from "./getOrCreatePictureId";
 import { upsertMusic } from "./musicRepository";
 import { registerArtistPictureIfMissing } from "./registerArtistPictureIfMissing";
+import { setArtistInitial } from "./setArtistInitial";
 import type { MusicRowInput } from "./trackMapping";
 
 let db: DatabaseSync;
@@ -105,5 +106,18 @@ it("GCs a picture once neither a track nor an artist references it", () => {
   expect(cleanupLibraryOrphans(db)).toEqual(["/images/old.jpg"]);
   expect(db.prepare("SELECT file_path FROM pictures").all()).toEqual([
     { file_path: "/images/new.jpg" },
+  ]);
+});
+
+it("drops the artist initial stranded by a re-import that renamed the artist", () => {
+  importTrack("/m/a.mp3", "Old Name");
+  importTrack("/m/keep.mp3", "Keep");
+  setArtistInitial(db, "Old Name", "O");
+  setArtistInitial(db, "Keep", "K");
+  importTrack("/m/a.mp3", "New Name");
+
+  cleanupLibraryOrphans(db);
+  expect(db.prepare("SELECT artist FROM artist_initials").all()).toEqual([
+    { artist: "Keep" },
   ]);
 });
