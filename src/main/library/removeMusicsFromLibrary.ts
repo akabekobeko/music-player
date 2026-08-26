@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { deleteOrphanedArtistInitials } from "./deleteOrphanedArtistInitials";
 import { deleteOrphanedArtistPictures } from "./deleteOrphanedArtistPictures";
 import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
 
@@ -10,7 +11,8 @@ import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
  * `ON DELETE CASCADE`.
  *
  * GC order inside one transaction:
- * 1. Drop `artist_pictures` rows whose artist no longer has any track.
+ * 1. Drop `artist_pictures` / `artist_initials` rows whose artist no longer
+ *    has any track.
  * 2. Drop `pictures` rows referenced by neither `musics.picture_id` nor
  *    `artist_pictures.picture_id`, collecting their file paths.
  *
@@ -35,6 +37,7 @@ export const removeMusicsFromLibrary = (
       ...musicIds,
     );
     deleteOrphanedArtistPictures(db);
+    deleteOrphanedArtistInitials(db);
     const orphaned = deleteOrphanedPictures(db);
     db.exec("COMMIT");
     return orphaned;

@@ -81,6 +81,7 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
                   name: artist.name,
                   picturePath: artist.picturePath,
                   musicCount: artist.musicCount,
+                  initial: artist.initial,
                 });
               }}
             >

@@ -102,6 +102,12 @@ export type Artist = {
    * `media-file://` URL.
    */
   readonly picturePath: string | null;
+  /**
+   * User-chosen initial (capital letter A–Z) that overrides the automatic
+   * section classification of the artist list, or `null` when none is
+   * stored ("Other" / automatic).
+   */
+  readonly initial: string | null;
 };
 
 /** One album card of the Album view (grouped by album identity key). */
@@ -485,6 +491,14 @@ export type SetArtistPictureOk = {
   readonly picturePath: string;
 };
 
+/** Request payload for `mp:library:setArtistInitial`. */
+export type SetArtistInitialRequest = {
+  /** Display-artist name (the artist list's entry); must not be empty. */
+  readonly artist: string;
+  /** Capital letter A–Z to store, or `null` to clear the choice ("Other"). */
+  readonly initial: string | null;
+};
+
 /** Request payload for `mp:library:getMusicsByArtist`. */
 export type GetMusicsByArtistRequest = {
   readonly artist: string;
@@ -628,6 +642,10 @@ export type MpBridge = {
     readonly setArtistPicture: (
       request: SetArtistPictureRequest,
     ) => Promise<IpcResult<SetArtistPictureOk>>;
+    /** Set or clear an artist's user-chosen initial. */
+    readonly setArtistInitial: (
+      request: SetArtistInitialRequest,
+    ) => Promise<IpcResult<void>>;
     /** Subscribe to import progress pushes. */
     readonly onImportProgress: (
       listener: (payload: ImportProgressPayload) => void,

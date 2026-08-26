@@ -6,6 +6,7 @@ const artist = (name: string): Artist => ({
   name,
   musicCount: 1,
   picturePath: null,
+  initial: null,
 });
 
 it("groups sorted artists into contiguous initial sections", () => {
@@ -33,6 +34,17 @@ it("places the other bucket last even when its names sort first", () => {
   );
   expect(sections.map((s) => s.initial)).toEqual(["A", "Z", "#"]);
   expect(sections[2]?.artists.map((a) => a.name)).toEqual(["2Pac", ""]);
+});
+
+it("files an artist under its stored initial instead of the name", () => {
+  const sections = groupArtistsByInitial([
+    artist("Adele"),
+    { ...artist("宇多田ヒカル"), initial: "U" },
+    artist("2Pac"),
+  ]);
+  expect(sections.map((s) => s.initial)).toEqual(["A", "U", "#"]);
+  expect(sections[1]?.artists.map((a) => a.name)).toEqual(["宇多田ヒカル"]);
+  expect(sections[2]?.artists.map((a) => a.name)).toEqual(["2Pac"]);
 });
 
 it("returns no sections for an empty list", () => {

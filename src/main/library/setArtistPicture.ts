@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { deleteOrphanedArtistInitials } from "./deleteOrphanedArtistInitials";
 import { deleteOrphanedArtistPictures } from "./deleteOrphanedArtistPictures";
 import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
 
@@ -8,8 +9,9 @@ import { deleteOrphanedPictures } from "./deleteOrphanedPictures";
  * Unlike `registerArtistPictureIfMissing` (import path, first-import-wins)
  * this is an explicit user action, so an existing association is
  * overwritten. Replacing may orphan the previous picture — orphaned
- * `artist_pictures` / `pictures` rows are GC'd in the same transaction, so
- * an association for an artist with no remaining track never survives.
+ * `artist_pictures` / `artist_initials` / `pictures` rows are GC'd in the
+ * same transaction, so an association for an artist with no remaining track
+ * never survives.
  *
  * @param db - The open library connection.
  * @param artist - Display-artist name (the artist list's entry); must not be empty.
@@ -32,6 +34,7 @@ export const setArtistPicture = (
       "INSERT INTO artist_pictures (artist, picture_id) VALUES (?, ?) ON CONFLICT(artist) DO UPDATE SET picture_id = excluded.picture_id",
     ).run(artist, pictureId);
     deleteOrphanedArtistPictures(db);
+    deleteOrphanedArtistInitials(db);
     const orphaned = deleteOrphanedPictures(db);
     db.exec("COMMIT");
     return orphaned;

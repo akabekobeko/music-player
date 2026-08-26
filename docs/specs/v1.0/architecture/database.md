@@ -133,6 +133,19 @@ CREATE TABLE artist_pictures (
 - アートワークは DB に BLOB で入れず、内容の SHA-256 をファイル名として `userData/images/` に保存します (重複排除。audio-player の方式を継承)
 - `artist_pictures` は audio-player では書き込みコードが存在せず常に空でした。v1.0 では**インポート時に「そのアーティストの最初に見つかったアートワーク」を自動登録**し、UI からの差し替えは v1.x とします
 
+### artist_initials (004_artist_initials.sql)
+
+```sql
+CREATE TABLE artist_initials (
+  artist  TEXT NOT NULL PRIMARY KEY,
+  initial TEXT NOT NULL CHECK (initial GLOB '[A-Z]')
+);
+```
+
+- アーティスト一覧のイニシャル分類をユーザーが上書きするための関連付けテーブル ([Artist ビュー](../features/artist-view.md))。アーティスト名 (表示アーティスト。`artist_pictures` と同じキー) と A–Z の 1 文字のペアを保持する
+- 行があれば自動判定より優先し、行がなければ自動判定に任せる。「その他」の選択は行の削除で表現する (NULL 行は持たない)
+- 曲が 1 曲も残らなくなったアーティストの行は `artist_pictures` と同じ孤児 GC (削除・再インポート・画像差し替え・頭文字設定のトランザクション内) で消す
+
 ### playlists / playlist_musics / smart_playlists
 
 ```sql
@@ -183,6 +196,6 @@ ON CONFLICT(file_path) DO UPDATE SET
 
 一覧系クエリの結果型 (`Artist`, `AlbumSummary`, `Music` など) は `src/main/ipc/types.ts` に定義します ([IPC 設計](ipc.md))。代表的なもの:
 
-- アーティスト一覧: `DISTINCT COALESCE(NULLIF(album_artist, ''), artist)` (表示アーティスト) + `artist_pictures` / `pictures` の LEFT JOIN。`artist_pictures.artist` も表示アーティスト名をキーとする (003 マイグレーションで再キー)
+- アーティスト一覧: `DISTINCT COALESCE(NULLIF(album_artist, ''), artist)` (表示アーティスト) + `artist_pictures` / `pictures` / `artist_initials` の LEFT JOIN。`artist_pictures.artist` / `artist_initials.artist` も表示アーティスト名をキーとする (003 マイグレーションで再キー)
 - アルバム一覧 (Album ビュー): アルバムキーで GROUP BY し、曲数・総時間・年・ジャンル・プロデューサー・指揮者・パブリッシャー・代表アートワークを集計。フィルター条件 (`genre`, `year` 範囲、テキスト) は WHERE 句に変換
 - フィルター選択肢: `DISTINCT genre` (空文字除く)、`MIN(year) / MAX(year)`

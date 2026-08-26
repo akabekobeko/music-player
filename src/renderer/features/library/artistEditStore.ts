@@ -15,6 +15,11 @@ export type ArtistEditTarget = {
   readonly picturePath: string | null;
   /** Number of songs credited to the artist, shown as dialog metadata. */
   readonly musicCount: number;
+  /**
+   * Stored initial (capital letter A–Z), or `null` when the artist list
+   * classifies the artist automatically.
+   */
+  readonly initial: string | null;
 };
 
 /** The store class: the artist waiting in the edit dialog, or `null`. */

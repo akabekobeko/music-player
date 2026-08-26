@@ -4,6 +4,7 @@ import { runMigrations } from "../db/runMigrations";
 import { getOrCreatePictureId } from "./getOrCreatePictureId";
 import { upsertMusic } from "./musicRepository";
 import { registerArtistPictureIfMissing } from "./registerArtistPictureIfMissing";
+import { setArtistInitial } from "./setArtistInitial";
 import { setArtistPicture } from "./setArtistPicture";
 import type { MusicRowInput } from "./trackMapping";
 
@@ -129,4 +130,13 @@ it("rejects an empty artist name", () => {
   expect(() => setArtistPicture(db, "", pictureId)).toThrow(
     "empty artist name",
   );
+});
+
+it("GCs a stranded artist initial in the same pass", () => {
+  insert("/m/a.mp3", "Artist");
+  setArtistInitial(db, "Artist", "A");
+  db.exec("DELETE FROM musics");
+  const pictureId = getOrCreatePictureId(db, "/images/new.jpg");
+  setArtistPicture(db, "Artist", pictureId);
+  expect(count("artist_initials")).toBe(0);
 });

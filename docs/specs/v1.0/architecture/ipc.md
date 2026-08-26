@@ -68,6 +68,8 @@ Renderer は `import type { Music } from "@mp/ipc"` と書けます。`import ty
 | `mp:library:getAlbums` | `AlbumFilter → AlbumSummary[]` | フィルター条件つきアルバム一覧 (Album ビュー用) |
 | `mp:library:getMusicsByAlbum` | `{ albumKey } → Music[]` | アルバムの曲一覧 |
 | `mp:library:getFilterOptions` | `void → { genres, yearRange }` | フィルター UI の選択肢 |
+| `mp:library:setArtistPicture` | `{ artist, mimeType, data } → { picturePath }` | アーティスト画像の設定・差し替え |
+| `mp:library:setArtistInitial` | `{ artist, initial } → void` | アーティストの頭文字の設定 (`initial` は A–Z の 1 文字、`null` で選択を消去して自動判定へ戻す) |
 | `mp:playlist:list` | `void → Playlist[]` | プレイリスト一覧 (静的・動的とも) |
 | `mp:playlist:create` / `update` / `remove` | 各 CRUD | 静的・動的プレイリストの管理 |
 | `mp:playlist:getMusics` | `{ playlistId } → Music[]` | 内容取得。動的はルール評価結果を返す |

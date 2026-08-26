@@ -97,6 +97,7 @@ export const ArtistHeader = ({
                         name: artistName,
                         picturePath: artist?.picturePath ?? null,
                         musicCount: artist?.musicCount ?? musicCount,
+                        initial: artist?.initial ?? null,
                       }),
                     separatorBefore: true,
                   },

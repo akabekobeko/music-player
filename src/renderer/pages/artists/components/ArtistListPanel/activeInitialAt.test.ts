@@ -9,6 +9,7 @@ const artist = (name: string): Artist => ({
   name,
   musicCount: 1,
   picturePath: null,
+  initial: null,
 });
 
 // [A@0] AAA@24 ABC@72 [B@120] BBB@144 [#@192] 2Pac@216
