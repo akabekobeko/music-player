@@ -127,6 +127,10 @@ export const useArtistContent = (artistName: string) => {
       return row !== undefined ? ALBUM_ROW_HEIGHTS[row.type] : 36;
     },
     overscan: 12,
+    // Trailing space below the last row; part of the virtualiser's total
+    // height so it is always scrollable. Matches the first album heading's
+    // `pt-6` (24px) so the list is padded evenly at the top and bottom.
+    paddingEnd: 24,
   });
 
   return {
