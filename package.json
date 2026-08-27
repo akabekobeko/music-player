@@ -1,6 +1,6 @@
 {
-  "name": "music-player",
-  "productName": "MusicPlayer",
+  "name": "parade",
+  "productName": "Parade",
   "author": "akabeko",
   "version": "1.0.0",
   "description": "A music player for local audio libraries",

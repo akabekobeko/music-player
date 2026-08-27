@@ -1,5 +1,5 @@
-appId: me.akabeko.music-player
-productName: MusicPlayer
+appId: me.akabeko.parade
+productName: Parade
 directories:
   output: release
   buildResources: build
