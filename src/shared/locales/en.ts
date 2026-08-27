@@ -9,7 +9,7 @@ import type { Dictionary } from "./types";
  * other dictionaries.
  */
 export const en: Dictionary = {
-  "app.name": "Music Player",
+  "app.name": "Parade",
   "dialog.db.downgrade.title": "Cannot Start",
   "dialog.db.downgrade.message":
     "The library database was created by a newer version of {appName}. Update the app to continue.",

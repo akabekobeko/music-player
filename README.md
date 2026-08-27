@@ -1,4 +1,4 @@
-# music-player
+# Parade
 
 [![CI](https://github.com/akabekobeko/music-player/actions/workflows/ci.yml/badge.svg)](https://github.com/akabekobeko/music-player/actions/workflows/ci.yml)
 

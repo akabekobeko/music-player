@@ -9,7 +9,7 @@ it("builds the downgrade dialog with the app name interpolated", () => {
   );
 
   expect(content.title).toBe("Cannot Start");
-  expect(content.message).toContain("Music Player");
+  expect(content.message).toContain("Parade");
   expect(content.message).toContain("newer version");
 });
 

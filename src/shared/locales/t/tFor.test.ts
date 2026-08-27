@@ -10,10 +10,8 @@ it("substitutes {name} placeholders from params via tFor", () => {
   expect(
     tFor("en")("dialog.db.migrationFailed.message", { message: "disk full" }),
   ).toBe("Failed to update the library database: disk full");
-  expect(
-    tFor("ja")("dialog.db.downgrade.message", { appName: "Music Player" }),
-  ).toBe(
-    "ライブラリー データベースは新しいバージョンの Music Player で作成されています。アプリを更新してください。",
+  expect(tFor("ja")("dialog.db.downgrade.message", { appName: "Parade" })).toBe(
+    "ライブラリー データベースは新しいバージョンの Parade で作成されています。アプリを更新してください。",
   );
 });
 
