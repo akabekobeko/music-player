@@ -1,0 +1,60 @@
+# Release Drafter の設定
+# main へ PR がマージされるたびに次リリースのドラフト (Release Notes) を自動更新する
+# https://github.com/release-drafter/release-drafter
+
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+# PR のラベルから次のバージョンを解決する
+# ラベルなしは Patch 更新 (default)、Major / Minor は release:* ラベルで明示する
+version-resolver:
+  major:
+    labels:
+      - "release:major"
+  minor:
+    labels:
+      - "release:minor"
+  default: patch
+
+categories:
+  - title: "🚀 New Features"
+    labels:
+      - "feat"
+  - title: "🐛 Bug Fixes"
+    labels:
+      - "fix"
+  - title: "♻️ Refactoring"
+    labels:
+      - "refactor"
+  - title: "📝 Documentation"
+    labels:
+      - "docs"
+  - title: "🔧 Maintenance"
+    labels:
+      - "chore"
+
+change-template: "- $TITLE (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+# ブランチ名の接頭辞からカテゴリー ラベルを PR へ自動付与する
+autolabeler:
+  - label: feat
+    branch:
+      - '/^feat\//'
+  - label: fix
+    branch:
+      - '/^fix\//'
+  - label: refactor
+    branch:
+      - '/^refactor\//'
+  - label: docs
+    branch:
+      - '/^docs\//'
+  - label: chore
+    branch:
+      - '/^chore\//'
+
+template: |
+  ## Changes
+
+  $CHANGES
