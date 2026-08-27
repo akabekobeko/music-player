@@ -1,0 +1,114 @@
+name: Release
+
+# ドラフト リリースを Publish したときに駆動する
+# 1. version: タグから package.json の version を更新して main へ commit し、タグをその commit へ移動
+# 2. build: 3 OS でパッケージをビルドし、リリースへアセットを添付
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      sha: ${{ steps.bump.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          # バージョン更新 commit とタグ移動を push するため認証情報を保持する
+          persist-credentials: true
+
+      - name: Update package.json version and move tag
+        id: bump
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'
+          version="${TAG#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          npm pkg set version="$version"
+          # 再実行などで既に同じバージョンの場合は commit をスキップする
+          if ! git diff --quiet; then
+            git add package.json
+            git commit -m "chore: v$version"
+            git push origin main
+          fi
+          # Publish 時に打たれたタグをバージョン更新 commit へ移動する
+          git tag -f "$TAG"
+          git push -f origin "$TAG"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      # リリースへのアセット アップロード
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # バージョン更新 commit を含む移動後のタグ位置をビルドする
+          ref: ${{ needs.version.outputs.sha }}
+          persist-credentials: false
+
+      # mise.toml を single source of truth としてツールバージョンを読み取る
+      # (setup-node の node-version-file は mise.toml 未対応のため自前でパース)
+      - name: Read tool versions from mise.toml
+        id: versions
+        shell: bash
+        run: |
+          node_version=$(sed -n 's/^node = "\(.*\)"$/\1/p' mise.toml)
+          pnpm_version=$(sed -n 's/^"npm:pnpm" = "\(.*\)"$/\1/p' mise.toml)
+          test -n "$node_version" && test -n "$pnpm_version"
+          echo "node=$node_version" >> "$GITHUB_OUTPUT"
+          echo "pnpm=$pnpm_version" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: ${{ steps.versions.outputs.pnpm }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ steps.versions.outputs.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        shell: bash
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package
+        shell: bash
+        env:
+          # CI にはコード署名の証明書がないため、署名の自動検出を無効化する (macOS)
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          pnpm run build
+          pnpm exec electron-builder --publish never
+
+      - name: Upload artifacts to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          shopt -s nullglob
+          files=(release/*.dmg release/*.zip release/*.exe release/*.AppImage release/*.deb)
+          test ${#files[@]} -gt 0
+          # 再実行時は既存アセットを上書きする
+          gh release upload "$TAG" "${files[@]}" --clobber
