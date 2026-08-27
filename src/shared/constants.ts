@@ -6,7 +6,7 @@
  */
 
 /** Display name of the application. */
-export const APP_NAME = "Music Player";
+export const APP_NAME = "Parade";
 
 /**
  * Custom protocol scheme streaming audio files to the Renderer.

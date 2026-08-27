@@ -8,7 +8,7 @@ import type { Dictionary } from "./types";
  * caught before runtime.
  */
 export const ja: Dictionary = {
-  "app.name": "Music Player",
+  "app.name": "Parade",
   "dialog.db.downgrade.title": "起動できません",
   "dialog.db.downgrade.message":
     "ライブラリー データベースは新しいバージョンの {appName} で作成されています。アプリを更新してください。",

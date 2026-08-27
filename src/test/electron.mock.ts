@@ -19,8 +19,8 @@ const noop = (): void => {};
 /** Stub of Electron's `app` singleton. */
 export const app = {
   isPackaged: false,
-  name: "music-player",
-  getName: (): string => "music-player",
+  name: "Parade",
+  getName: (): string => "Parade",
   getVersion: (): string => "0.0.0-test",
   getLocale: (): string => "en-US",
   getPath: (): string => "",

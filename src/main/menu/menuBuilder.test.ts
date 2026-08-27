@@ -12,7 +12,7 @@ const build = (
   buildMenuTemplate({
     platform,
     locale,
-    appName: "Music Player",
+    appName: "Parade",
     state,
     onAction,
   });
@@ -49,7 +49,7 @@ const clickItem = (
 };
 
 it("places the app menu first on macOS only", () => {
-  expect(build("darwin")[0]?.label).toBe("Music Player");
+  expect(build("darwin")[0]?.label).toBe("Parade");
   expect(build("win32")[0]?.label).toBe("File");
 });
 
@@ -66,7 +66,7 @@ it("routes settings and about through menu actions", () => {
   const actions: MenuAction[] = [];
   const template = build("win32", "en", (action) => actions.push(action));
   clickItem(template, "Settings…");
-  clickItem(template, "About Music Player");
+  clickItem(template, "About Parade");
   expect(actions).toEqual(["openSettings", "showAbout"]);
 });
 
@@ -77,9 +77,9 @@ it("puts about into the app menu on macOS and Help elsewhere", () => {
   const winHelp = win.find((item) => item.role === "help");
   expect(macHelp?.submenu).toEqual([]);
   expect(
-    findItem([winHelp as MenuItemConstructorOptions], "About Music Player"),
+    findItem([winHelp as MenuItemConstructorOptions], "About Parade"),
   ).toBeDefined();
-  expect(findItem(mac, "About Music Player")).toBeDefined();
+  expect(findItem(mac, "About Parade")).toBeDefined();
 });
 
 it("forwards Controls > Stop clicks as the stop action", () => {
