@@ -1,5 +1,5 @@
 import type { Artist, Music } from "@mp/ipc";
-import { Shuffle as ShuffleIcon, UserRound } from "lucide-react";
+import { Shuffle as ShuffleIcon, UserRound, UserRoundPen } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -89,13 +89,22 @@ export const ArtistHeader = ({
         <RowMenu
           variant="circle"
           items={[
-            { label: t("player.play"), onSelect: onPlayAll },
-            { label: t("player.shuffle"), onSelect: onPlayShuffled },
+            {
+              label: t("player.play"),
+              icon: <PlayFillIcon />,
+              onSelect: onPlayAll,
+            },
+            {
+              label: t("player.shuffle"),
+              icon: <ShuffleIcon />,
+              onSelect: onPlayShuffled,
+            },
             <AddToPlaylistSubmenu key="playlist" musics={playOrder} />,
             ...(artistName !== ""
               ? [
                   {
                     label: t("artistEdit.menu"),
+                    icon: <UserRoundPen />,
                     onSelect: () =>
                       artistEditStore.open({
                         name: artistName,

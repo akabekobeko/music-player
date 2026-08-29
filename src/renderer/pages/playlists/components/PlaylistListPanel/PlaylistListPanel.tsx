@@ -1,4 +1,4 @@
-import { ListMusic, Plus, Sparkles } from "lucide-react";
+import { ListMusic, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
@@ -146,10 +146,12 @@ export const PlaylistListPanel = () => {
                   items={[
                     {
                       label: t("menu.rename"),
+                      icon: <Pencil />,
                       onSelect: () => setEditingRouteId(routeId),
                     },
                     {
                       label: t("playlist.delete"),
+                      icon: <Trash2 />,
                       onSelect: () => setDeleting(playlist),
                       destructive: true,
                       separatorBefore: true,

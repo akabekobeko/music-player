@@ -1,7 +1,8 @@
 import type { Music } from "@mp/ipc";
-import { Disc3 } from "lucide-react";
+import { Disc3, ListEnd, Trash2 } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
@@ -62,11 +63,16 @@ export const AlbumHeaderRow = ({
       <RowMenu
         variant="circle"
         items={[
-          { label: t("player.play"), onSelect: onPlay },
-          { label: t("menu.addToQueue"), onSelect: onAddToQueue },
+          { label: t("player.play"), icon: <PlayFillIcon />, onSelect: onPlay },
+          {
+            label: t("menu.addToQueue"),
+            icon: <ListEnd />,
+            onSelect: onAddToQueue,
+          },
           <AddToPlaylistSubmenu key="playlist" musics={musics} />,
           {
             label: t("menu.removeFromLibrary"),
+            icon: <Trash2 />,
             onSelect: () =>
               libraryRemoveStore.open({
                 kind: "album",

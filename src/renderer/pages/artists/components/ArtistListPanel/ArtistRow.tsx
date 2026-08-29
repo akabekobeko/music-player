@@ -1,5 +1,5 @@
 import type { Artist } from "@mp/ipc";
-import { UserRound } from "lucide-react";
+import { Trash2, UserRound, UserRoundPen } from "lucide-react";
 import { useNavigate } from "react-router";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import {
@@ -85,6 +85,7 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
                 });
               }}
             >
+              <UserRoundPen />
               {t("artistEdit.menu")}
             </ContextMenuItem>
             <ContextMenuSeparator />
@@ -99,6 +100,7 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
             });
           }}
         >
+          <Trash2 />
           {t("menu.removeFromLibrary")}
         </ContextMenuItem>
       </ContextMenuContent>

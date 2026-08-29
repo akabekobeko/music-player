@@ -1,6 +1,8 @@
 import type { Music } from "@mp/ipc";
+import { Info, ListEnd, ListStart, Trash2 } from "lucide-react";
 import type { MouseEvent } from "react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { useT } from "@/features/i18n/useT";
@@ -45,17 +47,31 @@ export const ArtistMusicRow = ({
       menu={
         <RowMenu
           items={[
-            { label: t("player.play"), onSelect: onPlay },
-            { label: t("menu.playNext"), onSelect: onPlayNext },
-            { label: t("menu.addToQueue"), onSelect: onAddToQueue },
+            {
+              label: t("player.play"),
+              icon: <PlayFillIcon />,
+              onSelect: onPlay,
+            },
+            {
+              label: t("menu.playNext"),
+              icon: <ListStart />,
+              onSelect: onPlayNext,
+            },
+            {
+              label: t("menu.addToQueue"),
+              icon: <ListEnd />,
+              onSelect: onAddToQueue,
+            },
             <AddToPlaylistSubmenu key="playlist" musics={playlistTargets} />,
             {
               label: t("menu.musicInfo"),
+              icon: <Info />,
               onSelect: () => musicInfoStore.open(music),
               separatorBefore: true,
             },
             {
               label: t("menu.removeFromLibrary"),
+              icon: <Trash2 />,
               onSelect: onRemoveFromLibrary,
               destructive: true,
               separatorBefore: true,

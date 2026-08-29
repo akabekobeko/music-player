@@ -1,5 +1,5 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { Disc3 } from "lucide-react";
+import { Disc3, Trash2 } from "lucide-react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import {
@@ -95,6 +95,7 @@ export const AlbumCard = ({
             });
           }}
         >
+          <Trash2 />
           {t("menu.removeFromLibrary")}
         </ContextMenuItem>
       </ContextMenuContent>

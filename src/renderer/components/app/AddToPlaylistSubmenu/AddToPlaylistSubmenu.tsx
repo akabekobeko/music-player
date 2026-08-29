@@ -1,4 +1,5 @@
 import type { Music, Playlist } from "@mp/ipc";
+import { ListMusic, ListPlus, Plus } from "lucide-react";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -51,6 +52,7 @@ export const AddToPlaylistSubmenu = ({ musics }: Props) => {
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger disabled={musics.length === 0}>
+        <ListPlus />
         {t("menu.addToPlaylist")}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
@@ -59,11 +61,13 @@ export const AddToPlaylistSubmenu = ({ musics }: Props) => {
             key={playlist.id}
             onClick={() => void append(playlist)}
           >
+            <ListMusic />
             {playlist.name}
           </DropdownMenuItem>
         ))}
         {playlists.length > 0 && <DropdownMenuSeparator />}
         <DropdownMenuItem onClick={() => addToPlaylistStore.open(musics)}>
+          <Plus />
           {t("playlist.new")}…
         </DropdownMenuItem>
       </DropdownMenuSubContent>
