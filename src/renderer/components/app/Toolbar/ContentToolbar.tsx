@@ -12,10 +12,10 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
 /**
  * Title-bar-height band on top of the content area
  * (`docs/specs/v1.0/renderer/routing-layout.md`). The background is a window
- * drag region. The right inset (`--content-toolbar-inset-right`) lines the
- * filter input up with the content headers' menu buttons on macOS and, on
- * Windows / Linux, keeps it clear of the Window Controls Overlay occupying
- * the band's right corner. While the sidebar is closed its icon cluster
+ * drag region; on Windows / Linux the Window Controls Overlay occupies the
+ * band's right corner, so the right padding
+ * (`--content-toolbar-inset-right`) keeps everything right-aligned about
+ * one character clear of it. While the sidebar is closed its icon cluster
  * moves here, keeping every icon's screen position across the toggle.
  */
 export const ContentToolbar = () => {
