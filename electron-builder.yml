@@ -18,6 +18,10 @@ win:
     - zip
   artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 linux:
+  # deb の Maintainer フィールド用。これを設定すると electron-builder は
+  # package.json の author email を参照しないため、コードにメールアドレスを
+  # 書かずに済む (GitHub の noreply アドレスを使用)
+  maintainer: akabeko <1257526+akabekobeko@users.noreply.github.com>
   target:
     - AppImage
     - deb
