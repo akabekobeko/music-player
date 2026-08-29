@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Square, X } from "lucide-react";
 import {
   Alert,
   AlertAction,
@@ -107,6 +107,8 @@ export const PlayerBar = () => {
         <ContextMenuTrigger render={bar} />
         <ContextMenuContent>
           <ContextMenuItem disabled={!hasTrack} onClick={() => commands.stop()}>
+            {/* Fill matches the transport icons' solid style. */}
+            <Square className="fill-current" />
             {t("player.stop")}
           </ContextMenuItem>
         </ContextMenuContent>

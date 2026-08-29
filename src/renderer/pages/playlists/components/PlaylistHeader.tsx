@@ -1,5 +1,5 @@
 import type { Music } from "@mp/ipc";
-import { ListMusic, Shuffle as ShuffleIcon } from "lucide-react";
+import { ListMusic, Shuffle as ShuffleIcon, Sparkles } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -84,13 +84,22 @@ export const PlaylistHeader = ({
         <RowMenu
           variant="circle"
           items={[
-            { label: t("player.play"), onSelect: onPlayAll },
-            { label: t("player.shuffle"), onSelect: onPlayShuffled },
+            {
+              label: t("player.play"),
+              icon: <PlayFillIcon />,
+              onSelect: onPlayAll,
+            },
+            {
+              label: t("player.shuffle"),
+              icon: <ShuffleIcon />,
+              onSelect: onPlayShuffled,
+            },
             <AddToPlaylistSubmenu key="playlist" musics={musics} />,
             ...(smart
               ? [
                   {
                     label: t("smart.editRules"),
+                    icon: <Sparkles />,
                     onSelect: onEditRules,
                     separatorBefore: true,
                   },

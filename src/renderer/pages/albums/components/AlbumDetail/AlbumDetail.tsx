@@ -1,4 +1,5 @@
 import type { AlbumSummary } from "@mp/ipc";
+import { ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -70,9 +71,14 @@ export const AlbumDetail = ({ album }: Props) => {
           <RowMenu
             variant="circle"
             items={[
-              { label: t("player.play"), onSelect: playAll },
+              {
+                label: t("player.play"),
+                icon: <PlayFillIcon />,
+                onSelect: playAll,
+              },
               {
                 label: t("menu.addToQueue"),
+                icon: <ListEnd />,
                 onSelect: () => commands.appendToQueue([...musics]),
                 disabled: musics.length === 0,
               },
@@ -109,14 +115,17 @@ export const AlbumDetail = ({ album }: Props) => {
                       items={[
                         {
                           label: t("player.play"),
+                          icon: <PlayFillIcon />,
                           onSelect: () => playFrom(music),
                         },
                         {
                           label: t("menu.playNext"),
+                          icon: <ListStart />,
                           onSelect: () => commands.insertNext([music]),
                         },
                         {
                           label: t("menu.addToQueue"),
+                          icon: <ListEnd />,
                           onSelect: () => commands.appendToQueue([music]),
                         },
                         <AddToPlaylistSubmenu
@@ -125,11 +134,13 @@ export const AlbumDetail = ({ album }: Props) => {
                         />,
                         {
                           label: t("menu.musicInfo"),
+                          icon: <NotepadText />,
                           onSelect: () => musicInfoStore.open(music),
                           separatorBefore: true,
                         },
                         {
                           label: t("menu.removeFromLibrary"),
+                          icon: <Trash2 />,
                           onSelect: () => removeFromLibrary(music),
                           destructive: true,
                           separatorBefore: true,

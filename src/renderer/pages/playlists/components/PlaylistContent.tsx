@@ -1,5 +1,7 @@
+import { ListEnd, ListStart, ListX, NotepadText } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
+import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { Stack } from "@/components/app/stacks";
@@ -134,14 +136,17 @@ export const PlaylistContent = ({ routeId }: Props) => {
                       items={[
                         {
                           label: t("player.play"),
+                          icon: <PlayFillIcon />,
                           onSelect: () => playFrom(music),
                         },
                         {
                           label: t("menu.playNext"),
+                          icon: <ListStart />,
                           onSelect: () => commands.insertNext([music]),
                         },
                         {
                           label: t("menu.addToQueue"),
+                          icon: <ListEnd />,
                           onSelect: () => commands.appendToQueue([music]),
                         },
                         <AddToPlaylistSubmenu
@@ -150,6 +155,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                         />,
                         {
                           label: t("menu.musicInfo"),
+                          icon: <NotepadText />,
                           onSelect: () => musicInfoStore.open(music),
                           separatorBefore: true,
                         },
@@ -157,6 +163,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                           ? [
                               {
                                 label: t("menu.removeFromPlaylist"),
+                                icon: <ListX />,
                                 onSelect: () => removeRowAt(row.index),
                                 destructive: true,
                                 separatorBefore: true,

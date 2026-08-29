@@ -1,5 +1,5 @@
 import { MoreHorizontal } from "lucide-react";
-import { isValidElement, type ReactElement } from "react";
+import { isValidElement, type ReactElement, type ReactNode } from "react";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,8 @@ import {
 /** One plain entry of a {@link RowMenu}. */
 export type RowMenuItem = {
   readonly label: string;
+  /** Icon element rendered before the label (typically a lucide icon). */
+  readonly icon?: ReactNode;
   readonly onSelect?: () => void;
   readonly disabled?: boolean;
   readonly destructive?: boolean;
@@ -59,6 +61,7 @@ export const RowMenu = ({ items, variant = "ghost" }: Props) => (
               variant={item.destructive === true ? "destructive" : "default"}
               onClick={item.onSelect}
             >
+              {item.icon}
               {item.label}
             </DropdownMenuItem>
           </div>
