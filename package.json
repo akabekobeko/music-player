@@ -2,7 +2,7 @@
   "name": "parade",
   "productName": "Parade",
   "author": "akabeko",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A music player for local audio libraries",
   "private": true,
   "type": "module",
