@@ -1,8 +1,10 @@
+import type { Music } from "@mp/ipc";
 import type { CurrentChangedAction } from "./actions/currentChanged";
 import type { PlayedAction } from "./actions/played";
 import type { QueueAppendedAction } from "./actions/queueAppended";
 import type { QueueInsertedNextAction } from "./actions/queueInsertedNext";
 import type { QueueReplacedAction } from "./actions/queueReplaced";
+import type { ShuffleChangedAction } from "./actions/shuffleChanged";
 import type { PlayerState } from "./types";
 
 /**
@@ -18,7 +20,8 @@ export type PlayerAction =
   | CurrentChangedAction
   | QueueReplacedAction
   | QueueInsertedNextAction
-  | QueueAppendedAction;
+  | QueueAppendedAction
+  | ShuffleChangedAction;
 
 /**
  * Advance the player state by one action.
@@ -35,8 +38,10 @@ export const playerReducer = (
     case "played":
       return {
         queue: action.queue,
+        orderedQueue: action.orderedQueue,
         queueSource: action.source,
         current: action.music,
+        shuffle: action.shuffle,
       };
     case "currentChanged":
       return { ...state, current: action.music };
@@ -44,19 +49,35 @@ export const playerReducer = (
       return {
         ...state,
         queue: action.queue,
+        orderedQueue: action.queue,
         queueSource: action.source,
       };
     case "queueInsertedNext": {
-      const index =
-        state.current === null
-          ? -1
-          : state.queue.findIndex((music) => music.id === state.current?.id);
-      const queue = [...state.queue];
-      queue.splice(index + 1, 0, ...action.musics);
-      return { ...state, queue };
+      // Insert after the current track in both orders; each queue resolves
+      // the current position independently (the orders differ under shuffle).
+      const insertAfterCurrent = (queue: readonly Music[]): Music[] => {
+        const index =
+          state.current === null
+            ? -1
+            : queue.findIndex((music) => music.id === state.current?.id);
+        const next = [...queue];
+        next.splice(index + 1, 0, ...action.musics);
+        return next;
+      };
+      return {
+        ...state,
+        queue: insertAfterCurrent(state.queue),
+        orderedQueue: insertAfterCurrent(state.orderedQueue),
+      };
     }
     case "queueAppended":
-      return { ...state, queue: [...state.queue, ...action.musics] };
+      return {
+        ...state,
+        queue: [...state.queue, ...action.musics],
+        orderedQueue: [...state.orderedQueue, ...action.musics],
+      };
+    case "shuffleChanged":
+      return { ...state, shuffle: action.shuffle, queue: action.queue };
     default:
       return state;
   }

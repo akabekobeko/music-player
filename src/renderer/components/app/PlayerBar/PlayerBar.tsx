@@ -18,6 +18,7 @@ import { Picture } from "./Picture";
 import { PlayerControls } from "./PlayerControls";
 import { SecondaryControls } from "./SecondaryControls/SecondaryControls";
 import { SeekBar } from "./SeekBar";
+import { ShuffleButton } from "./ShuffleButton";
 import { usePlayerBar } from "./usePlayerBar";
 
 /**
@@ -27,7 +28,8 @@ import { usePlayerBar } from "./usePlayerBar";
  * controls — the title-bar duties (drag region, safe areas) belong to the
  * toolbars now. Left to right: artwork, two-line track info (title /
  * artist - album) in a fixed-width column, transport controls, seek bar
- * with time labels, queue and volume — all vertically centered.
+ * with time labels, shuffle toggle, queue and volume — all vertically
+ * centered.
  */
 export const PlayerBar = () => {
   const t = useT();
@@ -35,6 +37,7 @@ export const PlayerBar = () => {
     current,
     commands,
     snapshot,
+    shuffle,
     previous,
     next,
     hasTrack,
@@ -68,6 +71,10 @@ export const PlayerBar = () => {
         displayDuration={displayDuration}
         seeking={snapshot.seeking}
         onSeek={commands.seek}
+      />
+      <ShuffleButton
+        active={shuffle}
+        onToggle={() => commands.toggleShuffle()}
       />
       <SecondaryControls
         volume={snapshot.volume}

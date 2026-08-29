@@ -9,7 +9,6 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
-import { shuffle } from "@/features/player/shuffle";
 import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
 import { replacePlaylistMusics } from "@/features/playlist/playlistCommands/replacePlaylistMusics";
 import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
@@ -106,11 +105,7 @@ export const usePlaylistContent = (routeId: string) => {
   };
 
   const playShuffled = (): void => {
-    const shuffled = shuffle(visibleMusics);
-    const first = shuffled[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, shuffled, "playlist");
-    }
+    void commands.playShuffled(visibleMusics, "playlist");
   };
 
   /** Persist a new order optimistically (reorder / row removal). */

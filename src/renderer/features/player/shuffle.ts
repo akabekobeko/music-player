@@ -1,7 +1,7 @@
 /**
  * Fisher–Yates shuffle for queue generation
- * (`docs/specs/v1.0/features/artist-view.md`): shuffling happens once when
- * the queue is built — there is no dynamic shuffle mode during playback.
+ * (`docs/specs/v1.0/features/artist-view.md`): used whenever a shuffled
+ * playback order is built — shuffle play and the PlayerBar's shuffle mode.
  *
  * @param items - Source list (not mutated).
  * @param random - `[0, 1)` random source; injectable for tests.

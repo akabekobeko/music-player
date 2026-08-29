@@ -15,7 +15,7 @@ import { previousOf } from "@/features/player/previousOf";
  * The component only renders what this hook returns.
  */
 export const usePlayerBar = () => {
-  const { queue, current } = usePlayerState();
+  const { queue, current, shuffle } = usePlayerState();
   const commands = usePlayerCommands();
   const snapshot = useAudioPlayer();
   const [dismissedError, setDismissedError] = useState<PlaybackError | null>(
@@ -49,6 +49,7 @@ export const usePlayerBar = () => {
     current,
     commands,
     snapshot,
+    shuffle,
     previous,
     next,
     hasTrack,
