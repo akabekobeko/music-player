@@ -23,10 +23,11 @@ type Props = {
 };
 
 /**
- * Playlist area laid out like `ArtistHeader`: icon, name and counts on the
- * left; play / shuffle / menu circles on the right. The right padding matches
- * the list's `px-6` plus the rows' `pr-2`, so the menu lines up with the
- * track menus. Smart playlists expose "Edit rules" from the menu.
+ * Playlist area laid out like `ArtistHeader`: icon tile with a hover ▶
+ * overlay, name and counts on the left; shuffle / menu circles on the
+ * right. The right padding matches the list's `px-6` plus the rows' `pr-2`,
+ * so the menu lines up with the track menus. Smart playlists expose
+ * "Edit rules" from the menu.
  */
 export const PlaylistHeader = ({
   name,
@@ -42,9 +43,21 @@ export const PlaylistHeader = ({
 
   return (
     <HStack className="gap-4 border-b py-4 pr-8 pl-6">
-      <VStack className="size-16 shrink-0 rounded-md bg-muted">
-        <ListMusic aria-hidden className="size-7 text-muted-foreground" />
-      </VStack>
+      <div className="group relative shrink-0">
+        <VStack className="size-16 rounded-md bg-muted">
+          <ListMusic aria-hidden className="size-7 text-muted-foreground" />
+        </VStack>
+        <button
+          type="button"
+          aria-label={t("player.play")}
+          title={t("player.play")}
+          disabled={musicCount === 0}
+          className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+          onClick={onPlayAll}
+        >
+          <PlayFillIcon className="size-4" />
+        </button>
+      </div>
       <div className="min-w-0">
         <h1 className="flex min-w-0 items-center gap-2 font-semibold text-lg">
           <EllipsisText className="min-w-0" text={name} />
@@ -60,14 +73,6 @@ export const PlaylistHeader = ({
       </div>
       <Spacer />
       <HStack className="shrink-0">
-        <CircleIconButton
-          aria-label={t("player.play")}
-          title={t("player.play")}
-          disabled={musicCount === 0}
-          onClick={onPlayAll}
-        >
-          <PlayFillIcon className="size-3.5" />
-        </CircleIconButton>
         <CircleIconButton
           aria-label={t("player.shuffle")}
           title={t("player.shuffle")}

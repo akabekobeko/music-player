@@ -11,7 +11,6 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
-import { shuffle } from "@/features/player/shuffle";
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import {
@@ -64,11 +63,7 @@ export const useArtistContent = (artistName: string) => {
   };
 
   const playShuffled = (): void => {
-    const shuffled = shuffle(playOrder);
-    const first = shuffled[0];
-    if (first !== undefined) {
-      void commands.playMusic(first, shuffled, "artist");
-    }
+    void commands.playShuffled(playOrder, "artist");
   };
 
   const playFrom = (music: Music): void => {

@@ -12,17 +12,26 @@ export type QueueSource = "artist" | "album" | "playlist" | "none";
 
 /** Pure player state managed by the reducer. */
 export type PlayerState = {
-  /** The current queue (playback order). */
+  /** The current queue (playback order; shuffled while `shuffle` is on). */
   readonly queue: readonly Music[];
+  /**
+   * The same tracks in the view's natural order — the restore target when
+   * shuffle turns off. Equals `queue` while shuffle is off.
+   */
+  readonly orderedQueue: readonly Music[];
   readonly queueSource: QueueSource;
   /** Currently loaded track; stays on the tail after the queue ends. */
   readonly current: Music | null;
+  /** Shuffle mode (PlayerBar toggle); applies to every queue build. */
+  readonly shuffle: boolean;
   // previous / next are derived from queue + current — never stored.
 };
 
 /** State before any playback. */
 export const INITIAL_PLAYER_STATE: PlayerState = {
   queue: [],
+  orderedQueue: [],
   queueSource: "none",
   current: null,
+  shuffle: false,
 };

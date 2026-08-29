@@ -20,6 +20,7 @@ import { nextOf } from "./nextOf";
 import { setActivePlayer } from "./playerBridge";
 import { type PlayerAction, playerReducer } from "./playerReducer";
 import { previousOf } from "./previousOf";
+import { shuffle } from "./shuffle";
 import {
   INITIAL_PLAYER_STATE,
   type PlayerState,
@@ -40,12 +41,28 @@ import {
 
 /** Commands exposed by the provider. */
 export type PlayerCommands = {
-  /** Start a track, replacing the queue with the view's list. */
+  /**
+   * Start a track, replacing the queue with the view's list. While shuffle
+   * mode is on the track plays first and the rest follows shuffled.
+   */
   readonly playMusic: (
     music: Music,
     queue: readonly Music[],
     source: QueueSource,
   ) => Promise<void>;
+  /**
+   * Turn shuffle mode on and play the view's list in a shuffled order
+   * (the headers' shuffle play).
+   */
+  readonly playShuffled: (
+    queue: readonly Music[],
+    source: QueueSource,
+  ) => Promise<void>;
+  /**
+   * Toggle shuffle mode: on reshuffles the current queue (current track
+   * first), off restores the view order. Playback keeps running.
+   */
+  readonly toggleShuffle: () => void;
   readonly playNext: () => Promise<void>;
   readonly playPrevious: () => Promise<void>;
   readonly togglePlayPause: () => void;
@@ -121,8 +138,64 @@ const createCommands = (
 
   const commands: PlayerCommands = {
     playMusic: async (music, queue, source) => {
+      const shuffling = stateRef.current.shuffle;
+      const playQueue = shuffling
+        ? [music, ...shuffle(queue.filter((entry) => entry.id !== music.id))]
+        : queue;
       startEngine(music);
-      dispatch({ type: "played", music, queue, source });
+      dispatch({
+        type: "played",
+        music,
+        queue: playQueue,
+        orderedQueue: queue,
+        source,
+        shuffle: shuffling,
+      });
+    },
+
+    playShuffled: async (queue, source) => {
+      const shuffled = shuffle(queue);
+      const first = shuffled[0];
+      if (first === undefined) {
+        return;
+      }
+
+      startEngine(first);
+      dispatch({
+        type: "played",
+        music: first,
+        queue: shuffled,
+        orderedQueue: queue,
+        source,
+        shuffle: true,
+      });
+    },
+
+    toggleShuffle: () => {
+      const { shuffle: enabled, orderedQueue, current } = stateRef.current;
+      if (enabled) {
+        dispatch({
+          type: "shuffleChanged",
+          shuffle: false,
+          queue: orderedQueue,
+        });
+        return;
+      }
+
+      // The current track leads the shuffled order so playback continues
+      // seamlessly; a current outside the queue (replacement policy) just
+      // shuffles the whole list.
+      const queue =
+        current !== null &&
+        orderedQueue.some((entry) => entry.id === current.id)
+          ? [
+              current,
+              ...shuffle(
+                orderedQueue.filter((entry) => entry.id !== current.id),
+              ),
+            ]
+          : shuffle(orderedQueue);
+      dispatch({ type: "shuffleChanged", shuffle: true, queue });
     },
 
     playNext: async () => {
