@@ -21,7 +21,7 @@ export const GlowIconButton = ({ className, ...props }: Props) => (
       "hover:bg-transparent hover:text-foreground dark:hover:bg-transparent",
       "aria-expanded:bg-transparent aria-expanded:text-foreground",
       "[&_svg]:transition-[filter] [&_svg]:duration-200",
-      "hover:[&_svg]:[filter:drop-shadow(0_0_5px_var(--foreground))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--foreground)_60%,transparent))]",
+      "hover:[&_svg]:filter-[drop-shadow(0_0_5px_var(--foreground))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--foreground)_60%,transparent))]",
       className,
     )}
     {...props}

@@ -25,7 +25,7 @@ export const ShuffleButton = ({ active, onToggle }: Props) => {
       aria-pressed={active}
       className={cn(
         active &&
-          "text-primary hover:text-primary [&_svg]:[filter:drop-shadow(0_0_5px_var(--primary))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--primary)_60%,transparent))]!",
+          "text-primary hover:text-primary [&_svg]:filter-[drop-shadow(0_0_5px_var(--primary))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--primary)_60%,transparent))]!",
       )}
       onClick={onToggle}
     >
