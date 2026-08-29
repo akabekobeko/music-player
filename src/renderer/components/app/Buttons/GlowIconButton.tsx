@@ -5,7 +5,8 @@ import { cn } from "@/libs/utils";
 type Props = Omit<ComponentProps<typeof Button>, "variant" | "size">;
 
 /**
- * Borderless icon button for the player bar. Instead of a background change,
+ * Borderless icon button for the player bar and the toolbar icon cluster.
+ * Instead of a background change,
  * hovering makes the icon itself "light up" like a lamp: a mid bloom plus a
  * wide faint halo (`drop-shadow` follows the glyph shape, so it works for
  * filled and outlined icons alike). No shadow hugs the outline, so the glyph

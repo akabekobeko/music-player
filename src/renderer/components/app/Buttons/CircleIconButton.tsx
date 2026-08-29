@@ -6,7 +6,7 @@ type Props = Omit<ComponentProps<typeof Button>, "variant" | "size">;
 
 /**
  * Small outlined-circle icon button (artist play / shuffle, album and artist
- * menus). No fill: a `foreground` colored border and icon on a transparent
+ * menus, sidebar panel headers). No fill: a `foreground` colored border and icon on a transparent
  * background. On hover the border "lights up" with a blurred glow
  * (`box-shadow`) instead of a background change, so it reads clearly in both
  * light and dark themes. Pass `aria-label` for the icon.

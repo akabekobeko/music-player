@@ -1,7 +1,7 @@
 import { TextInitial } from "lucide-react";
 import { useState } from "react";
+import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { InitialGrid } from "@/components/app/InitialGrid/InitialGrid";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -38,14 +38,9 @@ export const InitialPicker = ({ available, onSelect }: Props) => {
           render={
             <PopoverTrigger
               render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  aria-label={label}
-                >
+                <CircleIconButton className="shrink-0" aria-label={label}>
                   <TextInitial />
-                </Button>
+                </CircleIconButton>
               }
             />
           }

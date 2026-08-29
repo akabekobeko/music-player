@@ -1,7 +1,7 @@
 import { ChevronsDownUp, ChevronsUpDown, FilterX } from "lucide-react";
+import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { HStack, Stack } from "@/components/app/stacks";
 import { Accordion } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Tooltip,
@@ -60,16 +60,14 @@ export const AlbumFilterPanel = () => {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="outline"
-                  size="icon"
+                <CircleIconButton
                   className="shrink-0"
                   aria-label={t("album.filter.clear")}
                   disabled={!canClear}
                   onClick={clear}
                 >
                   <FilterX />
-                </Button>
+                </CircleIconButton>
               }
             />
             <TooltipContent side="bottom">
@@ -79,9 +77,7 @@ export const AlbumFilterPanel = () => {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="outline"
-                  size="icon"
+                <CircleIconButton
                   className="shrink-0"
                   aria-label={
                     allOpen
@@ -91,7 +87,7 @@ export const AlbumFilterPanel = () => {
                   onClick={toggleAllOpen}
                 >
                   {allOpen ? <ChevronsDownUp /> : <ChevronsUpDown />}
-                </Button>
+                </CircleIconButton>
               }
             />
             <TooltipContent side="bottom">
