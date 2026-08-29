@@ -153,6 +153,20 @@
   );
 }
 
+/*
+ * Right inset of the content toolbar. On macOS (no window controls on the
+ * right) it equals the content headers' right padding (`pr-8`), so the
+ * filter input's right edge lines up with their menu buttons; on Windows /
+ * Linux it keeps about one character of air from the Window Controls
+ * Overlay instead.
+ */
+:root {
+  --content-toolbar-inset-right: max(
+    2rem,
+    calc(var(--titlebar-safe-right) + 1rem)
+  );
+}
+
 html[data-platform="mac"] {
   --titlebar-safe-left: env(titlebar-area-x, 80px);
   --titlebar-safe-right: 0px;

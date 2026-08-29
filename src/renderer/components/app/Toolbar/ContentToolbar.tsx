@@ -12,10 +12,11 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
 /**
  * Title-bar-height band on top of the content area
  * (`docs/specs/v1.0/renderer/routing-layout.md`). The background is a window
- * drag region; on Windows / Linux the Window Controls Overlay occupies the
- * band's right corner, so everything right-aligned stays inside the
- * safe-area padding. While the sidebar is closed its icon cluster moves
- * here, keeping every icon's screen position across the toggle.
+ * drag region. The right inset (`--content-toolbar-inset-right`) lines the
+ * filter input up with the content headers' menu buttons on macOS and, on
+ * Windows / Linux, keeps it clear of the Window Controls Overlay occupying
+ * the band's right corner. While the sidebar is closed its icon cluster
+ * moves here, keeping every icon's screen position across the toggle.
  */
 export const ContentToolbar = () => {
   const t = useT();
@@ -31,7 +32,7 @@ export const ContentToolbar = () => {
   const section = sectionOf(pathname);
 
   return (
-    <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 pr-[calc(var(--titlebar-safe-right)+0.375rem)]">
+    <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 pr-(--content-toolbar-inset-right)">
       {!sidebar.open && (
         <ToolbarIconCluster
           className="shrink-0"
