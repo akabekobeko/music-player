@@ -10,9 +10,10 @@ type Props = {
 };
 
 /**
- * Shuffle-mode toggle right of the seek bar. While active the icon keeps
- * the primary colour with a persistent glow (the hover glow made permanent),
- * so the mode reads at a glance.
+ * Shuffle-mode toggle right of the seek bar. While active the icon turns
+ * primary and glows like a lamp: three stacked drop-shadows (a tight core,
+ * a mid bloom, a wide faint halo) — a single blur reads too weak. The `!`
+ * keeps this filter over `GlowIconButton`'s foreground hover glow.
  */
 export const ShuffleButton = ({ active, onToggle }: Props) => {
   const t = useT();
@@ -23,7 +24,7 @@ export const ShuffleButton = ({ active, onToggle }: Props) => {
       aria-pressed={active}
       className={cn(
         active &&
-          "text-primary hover:text-primary [&_svg]:drop-shadow-[0_0_4px_color-mix(in_oklch,var(--primary)_70%,transparent)] hover:[&_svg]:drop-shadow-[0_0_4px_color-mix(in_oklch,var(--primary)_70%,transparent)]",
+          "text-primary hover:text-primary [&_svg]:[filter:drop-shadow(0_0_1px_var(--primary))_drop-shadow(0_0_5px_var(--primary))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--primary)_60%,transparent))]!",
       )}
       onClick={onToggle}
     >
