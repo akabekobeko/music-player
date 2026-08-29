@@ -13,7 +13,8 @@ type Props = {
  * Shuffle-mode toggle right of the seek bar. While active the icon turns
  * primary and glows like a lamp: three stacked drop-shadows (a tight core,
  * a mid bloom, a wide faint halo) — a single blur reads too weak. The `!`
- * keeps this filter over `GlowIconButton`'s foreground hover glow.
+ * keeps this filter over `GlowIconButton`'s foreground hover glow. The
+ * stroke also thickens so the glyph stays crisp inside the bloom.
  */
 export const ShuffleButton = ({ active, onToggle }: Props) => {
   const t = useT();
@@ -28,7 +29,7 @@ export const ShuffleButton = ({ active, onToggle }: Props) => {
       )}
       onClick={onToggle}
     >
-      <ShuffleIcon />
+      <ShuffleIcon strokeWidth={active ? 2.5 : 2} />
     </GlowIconButton>
   );
 };
