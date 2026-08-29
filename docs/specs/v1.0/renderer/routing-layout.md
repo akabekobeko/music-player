@@ -81,7 +81,7 @@ VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Mu
 | Windows | 左端にアプリケーションメニューボタン (`Menu`、[システムメニュー](../cross-platform/system-menu.md))、右端にサイドバー開閉・インポート・Settings |
 | Linux | Windows と同じ (アプリケーションメニューは全プラットフォームでインストールされるためメニューボタンも表示) |
 
-**コンテンツ領域側** — 右端 (Windows / Linux の WCO セーフエリアの内側) に、ビューごとの曲絞り込みテキストボックスを置きます ([各ビュー仕様](../features/))。
+**コンテンツ領域側** — 右端に、ビューごとの曲絞り込みテキストボックスを置きます ([各ビュー仕様](../features/))。右の余白は `--content-toolbar-inset-right` で、macOS では小さな余白 (`0.375rem`)、Windows / Linux では WCO セーフエリア + 1 文字分 (`1rem`) の余白を取ります。
 
 - Artists / Albums / Playlists の各ルートで表示し、Settings では非表示
 - 絞り込みテキストは `trackFilterStore` (React 外ストア、セクション別・非永続) が持ち、draft → applied を 200ms デバウンスして各ビューが `useSyncExternalStore` で読みます
