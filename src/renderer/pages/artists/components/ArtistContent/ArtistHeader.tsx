@@ -22,10 +22,10 @@ type Props = {
 };
 
 /**
- * Artist area: picture, name and counts on the left; play / shuffle / menu
- * circles on the right. The right padding matches the list's `px-6` plus
- * the rows' `pr-2`, so the menu lines up with the album / track menus.
- * The empty name is the "Unknown Artist" bucket — it renders with the
+ * Artist area: picture with a hover ▶ overlay, name and counts on the left;
+ * shuffle / menu circles on the right. The right padding matches the list's
+ * `px-6` plus the rows' `pr-2`, so the menu lines up with the album / track
+ * menus. The empty name is the "Unknown Artist" bucket — it renders with the
  * localised label and cannot be edited.
  */
 export const ArtistHeader = ({
@@ -41,17 +41,29 @@ export const ArtistHeader = ({
 
   return (
     <HStack className="gap-4 border-b py-4 pr-8 pl-6">
-      {artist?.picturePath != null ? (
-        <img
-          src={toMediaFileUrl(artist.picturePath)}
-          alt=""
-          className="size-16 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <VStack className="size-16 shrink-0 rounded-full bg-muted">
-          <UserRound aria-hidden className="size-7 text-muted-foreground" />
-        </VStack>
-      )}
+      <div className="group relative shrink-0">
+        {artist?.picturePath != null ? (
+          <img
+            src={toMediaFileUrl(artist.picturePath)}
+            alt=""
+            className="size-16 rounded-full object-cover"
+          />
+        ) : (
+          <VStack className="size-16 rounded-full bg-muted">
+            <UserRound aria-hidden className="size-7 text-muted-foreground" />
+          </VStack>
+        )}
+        <button
+          type="button"
+          aria-label={t("player.play")}
+          title={t("player.play")}
+          disabled={musicCount === 0}
+          className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+          onClick={onPlayAll}
+        >
+          <PlayFillIcon className="size-4" />
+        </button>
+      </div>
       <div className="min-w-0">
         <h1 className="font-semibold text-lg">
           <EllipsisText
@@ -66,14 +78,6 @@ export const ArtistHeader = ({
       </div>
       <Spacer />
       <HStack className="shrink-0">
-        <CircleIconButton
-          aria-label={t("player.play")}
-          title={t("player.play")}
-          disabled={musicCount === 0}
-          onClick={onPlayAll}
-        >
-          <PlayFillIcon className="size-3.5" />
-        </CircleIconButton>
         <CircleIconButton
           aria-label={t("player.shuffle")}
           title={t("player.shuffle")}
