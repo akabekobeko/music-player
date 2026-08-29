@@ -46,9 +46,11 @@ const indicatorVariantClasses: Record<DropdownMenuVariant, string> = {
   basic: "right-2",
 };
 
+// "normal" keeps the separator flush against the neighbouring rows (no
+// vertical margin), matching native menus.
 const separatorVariantClasses: Record<DropdownMenuVariant, string> = {
   normal: "",
-  basic: "-mx-1",
+  basic: "-mx-1 my-1",
 };
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
@@ -310,7 +312,7 @@ function DropdownMenuSeparator({
     <MenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
       className={cn(
-        "my-1 h-px bg-border",
+        "h-px bg-border",
         separatorVariantClasses[menuVariant],
         className,
       )}

@@ -28,9 +28,11 @@ const itemVariantClasses: Record<ContextMenuVariant, string> = {
   basic: "rounded-md px-1.5",
 };
 
+// "normal" keeps the separator flush against the neighbouring rows (no
+// vertical margin), matching native menus.
 const separatorVariantClasses: Record<ContextMenuVariant, string> = {
   normal: "",
-  basic: "-mx-1",
+  basic: "-mx-1 my-1",
 };
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
@@ -100,7 +102,7 @@ function ContextMenuSeparator({
     <ContextMenuPrimitive.Separator
       data-slot="context-menu-separator"
       className={cn(
-        "my-1 h-px bg-border",
+        "h-px bg-border",
         separatorVariantClasses[menuVariant],
         className,
       )}
