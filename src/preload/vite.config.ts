@@ -1,8 +1,11 @@
 import { builtinModules } from "node:module";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// URL.pathname keeps the leading slash before a Windows drive letter
+// ("/D:/..."), which breaks path resolution there - fileURLToPath does not.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: __dirname,

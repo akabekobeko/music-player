@@ -1,7 +1,7 @@
 {
   "name": "parade",
   "productName": "Parade",
-  "author": "akabeko",
+  "author": "akabeko <akabekobeko@gmail.com>",
   "version": "0.0.1",
   "description": "A music player for local audio libraries",
   "private": true,
