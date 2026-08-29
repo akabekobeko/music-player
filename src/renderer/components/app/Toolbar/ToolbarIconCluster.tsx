@@ -1,7 +1,7 @@
 import { FolderInput, Menu, PanelLeft, Settings } from "lucide-react";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import { NavLink } from "react-router";
-import { Button } from "@/components/ui/button";
+import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import {
   Tooltip,
   TooltipContent,
@@ -94,7 +94,7 @@ export const ToolbarIconCluster = ({
 const TOOLTIP_DELAY_MS = 700;
 
 type ClusterButtonProps = Pick<
-  ComponentProps<typeof Button>,
+  ComponentProps<typeof GlowIconButton>,
   "onClick" | "render"
 > & {
   /** Tooltip text, doubling as the accessible name. */
@@ -103,20 +103,18 @@ type ClusterButtonProps = Pick<
   readonly children: ReactNode;
 };
 
-/** One icon-only toolbar button with its delayed tooltip. */
+/** One glowing icon toolbar button with its delayed tooltip. */
 const ClusterButton = ({ label, children, ...props }: ClusterButtonProps) => (
   <Tooltip>
     <TooltipTrigger
       render={
-        <Button
-          variant="ghost"
-          size="icon-sm"
+        <GlowIconButton
           aria-label={label}
           className="app-region-no-drag"
           {...props}
         >
           {children}
-        </Button>
+        </GlowIconButton>
       }
     />
     <TooltipContent side="bottom">{label}</TooltipContent>
