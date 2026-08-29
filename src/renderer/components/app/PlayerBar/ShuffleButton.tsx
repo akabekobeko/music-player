@@ -11,10 +11,10 @@ type Props = {
 
 /**
  * Shuffle-mode toggle right of the seek bar. While active the icon turns
- * primary and glows like a lamp: three stacked drop-shadows (a tight core,
- * a mid bloom, a wide faint halo) — a single blur reads too weak. The `!`
- * keeps this filter over `GlowIconButton`'s foreground hover glow. The
- * stroke also thickens so the glyph stays crisp inside the bloom.
+ * primary and glows like a lamp: a mid bloom plus a wide faint halo. No
+ * shadow hugs the outline — a tight layer fuzzes the glyph's edge — so the
+ * lines stay crisp inside the bloom. The `!` keeps this filter over
+ * `GlowIconButton`'s foreground hover glow.
  */
 export const ShuffleButton = ({ active, onToggle }: Props) => {
   const t = useT();
@@ -25,11 +25,11 @@ export const ShuffleButton = ({ active, onToggle }: Props) => {
       aria-pressed={active}
       className={cn(
         active &&
-          "text-primary hover:text-primary [&_svg]:[filter:drop-shadow(0_0_1px_var(--primary))_drop-shadow(0_0_5px_var(--primary))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--primary)_60%,transparent))]!",
+          "text-primary hover:text-primary [&_svg]:[filter:drop-shadow(0_0_5px_var(--primary))_drop-shadow(0_0_12px_color-mix(in_oklch,var(--primary)_60%,transparent))]!",
       )}
       onClick={onToggle}
     >
-      <ShuffleIcon strokeWidth={active ? 2.5 : 2} />
+      <ShuffleIcon />
     </GlowIconButton>
   );
 };
