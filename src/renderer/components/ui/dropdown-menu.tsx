@@ -18,9 +18,11 @@ const DropdownMenuVariantContext = createContext<DropdownMenuVariant>("normal");
 
 // Horizontal metrics per variant. "normal" moves the popup's 4px side
 // padding into the rows (6px -> 10px), so text keeps its position while
-// the rows and separators reach the popup edges.
+// the rows and separators reach the popup edges. Its vertical padding
+// matches the popup's rounded-lg radius (8px) so a highlighted first /
+// last row does not clip into the rounded corners.
 const contentVariantClasses: Record<DropdownMenuVariant, string> = {
-  normal: "py-1",
+  normal: "py-2",
   basic: "p-1",
 };
 
