@@ -1,4 +1,4 @@
-import { Info, ListEnd, ListStart, ListX } from "lucide-react";
+import { ListEnd, ListStart, ListX, NotepadText } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
@@ -155,7 +155,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                         />,
                         {
                           label: t("menu.musicInfo"),
-                          icon: <Info />,
+                          icon: <NotepadText />,
                           onSelect: () => musicInfoStore.open(music),
                           separatorBefore: true,
                         },

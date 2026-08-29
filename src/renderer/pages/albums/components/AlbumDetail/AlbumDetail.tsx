@@ -1,5 +1,5 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { Info, ListEnd, ListStart, Trash2 } from "lucide-react";
+import { ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -134,7 +134,7 @@ export const AlbumDetail = ({ album }: Props) => {
                         />,
                         {
                           label: t("menu.musicInfo"),
-                          icon: <Info />,
+                          icon: <NotepadText />,
                           onSelect: () => musicInfoStore.open(music),
                           separatorBefore: true,
                         },

@@ -1,5 +1,5 @@
 import type { Artist, Music } from "@mp/ipc";
-import { Shuffle as ShuffleIcon, UserRound, UserRoundPen } from "lucide-react";
+import { NotepadText, Shuffle as ShuffleIcon, UserRound } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -104,7 +104,7 @@ export const ArtistHeader = ({
               ? [
                   {
                     label: t("artistEdit.menu"),
-                    icon: <UserRoundPen />,
+                    icon: <NotepadText />,
                     onSelect: () =>
                       artistEditStore.open({
                         name: artistName,

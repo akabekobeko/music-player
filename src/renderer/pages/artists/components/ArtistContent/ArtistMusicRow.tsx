@@ -1,5 +1,5 @@
 import type { Music } from "@mp/ipc";
-import { Info, ListEnd, ListStart, Trash2 } from "lucide-react";
+import { ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
 import type { MouseEvent } from "react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
@@ -65,7 +65,7 @@ export const ArtistMusicRow = ({
             <AddToPlaylistSubmenu key="playlist" musics={playlistTargets} />,
             {
               label: t("menu.musicInfo"),
-              icon: <Info />,
+              icon: <NotepadText />,
               onSelect: () => musicInfoStore.open(music),
               separatorBefore: true,
             },
