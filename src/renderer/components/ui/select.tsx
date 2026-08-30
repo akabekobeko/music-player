@@ -1,6 +1,7 @@
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import type * as React from "react";
+import { createContext, useContext } from "react";
 import { cn } from "@/libs/utils";
 import {
   type FieldVariant,
@@ -9,13 +10,62 @@ import {
   fieldTransitionClasses,
 } from "./field-variant";
 
+/**
+ * Popup appearance variants, mirroring `DropdownMenu`. "normal" (default)
+ * renders native-menu-like full-width rows: the popup / group drop their
+ * horizontal padding and rows widen their own padding instead of drawing
+ * an inset rounded box, so the highlight spans edge to edge. "basic" keeps
+ * the stock shadcn look (inset rounded rows). Set the variant on
+ * `SelectContent`; it flows to every part through context.
+ */
+type SelectVariant = "normal" | "basic";
+
+const SelectVariantContext = createContext<SelectVariant>("normal");
+
+// Metrics per variant, matching `DropdownMenu`'s: "normal" moves the 4px
+// side padding into the rows (6px -> 10px) and pads the popup vertically
+// by its rounded-lg radius (8px) so a highlighted first / last row does not
+// clip into the rounded corners.
+const contentVariantClasses: Record<SelectVariant, string> = {
+  normal: "py-2",
+  basic: "",
+};
+
+const groupVariantClasses: Record<SelectVariant, string> = {
+  normal: "",
+  basic: "p-1",
+};
+
+const itemVariantClasses: Record<SelectVariant, string> = {
+  normal: "py-1.5 pr-9 pl-2.5",
+  basic: "rounded-md py-1 pr-8 pl-1.5",
+};
+
+const indicatorVariantClasses: Record<SelectVariant, string> = {
+  normal: "right-3",
+  basic: "right-2",
+};
+
+const labelVariantClasses: Record<SelectVariant, string> = {
+  normal: "px-2.5",
+  basic: "px-1.5",
+};
+
+// "normal" keeps the separator flush against the neighbouring rows (no
+// vertical margin), matching native menus.
+const separatorVariantClasses: Record<SelectVariant, string> = {
+  normal: "",
+  basic: "-mx-1 my-1",
+};
+
 const Select = SelectPrimitive.Root;
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
+  const variant = useContext(SelectVariantContext);
   return (
     <SelectPrimitive.Group
       data-slot="select-group"
-      className={cn("scroll-my-1 p-1", className)}
+      className={cn("scroll-my-1", groupVariantClasses[variant], className)}
       {...props}
     />
   );
@@ -73,9 +123,11 @@ function SelectTrigger({
   );
 }
 
+/** `variant` picks the popup appearance ({@link SelectVariant}). */
 function SelectContent({
   className,
   children,
+  variant = "normal",
   side = "bottom",
   sideOffset = 4,
   align = "start",
@@ -92,7 +144,7 @@ function SelectContent({
   Pick<
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
-  >) {
+  > & { readonly variant?: SelectVariant }) {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -106,6 +158,7 @@ function SelectContent({
         <SelectPrimitive.Popup
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
+          data-variant={variant}
           // Deviation from stock shadcn: `w-(--anchor-width)` clamps the
           // popup to the trigger, squeezing nowrap item text under the
           // absolutely-positioned check icon. `w-max` sizes the popup to its
@@ -113,13 +166,16 @@ function SelectContent({
           // width stays the minimum and the viewport the maximum.
           className={cn(
             "relative isolate z-50 max-h-(--available-height) w-max min-w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            contentVariantClasses[variant],
             className,
           )}
           {...props}
         >
-          <SelectScrollUpButton />
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
-          <SelectScrollDownButton />
+          <SelectVariantContext.Provider value={variant}>
+            <SelectScrollUpButton />
+            <SelectPrimitive.List>{children}</SelectPrimitive.List>
+            <SelectScrollDownButton />
+          </SelectVariantContext.Provider>
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>
@@ -130,10 +186,15 @@ function SelectLabel({
   className,
   ...props
 }: SelectPrimitive.GroupLabel.Props) {
+  const variant = useContext(SelectVariantContext);
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
-      className={cn("px-1.5 py-1 text-xs text-muted-foreground", className)}
+      className={cn(
+        "py-1 text-xs text-muted-foreground",
+        labelVariantClasses[variant],
+        className,
+      )}
       {...props}
     />
   );
@@ -144,11 +205,13 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
+  const variant = useContext(SelectVariantContext);
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-default items-center gap-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        itemVariantClasses[variant],
         className,
       )}
       {...props}
@@ -158,7 +221,12 @@ function SelectItem({
       </SelectPrimitive.ItemText>
       <SelectPrimitive.ItemIndicator
         render={
-          <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
+          <span
+            className={cn(
+              "pointer-events-none absolute flex size-4 items-center justify-center",
+              indicatorVariantClasses[variant],
+            )}
+          />
         }
       >
         <CheckIcon className="pointer-events-none" />
@@ -171,10 +239,15 @@ function SelectSeparator({
   className,
   ...props
 }: SelectPrimitive.Separator.Props) {
+  const variant = useContext(SelectVariantContext);
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
+      className={cn(
+        "pointer-events-none h-px bg-border",
+        separatorVariantClasses[variant],
+        className,
+      )}
       {...props}
     />
   );
@@ -227,4 +300,5 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  type SelectVariant,
 };
