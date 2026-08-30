@@ -15,3 +15,21 @@ it("renders two thumbs for a range value", () => {
   );
   expect(html.match(/data-slot="slider-thumb"/g)?.length).toBe(2);
 });
+
+it("lights the thumb up with a glow instead of a ring by default", () => {
+  const html = renderToStaticMarkup(
+    <Slider aria-label="Seek" min={0} max={100} value={30} />,
+  );
+  const thumb = html.match(/data-slot="slider-thumb"[^>]*class="([^"]*)"/);
+  expect(thumb?.[1]).toContain("focus-visible:shadow-[");
+  expect(thumb?.[1]).not.toContain("focus-visible:ring-");
+});
+
+it("keeps the stock ring for the basic variant", () => {
+  const html = renderToStaticMarkup(
+    <Slider aria-label="Seek" min={0} max={100} value={30} variant="basic" />,
+  );
+  const thumb = html.match(/data-slot="slider-thumb"[^>]*class="([^"]*)"/);
+  expect(thumb?.[1]).toContain("focus-visible:ring-3");
+  expect(thumb?.[1]).not.toContain("focus-visible:shadow-[");
+});

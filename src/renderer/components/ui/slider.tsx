@@ -2,34 +2,72 @@ import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/libs/utils";
+import type { FieldVariant } from "./field-variant";
 
+/**
+ * Track / thumb colouring. "default" is the stock shadcn look (muted track,
+ * white thumb); "fused" paints the thumb in the range's fill colour so it
+ * reads as one piece with the range.
+ */
 const sliderTrackVariants = cva(
   "relative grow overflow-hidden rounded-full select-none data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1",
   {
     variants: {
-      variant: {
+      appearance: {
         default: "bg-muted",
         fused: "bg-primary/20",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: { appearance: "default" },
   },
 );
 
+/**
+ * The thumb's hover / focus / drag affordance follows `variant`
+ * ({@link FieldVariant}): "normal" lights the thumb up with a blurred glow
+ * (`box-shadow`) in the thumb's own colour — `foreground` for the white
+ * "default" thumb, `primary` for the "fused" one — the same treatment as
+ * `CircleIconButton`; "basic" keeps the stock translucent ring, which is
+ * larger for the "fused" thumb.
+ */
 const sliderThumbVariants = cva(
-  "relative block size-3 shrink-0 rounded-full border ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50",
+  "relative block size-3 shrink-0 rounded-full border transition-[color,border-color,box-shadow] duration-200 select-none after:absolute after:-inset-2 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
+      appearance: {
+        default: "border-ring bg-white",
+        fused: "border-primary bg-primary",
+      },
       variant: {
-        default:
-          "border-ring bg-white hover:ring-3 focus-visible:ring-3 active:ring-3",
-        // Thumb in the track's fill colour, so it reads as one piece with
-        // the range; the larger ring is the hover / focus affordance.
-        fused:
-          "border-primary bg-primary hover:ring-4 focus-visible:ring-4 active:ring-4",
+        normal: "",
+        basic: "ring-ring/50",
       },
     },
-    defaultVariants: { variant: "default" },
+    compoundVariants: [
+      {
+        appearance: "default",
+        variant: "normal",
+        className:
+          "hover:border-foreground hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)] focus-visible:border-foreground focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)] active:border-foreground active:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+      },
+      {
+        appearance: "fused",
+        variant: "normal",
+        className:
+          "hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--primary)_60%,transparent)] focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--primary)_60%,transparent)] active:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--primary)_60%,transparent)]",
+      },
+      {
+        appearance: "default",
+        variant: "basic",
+        className: "hover:ring-3 focus-visible:ring-3 active:ring-3",
+      },
+      {
+        appearance: "fused",
+        variant: "basic",
+        className: "hover:ring-4 focus-visible:ring-4 active:ring-4",
+      },
+    ],
+    defaultVariants: { appearance: "default", variant: "normal" },
   },
 );
 
@@ -42,6 +80,7 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  appearance,
   variant,
   ...props
 }: Props) {
@@ -68,7 +107,7 @@ function Slider({
       <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:h-4 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-4 data-vertical:flex-col">
         <SliderPrimitive.Track
           data-slot="slider-track"
-          className={sliderTrackVariants({ variant })}
+          className={sliderTrackVariants({ appearance })}
         >
           <SliderPrimitive.Indicator
             data-slot="slider-range"
@@ -80,7 +119,7 @@ function Slider({
             data-slot="slider-thumb"
             // biome-ignore lint/suspicious/noArrayIndexKey: thumbs are positional and stable per index
             key={index}
-            className={sliderThumbVariants({ variant })}
+            className={sliderThumbVariants({ appearance, variant })}
           />
         ))}
       </SliderPrimitive.Control>
