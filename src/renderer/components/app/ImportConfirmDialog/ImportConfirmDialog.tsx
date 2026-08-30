@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -45,17 +46,19 @@ export const ImportConfirmDialog = () => {
             {descriptionText}
           </DialogDescription>
         </DialogHeader>
-        {confirmingFiles.length > 0 && (
-          <ul className="max-h-64 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
-            {confirmingFiles.map((file) => (
-              <li key={file} className="break-all py-0.5">
-                {file}
-              </li>
-            ))}
-          </ul>
-        )}
-        {state.status === "importing" && <ImportProgress state={state} />}
-        {state.status === "done" && <ImportSummaryView state={state} />}
+        <DialogBody>
+          {confirmingFiles.length > 0 && (
+            <ul className="max-h-64 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
+              {confirmingFiles.map((file) => (
+                <li key={file} className="break-all py-0.5">
+                  {file}
+                </li>
+              ))}
+            </ul>
+          )}
+          {state.status === "importing" && <ImportProgress state={state} />}
+          {state.status === "done" && <ImportSummaryView state={state} />}
+        </DialogBody>
         <DialogFooter>
           {state.status === "confirming" && (
             <>

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -37,21 +38,23 @@ export const AboutDialog = () => {
             </DialogDescription>
           )}
         </DialogHeader>
-        {state.open && state.error !== null && (
-          <p className="break-all text-destructive text-sm">
-            {t("library.loadFailed", { message: state.error.message })}
-          </p>
-        )}
-        {state.open && state.versions !== null && (
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
-            <dt className="text-muted-foreground">Electron</dt>
-            <dd className="tabular-nums">{state.versions.electron}</dd>
-            <dt className="text-muted-foreground">Chromium</dt>
-            <dd className="tabular-nums">{state.versions.chrome}</dd>
-            <dt className="text-muted-foreground">Node.js</dt>
-            <dd className="tabular-nums">{state.versions.node}</dd>
-          </dl>
-        )}
+        <DialogBody>
+          {state.open && state.error !== null && (
+            <p className="break-all text-destructive text-sm">
+              {t("library.loadFailed", { message: state.error.message })}
+            </p>
+          )}
+          {state.open && state.versions !== null && (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+              <dt className="text-muted-foreground">Electron</dt>
+              <dd className="tabular-nums">{state.versions.electron}</dd>
+              <dt className="text-muted-foreground">Chromium</dt>
+              <dd className="tabular-nums">{state.versions.chrome}</dd>
+              <dt className="text-muted-foreground">Node.js</dt>
+              <dd className="tabular-nums">{state.versions.node}</dd>
+            </dl>
+          )}
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

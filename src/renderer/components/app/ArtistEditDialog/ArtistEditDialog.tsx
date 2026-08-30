@@ -4,6 +4,7 @@ import { Stack, VStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -59,7 +60,7 @@ export const ArtistEditDialog = () => {
         {/* Mounted only while open so the native file input resets between
             edit sessions. */}
         {target !== null && (
-          <Stack className="max-h-[65vh] gap-6 overflow-y-auto">
+          <DialogBody className="max-h-[65vh] gap-6 overflow-y-auto">
             <VStack className="gap-4">
               {imageUrl !== null ? (
                 <img
@@ -112,7 +113,7 @@ export const ArtistEditDialog = () => {
                 {t("artistEdit.failed", { message: error.message })}
               </p>
             )}
-          </Stack>
+          </DialogBody>
         )}
         <DialogFooter>
           <Button variant="outline" onClick={close}>

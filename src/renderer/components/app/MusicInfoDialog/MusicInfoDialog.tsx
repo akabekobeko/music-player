@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import { VStack } from "@/components/app/stacks";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -79,15 +80,15 @@ export const MusicInfoDialog = () => {
           <DialogTitle>{t("musicInfo.title")}</DialogTitle>
         </DialogHeader>
         {music !== null && (
-          <div className="grid max-h-[65vh] content-start gap-4 overflow-y-auto">
+          <DialogBody className="max-h-[65vh] overflow-y-auto">
             {music.picturePath !== null ? (
               <img
                 src={toMediaFileUrl(music.picturePath)}
                 alt=""
-                className="size-32 justify-self-center rounded-md object-cover"
+                className="size-32 self-center rounded-md object-cover"
               />
             ) : (
-              <VStack className="size-32 justify-self-center rounded-md bg-muted">
+              <VStack className="size-32 shrink-0 self-center rounded-md bg-muted">
                 <Disc3 aria-hidden className="size-10 text-muted-foreground" />
               </VStack>
             )}
@@ -180,7 +181,7 @@ export const MusicInfoDialog = () => {
                 value={formatDateTime(music.updatedAt)}
               />
             </div>
-          </div>
+          </DialogBody>
         )}
       </DialogContent>
     </Dialog>
