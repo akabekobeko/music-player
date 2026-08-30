@@ -36,6 +36,16 @@ function DialogOverlay({
   );
 }
 
+/**
+ * Dialog popup. Deviation from stock shadcn: the popup is a padding-less
+ * column and each part pads itself — `DialogHeader` (`p-4`), `DialogBody`
+ * (`px-4 pb-4`), `DialogFooter` (`p-4`). A body made scrollable by the
+ * caller therefore puts its scrollbar at the popup's edge, over the body's
+ * own padding, instead of over the fields; and callers can draw full-width
+ * rules or bands without negative margins. The popup is capped to the
+ * viewport and clips its children so a scrolling body stays inside the
+ * rounded corners.
+ */
 function DialogContent({
   className,
   children,
@@ -50,7 +60,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100%-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         {...props}
@@ -80,7 +90,27 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex shrink-0 flex-col gap-2 p-4", className)}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Content between the header and the footer: a column with the stock 16px
+ * gap between its children and the popup's side / bottom padding. Make it
+ * scroll by adding e.g. `max-h-[65vh] overflow-y-auto` — the scrollbar
+ * then sits at the popup edge, over this padding. Hidden while empty so
+ * conditional content leaves no blank band between header and footer.
+ */
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-body"
+      className={cn(
+        "flex min-h-0 flex-col gap-4 px-4 pb-4 empty:hidden",
+        className,
+      )}
       {...props}
     />
   );
@@ -98,7 +128,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex shrink-0 flex-col-reverse gap-2 border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
@@ -144,6 +174,7 @@ function DialogDescription({
 
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,

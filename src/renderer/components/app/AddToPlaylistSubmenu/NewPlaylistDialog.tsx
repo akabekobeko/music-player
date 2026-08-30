@@ -2,6 +2,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -67,17 +68,19 @@ export const NewPlaylistDialog = () => {
         <DialogHeader>
           <DialogTitle>{t("playlist.nameDialogTitle")}</DialogTitle>
         </DialogHeader>
-        <Input
-          autoFocus
-          placeholder={t("playlist.defaultName")}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              void confirm();
-            }
-          }}
-        />
+        <DialogBody>
+          <Input
+            autoFocus
+            placeholder={t("playlist.defaultName")}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                void confirm();
+              }
+            }}
+          />
+        </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={cancel}>
             {t("common.cancel")}
