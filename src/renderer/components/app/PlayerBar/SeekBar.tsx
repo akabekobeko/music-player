@@ -48,7 +48,7 @@ export const SeekBar = ({
       </span>
       <div className="relative flex-1">
         <Slider
-          variant="fused"
+          appearance="fused"
           aria-label="Seek"
           min={0}
           max={Math.max(1, Math.floor(duration))}
