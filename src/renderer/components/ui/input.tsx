@@ -2,22 +2,11 @@ import { Input as InputPrimitive } from "@base-ui/react/input";
 import * as React from "react";
 
 import { cn } from "@/libs/utils";
-
-/**
- * Focus appearance variants. "normal" (default) lights the border up like
- * `CircleIconButton` / `InitialGrid`: the border turns `foreground` and a
- * blurred `box-shadow` glows around it, so it reads the same in both themes.
- * "basic" keeps the stock shadcn look (`ring` border plus a translucent
- * 3px ring).
- */
-type InputVariant = "normal" | "basic";
-
-const focusVariantClasses: Record<InputVariant, string> = {
-  normal:
-    "focus-visible:border-foreground focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
-  basic:
-    "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-};
+import {
+  type FieldVariant,
+  fieldFocusClasses,
+  fieldTransitionClasses,
+} from "./field-variant";
 
 /**
  * Whether the keydown is the Enter that confirms an IME composition (Japanese
@@ -45,7 +34,7 @@ export const isImeConfirmEnter = (event: {
  * draft while composing — otherwise React would snap the DOM back to the
  * unchanged prop and break the composition.
  *
- * `variant` picks the focus appearance ({@link InputVariant}).
+ * `variant` picks the focus appearance ({@link FieldVariant}).
  */
 function Input({
   className,
@@ -57,7 +46,7 @@ function Input({
   onCompositionEnd,
   onKeyDown,
   ...props
-}: React.ComponentProps<"input"> & { readonly variant?: InputVariant }) {
+}: React.ComponentProps<"input"> & { readonly variant?: FieldVariant }) {
   /** Text typed so far during a composition; `null` while not composing. */
   const [draft, setDraft] = React.useState<string | null>(null);
   const composing = draft !== null;
@@ -69,8 +58,9 @@ function Input({
       data-slot="input"
       data-variant={variant}
       className={cn(
-        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color,box-shadow] duration-200 outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
-        focusVariantClasses[variant],
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        fieldTransitionClasses,
+        fieldFocusClasses[variant],
         className,
       )}
       onChange={(event) => {
@@ -104,4 +94,4 @@ function Input({
   );
 }
 
-export { Input, type InputVariant };
+export { Input };
