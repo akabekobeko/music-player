@@ -1,6 +1,6 @@
 /**
  * Focus appearance variants shared by the form fields (`Input`,
- * `SelectTrigger`, `Textarea`). "normal" (default) lights the border up like
+ * `SelectTrigger`, `Textarea`, `Checkbox`). "normal" (default) lights the border up like
  * `CircleIconButton` / `InitialGrid`: the border turns `foreground` and a
  * blurred `box-shadow` glows around it, so it reads the same in both themes.
  * "basic" keeps the stock shadcn look (`ring` border plus a translucent
