@@ -17,6 +17,18 @@ export const fieldFocusClasses: Record<FieldVariant, string> = {
 };
 
 /**
+ * Hover classes per variant for the clickable fields (`SelectTrigger`,
+ * `Checkbox`) — text fields do not light up on hover. "normal" glows the
+ * same way as its focus, replacing any background change like
+ * `CircleIconButton`; "basic" adds nothing (the field keeps its stock hover).
+ */
+export const fieldHoverClasses: Record<FieldVariant, string> = {
+  normal:
+    "hover:border-foreground hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+  basic: "",
+};
+
+/**
  * Transition classes so the glow fades in and out at the buttons' speed;
  * replaces the stock `transition-colors`, which leaves `box-shadow` out.
  */
