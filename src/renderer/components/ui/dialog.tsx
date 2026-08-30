@@ -116,6 +116,14 @@ function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * Footer band with the action buttons right-aligned and all the same width
+ * as the widest one, so a row like Cancel / Apply reads as a pair told
+ * apart by colour rather than size. The equalising is pure CSS: the buttons
+ * sit in a shrink-to-fit grid whose columns are `minmax(0, 1fr)` — with no
+ * definite width to fill, every `fr` column resolves to the largest item's
+ * max-content width. Being a desktop app, the row never stacks.
+ */
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -128,17 +136,19 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex shrink-0 flex-col-reverse gap-2 border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex shrink-0 justify-end border-t bg-muted/50 p-4",
         className,
       )}
       {...props}
     >
-      {children}
-      {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
-          Close
-        </DialogPrimitive.Close>
-      )}
+      <div className="grid auto-cols-fr grid-flow-col gap-2">
+        {children}
+        {showCloseButton && (
+          <DialogPrimitive.Close render={<Button variant="outline" />}>
+            Close
+          </DialogPrimitive.Close>
+        )}
+      </div>
     </div>
   );
 }
