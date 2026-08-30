@@ -58,6 +58,7 @@ export const en: Dictionary = {
   "artist.selectPrompt": "Select an artist from the list.",
   "artist.initials": "Jump to initial",
   "artist.initialOther": "Other",
+  "artist.albumIndex": "Jump to album",
   "artistEdit.menu": "Artist Info",
   "artistEdit.title": "Artist Info",
   "artistEdit.imageFile": "Image file",

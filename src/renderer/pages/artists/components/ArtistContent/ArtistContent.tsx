@@ -30,6 +30,7 @@ export const ArtistContent = ({ artistName }: Props) => {
     playShuffled,
     playFrom,
     playAlbum,
+    scrollToAlbum,
     albumMusicsOf,
     playlistTargetsOf,
     removeFromLibrary,
@@ -41,10 +42,11 @@ export const ArtistContent = ({ artistName }: Props) => {
       <ArtistHeader
         artistName={artistName}
         artist={artist}
-        albumCount={groups.length}
+        groups={groups}
         playOrder={playOrder}
         onPlayAll={playAll}
         onPlayShuffled={playShuffled}
+        onJumpToAlbum={scrollToAlbum}
       />
 
       {musicsState.status === "error" && (

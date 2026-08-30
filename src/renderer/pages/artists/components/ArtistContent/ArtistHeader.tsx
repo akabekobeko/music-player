@@ -8,33 +8,39 @@ import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack, Spacer, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { artistEditStore } from "@/features/library/artistEditStore";
+import type { AlbumGroup } from "@/features/library/groupAlbums/types";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { AlbumIndexPicker } from "./AlbumIndexPicker";
 
 type Props = {
   readonly artistName: string;
   /** Library entry of the artist; `null` until loaded or for the unknown bucket. */
   readonly artist: Artist | null;
-  readonly albumCount: number;
+  /** The artist's albums as listed (after the song filter); the index grid. */
+  readonly groups: readonly AlbumGroup[];
   /** The artist's full play order; also the "Add to playlist" target. */
   readonly playOrder: readonly Music[];
   readonly onPlayAll: () => void;
   readonly onPlayShuffled: () => void;
+  /** Scroll the list to the album with this key (album index grid). */
+  readonly onJumpToAlbum: (albumKey: string) => void;
 };
 
 /**
  * Artist area: picture with a hover ▶ overlay, name and counts on the left;
- * shuffle / menu circles on the right. The right padding matches the list's
- * `px-6` plus the rows' `pr-2`, so the menu lines up with the album / track
- * menus. The empty name is the "Unknown Artist" bucket — it renders with the
+ * album index / shuffle / menu circles on the right. The right padding
+ * matches the list's `px-6` plus the rows' `pr-2`, so the menu lines up with
+ * the album / track menus. The empty name is the "Unknown Artist" bucket — it renders with the
  * localised label and cannot be edited.
  */
 export const ArtistHeader = ({
   artistName,
   artist,
-  albumCount,
+  groups,
   playOrder,
   onPlayAll,
   onPlayShuffled,
+  onJumpToAlbum,
 }: Props) => {
   const t = useT();
   const musicCount = playOrder.length;
@@ -71,13 +77,14 @@ export const ArtistHeader = ({
           />
         </h1>
         <p className="text-muted-foreground text-sm">
-          {t("artist.albumCount", { count: albumCount })}
+          {t("artist.albumCount", { count: groups.length })}
           {" · "}
           {t("artist.songs", { count: musicCount })}
         </p>
       </div>
       <Spacer />
       <HStack className="shrink-0">
+        <AlbumIndexPicker groups={groups} onSelect={onJumpToAlbum} />
         <CircleIconButton
           aria-label={t("player.shuffle")}
           title={t("player.shuffle")}
