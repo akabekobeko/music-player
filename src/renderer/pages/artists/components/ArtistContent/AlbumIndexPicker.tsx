@@ -61,7 +61,12 @@ export const AlbumIndexPicker = ({ groups, onSelect }: Props) => {
         <TooltipProvider delay={TOOLTIP_DELAY_MS}>
           <div
             className="grid max-h-80 gap-1 overflow-y-auto"
-            style={{ gridTemplateColumns: `repeat(${COLUMNS}, auto)` }}
+            // Only as many column tracks as there are tiles: the popover is
+            // content-sized, so empty tracks would leave their `gap` as a
+            // stray right margin when there are fewer albums than COLUMNS.
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(COLUMNS, groups.length)}, auto)`,
+            }}
           >
             {groups.map((group) => (
               <Tooltip key={group.key}>
