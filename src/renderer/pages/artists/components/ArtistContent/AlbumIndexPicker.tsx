@@ -35,8 +35,8 @@ const TOOLTIP_DELAY_MS = 700;
 
 /**
  * Artist header circle button (Lucide `LayoutGrid`) opening a popover of the
- * artist's album artworks — small rounded tiles the size of the artist list's
- * pictures — in a {@link COLUMNS}-column grid. Hovering a tile lights up its
+ * artist's album artworks — small rounded 40px tiles — in a
+ * {@link COLUMNS}-column grid. Hovering a tile lights up its
  * border with a blurred glow (same treatment as `InitialGrid`) and shows the
  * album name in a tooltip; clicking one jumps the content list to that album.
  */
@@ -76,7 +76,7 @@ export const AlbumIndexPicker = ({ groups, onSelect }: Props) => {
                       type="button"
                       aria-label={group.album}
                       className={cn(
-                        "flex size-8 items-center justify-center overflow-hidden rounded-md border border-transparent bg-muted transition-[border-color,box-shadow] duration-200 outline-hidden",
+                        "flex size-10 items-center justify-center overflow-hidden rounded-md border border-transparent bg-muted transition-[border-color,box-shadow] duration-200 outline-hidden",
                         "hover:border-foreground hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
                         "focus-visible:border-foreground focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
                       )}
@@ -94,7 +94,7 @@ export const AlbumIndexPicker = ({ groups, onSelect }: Props) => {
                       ) : (
                         <Disc3
                           aria-hidden
-                          className="size-4 text-muted-foreground"
+                          className="size-5 text-muted-foreground"
                         />
                       )}
                     </button>
