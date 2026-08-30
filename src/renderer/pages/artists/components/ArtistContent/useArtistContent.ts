@@ -13,6 +13,7 @@ import {
 } from "@/features/player/PlayerProvider";
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
+import { albumRowIndexOf } from "./albumRowIndexOf";
 import {
   applySelectionClick,
   EMPTY_SELECTION,
@@ -128,6 +129,18 @@ export const useArtistContent = (artistName: string) => {
     paddingEnd: 24,
   });
 
+  /**
+   * Scroll so the album's heading row sits at the top of the list (album
+   * index grid). A key that is not listed — hidden by the song filter — is
+   * ignored.
+   */
+  const scrollToAlbum = (albumKey: string): void => {
+    const index = albumRowIndexOf(rows, albumKey);
+    if (index >= 0) {
+      virtualizer.scrollToIndex(index, { align: "start" });
+    }
+  };
+
   return {
     artist,
     musics,
@@ -144,6 +157,7 @@ export const useArtistContent = (artistName: string) => {
     playShuffled,
     playFrom,
     playAlbum,
+    scrollToAlbum,
     albumMusicsOf,
     playlistTargetsOf,
     removeFromLibrary,
