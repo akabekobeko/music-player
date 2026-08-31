@@ -71,7 +71,7 @@ export const usePageContent = () => {
     setSelectedKey((key) => (key === album.albumKey ? null : album.albumKey));
   };
 
-  /** Queue exactly this album and play it from the top (hover ▶). */
+  /** Queue exactly this album and play it from the top (hover play button). */
   const playAlbum = async (album: AlbumSummary): Promise<void> => {
     const result = await window.mp.library.getMusicsByAlbum({
       albumKey: album.albumKey,

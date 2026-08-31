@@ -131,6 +131,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                   }
                   playing={playingStateOf(music)}
                   onPlay={() => playFrom(music)}
+                  onTogglePlayPause={() => commands.togglePlayPause()}
                   menu={
                     <RowMenu
                       items={[

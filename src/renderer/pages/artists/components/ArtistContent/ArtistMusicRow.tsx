@@ -16,6 +16,7 @@ type Props = {
   readonly playlistTargets: readonly Music[];
   readonly onSelect: (event: MouseEvent) => void;
   readonly onPlay: () => void;
+  readonly onTogglePlayPause: () => void;
   readonly onPlayNext: () => void;
   readonly onAddToQueue: () => void;
   readonly onRemoveFromLibrary: () => void;
@@ -31,6 +32,7 @@ export const ArtistMusicRow = ({
   playlistTargets,
   onSelect,
   onPlay,
+  onTogglePlayPause,
   onPlayNext,
   onAddToQueue,
   onRemoveFromLibrary,
@@ -44,6 +46,7 @@ export const ArtistMusicRow = ({
       selected={selected}
       onClick={onSelect}
       onPlay={onPlay}
+      onTogglePlayPause={onTogglePlayPause}
       menu={
         <RowMenu
           items={[

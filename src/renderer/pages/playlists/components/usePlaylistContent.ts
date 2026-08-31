@@ -9,6 +9,10 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
+import {
+  type RowPlayingState,
+  rowPlayingStateOf,
+} from "@/features/player/rowPlayingStateOf";
 import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
 import { replacePlaylistMusics } from "@/features/playlist/playlistCommands/replacePlaylistMusics";
 import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
@@ -155,13 +159,8 @@ export const usePlaylistContent = (routeId: string) => {
     void updatePlaylist({ id: ref.id, kind: "smart", rules });
   };
 
-  const playingStateOf = (music: Music): "playing" | "paused" | null => {
-    if (current === null || current.id !== music.id) {
-      return null;
-    }
-
-    return playbackState === "playing" ? "playing" : "paused";
-  };
+  const playingStateOf = (music: Music): RowPlayingState =>
+    rowPlayingStateOf(current, playbackState, music);
 
   return {
     ref,

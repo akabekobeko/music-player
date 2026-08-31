@@ -28,7 +28,7 @@ type Props = {
 };
 
 /**
- * The [⋯] dropdown shared by list headers, album sections, and track rows
+ * The [...] dropdown shared by list headers, album sections, and track rows
  * (Artist / Album / Playlist views). Promoted out of the Artist page when
  * the Album view became its second consumer.
  *

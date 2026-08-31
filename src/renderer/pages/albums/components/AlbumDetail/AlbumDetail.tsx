@@ -110,6 +110,7 @@ export const AlbumDetail = ({ album }: Props) => {
                   music={music}
                   playing={playingStateOf(music)}
                   onPlay={() => playFrom(music)}
+                  onTogglePlayPause={() => commands.togglePlayPause()}
                   menu={
                     <RowMenu
                       items={[
