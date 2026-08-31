@@ -7,6 +7,10 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
+import {
+  type RowPlayingState,
+  rowPlayingStateOf,
+} from "@/features/player/rowPlayingStateOf";
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 
@@ -52,13 +56,8 @@ export const useAlbumDetail = (albumKey: string) => {
     // refetches this panel automatically.
   };
 
-  const playingStateOf = (music: Music): "playing" | "paused" | null => {
-    if (current === null || current.id !== music.id) {
-      return null;
-    }
-
-    return playbackState === "playing" ? "playing" : "paused";
-  };
+  const playingStateOf = (music: Music): RowPlayingState =>
+    rowPlayingStateOf(current, playbackState, music);
 
   return {
     musics,
