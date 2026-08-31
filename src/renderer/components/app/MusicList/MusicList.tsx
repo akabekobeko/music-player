@@ -4,6 +4,7 @@ import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { AudioLinesIcon } from "@/components/app/Icons/AudioLinesIcon";
 import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
+import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
 import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
@@ -62,9 +63,9 @@ type Props = {
  *
  * The leading cell doubles as the playback indicator / control (Apple Music
  * style): the playing row shows animated equalizer bars, swapped for a pause
- * button on row hover; the paused row keeps its number and shows a resume play button
- * on row hover; any other row swaps its number for a play button on row
- * hover.
+ * button on row hover; the paused row shows the speaker, swapped for a
+ * resume play button on row hover; any other (stopped) row keeps its number,
+ * swapped for a play button on row hover.
  */
 export const MusicRow = ({
   music,
@@ -114,13 +115,13 @@ export const MusicRow = ({
           </>
         ) : playing === "paused" ? (
           <>
-            <span
+            <VolumeFillIcon
+              aria-hidden
               className={cn(
+                "ml-auto size-4 text-primary",
                 onTogglePlayPause !== undefined && "group-hover:hidden",
               )}
-            >
-              {number}
-            </span>
+            />
             {onTogglePlayPause !== undefined && (
               <button
                 type="button"
