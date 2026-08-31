@@ -2,6 +2,7 @@ import { useRef, useSyncExternalStore } from "react";
 import { Outlet } from "react-router";
 import { AboutDialog } from "@/components/app/AboutDialog/AboutDialog";
 import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
+import { AlbumInfoDialog } from "@/components/app/AlbumInfoDialog/AlbumInfoDialog";
 import { ArtistEditDialog } from "@/components/app/ArtistEditDialog/ArtistEditDialog";
 import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
 import { LibraryRemoveDialog } from "@/components/app/LibraryRemoveDialog/LibraryRemoveDialog";
@@ -84,6 +85,7 @@ export const AppLayout = () => {
       <NewPlaylistDialog />
       <ArtistEditDialog />
       <MusicInfoDialog />
+      <AlbumInfoDialog />
       <LibraryRemoveDialog />
       <AboutDialog />
       <Toaster />
