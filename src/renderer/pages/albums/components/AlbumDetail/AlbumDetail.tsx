@@ -8,6 +8,7 @@ import { MusicRow } from "@/components/app/MusicList/MusicList";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
+import { albumInfoStore } from "@/features/library/albumInfoStore";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { useAlbumDetail } from "./useAlbumDetail";
@@ -83,6 +84,12 @@ export const AlbumDetail = ({ album }: Props) => {
                 disabled: musics.length === 0,
               },
               <AddToPlaylistSubmenu key="playlist" musics={musics} />,
+              {
+                label: t("menu.albumInfo"),
+                icon: <NotepadText />,
+                onSelect: () => albumInfoStore.open(album),
+                separatorBefore: true,
+              },
             ]}
           />
         </HStack>
