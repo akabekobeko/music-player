@@ -60,7 +60,11 @@ export const AlbumIndexPicker = ({ groups, onSelect }: Props) => {
       <PopoverContent align="end" className="w-auto">
         <TooltipProvider delay={TOOLTIP_DELAY_MS}>
           <div
-            className="grid max-h-80 gap-1 overflow-y-auto"
+            // The scroll container clips the tiles' glow at its edges, so
+            // `p-1.5` (the glow's 6px reach: 5px blur + 1px spread) keeps it
+            // inside the clip box and the matching negative margin hands the
+            // space back to the popover padding, leaving the layout as is.
+            className="-m-1.5 grid max-h-80 gap-1 overflow-y-auto p-1.5"
             // Only as many column tracks as there are tiles: the popover is
             // content-sized, so empty tracks would leave their `gap` as a
             // stray right margin when there are fewer albums than COLUMNS.
@@ -77,8 +81,11 @@ export const AlbumIndexPicker = ({ groups, onSelect }: Props) => {
                       aria-label={group.album}
                       className={cn(
                         "flex size-10 items-center justify-center overflow-hidden rounded-md border border-transparent bg-muted transition-[border-color,box-shadow] duration-200 outline-hidden",
-                        "hover:border-foreground hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
-                        "focus-visible:border-foreground focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+                        // Later siblings paint over an earlier tile's glow
+                        // (opaque backgrounds, DOM order), so the lit tile
+                        // lifts itself above its neighbours.
+                        "hover:z-10 hover:border-foreground hover:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+                        "focus-visible:z-10 focus-visible:border-foreground focus-visible:shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
                       )}
                       onClick={() => {
                         setOpen(false);
