@@ -109,7 +109,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                       });
                     }}
                     onPlay={() => playFrom(row.music)}
-                    onPause={() => commands.togglePlayPause()}
+                    onTogglePlayPause={() => commands.togglePlayPause()}
                     onPlayNext={() => commands.insertNext([row.music])}
                     onAddToQueue={() => commands.appendToQueue([row.music])}
                     onRemoveFromLibrary={() => removeFromLibrary(row.music)}

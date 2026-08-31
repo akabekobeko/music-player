@@ -4,7 +4,6 @@ import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { AudioLinesIcon } from "@/components/app/Icons/AudioLinesIcon";
 import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
 import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
@@ -41,8 +40,11 @@ type Props = {
   readonly onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   /** Start playback from this track (hover ▶ / double-click). */
   readonly onPlay?: () => void;
-  /** Pause playback (the playing row's hover ⏸). */
-  readonly onPause?: () => void;
+  /**
+   * Toggle play / pause of the current track (the current row's hover ⏸ /
+   * ▶ — the ▶ resumes from the paused position, unlike `onPlay`).
+   */
+  readonly onTogglePlayPause?: () => void;
   /** Per-track menu slot (the [⋯] dropdown, #43). */
   readonly menu?: ReactNode;
 };
@@ -58,10 +60,11 @@ type Props = {
  * The title is a real `<button>` (click = select, double-click = play,
  * Enter = select), keeping the container itself non-interactive.
  *
- * The leading cell doubles as the playback indicator / control: the playing
- * row shows animated equalizer bars, swapped for a pause button on row hover;
- * the paused row keeps its number and shows the speaker on row hover; any
- * other row swaps its number for a play button on row hover.
+ * The leading cell doubles as the playback indicator / control (Apple Music
+ * style): the playing row shows animated equalizer bars, swapped for a pause
+ * button on row hover; the paused row keeps its number and shows a resume ▶
+ * on row hover; any other row swaps its number for a play button on row
+ * hover.
  */
 export const MusicRow = ({
   music,
@@ -71,7 +74,7 @@ export const MusicRow = ({
   selected = false,
   onClick,
   onPlay,
-  onPause,
+  onTogglePlayPause,
   menu,
 }: Props) => {
   const t = useT();
@@ -92,10 +95,10 @@ export const MusicRow = ({
             <AudioLinesIcon
               className={cn(
                 "ml-auto size-4 text-primary",
-                onPause !== undefined && "group-hover:hidden",
+                onTogglePlayPause !== undefined && "group-hover:hidden",
               )}
             />
-            {onPause !== undefined && (
+            {onTogglePlayPause !== undefined && (
               <button
                 type="button"
                 aria-label={t("player.pause")}
@@ -103,7 +106,7 @@ export const MusicRow = ({
                   "hidden size-4 items-center justify-center text-primary group-hover:inline-flex",
                   ICON_GLOW,
                 )}
-                onClick={onPause}
+                onClick={onTogglePlayPause}
               >
                 <PauseFillIcon className="size-4" />
               </button>
@@ -111,11 +114,26 @@ export const MusicRow = ({
           </>
         ) : playing === "paused" ? (
           <>
-            <span className="group-hover:hidden">{number}</span>
-            <VolumeFillIcon
-              aria-hidden
-              className="ml-auto hidden size-4 text-primary group-hover:block"
-            />
+            <span
+              className={cn(
+                onTogglePlayPause !== undefined && "group-hover:hidden",
+              )}
+            >
+              {number}
+            </span>
+            {onTogglePlayPause !== undefined && (
+              <button
+                type="button"
+                aria-label={t("player.play")}
+                className={cn(
+                  "hidden size-4 items-center justify-center text-primary group-hover:inline-flex",
+                  ICON_GLOW,
+                )}
+                onClick={onTogglePlayPause}
+              >
+                <PlayFillIcon className="size-4" />
+              </button>
+            )}
           </>
         ) : (
           <>
