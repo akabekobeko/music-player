@@ -179,6 +179,52 @@ html[data-platform="linux"] {
   --content-toolbar-inset-right: calc(var(--titlebar-safe-right) + 1rem);
 }
 
+/*
+ * Equalizer-bar keyframes for AudioLinesIcon (the playing-track indicator).
+ * Each set animates one bar of the lucide `audio-lines` glyph via
+ * `d: path(...)`; Chromium interpolates it because both endpoints share the
+ * same command structure (Electron-only renderer, so no fallback needed).
+ */
+@keyframes audio-line-2 {
+  0%,
+  100% {
+    d: path("M6 6v11");
+  }
+  50% {
+    d: path("M6 10v3");
+  }
+}
+
+@keyframes audio-line-3 {
+  0%,
+  100% {
+    d: path("M10 3v18");
+  }
+  50% {
+    d: path("M10 9v5");
+  }
+}
+
+@keyframes audio-line-4 {
+  0%,
+  100% {
+    d: path("M14 8v7");
+  }
+  50% {
+    d: path("M14 6v11");
+  }
+}
+
+@keyframes audio-line-5 {
+  0%,
+  100% {
+    d: path("M18 5v13");
+  }
+  50% {
+    d: path("M18 7v9");
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

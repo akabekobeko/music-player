@@ -1,14 +1,14 @@
-import { motion } from "motion/react";
 import type { SVGAttributes } from "react";
 
 type Props = SVGAttributes<SVGSVGElement>;
 
 /**
  * Equalizer bars (lucide `audio-lines`) pulsing while mounted — the
- * playing-track indicator. Adapted from lucide-animated
- * (https://lucide-animated.com/, MIT) without its hover-driven controls:
- * rows render this only while the track is playing, so the bars just loop
- * for the icon's lifetime. Decorative — `aria-hidden` is baked in.
+ * playing-track indicator. The bar shapes and timings come from
+ * lucide-animated (https://lucide-animated.com/, MIT), reimplemented as the
+ * pure-CSS `audio-line-*` keyframes in `App.css` so no animation library is
+ * needed; the `d` attributes double as the resting state. Decorative —
+ * `aria-hidden` is baked in.
  */
 export const AudioLinesIcon = ({ className, ...props }: Props) => (
   <svg
@@ -24,25 +24,21 @@ export const AudioLinesIcon = ({ className, ...props }: Props) => (
     {...props}
   >
     <path d="M2 10v3" />
-    <motion.path
-      animate={{ d: ["M6 6v11", "M6 10v3", "M6 6v11"] }}
+    <path
+      className="[animation:audio-line-2_1.5s_ease-in-out_infinite]"
       d="M6 6v11"
-      transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
     />
-    <motion.path
-      animate={{ d: ["M10 3v18", "M10 9v5", "M10 3v18"] }}
+    <path
+      className="[animation:audio-line-3_1s_ease-in-out_infinite]"
       d="M10 3v18"
-      transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
     />
-    <motion.path
-      animate={{ d: ["M14 8v7", "M14 6v11", "M14 8v7"] }}
+    <path
+      className="[animation:audio-line-4_0.8s_ease-in-out_infinite]"
       d="M14 8v7"
-      transition={{ duration: 0.8, repeat: Number.POSITIVE_INFINITY }}
     />
-    <motion.path
-      animate={{ d: ["M18 5v13", "M18 7v9", "M18 5v13"] }}
+    <path
+      className="[animation:audio-line-5_1.5s_ease-in-out_infinite]"
       d="M18 5v13"
-      transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
     />
     <path d="M22 10v3" />
   </svg>
