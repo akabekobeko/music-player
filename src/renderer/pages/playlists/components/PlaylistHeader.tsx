@@ -23,7 +23,7 @@ type Props = {
 };
 
 /**
- * Playlist area laid out like `ArtistHeader`: icon tile with a hover ▶
+ * Playlist area laid out like `ArtistHeader`: icon tile with a hover play
  * overlay, name and counts on the left; shuffle / menu circles on the
  * right. The right padding matches the list's `px-6` plus the rows' `pr-2`,
  * so the menu lines up with the track menus. Smart playlists expose

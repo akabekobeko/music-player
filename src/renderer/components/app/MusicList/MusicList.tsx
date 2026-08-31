@@ -38,14 +38,14 @@ type Props = {
   readonly selected?: boolean;
   /** Selection handler (click; Shift / Cmd arrive via the event). */
   readonly onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-  /** Start playback from this track (hover ▶ / double-click). */
+  /** Start playback from this track (hover play button / double-click). */
   readonly onPlay?: () => void;
   /**
-   * Toggle play / pause of the current track (the current row's hover ⏸ /
-   * ▶ — the ▶ resumes from the paused position, unlike `onPlay`).
+   * Toggle play / pause of the current track (the current row's hover pause /
+   * play button — the play button resumes from the paused position, unlike `onPlay`).
    */
   readonly onTogglePlayPause?: () => void;
-  /** Per-track menu slot (the [⋯] dropdown, #43). */
+  /** Per-track menu slot (the [...] dropdown, #43). */
   readonly menu?: ReactNode;
 };
 
@@ -62,7 +62,7 @@ type Props = {
  *
  * The leading cell doubles as the playback indicator / control (Apple Music
  * style): the playing row shows animated equalizer bars, swapped for a pause
- * button on row hover; the paused row keeps its number and shows a resume ▶
+ * button on row hover; the paused row keeps its number and shows a resume play button
  * on row hover; any other row swaps its number for a play button on row
  * hover.
  */

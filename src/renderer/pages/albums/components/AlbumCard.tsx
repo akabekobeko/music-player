@@ -25,7 +25,7 @@ type Props = {
 
 /**
  * One album card: artwork (click = toggle the detail pane) with a hover
- * ▶ overlay, then name / artist / year. Right-click opens the context menu
+ * play overlay, then name / artist / year. Right-click opens the context menu
  * with "Remove from library" (confirmation via `LibraryRemoveDialog`).
  */
 export const AlbumCard = ({
