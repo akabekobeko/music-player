@@ -158,7 +158,7 @@ src/renderer/
 │   └── settings/
 ├── components/                  # 複数ページから参照されるコンポーネントのみ
 │   ├── ui/                      # shadcn 生成プリミティブ
-│   └── app/<Name>/              # AppLayout / Sidebar / PlayerBar / MusicList (曲リスト共通) など
+│   └── app/<Name>/              # AppLayout / Sidebar / PlayerBar / MusicRow (曲リスト行共通) など
 ├── features/                    # 横断的な機能・ロジックのみ
 │   ├── player/                  # PlayerProvider, reducer, useAudioPlayer, キュー導出
 │   ├── audio/                   # オーディオエンジン (React 非依存)

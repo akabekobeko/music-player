@@ -3,7 +3,7 @@ import { ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
 import type { MouseEvent } from "react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { MusicRow } from "@/components/app/MusicList/MusicList";
+import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
