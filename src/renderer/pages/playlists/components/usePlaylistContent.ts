@@ -1,7 +1,7 @@
 import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState, useSyncExternalStore } from "react";
-import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicList/MusicList";
+import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicRow/MusicRow";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {

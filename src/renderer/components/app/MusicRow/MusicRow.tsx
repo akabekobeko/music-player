@@ -1,25 +1,15 @@
 import type { Music } from "@mp/ipc";
 import type { MouseEvent, ReactNode } from "react";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { AudioLinesIcon } from "@/components/app/Icons/AudioLinesIcon";
-import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
-import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
+import { PausedButton } from "@/components/app/MusicRow/PausedButton";
+import { PlayingButton } from "@/components/app/MusicRow/PlayingButton";
+import { TrackNumberButton } from "@/components/app/MusicRow/TrackNumberButton";
 import { HStack } from "@/components/app/stacks";
-import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 
 /** Row height in px — shared with virtualizers embedding these rows. */
 export const MUSIC_ROW_HEIGHT = 36;
-
-/**
- * Hovering the icon itself lights it up: a blurred `drop-shadow` glow in the
- * icon's own colour, the bare-icon counterpart of the boxed variants'
- * `box-shadow` glow in `components/ui/button.tsx`.
- */
-const ICON_GLOW =
-  "transition-[filter] hover:drop-shadow-[0_0_3px_color-mix(in_oklch,currentColor_60%,transparent)]";
 
 type Props = {
   readonly music: Music;
@@ -62,10 +52,9 @@ type Props = {
  * Enter = select), keeping the container itself non-interactive.
  *
  * The leading cell doubles as the playback indicator / control (Apple Music
- * style): the playing row shows animated equalizer bars, swapped for a pause
- * button on row hover; the paused row shows the speaker, swapped for a
- * resume play button on row hover; any other (stopped) row keeps its number,
- * swapped for a play button on row hover.
+ * style), picked by `playing`: `PlayingButton` for the playing row,
+ * `PausedButton` for the paused row, `TrackNumberButton` for any other
+ * (stopped) row.
  */
 export const MusicRow = ({
   music,
@@ -78,7 +67,6 @@ export const MusicRow = ({
   onTogglePlayPause,
   menu,
 }: Props) => {
-  const t = useT();
   const number =
     ordinal !== undefined ? ordinal : music.track > 0 ? music.track : "-";
 
@@ -90,71 +78,17 @@ export const MusicRow = ({
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       )}
     >
-      <span className="relative w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
+      <span className="flex w-7 shrink-0 items-center justify-end font-mono text-muted-foreground text-xs tabular-nums">
         {playing === "playing" ? (
-          <>
-            <AudioLinesIcon
-              className={cn(
-                "ml-auto size-4 text-primary",
-                onTogglePlayPause !== undefined && "group-hover:hidden",
-              )}
-            />
-            {onTogglePlayPause !== undefined && (
-              <button
-                type="button"
-                aria-label={t("player.pause")}
-                className={cn(
-                  "hidden size-4 items-center justify-center text-primary group-hover:inline-flex",
-                  ICON_GLOW,
-                )}
-                onClick={onTogglePlayPause}
-              >
-                <PauseFillIcon className="size-4" />
-              </button>
-            )}
-          </>
+          <PlayingButton onPause={onTogglePlayPause} />
         ) : playing === "paused" ? (
-          <>
-            <VolumeFillIcon
-              aria-hidden
-              className={cn(
-                "ml-auto size-4 text-primary",
-                onTogglePlayPause !== undefined && "group-hover:hidden",
-              )}
-            />
-            {onTogglePlayPause !== undefined && (
-              <button
-                type="button"
-                aria-label={t("player.play")}
-                className={cn(
-                  "hidden size-4 items-center justify-center text-primary group-hover:inline-flex",
-                  ICON_GLOW,
-                )}
-                onClick={onTogglePlayPause}
-              >
-                <PlayFillIcon className="size-4" />
-              </button>
-            )}
-          </>
+          <PausedButton onResume={onTogglePlayPause} />
         ) : (
-          <>
-            <span className={cn(onPlay !== undefined && "group-hover:hidden")}>
-              {number}
-            </span>
-            {onPlay !== undefined && (
-              <button
-                type="button"
-                aria-label={music.title}
-                className={cn(
-                  "hidden size-4 items-center justify-center group-hover:inline-flex",
-                  ICON_GLOW,
-                )}
-                onClick={onPlay}
-              >
-                <PlayFillIcon className="size-4" />
-              </button>
-            )}
-          </>
+          <TrackNumberButton
+            number={number}
+            title={music.title}
+            onPlay={onPlay}
+          />
         )}
       </span>
       <button
