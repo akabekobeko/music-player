@@ -90,7 +90,7 @@ export const MusicRow = ({
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       )}
     >
-      <span className="relative w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
+      <span className="relative mr-1 w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
         {playing === "playing" ? (
           <>
             <AudioLinesIcon
