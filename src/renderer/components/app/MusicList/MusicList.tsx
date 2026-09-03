@@ -90,7 +90,7 @@ export const MusicRow = ({
         selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       )}
     >
-      <span className="relative mr-1 w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
+      <span className="relative w-7 shrink-0 text-right font-mono text-muted-foreground text-xs tabular-nums">
         {playing === "playing" ? (
           <>
             <AudioLinesIcon
@@ -159,7 +159,7 @@ export const MusicRow = ({
       </span>
       <button
         type="button"
-        className="min-w-0 flex-1 cursor-default text-left outline-none"
+        className="min-w-0 flex-1 cursor-default pl-1 text-left outline-none"
         onClick={onClick}
         onDoubleClick={onPlay}
       >
