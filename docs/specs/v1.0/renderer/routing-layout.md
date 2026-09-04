@@ -81,6 +81,8 @@ VS Code / Slack のクロスプラットフォーム UI と、macOS 版 Apple Mu
 | Windows | 左端にアプリケーションメニューボタン (`Menu`、[システムメニュー](../cross-platform/system-menu.md))、右端にサイドバー開閉・インポート・Settings |
 | Linux | Windows と同じ (アプリケーションメニューは全プラットフォームでインストールされるためメニューボタンも表示) |
 
+アイコンの上下位置は帯の中央ではなく OS のウィンドウコントロールの中心線 (`--toolbar-controls-center-y`) にそろえます。macOS の `hiddenInset` はトラフィックライトを上端から 11px の margin とボタン枠 16px で描き、画面上の円の中心線は 18px (実機で目視確認)、Windows / Linux の WCO は帯と同じ高さなので帯の中央 (20px) です。
+
 **コンテンツ領域側** — 右端に、ビューごとの曲絞り込みテキストボックスを置きます ([各ビュー仕様](../features/))。右の余白は `--content-toolbar-inset-right` で、macOS では小さな余白 (`0.375rem`)、Windows / Linux では WCO セーフエリア + 1 文字分 (`1rem`) の余白を取ります。
 
 - Artists / Albums / Playlists の各ルートで表示し、Settings では非表示
