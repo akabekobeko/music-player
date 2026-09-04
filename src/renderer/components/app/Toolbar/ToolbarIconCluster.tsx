@@ -34,6 +34,12 @@ type ToolbarIconClusterProps = {
  * itself — keeps its screen position across a toggle:
  * - macOS: traffic-lights safe area on the left, then the icons.
  * - Windows / Linux: menu button on the left edge, the rest on the right.
+ *
+ * Vertically the buttons are centred on the OS window controls rather than
+ * on the band: the cluster hugs the top of the band and is twice
+ * `--toolbar-controls-center-y` tall, so its centre line is the controls'
+ * centre line (two pixels above the band's centre on macOS, identical on
+ * Windows / Linux where the overlay spans the whole band).
  */
 export const ToolbarIconCluster = ({
   className,
@@ -45,7 +51,7 @@ export const ToolbarIconCluster = ({
     <TooltipProvider delay={TOOLTIP_DELAY_MS}>
       <div
         className={cn(
-          "flex h-full items-center gap-0.5 pr-1.5 pl-[calc(var(--titlebar-safe-left)+0.375rem)]",
+          "flex h-[calc(var(--toolbar-controls-center-y)*2)] items-center gap-0.5 self-start pr-1.5 pl-[calc(var(--titlebar-safe-left)+0.375rem)]",
           className,
         )}
         style={style}
