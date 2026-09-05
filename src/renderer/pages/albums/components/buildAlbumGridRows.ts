@@ -13,11 +13,7 @@ import type { AlbumSummary } from "@mp/ipc";
 export const buildAlbumGridRows = (
   albums: readonly AlbumSummary[],
   columns: number,
-): (readonly AlbumSummary[])[] => {
-  const rows: (readonly AlbumSummary[])[] = [];
-  for (let start = 0; start < albums.length; start += columns) {
-    rows.push(albums.slice(start, start + columns));
-  }
-
-  return rows;
-};
+): (readonly AlbumSummary[])[] =>
+  Array.from({ length: Math.ceil(albums.length / columns) }, (_, row) =>
+    albums.slice(row * columns, (row + 1) * columns),
+  );

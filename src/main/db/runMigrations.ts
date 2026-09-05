@@ -26,11 +26,10 @@ export const runMigrations = (
     throw new DatabaseDowngradeError(current, migrationList.length);
   }
 
-  for (let version = current + 1; version <= migrationList.length; version++) {
-    const sql = migrationList[version - 1];
-    if (sql === undefined) {
-      break;
-    }
+  // Pending scripts only; the offset within that tail maps back to the
+  // schema version the script upgrades the file to.
+  for (const [offset, sql] of migrationList.slice(current).entries()) {
+    const version = current + offset + 1;
 
     db.exec("BEGIN");
     try {

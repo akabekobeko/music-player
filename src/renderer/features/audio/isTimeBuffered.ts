@@ -23,15 +23,11 @@ export const isTimeBuffered = (
   ranges: BufferedRanges,
   timeSec: number,
   endSlackSec = 0.25,
-): boolean => {
-  for (let index = 0; index < ranges.length; index += 1) {
-    if (
+): boolean =>
+  // `ranges` is index-addressed rather than iterable, so walk a same-length
+  // array to reach every range.
+  Array.from({ length: ranges.length }).some(
+    (_, index) =>
       timeSec >= ranges.start(index) &&
-      timeSec <= ranges.end(index) - endSlackSec
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
+      timeSec <= ranges.end(index) - endSlackSec,
+  );

@@ -104,15 +104,16 @@ export const runImport = async (
   });
   const files = await deps.expandAudioPaths(paths);
 
-  let imported = 0;
-  let updated = 0;
+  /** Upsert outcomes of every committed music; counted into the summary. */
+  const outcomes: Array<"inserted" | "updated"> = [];
+  /** Files whose extraction ran (successfully or not) — the progress count. */
+  const processed: string[] = [];
   const failed: Array<{ filePath: string; error: IpcError }> = [];
-  let processed = 0;
 
   const pushProgress = (filePath: string): void => {
     events.onProgress({
       phase: "importing",
-      current: processed,
+      current: processed.length,
       total: files.length,
       filePath,
       errors: failed.length,
@@ -121,12 +122,16 @@ export const runImport = async (
 
   pushProgress("");
 
-  for (
-    let batchStart = 0;
-    batchStart < files.length && !events.isCancelled();
-    batchStart += IMPORT_BATCH_SIZE
-  ) {
-    const batch = files.slice(batchStart, batchStart + IMPORT_BATCH_SIZE);
+  const batches = Array.from(
+    { length: Math.ceil(files.length / IMPORT_BATCH_SIZE) },
+    (_, index) =>
+      files.slice(index * IMPORT_BATCH_SIZE, (index + 1) * IMPORT_BATCH_SIZE),
+  );
+
+  for (const batch of batches) {
+    if (events.isCancelled()) {
+      break;
+    }
 
     // 1. Parallel metadata extraction. The cancel flag is re-checked before
     //    every file so a running batch drains quickly after a cancel.
@@ -196,11 +201,7 @@ export const runImport = async (
             );
           }
 
-          if (outcome === "inserted") {
-            imported += 1;
-          } else {
-            updated += 1;
-          }
+          outcomes.push(outcome);
         } catch (error) {
           failed.push({ filePath: result.filePath, error: toIpcError(error) });
         }
@@ -217,7 +218,7 @@ export const runImport = async (
         failed.push({ filePath: result.filePath, error: result.error });
       }
       if (result.ok !== null) {
-        processed += 1;
+        processed.push(result.filePath);
       }
     }
 
@@ -229,5 +230,9 @@ export const runImport = async (
     });
   }
 
-  return { imported, updated, failed };
+  return {
+    imported: outcomes.filter((outcome) => outcome === "inserted").length,
+    updated: outcomes.filter((outcome) => outcome === "updated").length,
+    failed,
+  };
 };
