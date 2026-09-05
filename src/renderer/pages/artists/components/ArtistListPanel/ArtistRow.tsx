@@ -38,7 +38,7 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
     <button
       type="button"
       className={cn(
-        "absolute top-0 left-0 flex w-full items-center gap-2 px-3 text-left text-sm",
+        "absolute top-0 left-0 flex w-full items-center gap-3 px-3 text-left text-sm",
         selected
           ? "bg-sidebar-accent text-sidebar-accent-foreground"
           : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50",
