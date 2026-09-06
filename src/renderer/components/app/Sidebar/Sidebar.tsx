@@ -22,13 +22,23 @@ const NAV_ITEMS = [
   { section: "playlists", label: "Playlists", Icon: ListMusic },
 ] as const;
 
-/** Classes for the horizontal mode-switch tabs (styled after audio-player). */
+/**
+ * Classes for the horizontal mode-switch tabs. Both states light the border
+ * up with a blurred glow like `CircleIconButton` / `InitialGrid`, and the
+ * glow strength is set by the border thickness: hover adds a 1px spread ring
+ * on top of the border (the `CircleIconButton` treatment), so it reads as a
+ * thicker, stronger lamp; the active tab keeps only the plain border plus
+ * the blur (the `InitialGrid` selected treatment), so it stays visible once
+ * the pointer leaves without competing with the hovered tab.
+ */
 const tabClassName = (isActive: boolean): string =>
   cn(
-    "flex items-center justify-center rounded-md py-1.5 transition-all duration-400 ease-in-out",
+    "flex items-center justify-center rounded-md border border-transparent py-1.5 transition-[color,background-color,border-color,box-shadow] duration-200",
+    "hover:border-foreground hover:text-foreground",
+    "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     isActive
-      ? "bg-background text-foreground shadow-sm"
-      : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
+      ? "border-foreground bg-background text-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      : "text-muted-foreground",
   );
 
 /**
