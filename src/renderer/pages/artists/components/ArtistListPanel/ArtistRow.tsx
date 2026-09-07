@@ -33,17 +33,22 @@ type Props = {
  * border plus the blur (and its accent background), so it stays visible once
  * the pointer leaves without competing with the hovered row. Rows abut each
  * other inside the scroll area, so the button is inset from the panel edges
- * (`inset-x-2`) to leave room for the glow, and the hovered row is raised
- * above its neighbours so its glow is not covered by the next row's
- * background.
+ * (`inset-x-2`) to leave room for the glow. Rows and initial headings are
+ * absolutely positioned siblings painted in list order, so a glow would be
+ * covered by whatever opaque neighbour follows it: the next row's accent
+ * background, or the opaque `InitialHeading` right below the row. Both lit
+ * states are therefore raised above the plain rows and headings (selected
+ * `z-[1]`, hover `z-[2]` so it also wins over a selected neighbour), while
+ * staying below the pinned heading copy (`z-10` in `ArtistListRows`) that
+ * rows must keep sliding under.
  */
 const rowClassName = (selected: boolean): string =>
   cn(
     "absolute inset-x-2 top-0 flex items-center gap-3 rounded-md border border-transparent px-2 text-left text-sm transition-[color,background-color,border-color,box-shadow] duration-200",
-    "hover:z-10 hover:border-foreground hover:text-sidebar-foreground",
+    "hover:z-[2] hover:border-foreground hover:text-sidebar-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     selected
-      ? "border-foreground bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      ? "z-[1] border-foreground bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
       : "text-sidebar-foreground/80",
   );
 
