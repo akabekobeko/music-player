@@ -26,10 +26,33 @@ type Props = {
 };
 
 /**
+ * Classes for the row button. Both states light the border up with a
+ * blurred glow like the `Sidebar` tabs, and the glow strength is set by the
+ * border thickness: hover adds a 1px spread ring on top of the border so it
+ * reads as a thicker, stronger lamp; the selected row keeps only the plain
+ * border plus the blur (and its accent background), so it stays visible once
+ * the pointer leaves without competing with the hovered row. Rows abut each
+ * other inside the scroll area, so the button is inset from the panel edges
+ * (`inset-x-2`, with the inner padding reduced to keep the picture where it
+ * was) to leave room for the glow, and the hovered row is raised above its
+ * neighbours so its glow is not covered by the next row's background.
+ */
+const rowClassName = (selected: boolean): string =>
+  cn(
+    "absolute inset-x-2 top-0 flex items-center gap-3 rounded-md border border-transparent px-1 text-left text-sm transition-[color,background-color,border-color,box-shadow] duration-200",
+    "hover:z-10 hover:border-foreground hover:text-sidebar-foreground",
+    "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+    selected
+      ? "border-foreground bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      : "text-sidebar-foreground/80",
+  );
+
+/**
  * One virtualised artist row (picture, name, song count) with its context
- * menu. Editing keys off the artist name; the empty-name bucket ("Unknown
- * Artist") cannot hold a picture, so no edit there — removal applies to
- * every bucket.
+ * menu. Hovering and selection light the row border up with a glow (see
+ * `rowClassName`). Editing keys off the artist name; the empty-name bucket
+ * ("Unknown Artist") cannot hold a picture, so no edit there — removal
+ * applies to every bucket.
  */
 export const ArtistRow = ({ artist, selected, top, height }: Props) => {
   const t = useT();
@@ -37,12 +60,7 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
   const row = (
     <button
       type="button"
-      className={cn(
-        "absolute top-0 left-0 flex w-full items-center gap-3 px-3 text-left text-sm",
-        selected
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50",
-      )}
+      className={rowClassName(selected)}
       style={{ height, transform: `translateY(${top}px)` }}
       onClick={() => {
         navigate(artistPathOf(artist.name));
