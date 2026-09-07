@@ -33,13 +33,13 @@ type Props = {
  * border plus the blur (and its accent background), so it stays visible once
  * the pointer leaves without competing with the hovered row. Rows abut each
  * other inside the scroll area, so the button is inset from the panel edges
- * (`inset-x-2`, with the inner padding reduced to keep the picture where it
- * was) to leave room for the glow, and the hovered row is raised above its
- * neighbours so its glow is not covered by the next row's background.
+ * (`inset-x-2`) to leave room for the glow, and the hovered row is raised
+ * above its neighbours so its glow is not covered by the next row's
+ * background.
  */
 const rowClassName = (selected: boolean): string =>
   cn(
-    "absolute inset-x-2 top-0 flex items-center gap-3 rounded-md border border-transparent px-1 text-left text-sm transition-[color,background-color,border-color,box-shadow] duration-200",
+    "absolute inset-x-2 top-0 flex items-center gap-3 rounded-md border border-transparent px-2 text-left text-sm transition-[color,background-color,border-color,box-shadow] duration-200",
     "hover:z-10 hover:border-foreground hover:text-sidebar-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     selected
