@@ -34,6 +34,7 @@ export const PageContent = () => {
     contentRef,
     virtualizer,
     selectedAlbum,
+    activeAlbumKey,
     toggleSelected,
     playAlbum,
   } = usePageContent();
@@ -85,6 +86,7 @@ export const PageContent = () => {
                           album={album}
                           width={layout.cardWidth}
                           expanded={album.albumKey === selectedAlbum?.albumKey}
+                          playing={album.albumKey === activeAlbumKey}
                           onToggle={() => toggleSelected(album)}
                           onPlay={() => void playAlbum(album)}
                         />

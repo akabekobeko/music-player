@@ -3,7 +3,12 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
-import { usePlayerCommands } from "@/features/player/PlayerProvider";
+import { activeAlbumKeyOf } from "@/features/player/activeAlbumKeyOf";
+import {
+  usePlaybackState,
+  usePlayerCommands,
+  usePlayerState,
+} from "@/features/player/PlayerProvider";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { albumFilterStore } from "./albumFilterStore";
 import { buildAlbumGridRows } from "./buildAlbumGridRows";
@@ -32,6 +37,8 @@ export const usePageContent = () => {
     queryKeys.albums(musicTitle === "" ? applied : { ...applied, musicTitle }),
   );
   const commands = usePlayerCommands();
+  const { current } = usePlayerState();
+  const playbackState = usePlaybackState();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   // Width comes from the inner content element, not the scroll container:
   // clientWidth of the container includes its padding, and columns computed
@@ -49,6 +56,8 @@ export const usePageContent = () => {
   // while selected) simply closes the detail pane.
   const selectedAlbum =
     albums.find((album) => album.albumKey === selectedKey) ?? null;
+  /** `albumKey` of the playing / paused track's album; lights its card up. */
+  const activeAlbumKey = activeAlbumKeyOf(current, playbackState);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -97,6 +106,7 @@ export const usePageContent = () => {
     contentRef,
     virtualizer,
     selectedAlbum,
+    activeAlbumKey,
     toggleSelected,
     playAlbum,
   };

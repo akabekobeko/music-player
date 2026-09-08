@@ -1,5 +1,5 @@
 import type { AlbumSummary } from "@mp/ipc";
-import { ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
+import { Disc3, ListEnd, ListStart, NotepadText, Trash2 } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
@@ -11,6 +11,7 @@ import { useT } from "@/features/i18n/useT";
 import { albumInfoStore } from "@/features/library/albumInfoStore";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useAlbumDetail } from "./useAlbumDetail";
 
 type Props = {
@@ -19,9 +20,11 @@ type Props = {
 
 /**
  * Album detail filling the resizable pane below the grid
- * (`docs/specs/v1.0/features/album-view.md`): a fixed header (album info,
- * Play / menu circles) over the scrollable track list via the shared
- * `MusicRow`. The header's right padding matches the list's `px-6` plus the
+ * (`docs/specs/v1.0/features/album-view.md`): a fixed header (artwork,
+ * album info, Play / menu circles) over the scrollable track list via the
+ * shared `MusicRow`. The artwork identifies the expanded album, since the
+ * grid's glow is reserved for the playing one.
+ * The header's right padding matches the list's `px-6` plus the
  * rows' `px-2`, so the menu circle lines up with the track menus (as in the
  * Artist view). Each playback action queues
  * **only this album's tracks** — unlike the Artist view, the filter context
@@ -43,6 +46,19 @@ export const AlbumDetail = ({ album }: Props) => {
   return (
     <div className="flex h-full flex-col">
       <header className="flex items-center gap-3 border-b py-3 pr-8 pl-6">
+        <div className="size-12 shrink-0 overflow-hidden rounded-md bg-muted">
+          {album.picturePath !== null ? (
+            <img
+              src={toMediaFileUrl(album.picturePath)}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : (
+            <span className="flex size-full items-center justify-center">
+              <Disc3 aria-hidden className="size-6 text-muted-foreground" />
+            </span>
+          )}
+        </div>
         <div className="min-w-0 flex-1">
           <h2 className="font-medium text-base">
             <EllipsisText text={album.album} />

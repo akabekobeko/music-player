@@ -6,6 +6,7 @@ import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
 import { useArtistMusics } from "@/features/library/useArtistMusics";
 import { useArtists } from "@/features/library/useArtists";
+import { activeAlbumKeyOf } from "@/features/player/activeAlbumKeyOf";
 import {
   usePlaybackState,
   usePlayerCommands,
@@ -104,6 +105,9 @@ export const useArtistContent = (artistName: string) => {
   const playingStateOf = (music: Music): RowPlayingState =>
     rowPlayingStateOf(current, playbackState, music);
 
+  /** `AlbumGroup.key` of the playing / paused track's album; lights its heading up. */
+  const activeAlbumKey = activeAlbumKeyOf(current, playbackState);
+
   /** Apply one row click (plain / Shift / Cmd-Ctrl) to the selection. */
   const selectRow = (
     musicId: number,
@@ -161,5 +165,6 @@ export const useArtistContent = (artistName: string) => {
     playlistTargetsOf,
     removeFromLibrary,
     playingStateOf,
+    activeAlbumKey,
   };
 };

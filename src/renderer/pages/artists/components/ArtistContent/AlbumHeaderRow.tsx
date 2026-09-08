@@ -17,31 +17,41 @@ type Props = {
   readonly group: AlbumGroup;
   /** The album's tracks in disc / track order (menu targets). */
   readonly musics: readonly Music[];
+  /** Whether the album contains the playing / paused track. */
+  readonly playing: boolean;
   readonly onPlay: () => void;
   readonly onAddToQueue: () => void;
 };
 
 /**
- * Classes for the artwork frame. Hovering it lights the border up with a
- * blurred glow like the `AlbumCard` artwork: the plain border plus a 1px
- * spread ring, so it reads as a thick, strong lamp. The frame keeps its own
+ * Classes for the artwork frame. Both states light the border up with a
+ * blurred glow like the `AlbumCard` artwork, and the glow strength is set by
+ * the border thickness: hovering adds a 1px spread ring on top of the border
+ * so it reads as a thick, strong lamp; the playing / paused album keeps only
+ * the plain border plus the blur, so it stays visible once the pointer
+ * leaves without competing with the hovered frame. The frame keeps its own
  * `size-28` so the border does not grow the row; the picture fills it.
  */
-const artworkClassName = cn(
-  "group relative size-28 shrink-0 overflow-hidden rounded-md border border-transparent transition-[border-color,box-shadow] duration-200",
-  "hover:border-foreground",
-  "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
-);
+const artworkClassName = (playing: boolean): string =>
+  cn(
+    "group relative size-28 shrink-0 overflow-hidden rounded-md border border-transparent transition-[border-color,box-shadow] duration-200",
+    "hover:border-foreground",
+    "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+    playing &&
+      "border-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+  );
 
 /**
  * Album area: the heading row of one album (artwork, title, summary line,
  * album menu) that precedes its tracks in the virtualised list. Hovering the
- * artwork lights its border up with a glow (see `artworkClassName`) and
- * reveals a play overlay, as the artist picture in `ArtistHeader` does.
+ * artwork, and playing / pausing one of the album's tracks, light its border
+ * up with a glow (see `artworkClassName`); hovering also reveals a play
+ * overlay, as the artist picture in `ArtistHeader` does.
  */
 export const AlbumHeaderRow = ({
   group,
   musics,
+  playing,
   onPlay,
   onAddToQueue,
 }: Props) => {
@@ -49,7 +59,7 @@ export const AlbumHeaderRow = ({
 
   return (
     <HStack className="items-end gap-4 pt-6 pr-2 pb-4">
-      <div className={artworkClassName}>
+      <div className={artworkClassName(playing)}>
         {group.picturePath !== null ? (
           <img
             src={toMediaFileUrl(group.picturePath)}

@@ -1,5 +1,6 @@
 import type { Music } from "@mp/ipc";
 import { albumArtistOf } from "./albumArtistOf";
+import { albumKeyOf } from "./albumKeyOf";
 import type { AlbumGroup } from "./types";
 
 /**
@@ -21,9 +22,7 @@ import type { AlbumGroup } from "./types";
 export const groupAlbums = (musics: readonly Music[]): AlbumGroup[] => {
   const byKey = new Map<string, Music[]>();
   for (const music of musics) {
-    // NUL separator: cannot occur in tag strings, so ("A B", "C") and
-    // ("A", "B C") can never collide.
-    const key = `${albumArtistOf(music)}\u0000${music.album}`;
+    const key = albumKeyOf(music);
     const bucket = byKey.get(key);
     if (bucket === undefined) {
       byKey.set(key, [music]);

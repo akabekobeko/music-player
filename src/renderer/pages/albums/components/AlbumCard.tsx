@@ -19,6 +19,8 @@ type Props = {
   readonly width: number;
   /** Whether this card's album is shown in the detail pane below the grid. */
   readonly expanded: boolean;
+  /** Whether this card's album contains the playing / paused track. */
+  readonly playing: boolean;
   readonly onToggle: () => void;
   readonly onPlay: () => void;
 };
@@ -27,23 +29,26 @@ type Props = {
  * Classes for the artwork button. Both states light the border up with a
  * blurred glow like the `Sidebar` tabs, and the glow strength is set by the
  * border thickness: hovering the card adds a 1px spread ring on top of the
- * border so it reads as a thicker, stronger lamp; the expanded card keeps
- * only the plain border plus the blur, so it stays visible once the pointer
- * leaves without competing with the hovered card.
+ * border so it reads as a thicker, stronger lamp; the card of the playing /
+ * paused album keeps only the plain border plus the blur, so it stays
+ * visible once the pointer leaves without competing with the hovered card.
+ * The expanded card is deliberately not lit: the detail pane's header shows
+ * its artwork instead, so the glow can mean "playing" alone.
  */
-const artworkClassName = (expanded: boolean): string =>
+const artworkClassName = (playing: boolean): string =>
   cn(
     "block w-full overflow-hidden rounded-md border border-transparent outline-none transition-[border-color,box-shadow] duration-200 focus-visible:ring-3 focus-visible:ring-ring/50",
     "group-hover:border-foreground",
     "group-hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
-    expanded &&
+    playing &&
       "border-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
   );
 
 /**
  * One album card: artwork (click = toggle the detail pane) with a hover
- * play overlay, then name / artist / year. Hovering the card and expanding
- * it light the artwork border up with a glow (see `artworkClassName`).
+ * play overlay, then name / artist / year. Hovering the card and playing /
+ * pausing one of its tracks light the artwork border up with a glow (see
+ * `artworkClassName`); a stopped player lights nothing.
  * Right-click opens the context menu with "Remove from library"
  * (confirmation via `LibraryRemoveDialog`).
  */
@@ -51,6 +56,7 @@ export const AlbumCard = ({
   album,
   width,
   expanded,
+  playing,
   onToggle,
   onPlay,
 }: Props) => {
@@ -62,7 +68,7 @@ export const AlbumCard = ({
           type="button"
           aria-expanded={expanded}
           aria-label={album.album}
-          className={artworkClassName(expanded)}
+          className={artworkClassName(playing)}
           onClick={onToggle}
         >
           {album.picturePath !== null ? (
