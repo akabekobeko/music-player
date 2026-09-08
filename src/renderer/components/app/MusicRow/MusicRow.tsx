@@ -49,7 +49,11 @@ type Props = {
  * A row, not a list: the views own their (virtualized) list structure and
  * render one `MusicRow` per item, so the shared piece stays layout-agnostic.
  * The title is a real `<button>` (click = select, double-click = play,
- * Enter = select), keeping the container itself non-interactive.
+ * Enter = select), keeping the container itself non-interactive. The button
+ * also holds the extra columns and the duration and stretches to the row
+ * height, so a click anywhere between the leading cell and the menu lands on
+ * it; only the leading cell (play / pause) and the menu keep their own
+ * controls, so opening the menu never resets a multi-selection.
  *
  * The leading cell doubles as the playback indicator / control (Apple Music
  * style), picked by `playing`: `PlayingButton` for the playing row,
@@ -93,19 +97,22 @@ export const MusicRow = ({
       </span>
       <button
         type="button"
-        className="min-w-0 flex-1 cursor-default pl-1 text-left outline-none"
+        className="flex min-w-0 flex-1 cursor-default items-center gap-2 self-stretch pl-1 text-left outline-none"
         onClick={onClick}
         onDoubleClick={onPlay}
       >
         <EllipsisText
-          className={cn(playing !== null && "font-medium text-primary")}
+          className={cn(
+            "min-w-0 flex-1",
+            playing !== null && "font-medium text-primary",
+          )}
           text={music.title}
         />
+        {columns}
+        <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
+          {formatTime(music.durationMs / 1000)}
+        </span>
       </button>
-      {columns}
-      <span className="shrink-0 font-mono text-muted-foreground text-xs tabular-nums">
-        {formatTime(music.durationMs / 1000)}
-      </span>
       {menu !== undefined && <span className="shrink-0">{menu}</span>}
     </HStack>
   );
