@@ -18,7 +18,7 @@ import { useAlbumFilterPanel } from "./useAlbumFilterPanel";
  * Album filter panel in the Sidebar's secondary area
  * (`docs/specs/v1.0/features/album-view.md`): a fixed header (text search,
  * icon-only Clear filters, expand / collapse all) above a scrolling list of
- * genre and decade checkbox sections (choices from
+ * genre and decade checkbox sections (choices and album counts from
  * `mp:library:getFilterOptions`). The sections are accordion items that
  * open independently (all open by default, open state is view-local), each
  * with a select-all / clear-all checkbox in its heading.
@@ -131,16 +131,18 @@ export const AlbumFilterPanel = () => {
                 allSelected={allDecadesSelected}
                 onToggleAll={toggleAllDecades}
               >
-                {options.decades.map((decade) => (
+                {options.decades.map(({ decade, count }) => (
                   <FilterCheckbox
                     key={decade}
                     label={`${decade}s`}
+                    count={count}
                     checked={decades.includes(decade)}
                     onToggle={() => toggleDecade(decade)}
                   />
                 ))}
                 <FilterCheckbox
                   label={t("album.filter.unknownYear")}
+                  count={options.unknownYearCount}
                   checked={decades.includes(null)}
                   onToggle={() => toggleDecade(null)}
                 />

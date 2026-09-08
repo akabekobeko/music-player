@@ -39,7 +39,7 @@ export const useAlbumFilterPanel = () => {
   // The unknown-year marker (`null`) is a fixed choice appended after the
   // library-derived decades.
   const decadeChoices: readonly (number | null)[] = [
-    ...(options?.decades ?? []),
+    ...(options?.decades ?? []).map(({ decade }) => decade),
     null,
   ];
 
