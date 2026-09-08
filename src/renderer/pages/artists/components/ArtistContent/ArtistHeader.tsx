@@ -35,8 +35,8 @@ type Props = {
  */
 const pictureClassName = cn(
   "group relative size-16 shrink-0 overflow-hidden rounded-full border border-transparent transition-[border-color,box-shadow] duration-200",
-  "group-hover:border-foreground",
-  "group-hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+  "hover:border-foreground",
+  "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
 );
 
 /**
