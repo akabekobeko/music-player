@@ -11,6 +11,7 @@ import type { AlbumGroup } from "@/features/library/groupAlbums/types";
 import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { cn } from "@/libs/utils";
 
 type Props = {
   readonly group: AlbumGroup;
@@ -21,8 +22,22 @@ type Props = {
 };
 
 /**
+ * Classes for the artwork frame. Hovering it lights the border up with a
+ * blurred glow like the `AlbumCard` artwork: the plain border plus a 1px
+ * spread ring, so it reads as a thick, strong lamp. The frame keeps its own
+ * `size-28` so the border does not grow the row; the picture fills it.
+ */
+const artworkClassName = cn(
+  "group relative size-28 shrink-0 overflow-hidden rounded-md border border-transparent transition-[border-color,box-shadow] duration-200",
+  "group-hover:border-foreground",
+  "group-hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+);
+
+/**
  * Album area: the heading row of one album (artwork, title, summary line,
- * album menu) that precedes its tracks in the virtualised list.
+ * album menu) that precedes its tracks in the virtualised list. Hovering the
+ * artwork lights its border up with a glow (see `artworkClassName`) and
+ * reveals a play overlay, as the artist picture in `ArtistHeader` does.
  */
 export const AlbumHeaderRow = ({
   group,
@@ -34,17 +49,28 @@ export const AlbumHeaderRow = ({
 
   return (
     <HStack className="items-end gap-4 pt-6 pr-2 pb-4">
-      {group.picturePath !== null ? (
-        <img
-          src={toMediaFileUrl(group.picturePath)}
-          alt=""
-          className="size-28 shrink-0 rounded-md object-cover"
-        />
-      ) : (
-        <VStack className="size-28 shrink-0 rounded-md bg-muted">
-          <Disc3 aria-hidden className="size-10 text-muted-foreground" />
-        </VStack>
-      )}
+      <div className={artworkClassName}>
+        {group.picturePath !== null ? (
+          <img
+            src={toMediaFileUrl(group.picturePath)}
+            alt=""
+            className="size-full object-cover"
+          />
+        ) : (
+          <VStack className="size-full bg-muted">
+            <Disc3 aria-hidden className="size-10 text-muted-foreground" />
+          </VStack>
+        )}
+        <button
+          type="button"
+          aria-label={`${t("player.play")}: ${group.album}`}
+          title={t("player.play")}
+          className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+          onClick={onPlay}
+        >
+          <PlayFillIcon className="size-4" />
+        </button>
+      </div>
       <div className="min-w-0 flex-1 pb-1">
         <h2 className="font-medium text-base">
           <EllipsisText text={group.album} />
