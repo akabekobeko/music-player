@@ -168,10 +168,16 @@ export type FilterOptions = {
   }>;
   /**
    * Distinct decade start years (e.g. `1990` = 1990s) that actually contain
-   * tracks, ascending. Empty when no track has a year — unknown-year tracks
-   * are handled by the panel's separate "Unknown" item, not this list.
+   * tracks, ascending, with their album counts. Empty when no track has a
+   * year — unknown-year tracks are handled by the panel's separate "Unknown"
+   * item (`unknownYearCount`), not this list.
    */
-  readonly decades: readonly number[];
+  readonly decades: ReadonlyArray<{
+    readonly decade: number;
+    readonly count: number;
+  }>;
+  /** Number of albums with at least one track whose year is unknown. */
+  readonly unknownYearCount: number;
 };
 
 /** Library-wide counters shown by the settings page's library section. */

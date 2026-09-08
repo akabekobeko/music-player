@@ -67,7 +67,7 @@ Renderer は `import type { Music } from "@mp/ipc"` と書けます。`import ty
 | `mp:library:getMusicsByArtist` | `{ artist } → Music[]` | 表示アーティストの全曲 |
 | `mp:library:getAlbums` | `AlbumFilter → AlbumSummary[]` | フィルター条件つきアルバム一覧 (Album ビュー用) |
 | `mp:library:getMusicsByAlbum` | `{ albumKey } → Music[]` | アルバムの曲一覧 |
-| `mp:library:getFilterOptions` | `void → { genres, yearRange }` | フィルター UI の選択肢 |
+| `mp:library:getFilterOptions` | `void → { genres, decades, unknownYearCount }` | フィルター UI の選択肢 (ジャンル・年代とも件数つき) |
 | `mp:library:setArtistPicture` | `{ artist, mimeType, data } → { picturePath }` | アーティスト画像の設定・差し替え |
 | `mp:library:setArtistInitial` | `{ artist, initial } → void` | アーティストの頭文字の設定 (`initial` は A–Z の 1 文字、`null` で選択を消去して自動判定へ戻す) |
 | `mp:playlist:list` | `void → Playlist[]` | プレイリスト一覧 (静的・動的とも) |

@@ -7,12 +7,20 @@ import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
  *
  * Genres are distinct non-empty values with the number of albums (identity
  * key groups) they appear on; decades are the distinct 10-year buckets that
- * actually contain tracks — never a min–max sweep, which a single outlier
- * year (a junk tag, a classical composition year) would blow up into
- * hundreds of empty checkboxes.
+ * actually contain tracks, likewise with their album counts — never a
+ * min–max sweep, which a single outlier year (a junk tag, a classical
+ * composition year) would blow up into hundreds of empty checkboxes. Both
+ * counts follow the album filter's semantics: an album counts for every
+ * genre / decade any of its tracks carries, which is exactly the set of
+ * albums selecting that choice lists.
+ *
+ * Both queries are one pass over `musics` with a GROUP BY (a temp b-tree of
+ * at most one row per distinct album per value), so the decade query costs
+ * the same as the genre one already did — a few milliseconds at the 10k
+ * track target — and the result is only refetched on library changes.
  *
  * @param db - The open library connection.
- * @returns Genre choices and the populated decade start years.
+ * @returns Genre and decade choices with their album counts.
  */
 export const getFilterOptions = (db: DatabaseSync): FilterOptions => {
   const genres = db
@@ -28,15 +36,26 @@ export const getFilterOptions = (db: DatabaseSync): FilterOptions => {
        ORDER BY name`,
     )
     .all() as Array<{ name: string; count: number }>;
-  // Decade bucketing happens in JS (Math.floor) — SQLite's integer division
-  // truncates toward zero, which would mis-bucket negative years.
-  const years = db
+  // Integer division truncates toward zero, which is floor for the stored
+  // years: the mapping / migration 002 keep only years > 0. A NULL year
+  // yields a NULL bucket, which becomes the "Unknown" item's count.
+  const buckets = db
     .prepare(
-      "SELECT DISTINCT year FROM musics WHERE year IS NOT NULL ORDER BY year",
+      `SELECT decade, COUNT(*) AS count
+       FROM (
+         SELECT (m.year / 10) * 10 AS decade
+         FROM musics m
+         GROUP BY (m.year / 10) * 10, ${ALBUM_ARTIST_SQL}, m.album
+       )
+       GROUP BY decade
+       ORDER BY decade`,
     )
-    .all() as Array<{ year: number }>;
-  const decades = [
-    ...new Set(years.map(({ year }) => Math.floor(year / 10) * 10)),
-  ];
-  return { genres, decades };
+    .all() as Array<{ decade: number | null; count: number }>;
+  const decades = buckets.filter(
+    (bucket): bucket is { decade: number; count: number } =>
+      bucket.decade !== null,
+  );
+  const unknownYearCount =
+    buckets.find((bucket) => bucket.decade === null)?.count ?? 0;
+  return { genres, decades, unknownYearCount };
 };
