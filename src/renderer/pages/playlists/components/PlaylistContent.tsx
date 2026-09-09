@@ -98,6 +98,10 @@ export const PlaylistContent = ({ routeId }: Props) => {
                 draggable={ref.kind === "static" && !filterActive}
                 className={cn(
                   "absolute top-0 left-0 w-full",
+                  // The playing row's glow reaches into the next row; raise
+                  // its wrapper so the neighbour's accent background never
+                  // covers it (the transformed wrappers are stacking contexts).
+                  playingStateOf(music) !== null && "z-[1]",
                   overIndex === item.index &&
                     dragIndex !== null &&
                     "border-primary border-t-2",

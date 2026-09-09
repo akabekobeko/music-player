@@ -1,5 +1,6 @@
 import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
+import { cn } from "@/libs/utils";
 import { AlbumHeaderRow } from "./AlbumHeaderRow";
 import { ArtistHeader } from "./ArtistHeader";
 import { ArtistMusicRow } from "./ArtistMusicRow";
@@ -76,7 +77,15 @@ export const ArtistContent = ({ artistName }: Props) => {
                       ? `disc:${row.albumKey}:${row.disc}`
                       : `music:${row.music.id}`
                 }
-                className="absolute top-0 left-0 w-full"
+                className={cn(
+                  "absolute top-0 left-0 w-full",
+                  // The playing row's glow reaches into the next row; raise
+                  // its wrapper so the neighbour's accent background never
+                  // covers it (the transformed wrappers are stacking contexts).
+                  row.type === "music" &&
+                    playingStateOf(row.music) !== null &&
+                    "z-[1]",
+                )}
                 style={{
                   height: item.size,
                   transform: `translateY(${item.start}px)`,

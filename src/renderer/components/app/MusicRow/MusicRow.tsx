@@ -41,6 +41,26 @@ type Props = {
 };
 
 /**
+ * Classes for the row container. The hovered and the selected row show the
+ * rounded accent rectangle; the playing / paused row lights that rectangle's
+ * border up with a blurred glow like the album artwork in `AlbumCard` /
+ * `AlbumHeaderRow` (plain border plus blur, no spread ring, so it reads as a
+ * calm lamp next to the hovered artwork), whatever its selection. Every row
+ * keeps a transparent border so lighting it never shifts the content. Rows
+ * abut each other, so the glow reaches into the neighbouring rows: the row
+ * is `relative` so that in a plain-flow list it paints above the following
+ * row's opaque accent background; virtualised lists raise the wrapper of the
+ * playing row instead (their transformed wrappers are stacking contexts).
+ */
+const rowClassName = (playing: boolean, selected: boolean): string =>
+  cn(
+    "group relative h-9 w-full rounded-md border border-transparent px-2 text-sm transition-[border-color,box-shadow] duration-200",
+    selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+    playing &&
+      "border-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+  );
+
+/**
  * One track row shared by the Artist / Album / Playlist views
  * (`docs/specs/v1.0/features/artist-view.md`): track number / title /
  * duration / menu slot, with receptacles for the playing highlight,
@@ -58,7 +78,9 @@ type Props = {
  * The leading cell doubles as the playback indicator / control (Apple Music
  * style), picked by `playing`: `PlayingButton` for the playing row,
  * `PausedButton` for the paused row, `TrackNumberButton` for any other
- * (stopped) row.
+ * (stopped) row. The playing / paused row also lights its rounded border up
+ * with a blurred glow (see `rowClassName`), like the album artwork in the
+ * Artists / Albums views.
  */
 export const MusicRow = ({
   music,
@@ -77,10 +99,7 @@ export const MusicRow = ({
   return (
     <HStack
       data-selected={selected || undefined}
-      className={cn(
-        "group h-9 w-full rounded-md px-2 text-sm",
-        selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-      )}
+      className={rowClassName(playing !== null, selected)}
     >
       <span className="flex w-7 shrink-0 items-center justify-end font-mono text-muted-foreground text-xs tabular-nums">
         {playing === "playing" ? (
