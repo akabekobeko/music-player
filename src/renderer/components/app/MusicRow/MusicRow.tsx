@@ -51,11 +51,17 @@ type Props = {
  * is `relative` so that in a plain-flow list it paints above the following
  * row's opaque accent background; virtualised lists raise the wrapper of the
  * playing row instead (their transformed wrappers are stacking contexts).
+ * Contiguous selected rows merge into one rounded rectangle like Apple
+ * Music: a selected row squares off the corners it shares with a selected
+ * neighbour (`selected-above` / `selected-below` in `App.css` look at the
+ * sibling row or, in virtualised lists, the sibling wrapper).
  */
 const rowClassName = (playing: boolean, selected: boolean): string =>
   cn(
     "group relative h-9 w-full rounded-md border border-transparent px-2 text-sm transition-[border-color,box-shadow] duration-200",
-    selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+    selected
+      ? "bg-accent text-accent-foreground selected-above:rounded-t-none selected-below:rounded-b-none"
+      : "hover:bg-accent/50",
     playing &&
       "border-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
   );
