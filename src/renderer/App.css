@@ -5,6 +5,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * A selected `MusicRow` whose previous / next list neighbour is selected too,
+ * so contiguous selected rows can merge into one rounded rectangle. The
+ * neighbour is either the sibling row itself (plain-flow lists) or the
+ * sibling wrapper holding a selected row (virtualised lists).
+ */
+@custom-variant selected-above (
+  :where([data-selected], :has(> [data-selected])) + :where(&, :has(> &))
+);
+@custom-variant selected-below (
+  :where(&, :has(> &)):has(+ [data-selected], + * > [data-selected])
+);
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Inter Variable", sans-serif;
