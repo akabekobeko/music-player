@@ -9,13 +9,15 @@
  * A selected `MusicRow` whose previous / next list neighbour is selected too,
  * so contiguous selected rows can merge into one rounded rectangle. The
  * neighbour is either the sibling row itself (plain-flow lists) or the
- * sibling wrapper holding a selected row (virtualised lists).
+ * sibling wrapper holding a selected row (virtualised lists). The subject
+ * must stay the row itself, so the wrapper case walks back down into it
+ * with `> &` rather than matching the wrapper.
  */
 @custom-variant selected-above (
-  :where([data-selected], :has(> [data-selected])) + :where(&, :has(> &))
+  :is([data-selected] + &, :has(> [data-selected]) + * > &)
 );
 @custom-variant selected-below (
-  :where(&, :has(> &)):has(+ [data-selected], + * > [data-selected])
+  :is(&:has(+ [data-selected]), :has(+ * > [data-selected]) > &)
 );
 
 @theme inline {
