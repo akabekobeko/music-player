@@ -1,6 +1,16 @@
 /** Overlay strip height in px (WCO reserves this much at the top edge). */
 export const TITLE_BAR_OVERLAY_HEIGHT = 40;
 
+/**
+ * Fully transparent overlay background. With a zero alpha Electron skips
+ * painting the control strip (Electron 25+), so the app's own toolbar
+ * background shows through, the same way the macOS traffic lights sit on the
+ * page. An opaque color here would draw a visible band over the toolbar
+ * whenever it differs from the token underneath (`--background` in the
+ * content area, `--sidebar` when the sidebar is closed).
+ */
+export const TITLE_BAR_OVERLAY_COLOR = "#00000000";
+
 /** `titleBarOverlay` colors for one resolved theme. */
 export type TitleBarOverlayOptions = {
   readonly color: string;
@@ -9,23 +19,21 @@ export type TitleBarOverlayOptions = {
 };
 
 /**
- * Resolve the WCO overlay colors for a theme.
+ * Resolve the WCO overlay options for a theme.
  *
- * Matches the `--sidebar` background tokens in `App.css` so the control strip
- * blends into the PlayerBar band.
+ * The background is always transparent; only the glyph color follows the
+ * theme. It has to be set explicitly: on Windows Electron's default symbol
+ * color is the Win32 `COLOR_BTNTEXT` system color, which ignores the OS dark
+ * mode, so an unset value would leave black glyphs on the dark theme. The
+ * values match the `--foreground` tokens in `App.css`.
  *
  * @param dark - Whether the dark theme is in effect.
  * @returns Overlay options for `BrowserWindow` / `setTitleBarOverlay`.
  */
-export const buildTitleBarOverlay = (dark: boolean): TitleBarOverlayOptions =>
-  dark
-    ? {
-        color: "#262626",
-        symbolColor: "#fafafa",
-        height: TITLE_BAR_OVERLAY_HEIGHT,
-      }
-    : {
-        color: "#fafafa",
-        symbolColor: "#171717",
-        height: TITLE_BAR_OVERLAY_HEIGHT,
-      };
+export const buildTitleBarOverlay = (
+  dark: boolean,
+): TitleBarOverlayOptions => ({
+  color: TITLE_BAR_OVERLAY_COLOR,
+  symbolColor: dark ? "#fafafa" : "#0a0a0a",
+  height: TITLE_BAR_OVERLAY_HEIGHT,
+});
