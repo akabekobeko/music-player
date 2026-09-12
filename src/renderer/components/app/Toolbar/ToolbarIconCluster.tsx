@@ -87,6 +87,10 @@ export const ToolbarIconCluster = ({
         </ClusterButton>
         <ClusterButton
           label={t("settings.title")}
+          // The link is not a <button>; tell Base UI so it applies the
+          // non-native semantics (role="button", key handling) instead of
+          // warning about the missing native element.
+          nativeButton={false}
           render={<NavLink to="/settings" />}
         >
           <Settings />
@@ -101,7 +105,7 @@ const TOOLTIP_DELAY_MS = 700;
 
 type ClusterButtonProps = Pick<
   ComponentProps<typeof GlowIconButton>,
-  "onClick" | "render"
+  "onClick" | "render" | "nativeButton"
 > & {
   /** Tooltip text, doubling as the accessible name. */
   readonly label: string;
