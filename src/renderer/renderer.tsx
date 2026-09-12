@@ -19,6 +19,7 @@ import {
   applyThemePreference,
   watchSystemTheme,
 } from "./features/settings/theme";
+import { applyFullScreenState } from "./libs/applyFullScreenState";
 import { detectPlatform } from "./libs/platform";
 import { albumFilterStore } from "./pages/albums/components/albumFilterStore";
 
@@ -65,6 +66,11 @@ const bootstrap = async (): Promise<void> => {
   document.documentElement.dataset.platform = detectPlatform(
     navigator.userAgent,
   );
+  // Subscribed before the first await so the page-load push from Main
+  // (fired on did-finish-load) is never missed.
+  window.mp.window.onFullScreenChanged(({ fullScreen }) => {
+    applyFullScreenState(fullScreen);
+  });
 
   const settings = await loadInitialSettings();
   applyThemePreference(settings.theme);

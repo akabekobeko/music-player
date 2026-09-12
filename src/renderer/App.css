@@ -197,6 +197,16 @@ html[data-platform="mac"] {
   --toolbar-controls-center-y: 18px;
 }
 
+/*
+ * macOS hides the traffic lights in full screen (they slide in with the menu
+ * bar on hover, overlaying the content rather than reserving space), so the
+ * toolbar starts at the left edge like native apps with custom title bars.
+ * The Renderer stamps <html data-fullscreen> from the mp:window push.
+ */
+html[data-platform="mac"][data-fullscreen="true"] {
+  --titlebar-safe-left: 0px;
+}
+
 html[data-platform="windows"],
 html[data-platform="linux"] {
   --titlebar-safe-left: env(titlebar-area-x, 0px);

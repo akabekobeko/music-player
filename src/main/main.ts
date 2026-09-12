@@ -7,6 +7,7 @@ import { closeDatabase, openDatabase } from "./db/connection";
 import { buildStartupErrorContent } from "./db/startupError";
 import { applyTitleBarOverlayTheme } from "./ipc/applyTitleBarOverlayTheme";
 import { initializeIpcEvents } from "./ipc/ipcHandler";
+import { pushFullScreenState } from "./ipc/pushFullScreenState";
 import { installApplicationMenu } from "./menu/applicationMenu";
 // Importing also registers the privileged schemes (must run before `ready`).
 import { registerProtocolHandlers } from "./protocol/registerProtocol";
@@ -79,6 +80,16 @@ function createWindow(): void {
       saveWindowState(mainWindow);
     });
   }
+
+  // The Renderer drops the macOS traffic-light safe area while in full
+  // screen (docs/specs/v1.0/renderer/routing-layout.md). The page-load push
+  // covers reloads that happen while already in full screen.
+  const pushFullScreen = (): void => {
+    pushFullScreenState(mainWindow);
+  };
+  mainWindow.on("enter-full-screen", pushFullScreen);
+  mainWindow.on("leave-full-screen", pushFullScreen);
+  mainWindow.webContents.on("did-finish-load", pushFullScreen);
 
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);

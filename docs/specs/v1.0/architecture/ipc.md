@@ -92,6 +92,7 @@ audio-player には push チャネルが 1 本もなく、インポート進捗�
 | `mp:library:importProgress` | `{ phase, current, total, filePath, errors }` | インポート進捗。UI のプログレス表示用 |
 | `mp:library:changed` | `{ kind: "imported" \| "removed" }` | ライブラリー変更通知。受信したビューはクエリを再実行する |
 | `mp:menu:action` | `{ action }` | アプリケーションメニューからの操作 (インポート、設定を開く等) |
+| `mp:window:fullScreenChanged` | `{ fullScreen }` | ウィンドウのフルスクリーン開始・終了。ページ読み込み完了時 (`did-finish-load`) にも現在値を送り、フルスクリーン中のリロードでも初期状態がそろうようにする。Renderer は `<html data-fullscreen>` へ反映し、セーフエリアの CSS が参照する ([ルーティング / レイアウト](../renderer/routing-layout.md)) |
 
 ## preload ブリッジ
 
@@ -114,6 +115,7 @@ contextBridge.exposeInMainWorld("mp", {
   playlist: { list, create, update, remove, getMusics },
   settings: { get, set },
   menu: { onAction, setState },
+  window: { onFullScreenChanged }, // (listener) => unsubscribe
   log: { forward },
 });
 ```

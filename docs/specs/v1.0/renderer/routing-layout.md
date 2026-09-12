@@ -34,6 +34,7 @@ OS 標準のタイトルバーは全プラットフォームで非表示にし�
 
 - ウィンドウの**左上端・右上端はセーフエリア (余白)** とし、アプリ UI を配置しません。左右両端を空けることで、全プラットフォームで同一レイアウトを共有できます
 - 余白幅は WCO の CSS 環境変数 (`env(titlebar-area-x)` / `env(titlebar-area-width)`) から導出し、取得できない環境では固定値へフォールバックします
+- macOS のフルスクリーン中はトラフィックライトが非表示になる (ポインターを上端へ寄せるとメニューバーとともにコンテンツへ重なって現れ、領域は占有しない) ため、左上のセーフエリアを 0 にしてツールバーを左端から始めます。Firefox などタイトルバーをカスタマイズしたネイティブアプリと同じ挙動です。Main が `enter-full-screen` / `leave-full-screen` を `mp:window:fullScreenChanged` で push し、Renderer は `<html data-fullscreen="true">` を付け外しして `--titlebar-safe-left` を切り替えます ([IPC 設計](../architecture/ipc.md))
 
 ### ドラッグ領域
 
