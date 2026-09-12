@@ -86,7 +86,7 @@ export const AlbumCard = ({
         </button>
         <button
           type="button"
-          aria-label={`${t("player.play")}: ${album.album}`}
+          aria-label={`${t("menu.playAlbum")}: ${album.album}`}
           className="absolute right-2 bottom-2 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           onClick={onPlay}
         >

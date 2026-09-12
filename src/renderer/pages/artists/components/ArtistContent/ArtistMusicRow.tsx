@@ -51,7 +51,7 @@ export const ArtistMusicRow = ({
         <RowMenu
           items={[
             {
-              label: t("player.play"),
+              label: t("menu.playMusic"),
               icon: <PlayFillIcon />,
               onSelect: onPlay,
             },

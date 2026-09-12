@@ -78,8 +78,8 @@ export const AlbumDetail = ({ album }: Props) => {
         </div>
         <HStack className="shrink-0">
           <CircleIconButton
-            aria-label={t("player.play")}
-            title={t("player.play")}
+            aria-label={t("menu.playAlbum")}
+            title={t("menu.playAlbum")}
             disabled={musics.length === 0}
             onClick={playAll}
           >
@@ -89,7 +89,7 @@ export const AlbumDetail = ({ album }: Props) => {
             variant="circle"
             items={[
               {
-                label: t("player.play"),
+                label: t("menu.playAlbum"),
                 icon: <PlayFillIcon />,
                 onSelect: playAll,
               },
@@ -138,7 +138,7 @@ export const AlbumDetail = ({ album }: Props) => {
                     <RowMenu
                       items={[
                         {
-                          label: t("player.play"),
+                          label: t("menu.playMusic"),
                           icon: <PlayFillIcon />,
                           onSelect: () => playFrom(music),
                         },

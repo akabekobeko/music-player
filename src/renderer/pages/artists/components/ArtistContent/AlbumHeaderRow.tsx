@@ -73,8 +73,8 @@ export const AlbumHeaderRow = ({
         )}
         <button
           type="button"
-          aria-label={`${t("player.play")}: ${group.album}`}
-          title={t("player.play")}
+          aria-label={`${t("menu.playAlbum")}: ${group.album}`}
+          title={t("menu.playAlbum")}
           className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           onClick={onPlay}
         >
@@ -100,7 +100,11 @@ export const AlbumHeaderRow = ({
       <RowMenu
         variant="circle"
         items={[
-          { label: t("player.play"), icon: <PlayFillIcon />, onSelect: onPlay },
+          {
+            label: t("menu.playAlbum"),
+            icon: <PlayFillIcon />,
+            onSelect: onPlay,
+          },
           {
             label: t("menu.addToQueue"),
             icon: <ListEnd />,

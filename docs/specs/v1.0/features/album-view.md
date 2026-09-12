@@ -49,5 +49,5 @@
 - 曲一覧の仕様 (disc 分割、曲行の操作、再生中ハイライト) は [Artist ビュー](artist-view.md) と共通コンポーネントを使います
 - カードの hover ▶ ボタン: そのアルバムをキューに設定して先頭から再生
 - 曲クリック時のキュー: **展開中のアルバムの曲のみ**をキューとします (Artist ビューと異なりアーティスト全曲へは広げない。フィルター文脈では「このアルバムを聴く」意図が自然なため)
-- アルバムメニュー: Play / Add to queue / Add to playlist
+- アルバムメニュー: Play album / Add to queue / Add to playlist (曲メニューの再生は Play song。文言は再生対象を明示する)
 - カードの右クリックメニュー: Remove from library (Artist ビューのアルバム削除と同じ確認ダイアログを経て `mp:library:removeAlbum` を実行)
