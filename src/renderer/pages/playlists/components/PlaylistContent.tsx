@@ -140,7 +140,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                     <RowMenu
                       items={[
                         {
-                          label: t("player.play"),
+                          label: t("menu.playMusic"),
                           icon: <PlayFillIcon />,
                           onSelect: () => playFrom(music),
                         },

@@ -49,8 +49,8 @@ export const PlaylistHeader = ({
         </VStack>
         <button
           type="button"
-          aria-label={t("player.play")}
-          title={t("player.play")}
+          aria-label={t("menu.playPlaylist")}
+          title={t("menu.playPlaylist")}
           disabled={musicCount === 0}
           className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           onClick={onPlayAll}
@@ -74,8 +74,8 @@ export const PlaylistHeader = ({
       <Spacer />
       <HStack className="shrink-0">
         <CircleIconButton
-          aria-label={t("player.shuffle")}
-          title={t("player.shuffle")}
+          aria-label={t("menu.shufflePlay")}
+          title={t("menu.shufflePlay")}
           disabled={musicCount === 0}
           onClick={onPlayShuffled}
         >
@@ -85,12 +85,12 @@ export const PlaylistHeader = ({
           variant="circle"
           items={[
             {
-              label: t("player.play"),
+              label: t("menu.playPlaylist"),
               icon: <PlayFillIcon />,
               onSelect: onPlayAll,
             },
             {
-              label: t("player.shuffle"),
+              label: t("menu.shufflePlay"),
               icon: <ShuffleIcon />,
               onSelect: onPlayShuffled,
             },

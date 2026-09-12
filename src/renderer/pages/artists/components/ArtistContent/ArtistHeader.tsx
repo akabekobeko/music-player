@@ -75,8 +75,8 @@ export const ArtistHeader = ({
         )}
         <button
           type="button"
-          aria-label={t("player.play")}
-          title={t("player.play")}
+          aria-label={t("menu.playArtist")}
+          title={t("menu.playArtist")}
           disabled={musicCount === 0}
           className="absolute inset-0 m-auto flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-md transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
           onClick={onPlayAll}
@@ -100,8 +100,8 @@ export const ArtistHeader = ({
       <HStack className="shrink-0">
         <AlbumIndexPicker groups={groups} onSelect={onJumpToAlbum} />
         <CircleIconButton
-          aria-label={t("player.shuffle")}
-          title={t("player.shuffle")}
+          aria-label={t("menu.shufflePlay")}
+          title={t("menu.shufflePlay")}
           disabled={musicCount === 0}
           onClick={onPlayShuffled}
         >
@@ -111,12 +111,12 @@ export const ArtistHeader = ({
           variant="circle"
           items={[
             {
-              label: t("player.play"),
+              label: t("menu.playArtist"),
               icon: <PlayFillIcon />,
               onSelect: onPlayAll,
             },
             {
-              label: t("player.shuffle"),
+              label: t("menu.shufflePlay"),
               icon: <ShuffleIcon />,
               onSelect: onPlayShuffled,
             },
