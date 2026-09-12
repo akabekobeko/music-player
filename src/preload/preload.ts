@@ -6,6 +6,7 @@ import type {
   MenuActionPayload,
   MpBridge,
   Unsubscribe,
+  WindowFullScreenChangedPayload,
 } from "../main/ipc/types";
 
 /**
@@ -90,6 +91,13 @@ const buildBridge = (): MpBridge => ({
       subscribe<MenuActionPayload>(IpcKeys.MenuAction, listener),
     setState: (snapshot) => ipcRenderer.send(IpcKeys.MenuSetState, snapshot),
     popup: (request) => ipcRenderer.send(IpcKeys.MenuPopup, request),
+  },
+  window: {
+    onFullScreenChanged: (listener) =>
+      subscribe<WindowFullScreenChangedPayload>(
+        IpcKeys.WindowFullScreenChanged,
+        listener,
+      ),
   },
   log: {
     forward: (request) => ipcRenderer.send(IpcKeys.LogForward, request),

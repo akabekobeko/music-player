@@ -534,6 +534,16 @@ export type MenuActionPayload = {
 };
 
 /**
+ * Payload of the `mp:window:fullScreenChanged` push channel. Sent when the
+ * window enters / leaves full screen and once per page load with the current
+ * state, so a reload while in full screen still starts out right.
+ */
+export type WindowFullScreenChangedPayload = {
+  /** Whether the window is in full-screen mode. */
+  readonly fullScreen: boolean;
+};
+
+/**
  * Snapshot of menu-relevant state pushed by the Renderer through
  * `mp:menu:setState` so Main can enable / disable items.
  */
@@ -699,6 +709,13 @@ export type MpBridge = {
     readonly setState: (snapshot: MenuStateSnapshot) => void;
     /** Open the application menu as a dropdown (Windows / Linux). */
     readonly popup: (request: MenuPopupRequest) => void;
+  };
+  /** Window state channels (cosmetic layout only). */
+  readonly window: {
+    /** Subscribe to full-screen enter / leave notifications from Main. */
+    readonly onFullScreenChanged: (
+      listener: (payload: WindowFullScreenChangedPayload) => void,
+    ) => Unsubscribe;
   };
   /** Log-forwarding channel for Renderer `console` output. */
   readonly log: {

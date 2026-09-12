@@ -41,6 +41,7 @@ export const IpcKeys = {
   ImportProgress: "mp:library:importProgress",
   LibraryChanged: "mp:library:changed",
   MenuAction: "mp:menu:action",
+  WindowFullScreenChanged: "mp:window:fullScreenChanged",
 } as const;
 
 /** Union of every channel name declared in {@link IpcKeys}. */
