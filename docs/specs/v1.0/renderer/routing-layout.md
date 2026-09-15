@@ -132,7 +132,7 @@ createRoot(rootElement).render(
   2. 設定変更時: 設定コマンド (`setTheme`) の中で保存と同時に適用
   3. OS テーマ変更時: ブートストラップで登録した `matchMedia("(prefers-color-scheme: dark)")` リスナー (設定が system の場合のみ反映)
 - 起動時のチラつき防止のため、Main は `BrowserWindow` の `backgroundColor` を保存済みテーマに合わせて指定します ([プロセス構成](../architecture/process-model.md))
-- Windows / Linux の `titleBarOverlay` は背景 (`color`) を常に透過にし、アプリ側のツールバー帯の背景をそのまま見せます (macOS のトラフィックライトと同じ扱い)。値は「`--background` の RGB + alpha 0」(ライト `#ffffff00` / ダーク `#0a0a0a00`) で、`BrowserWindow.backgroundColor` と同じ色から導出します。Linux はこの色を不透明化してボタン描画のブレンド用背景 (KDE Breeze スタイルでは hover 時の記号色) に使うため、RGB を実際の背景に合わせておく必要があります。記号色 (`symbolColor`) はテーマへ追従させます。Electron の既定の記号色は Win32 の `COLOR_BTNTEXT` で OS のダークモードに追従しないため、明示指定が必要です。Main が `mp:settings:set` の theme 変更を検知して `setTitleBarOverlay()` を呼ぶため、新規 IPC チャネルは不要です ([プロセス構成](../architecture/process-model.md))
+- Windows / Linux の `titleBarOverlay` は背景 (`color`) を常に透過にし、アプリ側のツールバー帯の背景をそのまま見せます (macOS のトラフィックライトと同じ扱い)。値は「`--background` の RGB + alpha 0」(ライト `#e6ecef00` / ダーク `#0a0a0a00`) で、`BrowserWindow.backgroundColor` と同じ色から導出します。Linux はこの色を不透明化してボタン描画のブレンド用背景 (KDE Breeze スタイルでは hover 時の記号色) に使うため、RGB を実際の背景に合わせておく必要があります。記号色 (`symbolColor`) はテーマへ追従させます。Electron の既定の記号色は Win32 の `COLOR_BTNTEXT` で OS のダークモードに追従しないため、明示指定が必要です。Main が `mp:settings:set` の theme 変更を検知して `setTitleBarOverlay()` を呼ぶため、新規 IPC チャネルは不要です ([プロセス構成](../architecture/process-model.md))
 
 ## i18n
 

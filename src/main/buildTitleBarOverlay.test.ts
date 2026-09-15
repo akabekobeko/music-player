@@ -19,7 +19,7 @@ it("uses the window background RGB with a zero alpha as the overlay color", () =
 it("switches the symbol color by theme while keeping the height fixed", () => {
   const light = buildTitleBarOverlay(false);
   const dark = buildTitleBarOverlay(true);
-  expect(light.symbolColor).toBe("#0a0a0a");
+  expect(light.symbolColor).toBe("#101a21");
   expect(dark.symbolColor).toBe("#fafafa");
   expect(light.height).toBe(TITLE_BAR_OVERLAY_HEIGHT);
   expect(dark.height).toBe(TITLE_BAR_OVERLAY_HEIGHT);
