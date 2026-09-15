@@ -50,6 +50,6 @@ export const buildTitleBarOverlay = (
   dark: boolean,
 ): TitleBarOverlayOptions => ({
   color: buildTitleBarOverlayColor(dark),
-  symbolColor: dark ? "#fafafa" : "#101a21",
+  symbolColor: dark ? "#fafafa" : "#12191f",
   height: TITLE_BAR_OVERLAY_HEIGHT,
 });
