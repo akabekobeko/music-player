@@ -1,7 +1,6 @@
 import type { Music } from "@mp/ipc";
-import { TabsContent } from "@/components/ui/tabs";
+import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
 import { useT } from "@/features/i18n/useT";
-import { panelClassName } from "./panelClassName";
 import { TagField } from "./TagField";
 
 type Props = {
@@ -13,10 +12,7 @@ type Props = {
 export const DetailsPanel = ({ music }: Props) => {
   const t = useT();
   return (
-    <TabsContent
-      value="details"
-      className={`${panelClassName} overflow-y-auto`}
-    >
+    <DialogTabPanel value="details" className="overflow-y-auto">
       <div className="grid gap-2">
         <TagField label={t("musicInfo.field.title")} value={music.title} />
         <TagField label={t("musicInfo.field.artist")} value={music.artist} />
@@ -72,6 +68,6 @@ export const DetailsPanel = ({ music }: Props) => {
           value={music.rating}
         />
       </div>
-    </TabsContent>
+    </DialogTabPanel>
   );
 };

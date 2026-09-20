@@ -1,9 +1,8 @@
 import type { Music } from "@mp/ipc";
-import { TabsContent } from "@/components/ui/tabs";
+import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
+import { PropertyRow } from "@/components/app/InfoDialog/PropertyRow";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
-import { PropertyRow } from "./PropertyRow";
-import { panelClassName } from "./panelClassName";
 
 type Props = {
   /** Track whose file-derived properties are shown. */
@@ -20,7 +19,7 @@ const formatDateTime = (iso: string): string => {
 export const FilePanel = ({ music }: Props) => {
   const t = useT();
   return (
-    <TabsContent value="file" className={`${panelClassName} overflow-y-auto`}>
+    <DialogTabPanel value="file" className="overflow-y-auto">
       <div className="grid gap-2">
         <PropertyRow
           label={t("musicInfo.field.format")}
@@ -43,6 +42,6 @@ export const FilePanel = ({ music }: Props) => {
           value={formatDateTime(music.updatedAt)}
         />
       </div>
-    </TabsContent>
+    </DialogTabPanel>
   );
 };
