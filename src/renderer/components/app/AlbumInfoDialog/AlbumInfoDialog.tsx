@@ -1,38 +1,28 @@
-import { Disc3 } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { VStack } from "@/components/app/stacks";
+import { DialogTabList } from "@/components/app/InfoDialog/DialogTabList";
+import { PicturePanel } from "@/components/app/InfoDialog/PicturePanel";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
 import { albumInfoStore } from "@/features/library/albumInfoStore";
-import { formatTime } from "@/libs/formatTime";
-import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
-
-/** Label + plain-text row for an album property (never editable). */
-const PropertyRow = ({
-  label,
-  value,
-}: {
-  readonly label: string;
-  readonly value: string;
-}) => (
-  <div className="grid grid-cols-[7.5rem_1fr] items-baseline gap-2">
-    <span className="text-muted-foreground text-xs">{label}</span>
-    <span className="break-all">{value}</span>
-  </div>
-);
+import { DetailsPanel } from "./DetailsPanel";
 
 /**
  * Album info dialog (album menu → "Album Info"), mounted once in the
  * AppLayout (the menu that started the flow is gone by the time this opens).
  *
- * Shows the artwork at the body's full width keeping its aspect ratio and
- * the summary-line facts of the Artist / Album views as separate rows.
+ * Shows the summary-line facts of the Artist / Album views and the artwork
+ * split into two tabs, "Details" and "Artwork" (aspect-fit), laid out like
+ * the song info dialog: the body has a fixed height so the popup keeps its
+ * size while switching tabs, and the footer holds Cancel.
  */
 export const AlbumInfoDialog = () => {
   const t = useT();
@@ -50,51 +40,31 @@ export const AlbumInfoDialog = () => {
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("albumInfo.title")}</DialogTitle>
         </DialogHeader>
         {album !== null && (
-          <DialogBody className="max-h-[65vh] overflow-y-auto">
-            {album.picturePath !== null ? (
-              <img
-                src={toMediaFileUrl(album.picturePath)}
-                alt=""
-                className="w-full rounded-md"
-              />
-            ) : (
-              <VStack className="aspect-square w-full rounded-md bg-muted">
-                <Disc3 aria-hidden className="size-16 text-muted-foreground" />
-              </VStack>
-            )}
-            <div className="grid gap-2">
-              <PropertyRow
-                label={t("albumInfo.field.album")}
-                value={album.album}
-              />
-              <PropertyRow
-                label={t("albumInfo.field.artist")}
-                value={album.artist}
-              />
-              <PropertyRow
-                label={t("albumInfo.field.year")}
-                value={album.year !== null ? String(album.year) : ""}
-              />
-              <PropertyRow
-                label={t("albumInfo.field.genre")}
-                value={album.genre}
-              />
-              <PropertyRow
-                label={t("albumInfo.field.songCount")}
-                value={String(album.musicCount)}
-              />
-              <PropertyRow
-                label={t("albumInfo.field.duration")}
-                value={formatTime(album.totalDurationMs / 1000)}
-              />
-            </div>
+          <DialogBody className="h-[60vh] px-0 pb-0">
+            <Tabs defaultValue="details" className="min-h-0 flex-1">
+              <DialogTabList>
+                <TabsTrigger value="details">
+                  {t("albumInfo.tab.details")}
+                </TabsTrigger>
+                <TabsTrigger value="picture">
+                  {t("albumInfo.tab.picture")}
+                </TabsTrigger>
+              </DialogTabList>
+              <DetailsPanel album={album} />
+              <PicturePanel value="picture" picturePath={album.picturePath} />
+            </Tabs>
           </DialogBody>
         )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => albumInfoStore.close()}>
+            {t("common.cancel")}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

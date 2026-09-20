@@ -1,6 +1,4 @@
-import { UserRound } from "lucide-react";
-import { InitialGrid } from "@/components/app/InitialGrid/InitialGrid";
-import { Stack, VStack } from "@/components/app/stacks";
+import { DialogTabList } from "@/components/app/InfoDialog/DialogTabList";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,20 +8,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
-import { PropertyRow } from "./PropertyRow";
+import { DetailsPanel } from "./DetailsPanel";
+import { PicturePanel } from "./PicturePanel";
 import { useArtistEditDialog } from "./useArtistEditDialog";
 
 /**
  * Artist info dialog (context / row menu → "Artist Info"), mounted once in
  * the AppLayout (the menu that started the flow is gone by the time this
- * opens). Shows the current picture, previews a newly picked image file,
- * lists the artist's metadata (name, song count), and offers the initial
- * setting (A–Z overrides the automatic section, "Other" clears it); confirm
- * applies every change to the library. Header and footer stay put — only
- * the content area scrolls when it exceeds its height cap.
+ * opens). Split into two tabs like the song info dialog: "Details" (name,
+ * song count and the initial setting — A–Z overrides the automatic section,
+ * "Other" clears it) and "Picture" (the current picture, previewing a newly
+ * picked image file). Every pick lives in `useArtistEditDialog`, not in the tabs,
+ * so switching tabs keeps it and Apply commits the picks of every tab at
+ * once. The body has a fixed height so the popup keeps its size while
+ * switching tabs; an apply failure shows under the tabs whichever tab is
+ * open.
  */
 export const ArtistEditDialog = () => {
   const t = useT();
@@ -53,63 +55,32 @@ export const ArtistEditDialog = () => {
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("artistEdit.title")}</DialogTitle>
         </DialogHeader>
         {/* Mounted only while open so the native file input resets between
             edit sessions. */}
         {target !== null && (
-          <DialogBody className="max-h-[65vh] gap-6 overflow-y-auto">
-            <VStack className="gap-4">
-              {imageUrl !== null ? (
-                <img
-                  src={imageUrl}
-                  alt=""
-                  className="size-32 rounded-full object-cover"
-                />
-              ) : (
-                <VStack className="size-32 rounded-full bg-muted">
-                  <UserRound
-                    aria-hidden
-                    className="size-12 text-muted-foreground"
-                  />
-                </VStack>
-              )}
-              <Input
-                type="file"
-                accept="image/*"
-                aria-label={t("artistEdit.imageFile")}
-                onChange={(event) => {
-                  const picked = event.target.files?.[0];
-                  if (picked !== undefined) {
-                    selectFile(picked);
-                  }
-                }}
+          <DialogBody className="h-[60vh] px-0 pb-0">
+            <Tabs defaultValue="details" className="min-h-0 flex-1">
+              <DialogTabList>
+                <TabsTrigger value="details">
+                  {t("artistEdit.tab.details")}
+                </TabsTrigger>
+                <TabsTrigger value="picture">
+                  {t("artistEdit.tab.picture")}
+                </TabsTrigger>
+              </DialogTabList>
+              <DetailsPanel
+                target={target}
+                selectedInitial={selectedInitial}
+                onSelectInitial={selectInitial}
               />
-              <div className="grid w-full gap-2">
-                <PropertyRow
-                  label={t("artistEdit.field.name")}
-                  value={target.name}
-                />
-                <PropertyRow
-                  label={t("artistEdit.field.songCount")}
-                  value={String(target.musicCount)}
-                />
-              </div>
-            </VStack>
-            <Stack className="gap-2">
-              <h2 className="font-medium text-muted-foreground text-xs">
-                {t("artistEdit.initial")}
-              </h2>
-              <InitialGrid
-                selected={selectedInitial}
-                onSelect={selectInitial}
-                className="justify-items-center"
-              />
-            </Stack>
+              <PicturePanel imageUrl={imageUrl} onSelectFile={selectFile} />
+            </Tabs>
             {error !== null && (
-              <p className="break-all text-destructive text-sm">
+              <p className="break-all px-4 pb-4 text-destructive text-sm">
                 {t("artistEdit.failed", { message: error.message })}
               </p>
             )}
