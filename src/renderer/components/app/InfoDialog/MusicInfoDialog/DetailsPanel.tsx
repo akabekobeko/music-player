@@ -1,6 +1,6 @@
 import type { Music } from "@mp/ipc";
-import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
 import { useT } from "@/features/i18n/useT";
+import { DialogTabPanel } from "../DialogTabPanel";
 import { TagField } from "./TagField";
 
 type Props = {

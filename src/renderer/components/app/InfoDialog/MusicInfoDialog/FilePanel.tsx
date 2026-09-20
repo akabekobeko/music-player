@@ -1,8 +1,8 @@
 import type { Music } from "@mp/ipc";
-import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
-import { PropertyRow } from "@/components/app/InfoDialog/PropertyRow";
 import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
+import { DialogTabPanel } from "../DialogTabPanel";
+import { PropertyRow } from "../PropertyRow";
 
 type Props = {
   /** Track whose file-derived properties are shown. */

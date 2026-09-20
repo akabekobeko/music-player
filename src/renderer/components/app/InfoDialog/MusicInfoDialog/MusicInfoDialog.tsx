@@ -1,6 +1,4 @@
 import { useSyncExternalStore } from "react";
-import { DialogTabList } from "@/components/app/InfoDialog/DialogTabList";
-import { PicturePanel } from "@/components/app/InfoDialog/PicturePanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +11,8 @@ import {
 import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
+import { DialogTabList } from "../DialogTabList";
+import { PicturePanel } from "../PicturePanel";
 import { DetailsPanel } from "./DetailsPanel";
 import { FilePanel } from "./FilePanel";
 

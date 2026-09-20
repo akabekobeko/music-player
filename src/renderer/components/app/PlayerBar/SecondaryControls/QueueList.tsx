@@ -1,7 +1,7 @@
 import { Pause, Volume2 } from "lucide-react";
-import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
+import { EllipsisText } from "../../EllipsisText/EllipsisText";
 import { LIST_HEIGHT, useQueueList } from "./useQueueList";
 
 /**

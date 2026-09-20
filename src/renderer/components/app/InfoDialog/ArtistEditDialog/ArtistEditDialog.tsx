@@ -1,4 +1,3 @@
-import { DialogTabList } from "@/components/app/InfoDialog/DialogTabList";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
 import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { DialogTabList } from "../DialogTabList";
 import { DetailsPanel } from "./DetailsPanel";
 import { PicturePanel } from "./PicturePanel";
 import { useArtistEditDialog } from "./useArtistEditDialog";

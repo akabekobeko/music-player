@@ -1,6 +1,6 @@
 import { Disc3, type LucideIcon } from "lucide-react";
 import { type CSSProperties, useState } from "react";
-import { VStack } from "@/components/app/stacks";
+import { VStack } from "../stacks";
 
 type Props = {
   /** Image URL, or `null` for the placeholder. */

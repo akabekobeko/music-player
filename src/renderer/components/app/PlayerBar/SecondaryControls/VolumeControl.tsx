@@ -1,8 +1,4 @@
 import { useState } from "react";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
-import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
-import { VolumeMutedFillIcon } from "@/components/app/Icons/VolumeMutedFillIcon";
-import { HStack } from "@/components/app/stacks";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -11,6 +7,10 @@ import {
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { useT } from "@/features/i18n/useT";
+import { GlowIconButton } from "../../Buttons/GlowIconButton";
+import { VolumeFillIcon } from "../../Icons/VolumeFillIcon";
+import { VolumeMutedFillIcon } from "../../Icons/VolumeMutedFillIcon";
+import { HStack } from "../../stacks";
 
 /** Coerce Base UI's single-or-array slider value into a number. */
 const asNumber = (value: number | readonly number[]): number =>

@@ -1,8 +1,8 @@
-import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
-import { PropertyRow } from "@/components/app/InfoDialog/PropertyRow";
 import { useT } from "@/features/i18n/useT";
 import type { AlbumInfoTarget } from "@/features/library/albumInfoStore";
 import { formatTime } from "@/libs/formatTime";
+import { DialogTabPanel } from "../DialogTabPanel";
+import { PropertyRow } from "../PropertyRow";
 
 type Props = {
   /** Album whose summary facts are shown. */

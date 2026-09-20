@@ -1,10 +1,10 @@
 import type { ComponentProps, ReactNode } from "react";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { GlowIconButton } from "../Buttons/GlowIconButton";
 
 type Props = Pick<
   ComponentProps<typeof GlowIconButton>,

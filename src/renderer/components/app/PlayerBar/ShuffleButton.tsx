@@ -1,6 +1,6 @@
 import { Shuffle as ShuffleIcon } from "lucide-react";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
 import { useT } from "@/features/i18n/useT";
+import { GlowIconButton } from "../Buttons/GlowIconButton";
 
 type Props = {
   /** Shuffle mode is on — the icon stays lit. */

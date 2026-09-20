@@ -1,16 +1,5 @@
 import { useRef, useSyncExternalStore } from "react";
 import { Outlet } from "react-router";
-import { AboutDialog } from "@/components/app/AboutDialog/AboutDialog";
-import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
-import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
-import { AlbumInfoDialog } from "@/components/app/InfoDialog/AlbumInfoDialog/AlbumInfoDialog";
-import { ArtistEditDialog } from "@/components/app/InfoDialog/ArtistEditDialog/ArtistEditDialog";
-import { MusicInfoDialog } from "@/components/app/InfoDialog/MusicInfoDialog/MusicInfoDialog";
-import { LibraryRemoveDialog } from "@/components/app/LibraryRemoveDialog/LibraryRemoveDialog";
-import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
-import { Sidebar } from "@/components/app/Sidebar/Sidebar";
-import { Toaster } from "@/components/app/Toaster/Toaster";
-import { ContentToolbar } from "@/components/app/Toolbar/ContentToolbar";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -22,6 +11,17 @@ import {
   SIDEBAR_MIN_WIDTH,
   sidebarStore,
 } from "@/features/layout/sidebarStore";
+import { AboutDialog } from "../AboutDialog/AboutDialog";
+import { NewPlaylistDialog } from "../AddToPlaylistSubmenu/NewPlaylistDialog";
+import { ImportConfirmDialog } from "../ImportConfirmDialog/ImportConfirmDialog";
+import { AlbumInfoDialog } from "../InfoDialog/AlbumInfoDialog/AlbumInfoDialog";
+import { ArtistEditDialog } from "../InfoDialog/ArtistEditDialog/ArtistEditDialog";
+import { MusicInfoDialog } from "../InfoDialog/MusicInfoDialog/MusicInfoDialog";
+import { LibraryRemoveDialog } from "../LibraryRemoveDialog/LibraryRemoveDialog";
+import { PlayerBar } from "../PlayerBar/PlayerBar";
+import { Sidebar } from "../Sidebar/Sidebar";
+import { Toaster } from "../Toaster/Toaster";
+import { ContentToolbar } from "../Toolbar/ContentToolbar";
 
 /**
  * Application frame (`docs/specs/v1.0/renderer/routing-layout.md`): a

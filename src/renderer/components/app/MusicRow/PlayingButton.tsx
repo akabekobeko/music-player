@@ -1,8 +1,8 @@
-import { AudioLinesIcon } from "@/components/app/Icons/AudioLinesIcon";
-import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
-import { HoverIconButton } from "@/components/app/MusicRow/HoverIconButton";
 import { useT } from "@/features/i18n/useT";
 import { cn } from "@/libs/utils";
+import { AudioLinesIcon } from "../Icons/AudioLinesIcon";
+import { PauseFillIcon } from "../Icons/PauseFillIcon";
+import { HoverIconButton } from "./HoverIconButton";
 
 type Props = {
   /** Pause the current track. Without it the cell is a plain indicator. */

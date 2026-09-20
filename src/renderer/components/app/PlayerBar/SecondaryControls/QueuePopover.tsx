@@ -1,6 +1,4 @@
 import { ListMusic } from "lucide-react";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
-import { HStack } from "@/components/app/stacks";
 import {
   Popover,
   PopoverContent,
@@ -8,6 +6,8 @@ import {
 } from "@/components/ui/popover";
 import { useT } from "@/features/i18n/useT";
 import { usePlayerState } from "@/features/player/PlayerProvider";
+import { GlowIconButton } from "../../Buttons/GlowIconButton";
+import { HStack } from "../../stacks";
 import { ClearQueueButton } from "./ClearQueueButton";
 import { QueueList } from "./QueueList";
 

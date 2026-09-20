@@ -1,8 +1,8 @@
-import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { VolumeFillIcon } from "@/components/app/Icons/VolumeFillIcon";
-import { HoverIconButton } from "@/components/app/MusicRow/HoverIconButton";
 import { useT } from "@/features/i18n/useT";
 import { cn } from "@/libs/utils";
+import { PlayFillIcon } from "../Icons/PlayFillIcon";
+import { VolumeFillIcon } from "../Icons/VolumeFillIcon";
+import { HoverIconButton } from "./HoverIconButton";
 
 type Props = {
   /**

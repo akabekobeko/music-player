@@ -1,8 +1,8 @@
 import { UserRound } from "lucide-react";
-import { AspectFitPicture } from "@/components/app/InfoDialog/AspectFitPicture";
-import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
+import { AspectFitPicture } from "../AspectFitPicture";
+import { DialogTabPanel } from "../DialogTabPanel";
 
 type Props = {
   /** Picture to show (current one, or the preview of a picked file). */

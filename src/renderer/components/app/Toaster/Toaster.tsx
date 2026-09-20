@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
-import { Stack } from "@/components/app/stacks";
 import { toastStore } from "@/features/toast/toastStore";
+import { Stack } from "../stacks";
 
 /**
  * Toast overlay, mounted once in the AppLayout. Renders the store's queue

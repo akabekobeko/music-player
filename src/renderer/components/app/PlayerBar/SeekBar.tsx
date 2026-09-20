@@ -1,8 +1,8 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { HStack } from "@/components/app/stacks";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/libs/formatTime";
+import { HStack } from "../stacks";
 
 /** Coerce Base UI's single-or-array slider value into a number. */
 const asNumber = (value: number | readonly number[]): number =>

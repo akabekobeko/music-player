@@ -1,7 +1,6 @@
 import { Disc3, ListMusic, Users } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { Link, useLocation } from "react-router";
-import { SidebarToolbar } from "@/components/app/Toolbar/SidebarToolbar";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +13,7 @@ import { cn } from "@/libs/utils";
 import { AlbumFilterPanel } from "@/pages/albums/components/AlbumFilterPanel/AlbumFilterPanel";
 import { ArtistListPanel } from "@/pages/artists/components/ArtistListPanel/ArtistListPanel";
 import { PlaylistListPanel } from "@/pages/playlists/components/PlaylistListPanel/PlaylistListPanel";
+import { SidebarToolbar } from "../Toolbar/SidebarToolbar";
 
 /** Primary navigation entries (`docs/specs/v1.0/renderer/routing-layout.md`). */
 const NAV_ITEMS = [

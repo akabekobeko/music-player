@@ -1,12 +1,12 @@
 import { Loader2 } from "lucide-react";
-import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
-import { PauseFillIcon } from "@/components/app/Icons/PauseFillIcon";
-import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { SkipBackFillIcon } from "@/components/app/Icons/SkipBackFillIcon";
-import { SkipForwardFillIcon } from "@/components/app/Icons/SkipForwardFillIcon";
-import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
+import { CircleIconButton } from "../Buttons/CircleIconButton";
+import { GlowIconButton } from "../Buttons/GlowIconButton";
+import { PauseFillIcon } from "../Icons/PauseFillIcon";
+import { PlayFillIcon } from "../Icons/PlayFillIcon";
+import { SkipBackFillIcon } from "../Icons/SkipBackFillIcon";
+import { SkipForwardFillIcon } from "../Icons/SkipForwardFillIcon";
+import { HStack } from "../stacks";
 
 type Props = {
   /** Whether a previous track exists in the queue. */

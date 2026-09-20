@@ -1,7 +1,7 @@
 import type { Music } from "@mp/ipc";
-import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
+import { EllipsisText } from "../EllipsisText/EllipsisText";
+import { Stack } from "../stacks";
 
 type Props = {
   /** Current track; `null` shows the "no music" placeholder. */
