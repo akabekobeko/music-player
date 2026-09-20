@@ -19,7 +19,21 @@ import {
 } from "./settings/settingsManager";
 import { resolveWindowBounds } from "./windowState";
 
+/** `productName` from package.json, injected at build time via Vite `define`. */
+declare const __APP_PRODUCT_NAME__: string;
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Unpackaged runs (`pnpm run dev`) use the shared Electron binary, so userData
+// would default to the generic "Electron" directory. Point it at the directory
+// electron-builder derives from `productName` instead, so development and the
+// packaged app read and write the same library DB, settings and artwork.
+if (!app.isPackaged) {
+  app.setPath(
+    "userData",
+    path.join(app.getPath("appData"), __APP_PRODUCT_NAME__),
+  );
+}
 
 // This app does not use safeStorage, so prevent Chromium's cookie encryption
 // from accessing the OS credential store and showing a permission dialog on
