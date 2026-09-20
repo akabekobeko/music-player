@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
-import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { DialogTabList } from "../DialogTabList";
 import { DetailsPanel } from "./DetailsPanel";
 import { PicturePanel } from "./PicturePanel";
@@ -31,7 +30,7 @@ export const ArtistEditDialog = () => {
   const t = useT();
   const {
     target,
-    previewUrl,
+    imageUrl,
     selectedInitial,
     canApply,
     error,
@@ -40,11 +39,6 @@ export const ArtistEditDialog = () => {
     apply,
     close,
   } = useArtistEditDialog();
-  const imageUrl =
-    previewUrl ??
-    (target !== null && target.picturePath !== null
-      ? toMediaFileUrl(target.picturePath)
-      : null);
 
   return (
     <Dialog

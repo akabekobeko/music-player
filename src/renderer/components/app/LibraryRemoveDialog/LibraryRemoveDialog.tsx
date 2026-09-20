@@ -18,16 +18,7 @@ import { useLibraryRemoveDialog } from "./useLibraryRemoveDialog";
  */
 export const LibraryRemoveDialog = () => {
   const t = useT();
-  const { target, confirm, close } = useLibraryRemoveDialog();
-
-  const name =
-    target === null
-      ? ""
-      : target.kind === "artist"
-        ? target.artist !== ""
-          ? target.artist
-          : t("artist.unknown")
-        : target.album;
+  const { target, name, confirm, close } = useLibraryRemoveDialog();
 
   return (
     <Dialog

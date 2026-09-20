@@ -3,6 +3,7 @@ import { useState, useSyncExternalStore } from "react";
 import { artistEditStore } from "@/features/library/artistEditStore";
 import { setArtistInitial } from "@/features/library/setArtistInitial";
 import { setArtistPicture } from "@/features/library/setArtistPicture";
+import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { artistInitialOf } from "@/pages/artists/components/ArtistListPanel/artistInitialOf";
 import {
   type Initial,
@@ -12,7 +13,8 @@ import {
 /**
  * Logic of `ArtistEditDialog` (context / row menu → "Artist Info"): the
  * artist under edit (from the store), the picked file with its object-URL
- * preview, the initial choice, and the apply / close flow. The component
+ * preview (shown instead of the current picture), the initial choice, and
+ * the apply / close flow. The component
  * only renders what this hook returns.
  *
  * The initial tile shown as selected is the stored choice, or the automatic
@@ -115,8 +117,12 @@ export const useArtistEditDialog = () => {
 
   return {
     target,
-    /** Object URL of the picked file, shown instead of the current picture. */
-    previewUrl,
+    /** Picture to show: the picked file's preview, else the current one. */
+    imageUrl:
+      previewUrl ??
+      (target !== null && target.picturePath !== null
+        ? toMediaFileUrl(target.picturePath)
+        : null),
     /** Tile to show as the current choice. */
     selectedInitial,
     canApply: (file !== null || initialChanged) && !applying,
