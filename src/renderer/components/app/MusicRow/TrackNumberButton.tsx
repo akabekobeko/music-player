@@ -1,6 +1,6 @@
-import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { HoverIconButton } from "@/components/app/MusicRow/HoverIconButton";
 import { cn } from "@/libs/utils";
+import { PlayFillIcon } from "../Icons/PlayFillIcon";
+import { HoverIconButton } from "./HoverIconButton";
 
 type Props = {
   /** Track number (or ordinal) shown while the row is not hovered. */

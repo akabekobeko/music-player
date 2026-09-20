@@ -1,6 +1,6 @@
 import { Disc3, type LucideIcon } from "lucide-react";
 import { type CSSProperties, useState } from "react";
-import { VStack } from "@/components/app/stacks";
+import { VStack } from "../stacks";
 
 type Props = {
   /** Image URL, or `null` for the placeholder. */
@@ -28,7 +28,7 @@ export const AspectFitPicture = ({
 }: Props) => {
   const [ratio, setRatio] = useState<number | null>(null);
   return (
-    <div className="flex min-h-0 flex-1 items-center justify-center [container-type:size]">
+    <div className="flex min-h-0 flex-1 items-center justify-center @container-size">
       {src !== null ? (
         <img
           src={src}

@@ -44,6 +44,16 @@ pages/albums/
 - React の Provider とその Context / hooks (例: `PlayerProvider.tsx`)
 - vitest の `vi.mock` 対象モジュール (例: `src/test/electron.mock.ts`)
 
+### components 配下で完結する import は相対パスにする
+
+- `src/renderer/components/app` 配下のファイルから同じ `components/app` 配下を参照する import、`components/ui` 配下から同じ `components/ui` 配下を参照する import は、`@/` エイリアスではなく相対パス (`./`、`../`) で書く
+  - 例: `AppLayout.tsx` から `Sidebar` は `../Sidebar/Sidebar`、`MusicInfoDialog.tsx` から共通部品は `../DialogTabList`
+  - `InfoDialog` のように共通部品を共有するコンポーネント群は同じディレクトリー配下へまとめ、その内部参照も相対パスにする
+- それ以外の参照は従来どおり `@/` エイリアスで書く
+  - `features` / `libs` / `pages` などコンポーネント外のモジュール
+  - `components/app` から `components/ui` (shadcn/ui 由来のコンポーネントは外部ライブラリー相当として扱う)
+- 相対パスにする理由: ディレクトリーごと移動しても内部参照が壊れず、参照先が近い (同じコンポーネント群) ことが import 文から読み取れるため
+
 ## コンポーネント設計
 
 ### 1 ファイル 1 コンポーネントにする
@@ -79,6 +89,11 @@ export const AlbumCard = ({ album, width }: Props) => { … };
   - 例: `AlbumsPage` のロジックは `useAlbumsPage`
 - Hooks のファイルは対象コンポーネントと同じディレクトリーへ配置する
   - 例: `pages/albums/AlbumsPage.tsx` と `pages/albums/useAlbumsPage.ts`
+- `components/app` 配下の共通コンポーネントも同様に、ロジックが長くなるものは専用 Hooks へ分離する
+  - 分離の目安: `useState` / `useRef` などコンポーネント自身の状態を持つ、非同期処理や store 更新をともなうハンドラーがある、ルートや store から派生値を計算する、のいずれかに該当する
+  - 例: `LibraryRemoveDialog` の削除フローは `useLibraryRemoveDialog`、`AppLayout` のサイドバー幅の永続化は `useAppLayout`
+  - 例外: store の購読 1 つとその `close()` 呼び出しだけのような自明なものは、コンポーネントへ直書きしてよい (例: `AboutDialog`、`Toaster`)
+- `useT` は次項のとおり UI 層が直に参照する Hooks なので、ロジック分離の際に専用 Hooks 側へ移動しなくてよい
 
 ### useT はビュー層として扱う
 

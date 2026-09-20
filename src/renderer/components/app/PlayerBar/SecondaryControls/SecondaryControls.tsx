@@ -1,4 +1,4 @@
-import { HStack } from "@/components/app/stacks";
+import { HStack } from "../../stacks";
 import { QueuePopover } from "./QueuePopover";
 import { VolumeControl } from "./VolumeControl";
 

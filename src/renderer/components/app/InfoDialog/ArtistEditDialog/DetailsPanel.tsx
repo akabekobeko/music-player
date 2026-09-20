@@ -1,10 +1,10 @@
-import { DialogTabPanel } from "@/components/app/InfoDialog/DialogTabPanel";
-import { PropertyRow } from "@/components/app/InfoDialog/PropertyRow";
-import { InitialGrid } from "@/components/app/InitialGrid/InitialGrid";
-import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import type { ArtistEditTarget } from "@/features/library/artistEditStore";
 import type { Initial } from "@/pages/artists/components/ArtistListPanel/initials";
+import { InitialGrid } from "../../InitialGrid/InitialGrid";
+import { Stack } from "../../stacks";
+import { DialogTabPanel } from "../DialogTabPanel";
+import { PropertyRow } from "../PropertyRow";
 
 type Props = {
   /** Artist whose metadata is shown. */

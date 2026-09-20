@@ -1,20 +1,18 @@
 import { FolderInput, Menu, PanelLeft, Settings } from "lucide-react";
-import type { ComponentProps, CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { NavLink } from "react-router";
-import { GlowIconButton } from "@/components/app/Buttons/GlowIconButton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
 import { importStore } from "@/features/import/importStore/importStore";
 import { sidebarStore } from "@/features/layout/sidebarStore";
 import { getUiPlatform } from "@/libs/platform";
 import { cn } from "@/libs/utils";
+import { ClusterButton } from "./ClusterButton";
 
-type ToolbarIconClusterProps = {
+/** Delay before the tooltips show — an instant popup is distracting here. */
+const TOOLTIP_DELAY_MS = 700;
+
+type Props = {
   /** Host-specific sizing classes (the cluster has no width of its own). */
   readonly className?: string;
   /** Host-specific inline sizing, e.g. the persisted sidebar width. */
@@ -41,10 +39,7 @@ type ToolbarIconClusterProps = {
  * centre line (two pixels above the band's centre on macOS, identical on
  * Windows / Linux where the overlay spans the whole band).
  */
-export const ToolbarIconCluster = ({
-  className,
-  style,
-}: ToolbarIconClusterProps) => {
+export const ToolbarIconCluster = ({ className, style }: Props) => {
   const t = useT();
   const platform = getUiPlatform();
   return (
@@ -99,34 +94,3 @@ export const ToolbarIconCluster = ({
     </TooltipProvider>
   );
 };
-
-/** Delay before the tooltips show — an instant popup is distracting here. */
-const TOOLTIP_DELAY_MS = 700;
-
-type ClusterButtonProps = Pick<
-  ComponentProps<typeof GlowIconButton>,
-  "onClick" | "render" | "nativeButton"
-> & {
-  /** Tooltip text, doubling as the accessible name. */
-  readonly label: string;
-  /** The icon. */
-  readonly children: ReactNode;
-};
-
-/** One glowing icon toolbar button with its delayed tooltip. */
-const ClusterButton = ({ label, children, ...props }: ClusterButtonProps) => (
-  <Tooltip>
-    <TooltipTrigger
-      render={
-        <GlowIconButton
-          aria-label={label}
-          className="app-region-no-drag"
-          {...props}
-        >
-          {children}
-        </GlowIconButton>
-      }
-    />
-    <TooltipContent side="bottom">{label}</TooltipContent>
-  </Tooltip>
-);

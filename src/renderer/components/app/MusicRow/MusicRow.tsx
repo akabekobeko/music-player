@@ -1,12 +1,12 @@
 import type { Music } from "@mp/ipc";
 import type { MouseEvent, ReactNode } from "react";
-import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
-import { PausedButton } from "@/components/app/MusicRow/PausedButton";
-import { PlayingButton } from "@/components/app/MusicRow/PlayingButton";
-import { TrackNumberButton } from "@/components/app/MusicRow/TrackNumberButton";
-import { HStack } from "@/components/app/stacks";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
+import { EllipsisText } from "../EllipsisText/EllipsisText";
+import { HStack } from "../stacks";
+import { PausedButton } from "./PausedButton";
+import { PlayingButton } from "./PlayingButton";
+import { TrackNumberButton } from "./TrackNumberButton";
 
 /** Row height in px — shared with virtualizers embedding these rows. */
 export const MUSIC_ROW_HEIGHT = 36;

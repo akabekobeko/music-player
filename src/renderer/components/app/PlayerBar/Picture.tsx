@@ -1,6 +1,6 @@
 import { Music } from "lucide-react";
-import { VStack } from "@/components/app/stacks";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
+import { VStack } from "../stacks";
 
 type Props = {
   /** Artwork file path of the current track; `null` shows the placeholder. */

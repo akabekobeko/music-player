@@ -1,6 +1,5 @@
 import { MoreHorizontal } from "lucide-react";
 import { isValidElement, type ReactElement, type ReactNode } from "react";
-import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CircleIconButton } from "../Buttons/CircleIconButton";
 
 /** One plain entry of a {@link RowMenu}. */
 export type RowMenuItem = {

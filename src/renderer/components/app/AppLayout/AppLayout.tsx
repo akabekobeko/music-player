@@ -1,16 +1,4 @@
-import { useRef, useSyncExternalStore } from "react";
 import { Outlet } from "react-router";
-import { AboutDialog } from "@/components/app/AboutDialog/AboutDialog";
-import { NewPlaylistDialog } from "@/components/app/AddToPlaylistSubmenu/NewPlaylistDialog";
-import { AlbumInfoDialog } from "@/components/app/AlbumInfoDialog/AlbumInfoDialog";
-import { ArtistEditDialog } from "@/components/app/ArtistEditDialog/ArtistEditDialog";
-import { ImportConfirmDialog } from "@/components/app/ImportConfirmDialog/ImportConfirmDialog";
-import { LibraryRemoveDialog } from "@/components/app/LibraryRemoveDialog/LibraryRemoveDialog";
-import { MusicInfoDialog } from "@/components/app/MusicInfoDialog/MusicInfoDialog";
-import { PlayerBar } from "@/components/app/PlayerBar/PlayerBar";
-import { Sidebar } from "@/components/app/Sidebar/Sidebar";
-import { Toaster } from "@/components/app/Toaster/Toaster";
-import { ContentToolbar } from "@/components/app/Toolbar/ContentToolbar";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -20,8 +8,19 @@ import { LastViewRecorder } from "@/features/layout/lastView/LastViewRecorder";
 import {
   SIDEBAR_MAX_WIDTH,
   SIDEBAR_MIN_WIDTH,
-  sidebarStore,
 } from "@/features/layout/sidebarStore";
+import { AboutDialog } from "../AboutDialog/AboutDialog";
+import { NewPlaylistDialog } from "../AddToPlaylistSubmenu/NewPlaylistDialog";
+import { ImportConfirmDialog } from "../ImportConfirmDialog/ImportConfirmDialog";
+import { AlbumInfoDialog } from "../InfoDialog/AlbumInfoDialog/AlbumInfoDialog";
+import { ArtistEditDialog } from "../InfoDialog/ArtistEditDialog/ArtistEditDialog";
+import { MusicInfoDialog } from "../InfoDialog/MusicInfoDialog/MusicInfoDialog";
+import { LibraryRemoveDialog } from "../LibraryRemoveDialog/LibraryRemoveDialog";
+import { PlayerBar } from "../PlayerBar/PlayerBar";
+import { Sidebar } from "../Sidebar/Sidebar";
+import { Toaster } from "../Toaster/Toaster";
+import { ContentToolbar } from "../Toolbar/ContentToolbar";
+import { useAppLayout } from "./useAppLayout";
 
 /**
  * Application frame (`docs/specs/v1.0/renderer/routing-layout.md`): a
@@ -32,28 +31,17 @@ import {
  * OS window controls).
  *
  * The sidebar keeps its pixel width when the window resizes
- * (`preserve-pixel-size`). Width persistence goes through `sidebarStore`:
- * `onResize` fires per pointer move, so it only records the latest width in
- * a ref, and `onLayoutChanged` — which waits for the pointer release —
- * commits it (skipping non-interactive layout changes such as mount).
+ * (`preserve-pixel-size`); the width persistence is in `useAppLayout`.
  */
 export const AppLayout = () => {
-  const sidebar = useSyncExternalStore(
-    sidebarStore.subscribe,
-    sidebarStore.getSnapshot,
-  );
-  const draggedWidth = useRef(sidebar.width);
+  const { sidebar, onSidebarResize, onLayoutChanged } = useAppLayout();
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       <LastViewRecorder />
       <ResizablePanelGroup
         orientation="horizontal"
         className="min-h-0 flex-1"
-        onLayoutChanged={(_layout, meta) => {
-          if (meta.isUserInteraction) {
-            sidebarStore.setWidth(draggedWidth.current);
-          }
-        }}
+        onLayoutChanged={onLayoutChanged}
       >
         {sidebar.open && (
           <>
@@ -64,9 +52,7 @@ export const AppLayout = () => {
               minSize={SIDEBAR_MIN_WIDTH}
               maxSize={SIDEBAR_MAX_WIDTH}
               groupResizeBehavior="preserve-pixel-size"
-              onResize={(size) => {
-                draggedWidth.current = size.inPixels;
-              }}
+              onResize={onSidebarResize}
             >
               <Sidebar />
             </ResizablePanel>
