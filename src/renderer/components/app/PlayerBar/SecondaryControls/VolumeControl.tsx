@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -11,10 +10,7 @@ import { GlowIconButton } from "../../Buttons/GlowIconButton";
 import { VolumeFillIcon } from "../../Icons/VolumeFillIcon";
 import { VolumeMutedFillIcon } from "../../Icons/VolumeMutedFillIcon";
 import { HStack } from "../../stacks";
-
-/** Coerce Base UI's single-or-array slider value into a number. */
-const asNumber = (value: number | readonly number[]): number =>
-  Array.isArray(value) ? (value[0] ?? 0) : (value as number);
+import { useVolumeControl } from "./useVolumeControl";
 
 type Props = {
   /** Current volume in `[0, 1]`. */
@@ -25,21 +21,14 @@ type Props = {
 /**
  * Volume popover (`docs/specs/v1.0/features/player-ui.md`): a 0–100 slider
  * over the internal `[0, 1]` volume, plus a mute toggle that remembers the
- * last audible level.
+ * last audible level (`useVolumeControl`).
  */
 export const VolumeControl = ({ volume, onChange }: Props) => {
   const t = useT();
-  const [lastAudible, setLastAudible] = useState(1);
-  const muted = volume === 0;
-
-  const toggleMute = (): void => {
-    if (muted) {
-      onChange(lastAudible > 0 ? lastAudible : 1);
-    } else {
-      setLastAudible(volume);
-      onChange(0);
-    }
-  };
+  const { muted, percent, toggleMute, setPercent } = useVolumeControl(
+    volume,
+    onChange,
+  );
 
   return (
     <Popover>
@@ -64,13 +53,11 @@ export const VolumeControl = ({ volume, onChange }: Props) => {
             min={0}
             max={100}
             step={1}
-            value={Math.round(volume * 100)}
-            onValueChange={(value) => {
-              onChange(asNumber(value) / 100);
-            }}
+            value={percent}
+            onValueChange={setPercent}
           />
           <span className="w-8 text-right font-mono text-[11px] text-muted-foreground tabular-nums">
-            {Math.round(volume * 100)}
+            {percent}
           </span>
         </HStack>
       </PopoverContent>

@@ -1,4 +1,3 @@
-import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,56 +9,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { addToPlaylistStore } from "@/features/playlist/addToPlaylistStore";
-import { appendMusicsToPlaylist } from "@/features/playlist/playlistCommands/appendMusicsToPlaylist";
-import { createStaticPlaylist } from "@/features/playlist/playlistCommands/createStaticPlaylist";
-import { toastStore } from "@/features/toast/toastStore";
+import { useNewPlaylistDialog } from "./useNewPlaylistDialog";
 
 /**
  * Name dialog of the "Add to playlist ▸ New playlist" flow, mounted once in
  * the AppLayout (the dropdown that started the flow is gone by the time
- * this opens). Confirming creates the playlist and appends the stashed
- * tracks in one go.
+ * this opens). The creation itself is in `useNewPlaylistDialog`.
  */
 export const NewPlaylistDialog = () => {
   const t = useT();
-  const pending = useSyncExternalStore(
-    addToPlaylistStore.subscribe,
-    addToPlaylistStore.getSnapshot,
-  );
-  const [name, setName] = useState("");
-
-  const confirm = async (): Promise<void> => {
-    if (pending === null) {
-      return;
-    }
-
-    const trimmed = name.trim();
-    const created = await createStaticPlaylist(
-      trimmed !== "" ? trimmed : t("playlist.defaultName"),
-    );
-    addToPlaylistStore.close();
-    setName("");
-    if (
-      created !== null &&
-      (await appendMusicsToPlaylist(created.id, pending))
-    ) {
-      toastStore.show(
-        t("playlist.addedToast", { count: pending.length, name: created.name }),
-      );
-    }
-  };
-
-  const cancel = (): void => {
-    addToPlaylistStore.close();
-    setName("");
-  };
+  const { open, name, setName, confirm, cancel } = useNewPlaylistDialog();
 
   return (
     <Dialog
-      open={pending !== null}
-      onOpenChange={(open) => {
-        if (!open) {
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
           cancel();
         }
       }}

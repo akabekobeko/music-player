@@ -1,13 +1,7 @@
-import { useSyncExternalStore } from "react";
-import { useLocation } from "react-router";
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
-import { sidebarStore } from "@/features/layout/sidebarStore";
-import {
-  type TrackFilterSection,
-  trackFilterStore,
-} from "@/features/trackFilter/trackFilterStore";
 import { ToolbarIconCluster } from "./ToolbarIconCluster";
+import { useContentToolbar } from "./useContentToolbar";
 
 /**
  * Title-bar-height band on top of the content area
@@ -16,20 +10,13 @@ import { ToolbarIconCluster } from "./ToolbarIconCluster";
  * band's right corner, so the right padding
  * (`--content-toolbar-inset-right`) keeps everything right-aligned about
  * one character clear of it. While the sidebar is closed its icon cluster
- * moves here, keeping every icon's screen position across the toggle.
+ * moves here, keeping every icon's screen position across the toggle. The
+ * song filter input shows only on routes with a track list
+ * (`useContentToolbar`).
  */
 export const ContentToolbar = () => {
   const t = useT();
-  const sidebar = useSyncExternalStore(
-    sidebarStore.subscribe,
-    sidebarStore.getSnapshot,
-  );
-  const { draft } = useSyncExternalStore(
-    trackFilterStore.subscribe,
-    trackFilterStore.getSnapshot,
-  );
-  const { pathname } = useLocation();
-  const section = sectionOf(pathname);
+  const { sidebar, filter } = useContentToolbar();
 
   return (
     <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 pr-(--content-toolbar-inset-right)">
@@ -40,31 +27,18 @@ export const ContentToolbar = () => {
         />
       )}
       <div className="min-w-0 flex-1" />
-      {section !== null && (
+      {filter !== null && (
         <Input
           type="search"
-          value={draft[section]}
+          value={filter.text}
           placeholder={t("toolbar.filterSongs")}
           aria-label={t("toolbar.filterSongs")}
           className="app-region-no-drag h-7 w-56 shrink"
           onChange={(event) => {
-            trackFilterStore.setText(section, event.target.value);
+            filter.setText(event.target.value);
           }}
         />
       )}
     </div>
   );
 };
-
-/**
- * Map the active route to its song-filter section; `null` (no filter input)
- * for routes without a track list, e.g. settings.
- */
-const sectionOf = (pathname: string): TrackFilterSection | null =>
-  pathname.startsWith("/artists")
-    ? "artists"
-    : pathname.startsWith("/albums")
-      ? "albums"
-      : pathname.startsWith("/playlists")
-        ? "playlists"
-        : null;
