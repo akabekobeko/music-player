@@ -43,7 +43,7 @@ export const MusicInfoDialog = () => {
         }
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg md:max-w-2xl xl:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{t("musicInfo.title")}</DialogTitle>
         </DialogHeader>
