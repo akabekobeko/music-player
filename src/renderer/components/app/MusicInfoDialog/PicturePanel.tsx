@@ -6,6 +6,7 @@ import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { panelClassName } from "./panelClassName";
 
 type Props = {
+  /** Track whose artwork is shown. */
   readonly music: Music;
 };
 

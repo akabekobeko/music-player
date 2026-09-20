@@ -5,6 +5,7 @@ import { panelClassName } from "./panelClassName";
 import { TagField } from "./TagField";
 
 type Props = {
+  /** Track whose tag fields are shown. */
   readonly music: Music;
 };
 

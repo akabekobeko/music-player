@@ -1,8 +1,11 @@
 import { Input } from "@/components/ui/input";
 
 type Props = {
+  /** Field label; also the input's accessible name. */
   readonly label: string;
+  /** Input type; `number` for numeric tags such as year or track. */
   readonly type?: "text" | "number";
+  /** Tag value; `null` (unset) renders as an empty input. */
   readonly value: string | number | null;
 };
 

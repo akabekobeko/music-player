@@ -6,6 +6,7 @@ import { PropertyRow } from "./PropertyRow";
 import { panelClassName } from "./panelClassName";
 
 type Props = {
+  /** Track whose file-derived properties are shown. */
   readonly music: Music;
 };
 

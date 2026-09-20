@@ -1,5 +1,7 @@
 type Props = {
+  /** Property label shown in the leading column. */
   readonly label: string;
+  /** Display text, already formatted by the caller. */
   readonly value: string;
 };
 
