@@ -1,4 +1,6 @@
 import { useSyncExternalStore } from "react";
+import { DialogTabList } from "@/components/app/InfoDialog/DialogTabList";
+import { PicturePanel } from "@/components/app/InfoDialog/PicturePanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,12 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsTrigger } from "@/components/ui/tabs";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { DetailsPanel } from "./DetailsPanel";
 import { FilePanel } from "./FilePanel";
-import { PicturePanel } from "./PicturePanel";
 
 /**
  * Track info dialog (track row menu → "Song info"), mounted once in the
@@ -49,21 +50,19 @@ export const MusicInfoDialog = () => {
         {music !== null && (
           <DialogBody className="h-[60vh] px-0 pb-0">
             <Tabs defaultValue="details" className="min-h-0 flex-1">
-              <div className="px-4">
-                <TabsList className="w-full">
-                  <TabsTrigger value="details">
-                    {t("musicInfo.tab.details")}
-                  </TabsTrigger>
-                  <TabsTrigger value="picture">
-                    {t("musicInfo.tab.picture")}
-                  </TabsTrigger>
-                  <TabsTrigger value="file">
-                    {t("musicInfo.tab.file")}
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+              <DialogTabList>
+                <TabsTrigger value="details">
+                  {t("musicInfo.tab.details")}
+                </TabsTrigger>
+                <TabsTrigger value="picture">
+                  {t("musicInfo.tab.picture")}
+                </TabsTrigger>
+                <TabsTrigger value="file">
+                  {t("musicInfo.tab.file")}
+                </TabsTrigger>
+              </DialogTabList>
               <DetailsPanel music={music} />
-              <PicturePanel music={music} />
+              <PicturePanel value="picture" picturePath={music.picturePath} />
               <FilePanel music={music} />
             </Tabs>
           </DialogBody>
