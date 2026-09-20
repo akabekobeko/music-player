@@ -21,6 +21,12 @@ type Props = {
   readonly selected?: Initial;
   /** Called with the tile the user clicked. */
   readonly onSelect: (initial: Initial) => void;
+  /**
+   * Stretch every tile to its column width so the grid fills a container
+   * wider than the fixed tiles (e.g. a dialog panel). Off by default: the
+   * tiles keep their fixed square size, sized for a popover.
+   */
+  readonly stretch?: boolean;
   /** Extra classes of the grid container (e.g. `justify-items-center`). */
   readonly className?: string;
 };
@@ -36,6 +42,7 @@ export const InitialGrid = ({
   available,
   selected,
   onSelect,
+  stretch = false,
   className,
 }: Props) => {
   const t = useT();
@@ -57,6 +64,7 @@ export const InitialGrid = ({
             initial === selected &&
               "border-foreground bg-accent text-accent-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)] hover:bg-accent dark:hover:bg-accent",
             initial === OTHER_INITIAL ? "col-span-2 w-full text-xs" : "text-sm",
+            stretch && "w-full",
           )}
           onClick={() => {
             onSelect(initial);

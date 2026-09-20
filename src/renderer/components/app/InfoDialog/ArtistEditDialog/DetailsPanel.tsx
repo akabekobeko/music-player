@@ -46,7 +46,7 @@ export const DetailsPanel = ({
         <InitialGrid
           selected={selectedInitial}
           onSelect={onSelectInitial}
-          className="justify-items-center"
+          stretch
         />
       </Stack>
     </DialogTabPanel>
