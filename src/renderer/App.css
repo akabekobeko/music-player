@@ -58,6 +58,10 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
+  --animate-audio-line-2: audio-line-2 1.5s ease-in-out infinite;
+  --animate-audio-line-3: audio-line-3 1s ease-in-out infinite;
+  --animate-audio-line-4: audio-line-4 0.8s ease-in-out infinite;
+  --animate-audio-line-5: audio-line-5 1.5s ease-in-out infinite;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -227,7 +231,9 @@ html[data-platform="linux"] {
 }
 
 /*
- * Equalizer-bar keyframes for AudioLinesIcon (the playing-track indicator).
+ * Equalizer-bar keyframes for AudioLinesIcon (the playing-track indicator),
+ * bound to the `animate-audio-line-*` utilities by the `--animate-*` theme
+ * tokens above.
  * Each set animates one bar of the lucide `audio-lines` glyph via
  * `d: path(...)`; Chromium interpolates it because both endpoints share the
  * same command structure (Electron-only renderer, so no fallback needed).

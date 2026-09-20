@@ -42,5 +42,5 @@ export const VStack = ({ children, className, ...props }: Props) => (
  * Fills the space between flexbox elements.
  */
 export const Spacer = () => (
-  <div className="shrink grow basis self-stretch justify-self-stretch" />
+  <div className="shrink grow basis-0 self-stretch justify-self-stretch" />
 );

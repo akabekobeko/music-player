@@ -28,7 +28,7 @@ export const AspectFitPicture = ({
 }: Props) => {
   const [ratio, setRatio] = useState<number | null>(null);
   return (
-    <div className="flex min-h-0 flex-1 items-center justify-center [container-type:size]">
+    <div className="flex min-h-0 flex-1 items-center justify-center @container-size">
       {src !== null ? (
         <img
           src={src}
