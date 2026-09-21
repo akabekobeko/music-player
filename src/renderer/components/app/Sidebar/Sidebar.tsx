@@ -27,7 +27,10 @@ const NAV_ITEMS = [
  * on top of the border (the `CircleIconButton` treatment), so it reads as a
  * thicker, stronger lamp; the active tab keeps only the plain border plus
  * the blur (the `InitialGrid` selected treatment), so it stays visible once
- * the pointer leaves without competing with the hovered tab.
+ * the pointer leaves without competing with the hovered tab. The active tab
+ * is also filled with the glow colour (`foreground`), so its icon switches to
+ * the inverse (`background`) to stay readable, and keeps that inverse colour
+ * on hover, where the plain hover text colour would vanish into the fill.
  */
 const tabClassName = (isActive: boolean): string =>
   cn(
@@ -35,7 +38,7 @@ const tabClassName = (isActive: boolean): string =>
     "hover:border-foreground hover:text-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     isActive
-      ? "border-foreground bg-background text-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      ? "border-foreground bg-foreground text-background hover:text-background shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
       : "text-muted-foreground",
   );
 
