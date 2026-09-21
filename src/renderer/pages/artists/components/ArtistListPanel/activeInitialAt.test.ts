@@ -31,18 +31,24 @@ it("lays rows out with slim headings and fixed artist rows", () => {
   expect(starts).toEqual([0, 24, 72, 120, 144, 192, 216]);
 });
 
-it("pins the first heading at the top and while its rows scroll by", () => {
-  expect(activeInitialAt(items, starts, 0)).toBe("A");
+it("pins the first heading while its rows scroll by", () => {
+  expect(activeInitialAt(items, starts, 1)).toBe("A");
   expect(activeInitialAt(items, starts, 100)).toBe("A");
   expect(activeInitialAt(items, starts, 119)).toBe("A");
 });
 
-it("switches to the next heading once it reaches the top, and back again", () => {
-  expect(activeInitialAt(items, starts, 120)).toBe("B");
+it("switches to the next heading once it scrolls under the top, and back again", () => {
+  expect(activeInitialAt(items, starts, 121)).toBe("B");
   expect(activeInitialAt(items, starts, 150)).toBe("B");
-  expect(activeInitialAt(items, starts, 192)).toBe("#");
+  expect(activeInitialAt(items, starts, 193)).toBe("#");
   expect(activeInitialAt(items, starts, 130)).toBe("B");
   expect(activeInitialAt(items, starts, 80)).toBe("A");
+});
+
+it("pins nothing while a heading sits exactly at the top", () => {
+  expect(activeInitialAt(items, starts, 0)).toBeNull();
+  expect(activeInitialAt(items, starts, 120)).toBeNull();
+  expect(activeInitialAt(items, starts, 192)).toBeNull();
 });
 
 it("returns null for an empty list", () => {

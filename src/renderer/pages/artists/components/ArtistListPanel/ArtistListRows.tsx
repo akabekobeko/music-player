@@ -20,8 +20,9 @@ type Props = {
  * Virtualised rows of `ArtistListPanel`: initial headings and artist rows,
  * plus a pinned copy of the current section's heading at the top of the
  * scroll area (UITableView-style — translucent so the rows sliding under it
- * stay visible; it lands exactly over the in-list heading when that heading
- * is at the top, and the next heading takes over once it reaches the top).
+ * stay visible; it is dropped while the in-list heading sits exactly at the
+ * top so the first row's glow is not covered, and the next heading takes
+ * over once it scrolls under the top; see `activeInitialAt`).
  * Rendered only once the artist list has loaded so the virtualiser's
  * `initialOffset` can bring the selected artist into view at mount — a
  * restored selection (launch, tab switch) is visible without scrolling.
