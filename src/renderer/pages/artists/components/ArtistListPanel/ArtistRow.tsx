@@ -30,8 +30,11 @@ type Props = {
  * blurred glow like the `Sidebar` tabs, and the glow strength is set by the
  * border thickness: hover adds a 1px spread ring on top of the border so it
  * reads as a thicker, stronger lamp; the selected row keeps only the plain
- * border plus the blur, with no background fill, so it stays visible once
- * the pointer leaves without competing with the hovered row. Rows abut each
+ * border plus the blur, so it stays visible once the pointer leaves without
+ * competing with the hovered row. The selected row is also filled with the
+ * glow colour (`foreground`), so its text switches to the inverse
+ * (`background`) to stay readable, and keeps that inverse colour on hover,
+ * where the plain hover text colour would vanish into the fill. Rows abut each
  * other inside the scroll area, so the button is inset from the panel edges
  * (`inset-x-2`) to leave room for the glow. Rows and initial headings are
  * absolutely positioned siblings painted in list order, so a glow would be
@@ -48,7 +51,7 @@ const rowClassName = (selected: boolean): string =>
     "hover:z-[2] hover:border-foreground hover:text-sidebar-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     selected
-      ? "z-[1] border-foreground text-sidebar-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      ? "z-[1] border-foreground bg-foreground text-background hover:text-background shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
       : "text-sidebar-foreground/80",
   );
 
@@ -86,7 +89,14 @@ export const ArtistRow = ({ artist, selected, top, height }: Props) => {
         <EllipsisText
           text={artist.name !== "" ? artist.name : t("artist.unknown")}
         />
-        <span className="block truncate text-[11px] text-muted-foreground">
+        <span
+          className={cn(
+            "block truncate text-[11px]",
+            // The muted colour sinks into the selected row's foreground fill,
+            // so use the inverse colour, toned down to keep it secondary.
+            selected ? "text-background/70" : "text-muted-foreground",
+          )}
+        >
           {t("artist.songs", { count: artist.musicCount })}
         </span>
       </span>
