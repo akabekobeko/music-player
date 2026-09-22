@@ -6,7 +6,7 @@
     values written as hex, because Finder thumbnails and Inkscape cannot parse
     the oklch notation. build/icon.png is rasterised from this file at 1024px
     via qlmanage; regenerate both files together when the design changes.
-      background: slate-700 #314158 highlight at the top, slate-900 #0f172b to slate-950 #020618
+      background: slate-800 #1d293d highlight at the top, slate-900 #0f172b to slate-950 #020618
       letter P:   amber-50 #fffbeb
       flame:      red-500 #fb2c36, orange-500 #ff6900, amber-400 #ffb900
       flame core: yellow-200 #fff085
@@ -14,7 +14,7 @@
   <defs>
     <!-- Vertical: a faint highlight along the top edge, then slate-900 to slate-950 -->
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#314158"/>
+      <stop offset="0" stop-color="#1d293d"/>
       <stop offset="0.3" stop-color="#0f172b"/>
       <stop offset="1" stop-color="#020618"/>
     </linearGradient>
