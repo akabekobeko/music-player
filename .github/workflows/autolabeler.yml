@@ -1,0 +1,27 @@
+name: Auto Label
+
+# Applies a category label (feat / fix / refactor / docs / chore) to pull
+# requests from the branch name prefix, using the autolabeler section of
+# .github/release-drafter.yml. Since Release Drafter v7 the autolabeler is a
+# separate action from the drafter, so it needs its own workflow.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Add labels to the pull request
+      pull-requests: write
+    steps:
+      - uses: release-drafter/release-drafter/autolabeler@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

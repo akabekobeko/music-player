@@ -1,11 +1,13 @@
 name: Release Drafter
 
+# Keeps the draft of the next release up to date.
+# - push: every merge into main regenerates the draft
+# - workflow_dispatch: run manually after changing labels of merged pull
+#   requests, because label changes alone do not trigger this workflow
 on:
   push:
     branches: [main]
-  # autolabeler がブランチ名の接頭辞から PR へラベルを付与するため PR でも起動する
-  pull_request:
-    types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      # ドラフト リリースの作成・更新
+      # Create and update the draft release
       contents: write
-      # autolabeler による PR ラベルの付与
-      pull-requests: write
+      # Read merged pull requests and their labels
+      pull-requests: read
     steps:
       - uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
         env:

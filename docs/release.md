@@ -17,6 +17,7 @@ flowchart TD
 1. PR を main へマージすると [Release Drafter](https://github.com/release-drafter/release-drafter) (`.github/workflows/release-drafter.yml`) が次リリースのドラフトを自動更新する
    - タイトル・タグは解決済みの次バージョン (例: `v1.0.1`)
    - Release Notes にはマージ済み PR がカテゴリー別に列挙される
+   - ドラフトが更新されるのは main への push 時だけ。マージ済み PR のラベルを後から変更した場合は、Actions の "Release Drafter" を **Run workflow** で手動実行してドラフトを再生成する
 2. リリースしたいタイミングで GitHub の Releases ページからドラフトを開き、内容を確認・編集して **Publish release** する
 3. Publish を契機に `release.yml` が自動実行される
    - `version` job: タグからバージョンを取り出し、`package.json` の `version` を更新して main へ commit (`chore: vX.Y.Z`)。Publish 時に打たれたタグをこの commit へ移動する
@@ -35,7 +36,7 @@ flowchart TD
 | Major    | PR に `release:major` ラベルを付与する   |
 
 - ドラフトに含まれる PR に複数の `release:*` ラベルがある場合は、最も大きい更新が優先される (Major > Minor > Patch)
-- ラベルの付与はマージ後でもよい (ドラフトは PR ラベルの変更でも再計算される)
+- ラベルの付与はマージ後でもよいが、ラベル変更だけではドラフトは再計算されない。変更後に "Release Drafter" ワークフローを手動実行する
 
 ### 任意のバージョンにしたい場合
 
@@ -57,7 +58,9 @@ Release Notes のカテゴリー分類には既存のラベルを使用します
 | `docs`     | 📝 Documentation  |
 | `chore`    | 🔧 Maintenance    |
 
-ブランチ名の接頭辞 (`feat/`, `fix/`, `refactor/`, `docs/`, `chore/`) から autolabeler が PR へ自動付与するため、通常は手動での付与は不要です。
+ブランチ名の接頭辞 (`feat/`, `fix/`, `refactor/`, `docs/`, `chore/`) から autolabeler (`.github/workflows/autolabeler.yml`) が PR の作成時に自動付与するため、通常は手動での付与は不要です。Release Drafter v7 では autolabeler が本体とは別の action (`release-drafter/release-drafter/autolabeler`) になっているため、専用のワークフローで実行しています。
+
+ラベルのない PR は Release Notes でどのカテゴリーにも分類されず、冒頭に列挙されます。接頭辞のないブランチから PR を作った場合は手動でラベルを付けてください。
 
 バージョン制御用のラベルは次の 2 つです (autolabeler の対象外、必要なときに手動で付与)。
 
