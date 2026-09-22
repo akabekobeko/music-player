@@ -26,7 +26,7 @@
     </linearGradient>
   </defs>
   <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
-  <g transform="translate(572.5 487.0) scale(1.0) rotate(-18) translate(-537.5 -525.0)">
+  <g transform="translate(580.0 484.5) scale(1.12) rotate(-18) translate(-537.5 -525.0)">
     <!-- Extra bold P with its bowl counter -->
     <path d="M300 230 H580 A195 195 0 0 1 580 620 H470 V820 H300 Z M470 335 H580 A90 90 0 0 1 580 515 H470 Z" fill="#fffbeb" fill-rule="evenodd"/>
     <!-- Bright core filling the hollow of the flame -->
