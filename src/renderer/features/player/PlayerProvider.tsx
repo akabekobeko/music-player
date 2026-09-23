@@ -76,6 +76,12 @@ export type PlayerCommands = {
   readonly insertNext: (musics: readonly Music[]) => void;
   /** Append tracks to the queue tail ("Add to queue"). */
   readonly appendToQueue: (musics: readonly Music[]) => void;
+  /**
+   * Swap edited tracks (re-read after a write) into the queue and the
+   * current track; a changed current track also refreshes the OS media
+   * controls. Playback is left as it is.
+   */
+  readonly updateMusics: (musics: readonly Music[]) => void;
 };
 
 const PlayerStateContext = createContext<PlayerState | null>(null);
@@ -256,6 +262,20 @@ const createCommands = (
 
     appendToQueue: (musics) => {
       dispatch({ type: "queueAppended", musics });
+    },
+
+    updateMusics: (musics) => {
+      const current = stateRef.current.current;
+      const replaced =
+        current === null
+          ? undefined
+          : musics.find((music) => music.id === current.id);
+      dispatch({ type: "musicsUpdated", musics });
+      // The metadata follows the command that changed the current track,
+      // like playMusic / playNext (never an effect watching `current`).
+      if (replaced !== undefined) {
+        updateMediaSessionMetadata(replaced);
+      }
     },
   };
 

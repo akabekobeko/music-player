@@ -1,6 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import { activeAlbumKeyOf } from "@/features/player/activeAlbumKeyOf";
@@ -13,13 +14,15 @@ import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { albumFilterStore } from "./albumFilterStore";
 import { buildAlbumGridRows } from "./buildAlbumGridRows";
 import { computeAlbumGridLayout } from "./computeAlbumGridLayout";
+import { nextAlbumKeyOf } from "./nextAlbumKeyOf";
 import { sortAlbums } from "./sortAlbums";
 import { useElementWidth } from "./useElementWidth";
 
 /**
  * Logic of `PageContent`: the applied filter's album summaries, the
- * responsive grid geometry, the row virtualiser, and the selection /
- * playback handlers. The component only renders what this hook returns.
+ * responsive grid geometry, the row virtualiser, the selection / playback
+ * handlers, and the detail pane's follow after an edit moved the selected
+ * album's tracks. The component only renders what this hook returns.
  */
 export const usePageContent = () => {
   const { applied } = useSyncExternalStore(
@@ -75,6 +78,21 @@ export const usePageContent = () => {
   useEffect(() => {
     virtualizer.measure();
   }, [virtualizer, layout.rowHeight]);
+
+  // Subscription to an external event source (the dialog's apply), not a
+  // state sync: when an edit changed the album key of the selected album's
+  // tracks the pane follows them (`docs/specs/v1.1/features/route-follow.md`).
+  // A key that vanished from the grid closes the pane through the derived
+  // `selectedAlbum` above, as in v1.0.
+  useEffect(
+    () =>
+      musicInfoStore.onApplied(({ targets, updated }) => {
+        setSelectedKey((key) =>
+          key === null ? null : nextAlbumKeyOf(key, targets, updated),
+        );
+      }),
+    [],
+  );
 
   const toggleSelected = (album: AlbumSummary): void => {
     setSelectedKey((key) => (key === album.albumKey ? null : album.albumKey));

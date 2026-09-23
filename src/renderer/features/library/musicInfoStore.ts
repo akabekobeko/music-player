@@ -1,4 +1,4 @@
-import type { Music } from "@mp/ipc";
+import type { Music, UpdatedMusic } from "@mp/ipc";
 
 /**
  * Pending state of the music info flow (track row menu → "Song info").
@@ -8,12 +8,26 @@ import type { Music } from "@mp/ipc";
  * app-level `MusicInfoDialog` (AppLayout) reads them via
  * `useSyncExternalStore`. A single track is a list of one; a multi-track
  * selection (`docs/specs/v1.1/features/multi-edit.md`) is a longer list.
+ *
+ * The store also carries the "applied" notification: the dialog reports
+ * what an apply updated, and the views that must follow a changed artist
+ * or album (`docs/specs/v1.1/features/route-follow.md`) listen here, so the
+ * dialog never knows about routes.
  */
+
+/** What one apply wrote: the tracks as opened and the ones re-read after. */
+export type AppliedUpdate = {
+  /** The dialog's tracks before the write (their former artist / album). */
+  readonly targets: readonly Music[];
+  /** The tracks that were written, as re-read from their files. */
+  readonly updated: readonly UpdatedMusic[];
+};
 
 /** The store class: the tracks shown in the info dialog, or `null`. */
 export class MusicInfoStore {
   #musics: readonly Music[] | null = null;
   #listeners = new Set<() => void>();
+  #appliedListeners = new Set<(update: AppliedUpdate) => void>();
 
   /** Register a listener. Stable identity (class property). */
   readonly subscribe = (listener: () => void): (() => void) => {
@@ -40,6 +54,36 @@ export class MusicInfoStore {
   /** Close the dialog. */
   close(): void {
     this.#set(null);
+  }
+
+  /**
+   * Listen for applies that updated at least one track.
+   *
+   * @param listener - Receives the applied update.
+   * @returns Unsubscribe.
+   */
+  readonly onApplied = (
+    listener: (update: AppliedUpdate) => void,
+  ): (() => void) => {
+    this.#appliedListeners.add(listener);
+    return () => {
+      this.#appliedListeners.delete(listener);
+    };
+  };
+
+  /**
+   * Report an apply's result to the `onApplied` listeners.
+   *
+   * @param update - The applied update; ignored when nothing was updated.
+   */
+  notifyApplied(update: AppliedUpdate): void {
+    if (update.updated.length === 0) {
+      return;
+    }
+
+    for (const listener of [...this.#appliedListeners]) {
+      listener(update);
+    }
   }
 
   #set(next: readonly Music[] | null): void {

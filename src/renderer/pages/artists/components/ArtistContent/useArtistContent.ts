@@ -1,9 +1,11 @@
 import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router";
 import { flattenAlbumMusics } from "@/features/library/flattenAlbumMusics";
 import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import {
   applySelectionClick,
   EMPTY_SELECTION,
@@ -26,10 +28,12 @@ import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { albumRowIndexOf } from "./albumRowIndexOf";
 import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./buildAlbumRows";
+import { nextArtistRouteOf } from "./nextArtistRouteOf";
 
 /**
  * Logic of `ArtistContent`: the artist's albums / play order, the row
- * virtualiser, the multi-selection, and every playback / library action.
+ * virtualiser, the multi-selection, every playback / library action, and
+ * the route follow after an edit moved the shown tracks to another artist.
  * The component only renders what this hook returns.
  */
 export const useArtistContent = (artistName: string) => {
@@ -38,8 +42,32 @@ export const useArtistContent = (artistName: string) => {
   const commands = usePlayerCommands();
   const { current } = usePlayerState();
   const playbackState = usePlaybackState();
+  const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [selection, setSelection] = useState<SelectionState>(EMPTY_SELECTION);
+
+  const allMusics = musicsState.status === "success" ? musicsState.value : [];
+  // The applied listener below reads the artist's tracks as of the apply;
+  // assigning during render keeps the ref current without resubscribing.
+  const allMusicsRef = useRef(allMusics);
+  allMusicsRef.current = allMusics;
+  // Subscription to an external event source (the dialog's apply), not a
+  // state sync: when an edit changed the display artist of the shown tracks
+  // the view follows them (`docs/specs/v1.1/features/route-follow.md`).
+  useEffect(
+    () =>
+      musicInfoStore.onApplied(({ updated }) => {
+        const path = nextArtistRouteOf(
+          artistName,
+          allMusicsRef.current,
+          updated,
+        );
+        if (path !== null) {
+          navigate(path, { replace: true });
+        }
+      }),
+    [artistName, navigate],
+  );
 
   const { applied: trackFilter } = useSyncExternalStore(
     trackFilterStore.subscribe,
@@ -48,9 +76,9 @@ export const useArtistContent = (artistName: string) => {
 
   // The toolbar's song filter narrows the artist's tracks; albums regroup
   // from the filtered list, so albums without a matching track disappear.
-  const musics = (
-    musicsState.status === "success" ? musicsState.value : []
-  ).filter((music) => matchesTrackFilter(music.title, trackFilter.artists));
+  const musics = allMusics.filter((music) =>
+    matchesTrackFilter(music.title, trackFilter.artists),
+  );
   const groups = groupAlbums(musics);
   const rows = buildAlbumRows(groups);
   // The artist's full play order — every playback action queues this

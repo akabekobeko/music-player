@@ -149,6 +149,15 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
       return;
     }
 
+    // Whatever was written reaches the queue / current track at once (the
+    // views refetch on the library broadcast) and the views that follow a
+    // changed artist or album — even when other tracks failed.
+    const { updated } = result.value;
+    if (updated.length > 0) {
+      commands.updateMusics(updated.map((entry) => entry.music));
+      musicInfoStore.notifyApplied({ targets: musics, updated });
+    }
+
     if (result.value.failed.length > 0) {
       setFailures(result.value.failed);
       return;
