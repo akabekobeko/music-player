@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type { PictureInfo } from "@akabeko/music-metadata-editor";
-import { IMAGE_EXTENSION_BY_MIME } from "./IMAGE_EXTENSION_BY_MIME";
+import { IMAGE_EXTENSION_BY_MIME } from "../../shared/IMAGE_EXTENSION_BY_MIME";
 
 /**
  * Content-hash file name for an image: SHA-256 of the bytes plus a

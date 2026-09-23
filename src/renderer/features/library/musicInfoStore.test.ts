@@ -2,9 +2,9 @@ import type { Music } from "@mp/ipc";
 import { expect, it } from "vitest";
 import { MusicInfoStore } from "./musicInfoStore";
 
-const MUSIC: Music = {
-  id: 1,
-  filePath: "/m/1.mp3",
+const music = (id: number): Music => ({
+  id,
+  filePath: `/m/${id}.mp3`,
   audioFormat: "mp3",
   title: "T",
   artist: "Artist",
@@ -26,23 +26,36 @@ const MUSIC: Music = {
   picturePath: null,
   addedAt: "",
   updatedAt: "",
-};
+});
 
-it("opens with the given track and notifies subscribers", () => {
+it("opens with the given tracks and notifies subscribers", () => {
   const store = new MusicInfoStore();
   let notified = 0;
   store.subscribe(() => {
     notified += 1;
   });
 
-  store.open(MUSIC);
-  expect(store.getSnapshot()).toBe(MUSIC);
+  const musics = [music(1), music(2)];
+  store.open(musics);
+  expect(store.getSnapshot()).toBe(musics);
   expect(notified).toBe(1);
 });
 
-it("close clears the track", () => {
+it("ignores an empty list", () => {
   const store = new MusicInfoStore();
-  store.open(MUSIC);
+  let notified = 0;
+  store.subscribe(() => {
+    notified += 1;
+  });
+
+  store.open([]);
+  expect(store.getSnapshot()).toBeNull();
+  expect(notified).toBe(0);
+});
+
+it("close clears the tracks", () => {
+  const store = new MusicInfoStore();
+  store.open([music(1)]);
   store.close();
   expect(store.getSnapshot()).toBeNull();
 });
@@ -54,6 +67,6 @@ it("unsubscribing stops notifications", () => {
     notified += 1;
   });
   unsubscribe();
-  store.open(MUSIC);
+  store.open([music(1)]);
   expect(notified).toBe(0);
 });

@@ -127,20 +127,24 @@ function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
 function DialogFooter({
   className,
   showCloseButton = false,
+  leading,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
+  /** Optional note shown at the start of the band, before the buttons. */
+  leading?: React.ReactNode;
 }) {
   return (
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex shrink-0 justify-end border-t bg-muted/50 p-4",
+        "flex shrink-0 items-center justify-end gap-4 border-t bg-muted/50 p-4",
         className,
       )}
       {...props}
     >
+      {leading !== undefined && <div className="min-w-0 flex-1">{leading}</div>}
       <div className="grid auto-cols-fr grid-flow-col gap-2">
         {children}
         {showCloseButton && (

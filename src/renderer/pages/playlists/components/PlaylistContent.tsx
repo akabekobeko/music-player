@@ -161,7 +161,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                         {
                           label: t("menu.musicInfo"),
                           icon: <NotepadText />,
-                          onSelect: () => musicInfoStore.open(music),
+                          onSelect: () => musicInfoStore.open([music]),
                           separatorBefore: true,
                         },
                         ...(ref.kind === "static"

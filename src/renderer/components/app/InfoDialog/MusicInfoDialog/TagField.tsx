@@ -3,16 +3,50 @@ import { Input } from "@/components/ui/input";
 type Props = {
   /** Field label; also the input's accessible name. */
   readonly label: string;
-  /** Input type; `number` for numeric tags such as year or track. */
-  readonly type?: "text" | "number";
-  /** Tag value; `null` (unset) renders as an empty input. */
-  readonly value: string | number | null;
+  /** Current text; a mixed (`null`) value renders as an empty input. */
+  readonly value: string | null;
+  /** Placeholder shown while the input is empty (the "Mixed" hint). */
+  readonly placeholder?: string;
+  /** Validation message shown under the input, or `null`. */
+  readonly error?: string | null;
+  /** `numeric` for the number-like tags (year, track, …). */
+  readonly inputMode?: "numeric";
+  readonly disabled?: boolean;
+  /** Called with the input's text on every change. */
+  readonly onChange: (value: string) => void;
 };
 
-/** Label + read-only input row for a (future-editable) tag field. */
-export const TagField = ({ label, type = "text", value }: Props) => (
-  <div className="grid grid-cols-[7.5rem_1fr] items-center gap-2">
+/**
+ * Label + editable input row for a tag field, the error (if any) under the
+ * input in red. Numbers are edited as text (`inputMode="numeric"`) rather
+ * than `type="number"`, whose empty / invalid states are indistinguishable;
+ * the schema and `toMusicTagPatch` handle the parsing.
+ */
+export const TagField = ({
+  label,
+  value,
+  placeholder,
+  error = null,
+  inputMode,
+  disabled = false,
+  onChange,
+}: Props) => (
+  <div className="grid grid-cols-[7.5rem_1fr] items-center gap-x-2 gap-y-1">
     <span className="text-muted-foreground text-xs">{label}</span>
-    <Input type={type} value={value ?? ""} aria-label={label} readOnly />
+    <Input
+      value={value ?? ""}
+      placeholder={placeholder}
+      inputMode={inputMode}
+      aria-label={label}
+      aria-invalid={error !== null || undefined}
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.value)}
+    />
+    {error !== null && (
+      <>
+        <span />
+        <p className="text-destructive text-xs">{error}</p>
+      </>
+    )}
   </div>
 );

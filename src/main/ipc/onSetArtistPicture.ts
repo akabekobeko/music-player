@@ -1,8 +1,8 @@
 import { PictureKind } from "@akabeko/music-metadata-editor";
+import { IMAGE_EXTENSION_BY_MIME } from "../../shared/IMAGE_EXTENSION_BY_MIME";
 import { getDatabase } from "../db/connection";
 import { deleteArtworkFiles } from "../library/deleteArtworkFiles";
 import { getOrCreatePictureId } from "../library/getOrCreatePictureId";
-import { IMAGE_EXTENSION_BY_MIME } from "../library/IMAGE_EXTENSION_BY_MIME";
 import { saveArtwork } from "../library/saveArtwork";
 import { setArtistPicture } from "../library/setArtistPicture";
 import { imagesDirectory } from "../protocol/imagesDirectory";
