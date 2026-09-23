@@ -2,6 +2,7 @@ import { rename as fsRename, unlink as fsUnlink } from "node:fs/promises";
 import {
   loadTrack as mmeLoadTrack,
   saveTrack as mmeSaveTrack,
+  type SavableTrack,
   type SaveTrackOptions,
   type Track,
 } from "@akabeko/music-metadata-editor";
@@ -19,7 +20,7 @@ export const TEMP_FILE_SUFFIX = ".parade-tmp";
 export type WriteMusicFileDeps = {
   readonly loadTrack: (filePath: string) => Promise<Track>;
   readonly saveTrack: (
-    track: Track,
+    track: SavableTrack,
     options: SaveTrackOptions,
   ) => Promise<void>;
   readonly rename: (from: string, to: string) => Promise<void>;
@@ -58,7 +59,7 @@ export const writeMusicFile = async (
   deps: WriteMusicFileDeps = DEFAULT_WRITE_DEPS,
 ): Promise<Track> => {
   const track = await deps.loadTrack(filePath);
-  const edited: Track = {
+  const edited: SavableTrack = {
     ...track,
     tag: applyTagPatch(track.tag, patch),
     pictures:

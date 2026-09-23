@@ -20,7 +20,9 @@ import {
 /**
  * Round-trip coverage over every format Parade supports, against the real
  * mme writers (`docs/specs/v1.1/roadmap.md`, Phase 1). Fixtures are copied
- * from mme's own test suite (`src/test/fixtures/audio/README.md`).
+ * from mme's own test suite (`src/test/fixtures/audio/README.md`). Numeric
+ * deletion and the rating need mme 1.2.0 (`null` deletion markers, rating
+ * in ID3v2 / Vorbis Comment / APE).
  */
 
 const FIXTURES = path.resolve(
@@ -48,32 +50,6 @@ const WITH_PICTURE: ReadonlyArray<{ format: AudioFormat; file: string }> = [
   { format: "m4a", file: "with-picture.m4a" },
   { format: "ape", file: "with-picture.ape" },
 ];
-
-/**
- * Known gaps of mme 1.1.1, listed as `it.todo` below so the run shows what
- * still needs the library fix rather than silently passing or failing:
- * - The preserving writers (Vorbis Comment / MP4 / APE) keep a numeric
- *   field when it is `undefined`; only `""` clears a field, and numbers
- *   cannot carry `""`. APE's `Year` item is affected the same way.
- * - Only the MP4 and ASF writers know a rating field.
- */
-const CANNOT_CLEAR_NUMBER = new Set<AudioFormat>([
-  "flac",
-  "m4a",
-  "ogg",
-  "opus",
-  "ape",
-]);
-const CANNOT_CLEAR_YEAR = new Set<AudioFormat>(["ape"]);
-const CANNOT_WRITE_RATING = new Set<AudioFormat>([
-  "mp3",
-  "flac",
-  "ogg",
-  "opus",
-  "wav",
-  "aiff",
-  "ape",
-]);
 
 const PNG = new Uint8Array([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x01, 0x02, 0x03, 0x04,
@@ -154,20 +130,15 @@ for (const { format, file } of FORMATS) {
     }
   });
 
-  if (CANNOT_CLEAR_YEAR.has(format)) {
-    it.todo(
-      `${format}: clears the year (needs mme to drop undefined numeric fields)`,
-    );
-  } else {
-    it(`${format}: clears the year`, async () => {
-      const filePath = await stage(file);
-      await write(filePath, { year: 1999 });
+  it(`${format}: clears the year`, async () => {
+    const filePath = await stage(file);
+    await write(filePath, { year: 1999 });
 
-      const after = await write(filePath, { year: null });
+    const after = await write(filePath, { year: null });
 
-      expect(after.tag.year).toBeUndefined();
-    });
-  }
+    expect(after.tag.year).toBeUndefined();
+    expect(after.tag.recordingDate).toBeUndefined();
+  });
 
   it(`${format}: writes track, disc and bpm`, async () => {
     const filePath = await stage(file);
@@ -179,32 +150,24 @@ for (const { format, file } of FORMATS) {
     expect(after.tag.bpm).toBe(128);
   });
 
-  if (CANNOT_CLEAR_NUMBER.has(format)) {
-    it.todo(
-      `${format}: clears bpm (needs mme to drop undefined numeric fields)`,
-    );
-  } else {
-    it(`${format}: clears bpm`, async () => {
-      const filePath = await stage(file);
-      await write(filePath, { bpm: 128 });
+  it(`${format}: clears bpm`, async () => {
+    const filePath = await stage(file);
+    await write(filePath, { bpm: 128 });
 
-      const after = await write(filePath, { bpm: null });
+    const after = await write(filePath, { bpm: null });
 
-      expect(after.tag.bpm).toBeUndefined();
-    });
-  }
+    expect(after.tag.bpm).toBeUndefined();
+  });
 
-  if (CANNOT_WRITE_RATING.has(format)) {
-    it.todo(`${format}: writes the rating (needs rating support in mme)`);
-  } else {
-    it(`${format}: writes the rating`, async () => {
-      const filePath = await stage(file);
+  it(`${format}: writes and clears the rating`, async () => {
+    const filePath = await stage(file);
 
-      const after = await write(filePath, { rating: 0.6 });
+    const set = await write(filePath, { rating: 0.6 });
+    expect(set.tag.rating).toBeCloseTo(0.6, 1);
 
-      expect(after.tag.rating).toBeCloseTo(0.6, 1);
-    });
-  }
+    const cleared = await write(filePath, { rating: null });
+    expect(cleared.tag.rating).toBeUndefined();
+  });
 
   it(`${format}: embeds a front cover`, async () => {
     const filePath = await stage(file);

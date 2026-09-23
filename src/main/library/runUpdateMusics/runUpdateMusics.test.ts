@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import {
   PictureKind,
+  type SavableTrack,
   type SaveTrackOptions,
   type Track,
 } from "@akabeko/music-metadata-editor";
@@ -19,7 +20,11 @@ import {
 import { TEMP_FILE_SUFFIX } from "./writeMusicFile";
 
 let db: DatabaseSync;
-/** In-memory "disk": path → track, standing in for mme + fs. */
+/**
+ * In-memory "disk": path → track, standing in for mme + fs. A written
+ * track keeps its deletion markers (`null`) as mme's fake "reader" hands
+ * them back unchanged, which `mapTrackToMusicRow` treats like unset.
+ */
 let files: Map<string, Track>;
 
 beforeEach(() => {
@@ -91,6 +96,13 @@ const seed = (
   ).id;
 };
 
+/**
+ * What a real reader would return for the written file: `null` markers are
+ * gone (the field was removed). Kept as a cast so the expectations can still
+ * inspect the markers the run wrote.
+ */
+const asTrack = (track: SavableTrack): Track => track as Track;
+
 const notFound = (filePath: string): Error =>
   Object.assign(new Error(`ENOENT: ${filePath}`), { code: "ENOENT" });
 
@@ -103,12 +115,12 @@ const deps = (overrides: Partial<UpdateRunDeps> = {}): UpdateRunDeps => ({
 
     return found;
   }),
-  saveTrack: vi.fn(async (edited: Track, options: SaveTrackOptions) => {
+  saveTrack: vi.fn(async (edited: SavableTrack, options: SaveTrackOptions) => {
     if (typeof options.source !== "string" || !files.has(options.source)) {
       throw notFound(String(options.source));
     }
 
-    files.set(options.outputPath ?? options.source, edited);
+    files.set(options.outputPath ?? options.source, asTrack(edited));
   }),
   rename: vi.fn(async (from: string, to: string) => {
     const moved = files.get(from);
@@ -158,12 +170,14 @@ it("writes the patch into the file and mirrors it into the DB", async () => {
   );
 
   expect(summary.failed).toEqual([]);
+  // The fake keeps the patch as written; null is mme's deletion marker.
   expect(files.get("/m/a.mp3")?.tag).toEqual({
     title: "Renamed",
     artist: "Artist",
     albumArtist: "AA",
     album: "Album",
-    year: undefined,
+    year: null,
+    recordingDate: null,
   });
   const after = dbRow(id);
   expect(after.title).toBe("Renamed");
@@ -392,10 +406,12 @@ it("re-saves the file's own artwork on a tag-only change (content-hash dedup)", 
 it("leaves no temporary file behind when the write fails", async () => {
   const id = seed("/m/a.mp3");
   const run = deps({
-    saveTrack: vi.fn(async (edited: Track, options: SaveTrackOptions) => {
-      files.set(options.outputPath ?? "", edited);
-      throw Object.assign(new Error("disk full"), { code: "ENOSPC" });
-    }),
+    saveTrack: vi.fn(
+      async (edited: SavableTrack, options: SaveTrackOptions) => {
+        files.set(options.outputPath ?? "", asTrack(edited));
+        throw Object.assign(new Error("disk full"), { code: "ENOSPC" });
+      },
+    ),
   });
 
   const summary = await runUpdateMusics(
