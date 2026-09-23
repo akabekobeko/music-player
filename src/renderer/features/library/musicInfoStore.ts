@@ -4,14 +4,15 @@ import type { Music } from "@mp/ipc";
  * Pending state of the music info flow (track row menu → "Song info").
  *
  * The menu that starts the flow unmounts when it closes, so the info dialog
- * cannot live inside it — the menu item stashes the track here and the
- * app-level `MusicInfoDialog` (AppLayout) reads it via
- * `useSyncExternalStore`.
+ * cannot live inside it — the menu item stashes the tracks here and the
+ * app-level `MusicInfoDialog` (AppLayout) reads them via
+ * `useSyncExternalStore`. A single track is a list of one; a multi-track
+ * selection (`docs/specs/v1.1/features/multi-edit.md`) is a longer list.
  */
 
-/** The store class: the track shown in the info dialog, or `null`. */
+/** The store class: the tracks shown in the info dialog, or `null`. */
 export class MusicInfoStore {
-  #music: Music | null = null;
+  #musics: readonly Music[] | null = null;
   #listeners = new Set<() => void>();
 
   /** Register a listener. Stable identity (class property). */
@@ -22,16 +23,18 @@ export class MusicInfoStore {
     };
   };
 
-  /** Read the track on display (`null` = dialog closed). */
-  readonly getSnapshot = (): Music | null => this.#music;
+  /** Read the tracks on display (`null` = dialog closed). */
+  readonly getSnapshot = (): readonly Music[] | null => this.#musics;
 
   /**
-   * Open the info dialog for a track.
+   * Open the info dialog for one or more tracks.
    *
-   * @param music - Track to show.
+   * @param musics - Tracks to show; an empty list is ignored.
    */
-  open(music: Music): void {
-    this.#set(music);
+  open(musics: readonly Music[]): void {
+    if (musics.length > 0) {
+      this.#set(musics);
+    }
   }
 
   /** Close the dialog. */
@@ -39,8 +42,8 @@ export class MusicInfoStore {
     this.#set(null);
   }
 
-  #set(next: Music | null): void {
-    this.#music = next;
+  #set(next: readonly Music[] | null): void {
+    this.#musics = next;
     for (const listener of [...this.#listeners]) {
       listener();
     }

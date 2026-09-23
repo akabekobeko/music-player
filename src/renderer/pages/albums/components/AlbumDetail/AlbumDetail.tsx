@@ -159,7 +159,7 @@ export const AlbumDetail = ({ album }: Props) => {
                         {
                           label: t("menu.musicInfo"),
                           icon: <NotepadText />,
-                          onSelect: () => musicInfoStore.open(music),
+                          onSelect: () => musicInfoStore.open([music]),
                           separatorBefore: true,
                         },
                         {
