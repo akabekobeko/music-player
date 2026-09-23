@@ -16,7 +16,7 @@ import {
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { IMAGE_EXTENSION_BY_MIME } from "../../../../../shared/IMAGE_EXTENSION_BY_MIME";
 import { diffFormValues } from "./diffFormValues";
-import { formValuesOf } from "./formValuesOf";
+import { mergeMusics } from "./mergeMusics";
 import { musicInfoSchema } from "./musicInfoSchema";
 import { toMusicTagPatch } from "./toMusicTagPatch";
 
@@ -40,15 +40,16 @@ export type PictureChange = null | { readonly file: File } | "clear";
  * edited back to its initial text counts as unchanged (`isDefaultValue`,
  * never the sticky `isDirty`).
  *
- * @param musics - Tracks under edit (one for now; the merge of several is
- *   the multi-edit feature).
- * @param primary - The first track, whose values seed the form.
+ * Several tracks open on their merged values
+ * (`docs/specs/v1.1/features/multi-edit.md`): a field that differs between
+ * them is "mixed" (`null`) and stays out of the patch until edited; the
+ * artwork shows only when every track has the same one, and a pick or a
+ * removal applies to all of them.
+ *
+ * @param musics - Tracks under edit; never empty.
  */
-export const useMusicInfoDialog = (
-  musics: readonly Music[],
-  primary: Music,
-) => {
-  const [initialValues] = useState(() => formValuesOf(primary));
+export const useMusicInfoDialog = (musics: readonly Music[]) => {
+  const [initialValues] = useState(() => mergeMusics(musics));
   const form = useForm({
     defaultValues: initialValues,
     validators: { onChange: musicInfoSchema },
@@ -74,7 +75,10 @@ export const useMusicInfoDialog = (
   /** The current track is among the targets — applying stops playback. */
   const stopsPlayback =
     current !== null && musics.some((music) => music.id === current.id);
-  const hasArtwork = primary.picturePath !== null;
+  /** Some target has an artwork, so Remove has something to clear. */
+  const hasArtwork = musics.some((music) => music.picturePath !== null);
+  /** The artwork every target shares, `null` when absent or mixed. */
+  const sharedPicturePath = sharedPicturePathOf(musics);
 
   const revokePreview = (): void => {
     if (previewUrl !== null) {
@@ -96,7 +100,7 @@ export const useMusicInfoDialog = (
   };
 
   /**
-   * Drop the picked file; with an artwork on the track this also asks for
+   * Drop the picked file; with an artwork on any track this also asks for
    * its removal, without one it merely returns to "untouched".
    */
   const removeArtwork = (): void => {
@@ -156,12 +160,12 @@ export const useMusicInfoDialog = (
 
   return {
     form,
-    /** Artwork to show: the picked file's preview, else the current one. */
+    /** Artwork to show: the picked file's preview, else the shared one. */
     imageUrl:
       previewUrl ??
-      (pictureChange === "clear" || primary.picturePath === null
+      (pictureChange === "clear" || sharedPicturePath === null
         ? null
-        : toMediaFileUrl(primary.picturePath)),
+        : toMediaFileUrl(sharedPicturePath)),
     /** Remove has something to undo: a pick, or an artwork not yet removed. */
     canRemoveArtwork:
       pictureChange !== null ? pictureChange !== "clear" : hasArtwork,
@@ -178,6 +182,18 @@ export const useMusicInfoDialog = (
     apply,
     close,
   };
+};
+
+/**
+ * The artwork path common to every track, or `null` when a track has none
+ * or they differ (the mixed artwork shows the placeholder,
+ * `docs/specs/v1.1/features/artwork-edit.md`).
+ */
+const sharedPicturePathOf = (musics: readonly Music[]): string | null => {
+  const first = musics[0]?.picturePath ?? null;
+  return first !== null && musics.every((music) => music.picturePath === first)
+    ? first
+    : null;
 };
 
 /**

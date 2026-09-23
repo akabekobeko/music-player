@@ -49,7 +49,7 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
     removeArtwork,
     apply,
     close,
-  } = useMusicInfoDialog(musics, primary);
+  } = useMusicInfoDialog(musics);
 
   return (
     <Dialog
@@ -62,7 +62,11 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
     >
       <DialogContent className="sm:max-w-lg md:max-w-2xl xl:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{t("musicInfo.title")}</DialogTitle>
+          <DialogTitle>
+            {musics.length === 1
+              ? t("musicInfo.title")
+              : t("musicInfo.titleCount", { count: musics.length })}
+          </DialogTitle>
         </DialogHeader>
         <DialogBody className="h-[60vh] px-0 pb-0">
           <Tabs defaultValue="details" className="min-h-0 flex-1">
@@ -88,7 +92,7 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
               onSelectFile={selectFile}
               onRemove={removeArtwork}
             />
-            <FilePanel music={primary} />
+            <FilePanel musics={musics} primary={primary} />
           </Tabs>
           {error !== null && (
             <p className="shrink-0 break-all px-4 pb-4 text-destructive text-sm">

@@ -3,6 +3,13 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState, useSyncExternalStore } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicRow/MusicRow";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
+import {
+  applySelectionClick,
+  EMPTY_SELECTION,
+  type SelectionState,
+} from "@/features/library/selection/applySelectionClick";
+import { menuTargetsOf } from "@/features/library/selection/menuTargetsOf";
+import { uniqueMusics } from "@/features/library/selection/uniqueMusics";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
 import {
   usePlaybackState,
@@ -32,10 +39,28 @@ type PendingOrder = {
 };
 
 /**
+ * Multi-selection of rows (positions, since one track may sit on several
+ * rows) bound to the order it was made on. Valid only while `base` is still
+ * the list on display — a reorder, a refetch, or the switch to another
+ * playlist replaces the value and thereby clears the selection, no effect
+ * needed (`docs/specs/v1.1/features/selection.md`).
+ */
+type BoundSelection = {
+  readonly base: readonly Music[];
+  readonly selection: SelectionState;
+};
+
+/** One row of the list: the track and its position in the unfiltered order. */
+type PlaylistRow = {
+  readonly music: Music;
+  readonly index: number;
+};
+
+/**
  * Logic of `PlaylistContent`: the playlist and its position-ordered tracks
- * (with the optimistic reorder override), the row virtualiser, drag & drop
- * reorder, the smart-rules editor state, and every playback action. The
- * component only renders what this hook returns.
+ * (with the optimistic reorder override), the row virtualiser, the row
+ * multi-selection, drag & drop reorder, the smart-rules editor state, and
+ * every playback action. The component only renders what this hook returns.
  */
 export const usePlaylistContent = (routeId: string) => {
   // Parse cannot fail here — the parent only mounts this for valid ids.
@@ -53,6 +78,7 @@ export const usePlaylistContent = (routeId: string) => {
   const playbackState = usePlaybackState();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [pending, setPending] = useState<PendingOrder | null>(null);
+  const [bound, setBound] = useState<BoundSelection | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   /** Whether the smart-rules editor is open (smart playlists only). */
@@ -79,12 +105,14 @@ export const usePlaylistContent = (routeId: string) => {
   // carry their position in the unfiltered order because mutations
   // (removal) address the playlist itself, not the filtered view; reorder
   // is disabled while filtering so drag indices always match positions.
-  const rows = musics
+  const rows: readonly PlaylistRow[] = musics
     .map((music, index) => ({ music, index }))
     .filter(({ music }) =>
       matchesTrackFilter(music.title, trackFilter.playlists),
     );
   const visibleMusics = rows.map(({ music }) => music);
+  const selection =
+    bound !== null && bound.base === musics ? bound.selection : EMPTY_SELECTION;
   const totalDurationMs = visibleMusics.reduce(
     (total, music) => total + music.durationMs,
     0,
@@ -100,6 +128,34 @@ export const usePlaylistContent = (routeId: string) => {
   const playFrom = (music: Music): void => {
     void commands.playMusic(music, visibleMusics, "playlist");
   };
+
+  /** Apply one row click (plain / Shift / Cmd-Ctrl) to the row selection. */
+  const selectRow = (
+    index: number,
+    modifiers: { readonly shift: boolean; readonly meta: boolean },
+  ): void => {
+    setBound({
+      base: musics,
+      selection: applySelectionClick(
+        selection,
+        rows.map((row) => row.index),
+        index,
+        modifiers,
+      ),
+    });
+  };
+
+  /**
+   * Tracks a row's menu actions ("Add to playlist", "Song info") apply to:
+   * the whole row selection (in list order, each track once) when the row
+   * is part of it, otherwise the row's track alone.
+   */
+  const menuTargetsOfRow = (row: PlaylistRow): readonly Music[] =>
+    uniqueMusics(
+      menuTargetsOf(selection, rows, (entry) => entry.index, row).map(
+        (entry) => entry.music,
+      ),
+    );
 
   const playAll = (): void => {
     const first = visibleMusics[0];
@@ -186,6 +242,9 @@ export const usePlaylistContent = (routeId: string) => {
     playAll,
     playShuffled,
     removeRowAt,
+    selection,
+    selectRow,
+    menuTargetsOfRow,
     playingStateOf,
   };
 };

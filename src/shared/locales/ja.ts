@@ -163,6 +163,8 @@ export const ja: Dictionary = {
   "menu.removeFromLibrary": "ライブラリーから削除",
   "menu.musicInfo": "曲情報を確認",
   "musicInfo.title": "曲の情報",
+  "musicInfo.titleCount": "曲の情報 ({count} 曲)",
+  "musicInfo.mixed": "混在",
   "musicInfo.tab.details": "詳細",
   "musicInfo.tab.picture": "画像",
   "musicInfo.tab.file": "ファイル",

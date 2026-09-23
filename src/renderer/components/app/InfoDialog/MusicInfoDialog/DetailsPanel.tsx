@@ -20,7 +20,9 @@ type Props = {
 /**
  * "Details" tab: the tag fields as editable inputs bound to the form.
  * Every field validates on change through the form-level schema; the
- * title additionally requires a value for a single track.
+ * title additionally requires a value for a single track. A mixed field
+ * (`null`, several tracks disagree) renders empty with the "Mixed"
+ * placeholder until typed into.
  */
 export const DetailsPanel = ({ form, requireTitle, disabled }: Props) => {
   const t = useT();
@@ -41,6 +43,9 @@ export const DetailsPanel = ({ form, requireTitle, disabled }: Props) => {
               <TagField
                 label={t(`musicInfo.field.${name}`)}
                 value={field.state.value}
+                placeholder={
+                  field.state.value === null ? t("musicInfo.mixed") : undefined
+                }
                 error={errorTextOf(field.state.meta.errors, t)}
                 inputMode={NUMERIC_FIELDS.has(name) ? "numeric" : undefined}
                 disabled={disabled}
