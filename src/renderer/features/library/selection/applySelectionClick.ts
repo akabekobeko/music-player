@@ -1,8 +1,10 @@
 /**
- * Multi-select model for track lists
- * (`docs/specs/v1.0/features/artist-view.md`): click selects one, Cmd/Ctrl
- * toggles, Shift extends the range from the last plain-clicked anchor.
- * Groundwork for batch "Add to playlist" (Phase 6).
+ * Multi-select model shared by the Artist / Album / Playlist track lists
+ * (`docs/specs/v1.1/features/selection.md`): click selects one, Cmd/Ctrl
+ * toggles, Shift extends the range from the last plain-clicked anchor. The
+ * ids are whatever identifies a row in the view (track ids, or positions in
+ * the Playlist view where one track may appear on several rows). Each view
+ * keeps its own selection state; only the transition is shared.
  */
 export type SelectionState = {
   readonly selectedIds: ReadonlySet<number>;
@@ -20,8 +22,8 @@ export const EMPTY_SELECTION: SelectionState = {
  * Apply one click to the selection.
  *
  * @param state - Current selection.
- * @param orderedIds - Track ids in display order (range resolution).
- * @param targetId - Clicked track id.
+ * @param orderedIds - Row ids in display order (range resolution).
+ * @param targetId - Clicked row id.
  * @param modifiers - Shift / Cmd(Ctrl) state of the click.
  * @returns The next selection.
  */

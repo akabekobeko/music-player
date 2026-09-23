@@ -163,6 +163,8 @@ export const en: Dictionary = {
   "menu.removeFromLibrary": "Remove from library",
   "menu.musicInfo": "Song info",
   "musicInfo.title": "Song Info",
+  "musicInfo.titleCount": "Song Info ({count} songs)",
+  "musicInfo.mixed": "Mixed",
   "musicInfo.tab.details": "Details",
   "musicInfo.tab.picture": "Artwork",
   "musicInfo.tab.file": "File",

@@ -33,7 +33,7 @@ export const ArtistContent = ({ artistName }: Props) => {
     playAlbum,
     scrollToAlbum,
     albumMusicsOf,
-    playlistTargetsOf,
+    menuTargetsOfRow,
     removeFromLibrary,
     playingStateOf,
     activeAlbumKey,
@@ -112,7 +112,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                     music={row.music}
                     playing={playingStateOf(row.music)}
                     selected={selection.selectedIds.has(row.music.id)}
-                    playlistTargets={playlistTargetsOf(row.music)}
+                    menuTargets={menuTargetsOfRow(row.music)}
                     onSelect={(event) => {
                       selectRow(row.music.id, {
                         shift: event.shiftKey,

@@ -5,8 +5,10 @@ import { DialogTabPanel } from "../DialogTabPanel";
 import { PropertyRow } from "../PropertyRow";
 
 type Props = {
-  /** Track whose file-derived properties are shown. */
-  readonly music: Music;
+  /** Tracks under edit; never empty. */
+  readonly musics: readonly Music[];
+  /** The first track, whose file-derived properties a single edit shows. */
+  readonly primary: Music;
 };
 
 /** ISO-8601 → locale-formatted date-time (raw string when unparsable). */
@@ -15,9 +17,31 @@ const formatDateTime = (iso: string): string => {
   return Number.isNaN(date.getTime()) ? iso : date.toLocaleString();
 };
 
-/** "File" tab: the file-derived properties as plain text. */
-export const FilePanel = ({ music }: Props) => {
+/**
+ * "File" tab: a single track's file-derived properties as plain text; for
+ * several tracks, the list of targets (title and file path,
+ * `docs/specs/v1.1/features/music-info-dialog.md`).
+ */
+export const FilePanel = ({ musics, primary }: Props) => {
   const t = useT();
+  if (musics.length > 1) {
+    return (
+      <DialogTabPanel value="file" className="overflow-y-auto">
+        <ul className="grid gap-2">
+          {musics.map((music) => (
+            <li key={music.id} className="grid gap-0.5">
+              <span className="text-sm">{music.title}</span>
+              <span className="break-all text-muted-foreground text-xs">
+                {music.filePath}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </DialogTabPanel>
+    );
+  }
+
+  const music = primary;
   return (
     <DialogTabPanel value="file" className="overflow-y-auto">
       <div className="grid gap-2">

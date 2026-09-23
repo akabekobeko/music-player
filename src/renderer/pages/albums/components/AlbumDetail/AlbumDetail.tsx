@@ -28,7 +28,8 @@ type Props = {
  * rows' `px-2`, so the menu circle lines up with the track menus (as in the
  * Artist view). Each playback action queues
  * **only this album's tracks** — unlike the Artist view, the filter context
- * means "listen to this album".
+ * means "listen to this album". Rows multi-select like the Artist view
+ * (click / Shift / Cmd-Ctrl); the row menus act on the selection.
  */
 export const AlbumDetail = ({ album }: Props) => {
   const t = useT();
@@ -36,6 +37,9 @@ export const AlbumDetail = ({ album }: Props) => {
     musics,
     musicsState,
     discNumbers,
+    selection,
+    selectRow,
+    menuTargetsOfRow,
     commands,
     playFrom,
     playAll,
@@ -132,6 +136,13 @@ export const AlbumDetail = ({ album }: Props) => {
                   key={music.id}
                   music={music}
                   playing={playingStateOf(music)}
+                  selected={selection.selectedIds.has(music.id)}
+                  onClick={(event) => {
+                    selectRow(music.id, {
+                      shift: event.shiftKey,
+                      meta: event.metaKey || event.ctrlKey,
+                    });
+                  }}
                   onPlay={() => playFrom(music)}
                   onTogglePlayPause={() => commands.togglePlayPause()}
                   menu={
@@ -154,12 +165,13 @@ export const AlbumDetail = ({ album }: Props) => {
                         },
                         <AddToPlaylistSubmenu
                           key="playlist"
-                          musics={[music]}
+                          musics={menuTargetsOfRow(music)}
                         />,
                         {
                           label: t("menu.musicInfo"),
                           icon: <NotepadText />,
-                          onSelect: () => musicInfoStore.open([music]),
+                          onSelect: () =>
+                            musicInfoStore.open(menuTargetsOfRow(music)),
                           separatorBefore: true,
                         },
                         {

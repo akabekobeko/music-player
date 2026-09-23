@@ -4,6 +4,12 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import { flattenAlbumMusics } from "@/features/library/flattenAlbumMusics";
 import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
+import {
+  applySelectionClick,
+  EMPTY_SELECTION,
+  type SelectionState,
+} from "@/features/library/selection/applySelectionClick";
+import { menuTargetsOf } from "@/features/library/selection/menuTargetsOf";
 import { useArtistMusics } from "@/features/library/useArtistMusics";
 import { useArtists } from "@/features/library/useArtists";
 import { activeAlbumKeyOf } from "@/features/player/activeAlbumKeyOf";
@@ -19,11 +25,6 @@ import {
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { albumRowIndexOf } from "./albumRowIndexOf";
-import {
-  applySelectionClick,
-  EMPTY_SELECTION,
-  type SelectionState,
-} from "./applySelectionClick";
 import { ALBUM_ROW_HEIGHTS, buildAlbumRows } from "./buildAlbumRows";
 
 /**
@@ -88,13 +89,12 @@ export const useArtistContent = (artistName: string) => {
     group.discs.flatMap((disc) => [...disc.musics]);
 
   /**
-   * Tracks a row's "Add to playlist" targets: the whole multi-selection (in
-   * play order) when the row is part of it, otherwise the row alone.
+   * Tracks a row's menu actions ("Add to playlist", "Song info") apply to:
+   * the whole multi-selection (in play order) when the row is part of it,
+   * otherwise the row alone.
    */
-  const playlistTargetsOf = (music: Music): Music[] =>
-    selection.selectedIds.has(music.id) && selection.selectedIds.size > 1
-      ? playOrder.filter((entry) => selection.selectedIds.has(entry.id))
-      : [music];
+  const menuTargetsOfRow = (music: Music): readonly Music[] =>
+    menuTargetsOf(selection, playOrder, (entry) => entry.id, music);
 
   const removeFromLibrary = (music: Music): void => {
     void window.mp.library.removeMusics({ musicIds: [music.id] });
@@ -162,7 +162,7 @@ export const useArtistContent = (artistName: string) => {
     playAlbum,
     scrollToAlbum,
     albumMusicsOf,
-    playlistTargetsOf,
+    menuTargetsOfRow,
     removeFromLibrary,
     playingStateOf,
     activeAlbumKey,

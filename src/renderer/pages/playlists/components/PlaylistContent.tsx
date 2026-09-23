@@ -16,7 +16,11 @@ type Props = {
   readonly routeId: string;
 };
 
-/** Selected-playlist content; remounted per playlist via the parent's `key`. */
+/**
+ * Selected-playlist content; remounted per playlist via the parent's `key`.
+ * Rows multi-select like the Artist view (click / Shift / Cmd-Ctrl) by
+ * position, and the row menus act on the selection.
+ */
 export const PlaylistContent = ({ routeId }: Props) => {
   const t = useT();
   const {
@@ -43,6 +47,9 @@ export const PlaylistContent = ({ routeId }: Props) => {
     playAll,
     playShuffled,
     removeRowAt,
+    selection,
+    selectRow,
+    menuTargetsOfRow,
     playingStateOf,
   } = usePlaylistContent(routeId);
 
@@ -134,6 +141,13 @@ export const PlaylistContent = ({ routeId }: Props) => {
                     </>
                   }
                   playing={playingStateOf(music)}
+                  selected={selection.selectedIds.has(row.index)}
+                  onClick={(event) => {
+                    selectRow(row.index, {
+                      shift: event.shiftKey,
+                      meta: event.metaKey || event.ctrlKey,
+                    });
+                  }}
                   onPlay={() => playFrom(music)}
                   onTogglePlayPause={() => commands.togglePlayPause()}
                   menu={
@@ -156,12 +170,13 @@ export const PlaylistContent = ({ routeId }: Props) => {
                         },
                         <AddToPlaylistSubmenu
                           key="playlist"
-                          musics={[music]}
+                          musics={menuTargetsOfRow(row)}
                         />,
                         {
                           label: t("menu.musicInfo"),
                           icon: <NotepadText />,
-                          onSelect: () => musicInfoStore.open([music]),
+                          onSelect: () =>
+                            musicInfoStore.open(menuTargetsOfRow(row)),
                           separatorBefore: true,
                         },
                         ...(ref.kind === "static"

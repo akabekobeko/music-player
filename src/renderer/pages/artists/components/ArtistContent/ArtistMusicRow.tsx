@@ -12,8 +12,11 @@ type Props = {
   readonly music: Music;
   readonly playing: "playing" | "paused" | null;
   readonly selected: boolean;
-  /** "Add to playlist" targets: the multi-selection or this track alone. */
-  readonly playlistTargets: readonly Music[];
+  /**
+   * Tracks "Add to playlist" and "Song info" apply to: the multi-selection
+   * or this track alone.
+   */
+  readonly menuTargets: readonly Music[];
   readonly onSelect: (event: MouseEvent) => void;
   readonly onPlay: () => void;
   readonly onTogglePlayPause: () => void;
@@ -29,7 +32,7 @@ export const ArtistMusicRow = ({
   music,
   playing,
   selected,
-  playlistTargets,
+  menuTargets,
   onSelect,
   onPlay,
   onTogglePlayPause,
@@ -65,11 +68,11 @@ export const ArtistMusicRow = ({
               icon: <ListEnd />,
               onSelect: onAddToQueue,
             },
-            <AddToPlaylistSubmenu key="playlist" musics={playlistTargets} />,
+            <AddToPlaylistSubmenu key="playlist" musics={menuTargets} />,
             {
               label: t("menu.musicInfo"),
               icon: <NotepadText />,
-              onSelect: () => musicInfoStore.open([music]),
+              onSelect: () => musicInfoStore.open(menuTargets),
               separatorBefore: true,
             },
             {
