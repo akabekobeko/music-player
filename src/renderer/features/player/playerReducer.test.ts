@@ -189,3 +189,43 @@ it("shuffleChanged off restores the ordered queue passed by the command", () => 
   expect(state.queue).toBe(ordered);
   expect(state.orderedQueue).toBe(ordered);
 });
+
+it("musicsUpdated swaps the edited tracks into both queues and the current track", () => {
+  const ordered = [music(1), music(2), music(3)];
+  const before = {
+    queue: [music(3), music(1), music(2)],
+    orderedQueue: ordered,
+    queueSource: "artist" as const,
+    current: ordered[1] as Music,
+    shuffle: true,
+  };
+  const edited = { ...music(2), title: "Edited" };
+  const state = playerReducer(before, {
+    type: "musicsUpdated",
+    musics: [edited],
+  });
+  expect(state.queue.map((entry) => entry.id)).toEqual([3, 1, 2]);
+  expect(state.queue[2]).toBe(edited);
+  expect(state.orderedQueue[1]).toBe(edited);
+  expect(state.current).toBe(edited);
+  expect(state.shuffle).toBe(true);
+  expect(state.queueSource).toBe("artist");
+});
+
+it("musicsUpdated leaves the state alone when no queued track was edited", () => {
+  const queue = [music(1), music(2)];
+  const before = {
+    queue,
+    orderedQueue: queue,
+    queueSource: "album" as const,
+    current: queue[0] as Music,
+    shuffle: false,
+  };
+  const state = playerReducer(before, {
+    type: "musicsUpdated",
+    musics: [music(9)],
+  });
+  expect(state.queue).toBe(queue);
+  expect(state.orderedQueue).toBe(queue);
+  expect(state.current).toBe(queue[0]);
+});

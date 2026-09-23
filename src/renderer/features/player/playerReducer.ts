@@ -1,10 +1,12 @@
 import type { Music } from "@mp/ipc";
 import type { CurrentChangedAction } from "./actions/currentChanged";
+import type { MusicsUpdatedAction } from "./actions/musicsUpdated";
 import type { PlayedAction } from "./actions/played";
 import type { QueueAppendedAction } from "./actions/queueAppended";
 import type { QueueInsertedNextAction } from "./actions/queueInsertedNext";
 import type { QueueReplacedAction } from "./actions/queueReplaced";
 import type { ShuffleChangedAction } from "./actions/shuffleChanged";
+import { replaceMusic, replaceMusics } from "./replaceMusics";
 import type { PlayerState } from "./types";
 
 /**
@@ -21,7 +23,8 @@ export type PlayerAction =
   | QueueReplacedAction
   | QueueInsertedNextAction
   | QueueAppendedAction
-  | ShuffleChangedAction;
+  | ShuffleChangedAction
+  | MusicsUpdatedAction;
 
 /**
  * Advance the player state by one action.
@@ -78,6 +81,13 @@ export const playerReducer = (
       };
     case "shuffleChanged":
       return { ...state, shuffle: action.shuffle, queue: action.queue };
+    case "musicsUpdated":
+      return {
+        ...state,
+        queue: replaceMusics(state.queue, action.musics),
+        orderedQueue: replaceMusics(state.orderedQueue, action.musics),
+        current: replaceMusic(state.current, action.musics),
+      };
     default:
       return state;
   }

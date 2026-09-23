@@ -70,3 +70,42 @@ it("unsubscribing stops notifications", () => {
   store.open([music(1)]);
   expect(notified).toBe(0);
 });
+
+it("notifies onApplied listeners with the applied update", () => {
+  const store = new MusicInfoStore();
+  const received: unknown[] = [];
+  store.onApplied((update) => {
+    received.push(update);
+  });
+
+  const update = {
+    targets: [music(1)],
+    updated: [{ music: music(1), displayArtist: "Artist", albumKey: "k" }],
+  };
+  store.notifyApplied(update);
+  expect(received).toEqual([update]);
+});
+
+it("skips the onApplied notification when nothing was updated", () => {
+  const store = new MusicInfoStore();
+  let notified = 0;
+  store.onApplied(() => {
+    notified += 1;
+  });
+  store.notifyApplied({ targets: [music(1)], updated: [] });
+  expect(notified).toBe(0);
+});
+
+it("unsubscribing from onApplied stops notifications", () => {
+  const store = new MusicInfoStore();
+  let notified = 0;
+  const unsubscribe = store.onApplied(() => {
+    notified += 1;
+  });
+  unsubscribe();
+  store.notifyApplied({
+    targets: [music(1)],
+    updated: [{ music: music(1), displayArtist: "Artist", albumKey: "k" }],
+  });
+  expect(notified).toBe(0);
+});
