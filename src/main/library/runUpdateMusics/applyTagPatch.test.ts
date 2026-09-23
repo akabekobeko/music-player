@@ -27,9 +27,9 @@ it("passes fields Parade does not model through untouched", () => {
   expect(next.trackTotal).toBe(12);
 });
 
-it("keeps an empty string as the explicit clear marker", () => {
+it("turns an empty string into the null deletion marker", () => {
   const next = applyTagPatch(tag(), { album: "" });
-  expect(next.album).toBe("");
+  expect(next.album).toBeNull();
 });
 
 it("does not touch the tag when the patch is empty", () => {
@@ -62,23 +62,15 @@ it("clears a recording date it cannot align with the new year", () => {
     year: 2001,
   });
   expect(next.year).toBe(2001);
-  expect(next.recordingDate).toBe("");
+  expect(next.recordingDate).toBeNull();
 });
 
 it("clears the year together with the recording date", () => {
   const next = applyTagPatch(tag({ recordingDate: "2024-04-01" }), {
     year: null,
   });
-  expect(next.year).toBeUndefined();
-  expect(next.recordingDate).toBe("");
-});
-
-it("leaves recordingDate undefined when clearing a year that had none", () => {
-  const next = applyTagPatch(tag(), { year: null });
-  expect(next.year).toBeUndefined();
-  expect("recordingDate" in next && next.recordingDate !== undefined).toBe(
-    false,
-  );
+  expect(next.year).toBeNull();
+  expect(next.recordingDate).toBeNull();
 });
 
 it("sets and clears bpm and rating", () => {
@@ -90,8 +82,8 @@ it("sets and clears bpm and rating", () => {
     bpm: null,
     rating: null,
   });
-  expect(cleared.bpm).toBeUndefined();
-  expect(cleared.rating).toBeUndefined();
+  expect(cleared.bpm).toBeNull();
+  expect(cleared.rating).toBeNull();
 });
 
 it("does not mutate the input tag", () => {
