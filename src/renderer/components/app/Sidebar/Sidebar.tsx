@@ -21,16 +21,15 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
- * Classes for the horizontal mode-switch tabs. Both states light the border
- * up with a blurred glow like `CircleIconButton` / `InitialGrid`, and the
- * glow strength is set by the border thickness: hover adds a 1px spread ring
- * on top of the border (the `CircleIconButton` treatment), so it reads as a
- * thicker, stronger lamp; the active tab keeps only the plain border plus
- * the blur (the `InitialGrid` selected treatment), so it stays visible once
- * the pointer leaves without competing with the hovered tab. The active tab
- * is also filled with the glow colour (`foreground`), so its icon switches to
- * the inverse (`background`) to stay readable, and keeps that inverse colour
- * on hover, where the plain hover text colour would vanish into the fill.
+ * Classes for the horizontal mode-switch tabs. Hover lights the border up
+ * with a blurred glow like `CircleIconButton`: a 1px spread ring on top of
+ * the border plus the blur, so it reads as a thicker, stronger lamp. The
+ * active tab is filled with the glow colour (`foreground`) and keeps the
+ * plain border but no glow of its own: the solid fill already marks it, and
+ * fill plus glow together looked overdone. Hovering the active tab still
+ * gets the hover glow. Its icon switches to the inverse (`background`) to
+ * stay readable on the fill, and keeps that inverse colour on hover, where
+ * the plain hover text colour would vanish into the fill.
  */
 const tabClassName = (isActive: boolean): string =>
   cn(
@@ -38,7 +37,7 @@ const tabClassName = (isActive: boolean): string =>
     "hover:border-foreground hover:text-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     isActive
-      ? "border-foreground bg-foreground text-background hover:text-background shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      ? "border-foreground bg-foreground text-background hover:text-background"
       : "text-muted-foreground",
   );
 

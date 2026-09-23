@@ -26,24 +26,22 @@ type Props = {
 };
 
 /**
- * Classes for the row button. Both states light the border up with a
- * blurred glow like the `Sidebar` tabs, and the glow strength is set by the
- * border thickness: hover adds a 1px spread ring on top of the border so it
- * reads as a thicker, stronger lamp; the selected row keeps only the plain
- * border plus the blur, so it stays visible once the pointer leaves without
- * competing with the hovered row. The selected row is also filled with the
- * glow colour (`foreground`), so its text switches to the inverse
- * (`background`) to stay readable, and keeps that inverse colour on hover,
- * where the plain hover text colour would vanish into the fill. Rows abut each
- * other inside the scroll area, so the button is inset from the panel edges
- * (`inset-x-2`) to leave room for the glow. Rows and initial headings are
- * absolutely positioned siblings painted in list order, so a glow would be
- * covered by an opaque neighbour that follows it, namely the
- * `InitialHeading` right below the row. Both lit states are therefore raised
- * above the plain rows and headings (selected `z-[1]`, hover `z-[2]` so it
- * also wins over a selected neighbour), while
- * staying below the pinned heading copy (`z-10` in `ArtistListRows`) that
- * rows must keep sliding under.
+ * Classes for the row button. Hover lights the border up with a blurred
+ * glow like the `Sidebar` tabs: a 1px spread ring on top of the border plus
+ * the blur, so it reads as a thicker, stronger lamp. The selected row is
+ * filled with the glow colour (`foreground`) and keeps the plain border but
+ * no glow of its own: the solid fill already marks it, and fill plus glow
+ * together looked overdone. Hovering the selected row still gets the hover
+ * glow. Its text switches to the inverse (`background`) to stay readable on
+ * the fill, and keeps that inverse colour on hover, where the plain hover
+ * text colour would vanish into the fill. Rows abut each other inside the
+ * scroll area, so the button is inset from the panel edges (`inset-x-2`) to
+ * leave room for the glow. Rows and initial headings are absolutely
+ * positioned siblings painted in list order, so a glow would be covered by
+ * an opaque neighbour that follows it, namely the `InitialHeading` right
+ * below the row. The hovered row is therefore raised above the plain rows
+ * and headings (`z-[2]`), while staying below the pinned heading copy
+ * (`z-10` in `ArtistListRows`) that rows must keep sliding under.
  */
 const rowClassName = (selected: boolean): string =>
   cn(
@@ -51,7 +49,7 @@ const rowClassName = (selected: boolean): string =>
     "hover:z-[2] hover:border-foreground hover:text-sidebar-foreground",
     "hover:shadow-[0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
     selected
-      ? "z-[1] border-foreground bg-foreground text-background hover:text-background shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]"
+      ? "border-foreground bg-foreground text-background hover:text-background"
       : "text-sidebar-foreground/80",
   );
 
