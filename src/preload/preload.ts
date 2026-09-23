@@ -6,6 +6,7 @@ import type {
   MenuActionPayload,
   MpBridge,
   Unsubscribe,
+  UpdateProgressPayload,
   WindowFullScreenChangedPayload,
 } from "../main/ipc/types";
 
@@ -69,8 +70,12 @@ const buildBridge = (): MpBridge => ({
       ipcRenderer.invoke(IpcKeys.SetArtistPicture, request),
     setArtistInitial: (request) =>
       ipcRenderer.invoke(IpcKeys.SetArtistInitial, request),
+    updateMusics: (request) =>
+      ipcRenderer.invoke(IpcKeys.UpdateMusics, request),
     onImportProgress: (listener) =>
       subscribe<ImportProgressPayload>(IpcKeys.ImportProgress, listener),
+    onUpdateProgress: (listener) =>
+      subscribe<UpdateProgressPayload>(IpcKeys.UpdateProgress, listener),
     onChanged: (listener) =>
       subscribe<LibraryChangedPayload>(IpcKeys.LibraryChanged, listener),
   },

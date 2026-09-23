@@ -225,7 +225,93 @@ export type ImportProgressPayload = {
 
 /** Payload of the `mp:library:changed` push channel. */
 export type LibraryChangedPayload = {
-  readonly kind: "imported" | "removed";
+  readonly kind: "imported" | "removed" | "updated";
+};
+
+/**
+ * Tag fields the music info dialog can write back
+ * (`docs/specs/v1.1/architecture/ipc-types.md`). Only the fields to change
+ * are present; an absent field leaves the file and the DB untouched.
+ *
+ * An empty string clears a text tag. `title` must never be empty — the
+ * Renderer's validation rejects it before the request is built.
+ */
+export type MusicTagPatch = {
+  readonly title?: string;
+  readonly artist?: string;
+  readonly albumArtist?: string;
+  readonly album?: string;
+  readonly genre?: string;
+  readonly composer?: string;
+  readonly lyricist?: string;
+  readonly producer?: string;
+  readonly conductor?: string;
+  readonly publisher?: string;
+  /** `null` clears the tag. */
+  readonly year?: number | null;
+  readonly track?: number;
+  readonly disc?: number;
+  /** `null` clears the tag. */
+  readonly bpm?: number | null;
+  /** Normalised rating in `[0, 1]`; `null` clears the tag. */
+  readonly rating?: number | null;
+};
+
+/** Front cover to embed through {@link UpdateMusicsRequest.picture}. */
+export type MusicPictureInput = {
+  /** MIME type of the image (`"image/jpeg"`, `"image/png"`, …). */
+  readonly mimeType: string;
+  /** Raw image bytes read from the user-selected file. */
+  readonly data: Uint8Array;
+};
+
+/** Request payload for `mp:library:updateMusics`. */
+export type UpdateMusicsRequest = {
+  /** Tracks to update; must be non-empty and free of duplicates. */
+  readonly musicIds: readonly number[];
+  /** Only the fields to change; absent fields are left as they are. */
+  readonly patch: MusicTagPatch;
+  /**
+   * Front cover to embed, `null` to remove the artwork, or absent to leave
+   * it untouched. Bytes travel like `mp:library:setArtistPicture`.
+   */
+  readonly picture?: MusicPictureInput | null;
+};
+
+/** One successfully updated track of {@link UpdateMusicsSummary}. */
+export type UpdatedMusic = {
+  /** The track as re-read from the file after the write. */
+  readonly music: Music;
+  /** Display artist after the update (album_artist, falling back to artist). */
+  readonly displayArtist: string;
+  /** Album identity key after the update (same as {@link AlbumSummary.albumKey}). */
+  readonly albumKey: string;
+};
+
+/**
+ * Final report of one `mp:library:updateMusics` run. One failed file never
+ * aborts the batch — it lands in `failed` while the rest is applied.
+ */
+export type UpdateMusicsSummary = {
+  readonly updated: readonly UpdatedMusic[];
+  readonly failed: ReadonlyArray<{
+    readonly musicId: number;
+    readonly filePath: string;
+    readonly error: IpcError;
+  }>;
+};
+
+/**
+ * Payload of the `mp:library:updateProgress` push channel. Emitted once per
+ * file after it was processed (successfully or not).
+ */
+export type UpdateProgressPayload = {
+  /** Number of files processed so far. */
+  readonly current: number;
+  /** Total number of files in this run. */
+  readonly total: number;
+  /** File just processed. */
+  readonly filePath: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -662,9 +748,20 @@ export type MpBridge = {
     readonly setArtistInitial: (
       request: SetArtistInitialRequest,
     ) => Promise<IpcResult<void>>;
+    /**
+     * Write the same tag / artwork change to several tracks; progress
+     * arrives via {@link MpBridge.library.onUpdateProgress}.
+     */
+    readonly updateMusics: (
+      request: UpdateMusicsRequest,
+    ) => Promise<IpcResult<UpdateMusicsSummary>>;
     /** Subscribe to import progress pushes. */
     readonly onImportProgress: (
       listener: (payload: ImportProgressPayload) => void,
+    ) => Unsubscribe;
+    /** Subscribe to update progress pushes. */
+    readonly onUpdateProgress: (
+      listener: (payload: UpdateProgressPayload) => void,
     ) => Unsubscribe;
     /** Subscribe to library-changed pushes; views re-run their queries. */
     readonly onChanged: (

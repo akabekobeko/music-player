@@ -26,6 +26,7 @@ export const IpcKeys = {
   GetStats: "mp:library:getStats",
   SetArtistPicture: "mp:library:setArtistPicture",
   SetArtistInitial: "mp:library:setArtistInitial",
+  UpdateMusics: "mp:library:updateMusics",
   PlaylistList: "mp:playlist:list",
   PlaylistCreate: "mp:playlist:create",
   PlaylistUpdate: "mp:playlist:update",
@@ -39,6 +40,7 @@ export const IpcKeys = {
   MenuPopup: "mp:menu:popup",
   // Main → Renderer (push)
   ImportProgress: "mp:library:importProgress",
+  UpdateProgress: "mp:library:updateProgress",
   LibraryChanged: "mp:library:changed",
   MenuAction: "mp:menu:action",
   WindowFullScreenChanged: "mp:window:fullScreenChanged",

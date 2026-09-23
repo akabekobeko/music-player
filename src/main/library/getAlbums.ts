@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { AlbumFilter, AlbumSummary } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+import { albumKeyOf } from "./albumKeyOf";
 import { buildAlbumWhere } from "./buildAlbumWhere/buildAlbumWhere";
 
 /** Raw row shape of the album summary SELECT below. */
@@ -68,9 +69,7 @@ export const getAlbums = (
     )
     .all(...fragments.flatMap((fragment) => fragment.params)) as AlbumRow[];
   return rows.map((row) => ({
-    // NUL separator: cannot occur in tag strings, so ("A B", "C") and
-    // ("A", "B C") can never collide. Same shape as groupAlbums' key.
-    albumKey: `${row.artist}\u0000${row.album}`,
+    albumKey: albumKeyOf(row.artist, row.album),
     album: row.album,
     artist: row.artist,
     year: row.year,

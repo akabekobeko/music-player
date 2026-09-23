@@ -24,6 +24,7 @@ import { onRemoveMusics } from "./onRemoveMusics";
 import { onSetArtistInitial } from "./onSetArtistInitial";
 import { onSetArtistPicture } from "./onSetArtistPicture";
 import { onSetSettings } from "./onSetSettings/onSetSettings";
+import { onUpdateMusics } from "./onUpdateMusics/onUpdateMusics";
 
 /**
  * Tracks whether {@link initializeIpcEvents} has already wired the handlers.
@@ -66,6 +67,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.GetStats, onGetStats);
   ipcMain.handle(IpcKeys.SetArtistPicture, onSetArtistPicture);
   ipcMain.handle(IpcKeys.SetArtistInitial, onSetArtistInitial);
+  ipcMain.handle(IpcKeys.UpdateMusics, onUpdateMusics);
   ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
   ipcMain.handle(IpcKeys.PlaylistList, onPlaylistList);
   ipcMain.handle(IpcKeys.PlaylistCreate, onPlaylistCreate);
@@ -106,6 +108,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.GetStats);
   ipcMain.removeHandler(IpcKeys.SetArtistPicture);
   ipcMain.removeHandler(IpcKeys.SetArtistInitial);
+  ipcMain.removeHandler(IpcKeys.UpdateMusics);
   ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);
   ipcMain.removeHandler(IpcKeys.PlaylistList);
   ipcMain.removeHandler(IpcKeys.PlaylistCreate);
