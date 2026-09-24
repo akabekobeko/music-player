@@ -12,7 +12,9 @@ import type { PlayerCommands } from "./PlayerProvider";
  * would duplicate them).
  */
 export type ActivePlayer = {
+  /** The mounted provider's commands (referentially stable). */
   readonly commands: PlayerCommands;
+  /** The engine host's snapshot (idle before the first track). */
   readonly getSnapshot: () => PlaybackSnapshot;
 };
 

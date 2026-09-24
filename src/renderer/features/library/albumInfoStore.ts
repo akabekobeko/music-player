@@ -13,12 +13,22 @@
  * open the dialog as-is.
  */
 export type AlbumInfoTarget = {
+  /** Album title as tagged; empty when the tracks carry no album tag. */
   readonly album: string;
+  /** Display artist (albumArtist, falling back to artist). */
   readonly artist: string;
+  /** Representative year (smallest non-null), or `null` when none. */
   readonly year: number | null;
+  /** Representative genre; empty when every track is untagged. */
   readonly genre: string;
+  /**
+   * Number of tracks as the source view counted them (the Album view's
+   * count follows its active filter).
+   */
   readonly musicCount: number;
+  /** Sum of the tracks' `durationMs` in milliseconds. */
   readonly totalDurationMs: number;
+  /** Absolute path of the representative artwork, or `null` when none. */
   readonly picturePath: string | null;
 };
 

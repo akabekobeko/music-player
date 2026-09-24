@@ -12,6 +12,7 @@ import { TrackNumberButton } from "./TrackNumberButton";
 export const MUSIC_ROW_HEIGHT = 36;
 
 type Props = {
+  /** The track this row shows: title, duration, and track number. */
   readonly music: Music;
   /**
    * Number shown in the leading cell instead of the track number (the
@@ -26,6 +27,7 @@ type Props = {
   readonly columns?: ReactNode;
   /** Non-null when this is the current track ("playing" / "paused"). */
   readonly playing?: "playing" | "paused" | null;
+  /** Whether the row is part of the multi-selection; defaults to `false`. */
   readonly selected?: boolean;
   /** Selection handler (click; Shift / Cmd arrive via the event). */
   readonly onClick?: (event: MouseEvent<HTMLButtonElement>) => void;

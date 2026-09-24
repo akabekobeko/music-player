@@ -1,6 +1,12 @@
 /** Inclusive byte range resolved against a concrete file size. */
 export type ByteRange = {
+  /** First byte offset to serve (0-based); always below the file size. */
   readonly start: number;
+  /**
+   * Last byte offset to serve, inclusive, already clamped to `size - 1` and
+   * never below `start`. `end - start + 1` is the `Content-Length` of the
+   * `206` response.
+   */
   readonly end: number;
 };
 

@@ -15,6 +15,7 @@ import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useAlbumDetail } from "./useAlbumDetail";
 
 type Props = {
+  /** The expanded album; the header shows it, `albumKey` loads the tracks. */
   readonly album: AlbumSummary;
 };
 

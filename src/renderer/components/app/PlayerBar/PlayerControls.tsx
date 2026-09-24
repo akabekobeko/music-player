@@ -15,11 +15,15 @@ type Props = {
   readonly hasNext: boolean;
   /** Whether a track is loaded — gates play/pause. */
   readonly hasTrack: boolean;
+  /** Engine is playing: the centre button shows pause instead of play. */
   readonly isPlaying: boolean;
   /** Engine is loading — shows a spinner in place of play/pause. */
   readonly isLoading: boolean;
+  /** Previous button click; `PlayerBand` maps it to `playPrevious`. */
   readonly onPrevious: () => void;
+  /** Centre button click; only reachable while `hasTrack`. */
   readonly onTogglePlayPause: () => void;
+  /** Next button click; `PlayerBand` maps it to `playNext`. */
   readonly onNext: () => void;
 };
 

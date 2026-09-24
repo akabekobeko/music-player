@@ -7,6 +7,7 @@ import { ArtistMusicRow } from "./ArtistMusicRow";
 import { useArtistContent } from "./useArtistContent";
 
 type Props = {
+  /** Artist name from the route; `""` is the "Unknown Artist" bucket. */
   readonly artistName: string;
 };
 

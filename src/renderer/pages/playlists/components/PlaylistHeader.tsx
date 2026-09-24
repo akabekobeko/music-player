@@ -11,12 +11,17 @@ import { useT } from "@/features/i18n/useT";
 import { formatTime } from "@/libs/formatTime";
 
 type Props = {
+  /** Playlist name; `""` until the playlist entry has loaded. */
   readonly name: string;
+  /** Whether this is a smart playlist (badge + "Edit rules" menu entry). */
   readonly smart: boolean;
   /** Visible tracks in play order; also the "Add to playlist" target. */
   readonly musics: readonly Music[];
+  /** Sum of the visible tracks' durations in ms (shown via `formatTime`). */
   readonly totalDurationMs: number;
+  /** Icon overlay / menu "Play playlist"; plays `musics` from the top. */
   readonly onPlayAll: () => void;
+  /** Shuffle circle / menu "Shuffle play"; plays `musics` shuffled. */
   readonly onPlayShuffled: () => void;
   /** Opens the smart-rules editor; only used when `smart` is true. */
   readonly onEditRules: () => void;

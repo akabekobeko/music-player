@@ -1,7 +1,10 @@
 /** Structural subset of `TimeRanges` (constructible in tests). */
 export type BufferedRanges = {
+  /** Number of ranges; `0` while nothing is buffered yet. */
   readonly length: number;
+  /** Start of the range at `index`, in seconds. */
   readonly start: (index: number) => number;
+  /** End of the range at `index`, in seconds. */
   readonly end: (index: number) => number;
 };
 

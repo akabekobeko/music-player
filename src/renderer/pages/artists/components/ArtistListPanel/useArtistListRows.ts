@@ -25,8 +25,14 @@ export type ArtistListRowsHandle = {
 };
 
 type Params = {
+  /** Filtered + sorted artists, grouped by initial (`ArtistListRows`). */
   readonly sections: readonly ArtistSection[];
+  /**
+   * Selected artist name from the route (`""` = unknown bucket); brought
+   * into view at mount, `undefined` when no artist is selected.
+   */
   readonly selectedName: string | undefined;
+  /** Receives `scrollToInitial` for the panel's initial picker. */
   readonly ref: Ref<ArtistListRowsHandle>;
 };
 

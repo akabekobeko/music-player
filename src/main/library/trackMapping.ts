@@ -12,6 +12,7 @@ import type { AudioFormat } from "../ipc/types";
  * `lyrics` / `chapters` are deliberately absent (v1.x scope).
  */
 export type MusicRowInput = {
+  /** `file_path`: absolute path of the audio file, the upsert key. */
   readonly filePath: string;
   /**
    * Typed with the shared list rather than mme's union on purpose: assigning
@@ -19,21 +20,54 @@ export type MusicRowInput = {
    * mme can report is one `audioFormatSchema` reads back.
    */
   readonly audioFormat: AudioFormat;
+  /**
+   * `title`: `tag.title` trimmed, or the file's base name without extension
+   * when the tag is unset or blank. Never empty.
+   */
   readonly title: string;
+  /** `artist`: `tag.artist`, empty string when unset. */
   readonly artist: string;
+  /**
+   * `album_artist`: `tag.albumArtist`, empty string when unset (the display
+   * artist then falls back to `artist`).
+   */
   readonly albumArtist: string;
+  /** `album`: `tag.album`, empty string when unset. */
   readonly album: string;
+  /** `disc`: `tag.discNumber` (1-based), 1 when unset. */
   readonly disc: number;
+  /** `track`: `tag.trackNumber` (1-based), 0 when unset. */
   readonly track: number;
+  /**
+   * `year`: `tag.year` when positive; `null` when unset or 0 or less (a junk
+   * tag).
+   */
   readonly year: number | null;
+  /** `genre`: `tag.genre`, empty string when unset. */
   readonly genre: string;
+  /** `composer`: `tag.composer`, empty string when unset. */
   readonly composer: string;
+  /** `lyricist`: `tag.lyricist`, empty string when unset. */
   readonly lyricist: string;
+  /** `producer`: `tag.producer`, empty string when unset. */
   readonly producer: string;
+  /** `conductor`: `tag.conductor`, empty string when unset. */
   readonly conductor: string;
+  /** `publisher`: `tag.publisher`, empty string when unset. */
   readonly publisher: string;
+  /**
+   * `duration_ms`: playback length in milliseconds as reported by mme, 0
+   * when unknown. May be a CBR estimate for VBR MP3 without a Xing header
+   * (`docs/specs/v1.0/architecture/tech-stack.md`); playback uses the audio
+   * engine's own duration instead.
+   */
   readonly durationMs: number;
+  /** `bpm`: `tag.bpm` (beats per minute), `null` when unset. */
   readonly bpm: number | null;
+  /**
+   * `rating`: `tag.rating` as normalised to `[0, 1]` by mme, stored without
+   * rescaling; `null` when unset.
+   */
   readonly rating: number | null;
 };
 

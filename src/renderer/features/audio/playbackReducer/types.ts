@@ -15,7 +15,15 @@ export type PlaybackMode = "streaming" | "buffer";
 
 /** Engine-internal state (superset of the published snapshot). */
 export type InternalPlayback = {
+  /**
+   * Active pipeline. Starts as `streaming`; `bufferEntered` switches it to
+   * `buffer` once the background decode finished, and it never goes back.
+   */
   readonly mode: PlaybackMode;
+  /**
+   * Lifecycle state as published. A new engine starts in `loading`;
+   * `error` is terminal (only `closed` is accepted afterwards).
+   */
   readonly state: PlaybackState;
   /**
    * Whether the user wants playback running. Survives `loading` and
@@ -24,11 +32,21 @@ export type InternalPlayback = {
   readonly intendedPlaying: boolean;
   /** Actual position in seconds (not the deferred-seek target). */
   readonly currentTime: number;
+  /**
+   * Duration in seconds; `0` until `durationChanged` reports a finite
+   * positive value (other values are ignored).
+   */
   readonly duration: number;
+  /** User volume, clamped to `[0, 1]` by the reducer. */
   readonly volume: number;
   /** Deferred-seek target; non-null exactly while `seeking` is shown. */
   readonly pendingSeekTime: number | null;
+  /** The failure that moved `state` to `error`; `null` otherwise. */
   readonly error: PlaybackError | null;
+  /**
+   * Set by the `closed` event. A closed state is frozen: every further
+   * event returns the input unchanged.
+   */
   readonly closed: boolean;
 };
 

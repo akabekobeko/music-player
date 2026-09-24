@@ -16,6 +16,7 @@ const OPEN_DELAY = 1200;
 type Props = {
   /** Full text: shown in the tooltip, and rendered when children is omitted. */
   readonly text: string;
+  /** Extra classes for the clipping `span` (width, colour, padding). */
   readonly className?: string;
   /** Styled display content (e.g. mixed-color spans); defaults to `text`. */
   readonly children?: ReactNode;

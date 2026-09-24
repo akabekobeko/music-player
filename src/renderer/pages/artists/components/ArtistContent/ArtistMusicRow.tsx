@@ -9,19 +9,28 @@ import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 
 type Props = {
+  /** The track this row shows. */
   readonly music: Music;
+  /** Non-null when this is the current track ("playing" / "paused"). */
   readonly playing: "playing" | "paused" | null;
+  /** Whether the row is part of the multi-selection. */
   readonly selected: boolean;
   /**
    * Tracks "Add to playlist" and "Song info" apply to: the multi-selection
    * or this track alone.
    */
   readonly menuTargets: readonly Music[];
+  /** Row click; the parent reads Shift / Cmd-Ctrl off the event. */
   readonly onSelect: (event: MouseEvent) => void;
+  /** Start playback from this track (hover play / double-click / menu). */
   readonly onPlay: () => void;
+  /** Toggle play / pause of the current track (hover pause / play). */
   readonly onTogglePlayPause: () => void;
+  /** Menu "Play next"; the parent inserts this track after the current. */
   readonly onPlayNext: () => void;
+  /** Menu "Add to queue"; the parent appends this track to the queue. */
   readonly onAddToQueue: () => void;
+  /** Menu "Remove from library"; the parent removes this track at once. */
   readonly onRemoveFromLibrary: () => void;
 };
 

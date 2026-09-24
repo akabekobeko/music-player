@@ -19,6 +19,7 @@ type Props = {
   readonly allSelected: boolean;
   /** Selects every choice, or clears them all when `allSelected`. */
   readonly onToggleAll: () => void;
+  /** The section's rows, normally `FilterCheckbox` elements. */
   readonly children: ReactNode;
 };
 

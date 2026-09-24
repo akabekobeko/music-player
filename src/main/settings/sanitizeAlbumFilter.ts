@@ -17,8 +17,11 @@ export const sanitizeAlbumFilter = (
 
   const raw = value as Record<string, unknown>;
   const filter: {
+    /** Kept only when the raw value is a string. */
     text?: string;
+    /** Kept with its non-string entries dropped. */
     genres?: string[];
+    /** Kept with entries other than `null` / finite numbers dropped. */
     decades?: Array<number | null>;
   } = {};
   if (typeof raw.text === "string") {

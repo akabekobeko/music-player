@@ -16,8 +16,14 @@ import { operatorsFor } from "./operatorsFor";
 import { useConditionRow } from "./useConditionRow";
 
 type Props = {
+  /** The condition this row edits (field, operator, value, `value2`). */
   readonly condition: SmartCondition;
+  /**
+   * Called with the replaced condition on every field / operator / value
+   * edit.
+   */
   readonly onChange: (next: SmartCondition) => void;
+  /** Remove (X) button click; the dialog drops this row. */
   readonly onRemove: () => void;
 };
 

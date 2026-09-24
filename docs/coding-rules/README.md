@@ -54,6 +54,30 @@ pages/albums/
   - `components/app` から `components/ui` (shadcn/ui 由来のコンポーネントは外部ライブラリー相当として扱う)
 - 相対パスにする理由: ディレクトリーごと移動しても内部参照が壊れず、参照先が近い (同じコンポーネント群) ことが import 文から読み取れるため
 
+## コメント
+
+### プロパティーには必ずコメントを付ける
+
+- 型 (`type` / `interface`)、zod スキーマ (`z.object`)、コンポーネントの `Props` など、複数行で宣言するオブジェクトのプロパティーには 1 つ残らず JSDoc コメント (`/** … */`) を付ける
+  - 名前が十分に明示的なものにも付ける。「名前どおりで、それ以外の意図や想定はない」ことを読み手に示すため
+  - 例外は 1 行で書くインラインのオブジェクト型 (`{ readonly ok: true; readonly value: T }` のようなユニオンの要素など) と、`components/ui` 配下 (shadcn/ui 由来)
+- コメントには名前から読み取れない意図や前提を書く
+  - 単位 (ms / 秒 / px)、`null` / 空文字 / `undefined` の意味、既定値、値の生成元と利用先、不変条件
+  - 集計や変換をともなう値 (`MIN` / `MAX` による代表値、フィルター適用後の集合に対する集計、スケールの正規化など) は実装を調査したうえで、その計算方法を注釈に書く
+- コメントは英語で書き、記号系の特殊文字 (ダッシュ、矢印など) は使わない。1 行が 80 桁を超える場合は複数行の JSDoc にする
+
+```ts
+export const albumSummarySchema = z.object({
+  /**
+   * Representative release year: the smallest non-null year of the group
+   * (`MIN`). `null` when no track has a year.
+   */
+  year: z.number().nullable(),
+  /** Number of tracks in the group (`COUNT(*)`). */
+  musicCount: z.number().int(),
+});
+```
+
 ## データアクセス
 
 ### SQLite の取得結果は zod スキーマで parse する
@@ -89,10 +113,11 @@ pages/albums/
 ### props 型は type Props へ括り出す
 
 - コンポーネントの props 型はインラインの型注釈で書かず、ファイル冒頭で `type Props = { … }` として定義する
-- プロパティは `readonly` とし、補足が必要なものには JSDoc コメントを付ける
+- プロパティは `readonly` とし、全プロパティーに JSDoc コメントを付ける (「[プロパティーには必ずコメントを付ける](#プロパティーには必ずコメントを付ける)」)
 
 ```tsx
 type Props = {
+  /** Album to render. */
   readonly album: AlbumSummary;
   /** Card width in px, computed by the grid layout. */
   readonly width: number;

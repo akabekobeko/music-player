@@ -9,7 +9,9 @@
 
 /** One visible toast. */
 export type Toast = {
+  /** Store-assigned sequence number (from 1); the dismiss handle / key. */
   readonly id: number;
+  /** Localised display text, rendered as-is. */
   readonly message: string;
 };
 

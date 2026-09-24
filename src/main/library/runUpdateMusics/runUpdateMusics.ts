@@ -163,6 +163,8 @@ export const runUpdateMusics = async (
 
 /** Display artist: `album_artist` falling back to `artist`. */
 const displayArtistOf = (music: {
+  /** `album_artist` tag; empty string when unset. */
   readonly albumArtist: string;
+  /** `artist` tag, used when `albumArtist` is empty. */
   readonly artist: string;
 }): string => (music.albumArtist !== "" ? music.albumArtist : music.artist);

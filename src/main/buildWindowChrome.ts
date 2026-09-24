@@ -28,7 +28,17 @@ export type WindowChromeOptions = {
    * a dark-theme launch does not flash Electron's default white.
    */
   readonly backgroundColor: string;
+  /**
+   * Native title bar mode: `"hiddenInset"` on macOS (traffic lights inset at
+   * the top-left of the page), `"hidden"` everywhere else (WCO controls at
+   * the top-right). Never `"default"`; the Renderer draws its own title area.
+   */
   readonly titleBarStyle: "hiddenInset" | "hidden";
+  /**
+   * Window Controls Overlay colors / height from
+   * {@link buildTitleBarOverlay}. Present only on Windows / Linux; omitted on
+   * macOS, where the traffic lights need no overlay.
+   */
   readonly titleBarOverlay?: TitleBarOverlayOptions;
   /**
    * Windows / Linux: keep Chromium from rendering the native menu bar as a

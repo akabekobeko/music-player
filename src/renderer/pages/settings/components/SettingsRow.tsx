@@ -4,6 +4,7 @@ import { HStack, Spacer } from "@/components/app/stacks";
 type Props = {
   /** Row label shown before the control. */
   readonly label: string;
+  /** The control rendered at the row's right edge. */
   readonly children: ReactNode;
 };
 

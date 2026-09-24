@@ -151,7 +151,9 @@ export type ImportSummary = {
   readonly updated: number;
   /** Per-file failures; one bad file never aborts the batch. */
   readonly failed: ReadonlyArray<{
+    /** Path of the file that failed, as handed to the metadata reader. */
     readonly filePath: string;
+    /** Why it failed (extraction or DB upsert), serialised for IPC. */
     readonly error: IpcError;
   }>;
 };
@@ -166,6 +168,11 @@ export type ImportPhase = "enumerating" | "importing";
  * (implemented in Phase 2).
  */
 export type ImportProgressPayload = {
+  /**
+   * Current stage. One `"enumerating"` push with every counter at zero goes
+   * out while the paths are expanded; `"importing"` pushes follow, once
+   * before the first batch and once after each batch.
+   */
   readonly phase: ImportPhase;
   /** Number of files processed so far in this phase. */
   readonly current: number;
@@ -179,6 +186,13 @@ export type ImportProgressPayload = {
 
 /** Payload of the `mp:library:changed` push channel. */
 export type LibraryChangedPayload = {
+  /**
+   * What changed: `"imported"` after an import that inserted or refreshed
+   * tracks, `"removed"` after a track / artist / album removal, `"updated"`
+   * after `mp:library:updateMusics` rewrote at least one file. Only sent
+   * when something actually changed. The Renderer currently invalidates
+   * every library query regardless of the kind.
+   */
   readonly kind: "imported" | "removed" | "updated";
 };
 
@@ -191,19 +205,40 @@ export type LibraryChangedPayload = {
  * Renderer's validation rejects it before the request is built.
  */
 export type MusicTagPatch = {
+  /** Track title; never empty (the dialog rejects it), so never cleared. */
   readonly title?: string;
+  /** Track artist; `""` clears the tag. */
   readonly artist?: string;
+  /**
+   * Album artist; `""` clears the tag, after which the display artist
+   * falls back to `artist`.
+   */
   readonly albumArtist?: string;
+  /** Album title; `""` clears the tag. */
   readonly album?: string;
+  /** Genre; `""` clears the tag. */
   readonly genre?: string;
+  /** Composer; `""` clears the tag. */
   readonly composer?: string;
+  /** Lyricist; `""` clears the tag. */
   readonly lyricist?: string;
+  /** Producer; `""` clears the tag. */
   readonly producer?: string;
+  /** Conductor; `""` clears the tag. */
   readonly conductor?: string;
+  /** Publisher / record label; `""` clears the tag. */
   readonly publisher?: string;
   /** `null` clears the tag. */
   readonly year?: number | null;
+  /**
+   * Track number. Cannot be cleared: the dialog sends the DB default `0`
+   * for an empty input.
+   */
   readonly track?: number;
+  /**
+   * Disc number. Cannot be cleared: the dialog sends the DB default `1`
+   * for an empty input.
+   */
   readonly disc?: number;
   /** `null` clears the tag. */
   readonly bpm?: number | null;
@@ -247,10 +282,18 @@ export type UpdatedMusic = {
  * aborts the batch — it lands in `failed` while the rest is applied.
  */
 export type UpdateMusicsSummary = {
+  /** Tracks whose file was rewritten, in request order. */
   readonly updated: readonly UpdatedMusic[];
+  /**
+   * Per-file failures (write, re-read, or DB upsert); the music info dialog
+   * lists them by file name.
+   */
   readonly failed: ReadonlyArray<{
+    /** `Music.id` of the track that failed. */
     readonly musicId: number;
+    /** Path of the file that failed, as stored in the library. */
     readonly filePath: string;
+    /** Why it failed, serialised for IPC. */
     readonly error: IpcError;
   }>;
 };
@@ -308,7 +351,9 @@ export type Playlist = DeepReadonly<z.infer<typeof playlistSchema>>;
 
 /** Request payload for `mp:playlist:create`. */
 export type PlaylistCreateRequest = {
+  /** Which table to create the playlist in. */
   readonly kind: PlaylistKind;
+  /** Display name, stored as is; not required to be unique. */
   readonly name: string;
   /** Required when `kind` is `"smart"`. */
   readonly rules?: SmartPlaylistRules;
@@ -320,17 +365,35 @@ export type PlaylistCreateRequest = {
  * playlist wholesale.
  */
 export type PlaylistUpdateRequest = {
+  /** Row id within the table of `kind`; an unknown id fails the request. */
   readonly id: number;
+  /** Which table the playlist lives in; also decides which fields apply. */
   readonly kind: PlaylistKind;
+  /** New display name; omitted keeps the current one. */
   readonly name?: string;
+  /**
+   * New position within the kind's list; omitted keeps the current one.
+   * Accepted by Main, but no Renderer caller sets it yet.
+   */
   readonly sortOrder?: number;
+  /**
+   * Full new track order of a static playlist (position is the identity,
+   * duplicates allowed); omitted keeps the current one. Ignored for smart
+   * playlists.
+   */
   readonly musicIds?: readonly number[];
+  /**
+   * New rule document of a smart playlist, validated by Main before it is
+   * stored; omitted keeps the current one. Ignored for static playlists.
+   */
   readonly rules?: SmartPlaylistRules;
 };
 
 /** Request payload for `mp:playlist:remove`. */
 export type PlaylistRemoveRequest = {
+  /** Row id within the table of `kind`; an unknown id fails the request. */
   readonly id: number;
+  /** Which table the playlist lives in. */
   readonly kind: PlaylistKind;
 };
 
@@ -352,6 +415,7 @@ export type ViewSection = "artists" | "albums" | "playlists";
  * separately.
  */
 export type LastView = {
+  /** Section tab that was shown last; the one to open on next launch. */
   readonly section: ViewSection;
   /**
    * Last selected artist name in the Artist view; `""` is the "Unknown
@@ -376,8 +440,20 @@ export type AppSettings = {
     readonly x?: number;
     /** Window y position; unset on first launch (OS decides). */
     readonly y?: number;
+    /**
+     * Window width in pixels, taken from the normal (un-maximized) bounds.
+     * Defaults to 900.
+     */
     readonly width: number;
+    /**
+     * Window height in pixels, taken from the normal (un-maximized) bounds.
+     * Defaults to 670.
+     */
     readonly height: number;
+    /**
+     * Whether the window was maximized; the window is created with the
+     * normal bounds and then maximized. Defaults to `false`.
+     */
     readonly maximized: boolean;
   };
   /** UI language. Unset (or `"system"`) follows `app.getLocale()`. */
@@ -432,8 +508,11 @@ export type SetSettingsRequest = {
 export type Versions = {
   /** The app's own `package.json` version. */
   readonly app: string;
+  /** Electron version (`process.versions.electron`, `""` if missing). */
   readonly electron: string;
+  /** Chromium version (`process.versions.chrome`, `""` if missing). */
   readonly chrome: string;
+  /** Node.js version (`process.versions.node`). */
   readonly node: string;
 };
 
@@ -463,6 +542,10 @@ export type ImportMusicsRequest = {
 
 /** Request payload for `mp:library:removeMusics`. */
 export type RemoveMusicsRequest = {
+  /**
+   * `Music.id` values to remove. Ids not in the library are silently
+   * ignored; an empty list is a no-op and broadcasts nothing.
+   */
   readonly musicIds: readonly number[];
 };
 
@@ -507,6 +590,11 @@ export type SetArtistInitialRequest = {
 
 /** Request payload for `mp:library:getMusicsByArtist`. */
 export type GetMusicsByArtistRequest = {
+  /**
+   * Display-artist name (`album_artist` falling back to `artist`), exactly
+   * as listed by `mp:library:getArtists`; the empty string is the unknown
+   * bucket.
+   */
   readonly artist: string;
 };
 
@@ -518,7 +606,9 @@ export type GetMusicsByAlbumRequest = {
 
 /** Request payload for `mp:playlist:getMusics`. */
 export type PlaylistGetMusicsRequest = {
+  /** Row id within the table of `kind`; an unknown id fails the request. */
   readonly playlistId: number;
+  /** Which table the playlist lives in. */
   readonly kind: PlaylistKind;
 };
 
@@ -530,6 +620,7 @@ export type MenuAction = "import" | "openSettings" | "showAbout" | "stop";
 
 /** Payload of the `mp:menu:action` push channel. */
 export type MenuActionPayload = {
+  /** The menu item that was activated. */
   readonly action: MenuAction;
 };
 
@@ -574,7 +665,9 @@ export type LogLevel = "info" | "warn" | "error";
 
 /** Request payload for `mp:log:forward`. */
 export type LogForwardRequest = {
+  /** Severity, i.e. the `console` method the entry came from. */
   readonly level: LogLevel;
+  /** The log text. */
   readonly message: string;
   /** Optional auxiliary detail (Error stack, JSON snippet, …). */
   readonly detail?: string;
@@ -642,17 +735,23 @@ export type MpBridge = {
     readonly removeAlbum: (
       request: RemoveAlbumRequest,
     ) => Promise<IpcResult<void>>;
+    /** List every display artist with its track count and picture. */
     readonly getArtists: () => Promise<IpcResult<readonly Artist[]>>;
+    /** Every track of one display artist, in a stable base order. */
     readonly getMusicsByArtist: (
       request: GetMusicsByArtistRequest,
     ) => Promise<IpcResult<readonly Music[]>>;
+    /** Album cards matching the filter (Album view). */
     readonly getAlbums: (
       filter: AlbumFilter,
     ) => Promise<IpcResult<readonly AlbumSummary[]>>;
+    /** Every track of one album, by its identity key. */
     readonly getMusicsByAlbum: (
       request: GetMusicsByAlbumRequest,
     ) => Promise<IpcResult<readonly Music[]>>;
+    /** Choices for the Album view's filter UI. */
     readonly getFilterOptions: () => Promise<IpcResult<FilterOptions>>;
+    /** Library-wide counters for the settings page. */
     readonly getStats: () => Promise<IpcResult<LibraryStats>>;
     /** Set (or replace) an artist's representative picture. */
     readonly setArtistPicture: (
@@ -684,13 +783,17 @@ export type MpBridge = {
   };
   /** Static / smart playlist management. */
   readonly playlist: {
+    /** List every playlist of both kinds (static first). */
     readonly list: () => Promise<IpcResult<readonly Playlist[]>>;
+    /** Create a playlist at the end of its kind's order; returns it. */
     readonly create: (
       request: PlaylistCreateRequest,
     ) => Promise<IpcResult<Playlist>>;
+    /** Apply a partial update; returns the playlist as stored afterwards. */
     readonly update: (
       request: PlaylistUpdateRequest,
     ) => Promise<IpcResult<Playlist>>;
+    /** Delete a playlist (a static one drops its track entries too). */
     readonly remove: (
       request: PlaylistRemoveRequest,
     ) => Promise<IpcResult<void>>;
@@ -701,6 +804,7 @@ export type MpBridge = {
   };
   /** Persisted-settings channels. */
   readonly settings: {
+    /** Read the settings currently in effect (Main's in-memory snapshot). */
     readonly get: () => Promise<IpcResult<AppSettings>>;
     /**
      * Apply a patch and return the merged snapshot — the response is the
@@ -730,6 +834,11 @@ export type MpBridge = {
   };
   /** Log-forwarding channel for Renderer `console` output. */
   readonly log: {
+    /**
+     * Fire-and-forget send of one log entry to Main. Only the preload wiring
+     * exists so far: Main registers no listener for the channel and no
+     * Renderer code calls this yet.
+     */
     readonly forward: (request: LogForwardRequest) => void;
   };
 };

@@ -40,7 +40,16 @@ export type ImportRunEvents = {
 
 /** Injectable seams (real mme / fs in production, fakes in tests). */
 export type ImportRunDeps = {
+  /**
+   * Read one audio file's metadata (mme `loadTrack`). A throw marks only
+   * that file as failed in the summary; the rest of the batch continues.
+   */
   readonly loadTrack: (filePath: string) => Promise<Track>;
+  /**
+   * Expand the dropped / selected paths into the audio files to import
+   * (directories are walked; see `expandAudioPaths`). The result length is
+   * the progress `total`.
+   */
   readonly expandAudioPaths: (
     paths: readonly string[],
   ) => Promise<readonly string[]>;
@@ -60,8 +69,14 @@ const DEFAULT_DEPS: ImportRunDeps = {
 /** Per-file extraction result: a mapped row or a captured failure. */
 type ExtractionResult =
   | {
+      /** Discriminator: extraction succeeded and `row` is ready to upsert. */
       readonly ok: true;
+      /**
+       * The file's path as listed by `expandAudioPaths`; keys the progress
+       * count and any failure entry.
+       */
       readonly filePath: string;
+      /** Column values mapped from the loaded track. */
       readonly row: MusicRowInput;
       /** Stored artwork path, or `null` when the file carries none. */
       readonly artworkPath: string | null;

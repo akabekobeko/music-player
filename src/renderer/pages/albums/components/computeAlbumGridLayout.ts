@@ -18,6 +18,7 @@ export const CARD_META_HEIGHT = 76;
 
 /** Resolved grid geometry for one container width. */
 export type AlbumGridLayout = {
+  /** Cards per row; at least `1`, as many as fit at `CARD_MIN_WIDTH`. */
   readonly columns: number;
   /** Card (and artwork) width in px. */
   readonly cardWidth: number;

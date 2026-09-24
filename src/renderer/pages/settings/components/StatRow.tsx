@@ -1,5 +1,7 @@
 type Props = {
+  /** Statistic name shown in the `dt` cell. */
   readonly label: string;
+  /** Preformatted value (a count or a `formatTime` duration) in `dd`. */
   readonly value: string;
 };
 

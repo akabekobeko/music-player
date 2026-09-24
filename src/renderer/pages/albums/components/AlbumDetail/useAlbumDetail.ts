@@ -27,7 +27,9 @@ import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
  * effect needed (`docs/specs/v1.1/features/selection.md`).
  */
 type BoundSelection = {
+  /** The query store value the selection was made on (identity check). */
   readonly base: readonly Music[];
+  /** Selected track ids and the Shift anchor (`applySelectionClick`). */
   readonly selection: SelectionState;
 };
 

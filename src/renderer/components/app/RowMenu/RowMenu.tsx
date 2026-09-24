@@ -12,16 +12,25 @@ import { CircleIconButton } from "../Buttons/CircleIconButton";
 
 /** One plain entry of a {@link RowMenu}. */
 export type RowMenuItem = {
+  /** Menu text; also the React key, so labels are unique within a menu. */
   readonly label: string;
   /** Icon element rendered before the label (typically a lucide icon). */
   readonly icon?: ReactNode;
+  /** Called when the entry is clicked; omit for an inert entry. */
   readonly onSelect?: () => void;
+  /** Greys the entry out and ignores clicks; defaults to `false`. */
   readonly disabled?: boolean;
+  /** Renders the entry in the destructive (red) style; defaults to `false`. */
   readonly destructive?: boolean;
+  /** Draws a separator line above the entry; defaults to `false`. */
   readonly separatorBefore?: boolean;
 };
 
 type Props = {
+  /**
+   * Entries in display order: plain items, or ready-made menu elements
+   * (e.g. `AddToPlaylistSubmenu`) rendered as given and keyed by position.
+   */
   readonly items: ReadonlyArray<RowMenuItem | ReactElement>;
   /** Trigger look: the plain ghost icon (default) or a filled circle. */
   readonly variant?: "ghost" | "circle";

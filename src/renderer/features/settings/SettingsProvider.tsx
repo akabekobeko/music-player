@@ -31,6 +31,7 @@ const SettingsCommandsContext = createContext<SettingsCommands | null>(null);
 type Props = {
   /** Settings loaded by the bootstrap. */
   readonly initialSettings: AppSettings;
+  /** Subtree that may use the settings hooks. */
   readonly children: ReactNode;
 };
 
