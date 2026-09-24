@@ -1,24 +1,25 @@
-import type { AudioFormat as MmeAudioFormat } from "@akabeko/music-metadata-editor";
 import { z } from "zod";
 
 /**
- * Audio container formats mme can load, as an enum-like object for the
- * schema. mme exports only the union type, so the list is kept by hand; the
- * `satisfies` clause keeps it in sync in both directions (a format mme added
- * but this list lacks, or an entry mme does not know, fails to compile).
+ * Audio container formats mme can load, as a runtime list for the schema.
+ * mme exports only the union type and `src/shared/` must not depend on mme,
+ * so the list is kept by hand here; `MusicRowInput` in
+ * `src/main/library/trackMapping.ts` types its `audioFormat` with this
+ * list, which makes the importer fail to compile when mme adds a format
+ * this list lacks.
  */
-const AUDIO_FORMATS = {
-  mp3: "mp3",
-  flac: "flac",
-  mp4: "mp4",
-  m4a: "m4a",
-  ogg: "ogg",
-  opus: "opus",
-  wav: "wav",
-  aiff: "aiff",
-  wma: "wma",
-  ape: "ape",
-} as const satisfies { [K in MmeAudioFormat]: K };
+export const AUDIO_FORMATS = [
+  "mp3",
+  "flac",
+  "mp4",
+  "m4a",
+  "ogg",
+  "opus",
+  "wav",
+  "aiff",
+  "wma",
+  "ape",
+] as const;
 
 /** Audio container format stored in `musics.audio_format`. */
 export const audioFormatSchema = z.enum(AUDIO_FORMATS);

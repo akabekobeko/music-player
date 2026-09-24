@@ -1,11 +1,9 @@
 import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
+import { idRowSchema } from "../db/idRowSchema";
 
 /** Row of the orphan lookup below. */
-const orphanRowSchema = z.object({
-  id: z.number().int(),
-  file_path: z.string(),
-});
+const orphanRowSchema = idRowSchema.extend({ file_path: z.string() });
 
 /**
  * Drop `pictures` rows referenced by neither `musics.picture_id` nor

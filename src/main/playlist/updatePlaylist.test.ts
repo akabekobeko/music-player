@@ -1,10 +1,12 @@
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { runMigrations } from "../db/runMigrations";
+import type { SmartPlaylistRules } from "../ipc/types";
 import { upsertMusic } from "../library/musicRepository";
 import type { MusicRowInput } from "../library/trackMapping";
 import { createPlaylist } from "./createPlaylist";
 import { getPlaylistMusics } from "./getPlaylistMusics";
+import { readPlaylist } from "./readPlaylist";
 import { updatePlaylist } from "./updatePlaylist";
 
 let db: DatabaseSync;
@@ -125,4 +127,32 @@ it("updates smart playlist rules", () => {
     NOW,
   );
   expect(updated.rules).toEqual(nextRules);
+});
+
+it("rejects a rule document that fails the schema and keeps the stored one", () => {
+  const created = createPlaylist(
+    db,
+    { kind: "smart", name: "S", rules: RULES },
+    NOW,
+  );
+  const rules = { version: 2 } as unknown as SmartPlaylistRules;
+
+  expect(() =>
+    updatePlaylist(db, { id: created.id, kind: "smart", rules }, NOW),
+  ).toThrow();
+  expect(readPlaylist(db, "smart", created.id).rules).toEqual(RULES);
+});
+
+it("renames a smart playlist whose stored rules are corrupted", () => {
+  db.prepare(
+    `INSERT INTO smart_playlists (id, name, rules, sort_order, created_at, updated_at)
+     VALUES (9, 'Broken', 'not json', 0, ?, ?)`,
+  ).run(NOW, NOW);
+
+  expect(() =>
+    updatePlaylist(db, { id: 9, kind: "smart", name: "Renamed" }, NOW),
+  ).toThrow(/not valid JSON/);
+  expect(
+    db.prepare("SELECT name FROM smart_playlists WHERE id = 9").get(),
+  ).toEqual({ name: "Renamed" });
 });

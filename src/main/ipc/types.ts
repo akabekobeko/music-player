@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { LocalePreference } from "../../shared/locales/types";
 import type { albumSummarySchema } from "../../shared/schemas/albumSummarySchema";
 import type { artistSchema } from "../../shared/schemas/artistSchema";
+import type { audioFormatSchema } from "../../shared/schemas/audioFormatSchema";
 import type { filterOptionsSchema } from "../../shared/schemas/filterOptionsSchema";
 import type { libraryStatsSchema } from "../../shared/schemas/libraryStatsSchema";
 import type { musicSchema } from "../../shared/schemas/musicSchema";
@@ -25,8 +26,8 @@ import type {
  * only process with a value-level dependency on `src/main` is Main itself.
  *
  * Domain types that mirror database rows are inferred from the zod schemas
- * in `./schemas/` (schema first, `z.infer` second): the same schema that
- * declares the type also validates the rows the queries read back. The
+ * in `src/shared/schemas/` (schema first, `z.infer` second): the same schema
+ * that declares the type also validates the rows the queries read back. The
  * imports stay type-only so this file never carries a runtime dependency.
  */
 
@@ -64,23 +65,48 @@ export type IpcResult<T> =
 // ---------------------------------------------------------------------------
 
 /**
+ * Deeply-readonly counterpart of `T`.
+ *
+ * The schema-derived domain types are made readonly here, at the type level,
+ * instead of with zod's `.readonly()`: that modifier also `Object.freeze`s
+ * every parsed row at runtime, a per-row cost on the hot track queries (a
+ * smart playlist without conditions returns the whole library) that buys
+ * nothing, since Main never mutates the rows and the freeze does not survive
+ * the structured clone across IPC anyway.
+ */
+export type DeepReadonly<T> =
+  T extends ReadonlyArray<infer U>
+    ? ReadonlyArray<DeepReadonly<U>>
+    : T extends object
+      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+      : T;
+
+/**
+ * Audio container format of a track
+ * (`src/shared/schemas/audioFormatSchema.ts`); the same union as mme's
+ * `AudioFormat`.
+ */
+export type AudioFormat = z.infer<typeof audioFormatSchema>;
+
+/**
  * One track in the library. Mirrors a row of the `musics` table
  * (`docs/specs/v1.0/architecture/database.md`) in camelCase
- * (`schemas/musicSchema.ts`).
+ * (`src/shared/schemas/musicSchema.ts`).
  */
-export type Music = z.infer<typeof musicSchema>;
+export type Music = DeepReadonly<z.infer<typeof musicSchema>>;
 
 /**
  * One artist row of the Artist view, grouped by the display artist
- * (`album_artist` falling back to `artist`) (`schemas/artistSchema.ts`).
+ * (`album_artist` falling back to `artist`)
+ * (`src/shared/schemas/artistSchema.ts`).
  */
-export type Artist = z.infer<typeof artistSchema>;
+export type Artist = DeepReadonly<z.infer<typeof artistSchema>>;
 
 /**
  * One album card of the Album view (grouped by album identity key)
- * (`schemas/albumSummarySchema.ts`).
+ * (`src/shared/schemas/albumSummarySchema.ts`).
  */
-export type AlbumSummary = z.infer<typeof albumSummarySchema>;
+export type AlbumSummary = DeepReadonly<z.infer<typeof albumSummarySchema>>;
 
 /**
  * Filter condition of the Album view, converted to a WHERE clause by Main.
@@ -107,15 +133,15 @@ export type AlbumFilter = {
 
 /**
  * Choices offered by the Album view's filter UI
- * (`schemas/filterOptionsSchema.ts`).
+ * (`src/shared/schemas/filterOptionsSchema.ts`).
  */
-export type FilterOptions = z.infer<typeof filterOptionsSchema>;
+export type FilterOptions = DeepReadonly<z.infer<typeof filterOptionsSchema>>;
 
 /**
  * Library-wide counters shown by the settings page's library section
- * (`schemas/libraryStatsSchema.ts`).
+ * (`src/shared/schemas/libraryStatsSchema.ts`).
  */
-export type LibraryStats = z.infer<typeof libraryStatsSchema>;
+export type LibraryStats = DeepReadonly<z.infer<typeof libraryStatsSchema>>;
 
 /** Final report of one `mp:library:import` run. */
 export type ImportSummary = {
@@ -248,32 +274,37 @@ export type UpdateProgressPayload = {
 
 /**
  * Sortable fields of a smart playlist rule
- * (`schemas/smartPlaylistRulesSchema.ts`).
+ * (`src/shared/schemas/smartPlaylistRulesSchema.ts`).
  */
 export type SmartSortField = z.infer<typeof smartSortFieldSchema>;
 
 /**
  * One condition row of a smart playlist
  * (`docs/specs/v1.0/features/playlist.md`,
- * `schemas/smartPlaylistRulesSchema.ts`).
+ * `src/shared/schemas/smartPlaylistRulesSchema.ts`).
  */
-export type SmartCondition = z.infer<typeof smartConditionSchema>;
+export type SmartCondition = DeepReadonly<z.infer<typeof smartConditionSchema>>;
 
 /**
  * Rule document stored in `smart_playlists.rules` (JSON)
- * (`schemas/smartPlaylistRulesSchema.ts`).
+ * (`src/shared/schemas/smartPlaylistRulesSchema.ts`).
  */
-export type SmartPlaylistRules = z.infer<typeof smartPlaylistRulesSchema>;
+export type SmartPlaylistRules = DeepReadonly<
+  z.infer<typeof smartPlaylistRulesSchema>
+>;
 
-/** Discriminates the two playlist tables (`schemas/playlistSchema.ts`). */
+/**
+ * Discriminates the two playlist tables
+ * (`src/shared/schemas/playlistSchema.ts`).
+ */
 export type PlaylistKind = z.infer<typeof playlistKindSchema>;
 
 /**
  * One playlist as listed by `mp:playlist:list`. `id` is only unique within
  * its `kind` (static and smart playlists live in separate tables)
- * (`schemas/playlistSchema.ts`).
+ * (`src/shared/schemas/playlistSchema.ts`).
  */
-export type Playlist = z.infer<typeof playlistSchema>;
+export type Playlist = DeepReadonly<z.infer<typeof playlistSchema>>;
 
 /** Request payload for `mp:playlist:create`. */
 export type PlaylistCreateRequest = {

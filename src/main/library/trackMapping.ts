@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { Track } from "@akabeko/music-metadata-editor";
+import type { AudioFormat } from "../ipc/types";
 
 /**
  * Column values for one `musics` row, produced from a loaded {@link Track}.
@@ -12,7 +13,12 @@ import type { Track } from "@akabeko/music-metadata-editor";
  */
 export type MusicRowInput = {
   readonly filePath: string;
-  readonly audioFormat: string;
+  /**
+   * Typed with the shared list rather than mme's union on purpose: assigning
+   * `track.audioFormat` below is the compile-time proof that every format
+   * mme can report is one `audioFormatSchema` reads back.
+   */
+  readonly audioFormat: AudioFormat;
   readonly title: string;
   readonly artist: string;
   readonly albumArtist: string;

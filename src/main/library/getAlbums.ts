@@ -6,7 +6,7 @@ import { albumKeyOf } from "./albumKeyOf";
 import { buildAlbumWhere } from "./buildAlbumWhere/buildAlbumWhere";
 
 /** Row shape of the album summary SELECT below: the summary minus the derived key. */
-const albumRowSchema = albumSummarySchema.unwrap().omit({ albumKey: true });
+const albumRowSchema = albumSummarySchema.omit({ albumKey: true });
 
 /**
  * List album summaries matching a filter (`mp:library:getAlbums`)

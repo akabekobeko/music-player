@@ -4,9 +4,13 @@ import { genreCountSchema } from "../../shared/schemas/filterOptionsSchema";
 import type { FilterOptions } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 
-/** Row of the decade query; a NULL bucket holds the unknown-year albums. */
+/**
+ * Row of the decade query; a NULL bucket holds the unknown-year albums. Like
+ * `musicSchema.year`, the decade is a plain number: integer-ness is a business
+ * rule of the write path, not of the column.
+ */
 const decadeBucketSchema = z.object({
-  decade: z.number().int().nullable(),
+  decade: z.number().nullable(),
   count: z.number().int(),
 });
 
