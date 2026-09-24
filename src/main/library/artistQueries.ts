@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { artistSchema } from "../../shared/schemas/artistSchema";
 import type { Artist } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 
@@ -37,16 +38,5 @@ ORDER BY name
  *   their label).
  */
 export const getArtists = (db: DatabaseSync): Artist[] => {
-  const rows = db.prepare(SELECT_ARTISTS_SQL).all() as Array<{
-    name: string;
-    musicCount: number;
-    picturePath: string | null;
-    initial: string | null;
-  }>;
-  return rows.map((row) => ({
-    name: row.name,
-    musicCount: row.musicCount,
-    picturePath: row.picturePath,
-    initial: row.initial,
-  }));
+  return artistSchema.array().parse(db.prepare(SELECT_ARTISTS_SQL).all());
 };

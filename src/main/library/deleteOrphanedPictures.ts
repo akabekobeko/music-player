@@ -1,4 +1,11 @@
 import type { DatabaseSync } from "node:sqlite";
+import { z } from "zod";
+
+/** Row of the orphan lookup below. */
+const orphanRowSchema = z.object({
+  id: z.number().int(),
+  file_path: z.string(),
+});
 
 /**
  * Drop `pictures` rows referenced by neither `musics.picture_id` nor
@@ -13,13 +20,15 @@ import type { DatabaseSync } from "node:sqlite";
  * @returns Artwork file paths whose rows were GC'd.
  */
 export const deleteOrphanedPictures = (db: DatabaseSync): string[] => {
-  const orphans = db
-    .prepare(
-      `SELECT id, file_path FROM pictures
-       WHERE id NOT IN (SELECT picture_id FROM musics WHERE picture_id IS NOT NULL)
-         AND id NOT IN (SELECT picture_id FROM artist_pictures)`,
-    )
-    .all() as Array<{ id: number; file_path: string }>;
+  const orphans = orphanRowSchema.array().parse(
+    db
+      .prepare(
+        `SELECT id, file_path FROM pictures
+         WHERE id NOT IN (SELECT picture_id FROM musics WHERE picture_id IS NOT NULL)
+           AND id NOT IN (SELECT picture_id FROM artist_pictures)`,
+      )
+      .all(),
+  );
   if (orphans.length > 0) {
     const ids = orphans.map(() => "?").join(", ");
     db.prepare(`DELETE FROM pictures WHERE id IN (${ids})`).run(

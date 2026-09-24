@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { z } from "zod";
 import type { Playlist, PlaylistCreateRequest } from "../ipc/types";
 import { readPlaylist } from "./readPlaylist";
 import { TABLE_OF } from "./TABLE_OF";
@@ -22,11 +23,15 @@ export const createPlaylist = (
   }
 
   const table = TABLE_OF[request.kind];
-  const nextOrder = (
-    db
-      .prepare(`SELECT COALESCE(MAX(sort_order) + 1, 0) AS next FROM ${table}`)
-      .get() as { next: number }
-  ).next;
+  const nextOrder = z
+    .object({ next: z.number().int() })
+    .parse(
+      db
+        .prepare(
+          `SELECT COALESCE(MAX(sort_order) + 1, 0) AS next FROM ${table}`,
+        )
+        .get(),
+    ).next;
   const result =
     request.kind === "static"
       ? db

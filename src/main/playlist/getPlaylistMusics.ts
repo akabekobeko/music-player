@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
+import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music, PlaylistGetMusicsRequest } from "../ipc/types";
-import { MUSIC_COLUMNS, type MusicRow } from "../library/MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "../library/MUSIC_COLUMNS";
 import { evaluateSmartPlaylist } from "./evaluateSmartPlaylist";
 import { readPlaylist } from "./readPlaylist";
 
@@ -29,15 +30,16 @@ export const getPlaylistMusics = (
     return evaluateSmartPlaylist(db, playlist.rules);
   }
 
-  const rows = db
-    .prepare(
-      `SELECT ${MUSIC_COLUMNS}
-       FROM playlist_musics pm
-       JOIN musics m ON m.id = pm.music_id
-       LEFT JOIN pictures p ON p.id = m.picture_id
-       WHERE pm.playlist_id = ?
-       ORDER BY pm.position`,
-    )
-    .all(request.playlistId) as MusicRow[];
-  return rows.map((row) => ({ ...row })) as Music[];
+  return musicSchema.array().parse(
+    db
+      .prepare(
+        `SELECT ${MUSIC_COLUMNS}
+         FROM playlist_musics pm
+         JOIN musics m ON m.id = pm.music_id
+         LEFT JOIN pictures p ON p.id = m.picture_id
+         WHERE pm.playlist_id = ?
+         ORDER BY pm.position`,
+      )
+      .all(request.playlistId),
+  );
 };

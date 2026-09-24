@@ -1,6 +1,14 @@
 import type { DatabaseSync } from "node:sqlite";
+import { z } from "zod";
+import { genreCountSchema } from "../../shared/schemas/filterOptionsSchema";
 import type { FilterOptions } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+
+/** Row of the decade query; a NULL bucket holds the unknown-year albums. */
+const decadeBucketSchema = z.object({
+  decade: z.number().int().nullable(),
+  count: z.number().int(),
+});
 
 /**
  * Collect the filter choices for the sidebar (`mp:library:getFilterOptions`).
@@ -23,34 +31,38 @@ import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
  * @returns Genre and decade choices with their album counts.
  */
 export const getFilterOptions = (db: DatabaseSync): FilterOptions => {
-  const genres = db
-    .prepare(
-      `SELECT name, COUNT(*) AS count
-       FROM (
-         SELECT m.genre AS name
-         FROM musics m
-         WHERE m.genre <> ''
-         GROUP BY m.genre, ${ALBUM_ARTIST_SQL}, m.album
-       )
-       GROUP BY name
-       ORDER BY name`,
-    )
-    .all() as Array<{ name: string; count: number }>;
+  const genres = genreCountSchema.array().parse(
+    db
+      .prepare(
+        `SELECT name, COUNT(*) AS count
+         FROM (
+           SELECT m.genre AS name
+           FROM musics m
+           WHERE m.genre <> ''
+           GROUP BY m.genre, ${ALBUM_ARTIST_SQL}, m.album
+         )
+         GROUP BY name
+         ORDER BY name`,
+      )
+      .all(),
+  );
   // Integer division truncates toward zero, which is floor for the stored
   // years: the mapping / migration 002 keep only years > 0. A NULL year
   // yields a NULL bucket, which becomes the "Unknown" item's count.
-  const buckets = db
-    .prepare(
-      `SELECT decade, COUNT(*) AS count
-       FROM (
-         SELECT (m.year / 10) * 10 AS decade
-         FROM musics m
-         GROUP BY (m.year / 10) * 10, ${ALBUM_ARTIST_SQL}, m.album
-       )
-       GROUP BY decade
-       ORDER BY decade`,
-    )
-    .all() as Array<{ decade: number | null; count: number }>;
+  const buckets = decadeBucketSchema.array().parse(
+    db
+      .prepare(
+        `SELECT decade, COUNT(*) AS count
+         FROM (
+           SELECT (m.year / 10) * 10 AS decade
+           FROM musics m
+           GROUP BY (m.year / 10) * 10, ${ALBUM_ARTIST_SQL}, m.album
+         )
+         GROUP BY decade
+         ORDER BY decade`,
+      )
+      .all(),
+  );
   const decades = buckets.filter(
     (bucket): bucket is { decade: number; count: number } =>
       bucket.decade !== null,

@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { Playlist, SmartPlaylistRules } from "../ipc/types";
-import type { PlaylistRow } from "./types";
+import type { Playlist } from "../ipc/types";
+import { playlistRowSchema, smartPlaylistRowSchema } from "./playlistRowSchema";
 
 /**
  * List every playlist of both kinds, each ordered by sort order then name.
@@ -11,35 +11,24 @@ import type { PlaylistRow } from "./types";
  * @returns Playlists; smart entries carry their parsed rules.
  */
 export const listPlaylists = (db: DatabaseSync): Playlist[] => {
-  const statics = db
-    .prepare(
-      `SELECT id, name, sort_order AS sortOrder
-       FROM playlists ORDER BY sort_order, name`,
-    )
-    .all() as PlaylistRow[];
-  const smarts = db
-    .prepare(
-      `SELECT id, name, sort_order AS sortOrder, rules
-       FROM smart_playlists ORDER BY sort_order, name`,
-    )
-    .all() as PlaylistRow[];
+  const statics = playlistRowSchema.array().parse(
+    db
+      .prepare(
+        `SELECT id, name, sort_order AS sortOrder
+         FROM playlists ORDER BY sort_order, name`,
+      )
+      .all(),
+  );
+  const smarts = smartPlaylistRowSchema.array().parse(
+    db
+      .prepare(
+        `SELECT id, name, sort_order AS sortOrder, rules
+         FROM smart_playlists ORDER BY sort_order, name`,
+      )
+      .all(),
+  );
   return [
-    ...statics.map(
-      (row): Playlist => ({
-        id: row.id,
-        kind: "static",
-        name: row.name,
-        sortOrder: row.sortOrder,
-      }),
-    ),
-    ...smarts.map(
-      (row): Playlist => ({
-        id: row.id,
-        kind: "smart",
-        name: row.name,
-        sortOrder: row.sortOrder,
-        rules: JSON.parse(row.rules ?? "null") as SmartPlaylistRules,
-      }),
-    ),
+    ...statics.map((row): Playlist => ({ ...row, kind: "static" })),
+    ...smarts.map((row): Playlist => ({ ...row, kind: "smart" })),
   ];
 };

@@ -31,9 +31,12 @@ Renderer 側は try/catch なしで `result.ok` で分岐します。ハンド�
 mme-gui の方式です。core (mme) やドメイン型に値レベルで依存するのは Main だけに閉じ込め、Renderer には型だけを届けます。
 
 ```ts
+// src/shared/schemas/musicSchema.ts — DB 行を検証する zod スキーマ (型の唯一の定義)
+export const musicSchema = z.object({ ... }).readonly();
+
 // src/main/ipc/types.ts — ドメイン型と IPC 型の単一定義場所
-export type Music = { ... };
-export type Artist = { ... };
+export type Music = z.infer<typeof musicSchema>; // スキーマから導出 (type-only import)
+export type Artist = z.infer<typeof artistSchema>;
 export type MpBridge = { ... }; // window.mp の型
 
 // src/renderer/vite-env.d.ts
