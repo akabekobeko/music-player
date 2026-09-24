@@ -19,6 +19,10 @@ export type PlayerState = {
    * shuffle turns off. Equals `queue` while shuffle is off.
    */
   readonly orderedQueue: readonly Music[];
+  /**
+   * Which view operation installed `queue`; `none` before the first
+   * playback. The queue popover passes it back to `playMusic` on a jump.
+   */
   readonly queueSource: QueueSource;
   /** Currently loaded track; stays on the tail after the queue ends. */
   readonly current: Music | null;

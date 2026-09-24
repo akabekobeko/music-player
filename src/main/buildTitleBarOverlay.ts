@@ -5,8 +5,22 @@ export const TITLE_BAR_OVERLAY_HEIGHT = 40;
 
 /** `titleBarOverlay` colors for one resolved theme. */
 export type TitleBarOverlayOptions = {
+  /**
+   * Overlay background as an eight-digit hex color (`#rrggbb00`). The alpha
+   * is always zero so the app's toolbar shows through; the RGB only matters
+   * on Linux (see {@link buildTitleBarOverlayColor}).
+   */
   readonly color: string;
+  /**
+   * Color of the caption-button glyphs (minimize / maximize / close) as a
+   * six-digit hex; mirrors the theme's `--foreground` token in `App.css`.
+   */
   readonly symbolColor: string;
+  /**
+   * Height of the overlay strip in px, always
+   * {@link TITLE_BAR_OVERLAY_HEIGHT}: the amount WCO reserves along the top
+   * edge of the web contents.
+   */
   readonly height: number;
 };
 

@@ -4,6 +4,7 @@ import { Stack } from "@/components/app/stacks";
 type Props = {
   /** Section heading. */
   readonly label: string;
+  /** The section's rows, stacked under the heading. */
   readonly children: ReactNode;
 };
 

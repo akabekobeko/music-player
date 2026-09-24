@@ -11,6 +11,7 @@ type Props = {
   readonly error?: string | null;
   /** `numeric` for the number-like tags (year, track, …). */
   readonly inputMode?: "numeric";
+  /** Disables the input while the dialog applies; defaults to `false`. */
   readonly disabled?: boolean;
   /** Called with the input's text on every change. */
   readonly onChange: (value: string) => void;

@@ -1,9 +1,12 @@
 import type { FetchState, QueryFetcher, QueryKey, QueryStore } from "./types";
 
+/** Cache slot of one key. */
 type Entry = {
+  /** Latest snapshot of the key; `LOADING` while a fetch is in flight. */
   state: FetchState<unknown>;
   /** Bumped by invalidation; stale responses fail the equality check. */
   generation: number;
+  /** Subscribers; an empty set marks the entry idle (see `invalidate`). */
   listeners: Set<() => void>;
 };
 

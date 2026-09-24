@@ -5,6 +5,7 @@ import { VolumeControl } from "./VolumeControl";
 type Props = {
   /** Current volume, `0`–`1`. */
   readonly volume: number;
+  /** Receives the new volume in `[0, 1]` from the slider or mute toggle. */
   readonly onVolumeChange: (volume: number) => void;
 };
 

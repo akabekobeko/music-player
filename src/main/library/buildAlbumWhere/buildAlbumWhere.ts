@@ -4,7 +4,17 @@ import { escapeLikePattern } from "./escapeLikePattern";
 
 /** Fragment of a WHERE clause: SQL snippet plus its bound parameters. */
 export type WhereFragment = {
+  /**
+   * One boolean expression over the `musics m` alias using `?` placeholders
+   * only, never interpolated values. `getAlbums` joins the fragments with
+   * AND, so OR-combined terms are parenthesised here.
+   */
   readonly sql: string;
+  /**
+   * Values bound to the placeholders in `sql`, in placeholder order. LIKE
+   * patterns are already escaped and wrapped in `%`; empty when the
+   * fragment binds nothing (e.g. only `m.year IS NULL`).
+   */
   readonly params: ReadonlyArray<string | number>;
 };
 

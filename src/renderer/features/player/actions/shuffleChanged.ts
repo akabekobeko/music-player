@@ -6,7 +6,9 @@ import type { Music } from "@mp/ipc";
  * passes it here; `orderedQueue` is untouched.
  */
 export type ShuffleChangedAction = {
+  /** Discriminant. */
   readonly type: "shuffleChanged";
+  /** Shuffle mode after the toggle. */
   readonly shuffle: boolean;
   /** The new playback order for the existing tracks. */
   readonly queue: readonly Music[];

@@ -4,6 +4,7 @@ import { INITIALS, type Initial } from "./initials";
 
 /** One initial section of the artist list. */
 export type ArtistSection = {
+  /** Section key the artists share: a letter or the other bucket (`#`). */
   readonly initial: Initial;
   /** Artists of the section, in the order they were given. */
   readonly artists: readonly Artist[];

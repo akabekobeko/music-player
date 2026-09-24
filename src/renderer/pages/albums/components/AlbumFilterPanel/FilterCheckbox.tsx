@@ -2,10 +2,13 @@ import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
+  /** Row text: a genre name, a decade (`1990s`), or "Unknown year". */
   readonly label: string;
   /** Album count badge. */
   readonly count: number;
+  /** Whether the choice is currently part of the filter. */
   readonly checked: boolean;
+  /** Called on any click in the row; the panel flips the choice. */
   readonly onToggle: () => void;
 };
 

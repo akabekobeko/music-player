@@ -10,17 +10,29 @@ import type { AppSettings } from "./ipc/types";
 
 /** A display's usable rectangle (`Display.workArea`). */
 export type WorkArea = {
+  /** Left edge in DIP within the virtual screen shared by all displays. */
   readonly x: number;
+  /** Top edge in DIP within the virtual screen shared by all displays. */
   readonly y: number;
+  /** Usable width in DIP (taskbar / dock excluded). */
   readonly width: number;
+  /** Usable height in DIP (taskbar / dock excluded). */
   readonly height: number;
 };
 
 /** Bounds handed to the `BrowserWindow` constructor. */
 export type RestoredBounds = {
+  /**
+   * Saved left edge in DIP. Present only when a position was saved and its
+   * rect still overlaps some display by {@link MIN_VISIBLE_PX} on both
+   * axes; omitted otherwise so Electron centers the window.
+   */
   readonly x?: number;
+  /** Saved top edge in DIP; present or omitted together with `x`. */
   readonly y?: number;
+  /** Saved window width in DIP; always restored, even without a position. */
   readonly width: number;
+  /** Saved window height in DIP; always restored, even without a position. */
   readonly height: number;
 };
 

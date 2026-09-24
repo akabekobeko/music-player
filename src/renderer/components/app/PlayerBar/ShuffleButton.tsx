@@ -5,6 +5,7 @@ import { GlowIconButton } from "../Buttons/GlowIconButton";
 type Props = {
   /** Shuffle mode is on — the icon stays lit. */
   readonly active: boolean;
+  /** Button click; `PlayerBand` maps it to `commands.toggleShuffle`. */
   readonly onToggle: () => void;
 };
 

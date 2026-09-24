@@ -3,6 +3,7 @@ import type { ImportEntryState } from "@/features/import/importStore/types";
 import { Stack } from "../stacks";
 
 type Props = {
+  /** The store's "done" state; only its `summary` is rendered here. */
   readonly state: Extract<ImportEntryState, { status: "done" }>;
 };
 

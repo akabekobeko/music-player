@@ -24,12 +24,18 @@ import { SORT_CHOICES } from "./sortChoices";
 import { useSmartRulesDialog } from "./useSmartRulesDialog";
 
 type Props = {
+  /** Dialog heading ("New smart playlist" / "Edit rules"). */
   readonly title: string;
   /** Rules to edit; omit to start from the empty draft (create). */
   readonly initialRules?: SmartPlaylistRules;
   /** When set, show a name input initialised to this value (create). */
   readonly initialName?: string;
+  /**
+   * Save button click, with the rules built from the draft and the trimmed
+   * name (`""` when no name input is shown). The caller closes the dialog.
+   */
   readonly onSubmit: (rules: SmartPlaylistRules, name: string) => void;
+  /** Cancel click or dismissal (Escape / backdrop); the caller unmounts. */
   readonly onClose: () => void;
 };
 

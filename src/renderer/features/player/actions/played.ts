@@ -8,12 +8,15 @@ import type { QueueSource } from "../types";
  * command does the shuffling and passes both orders here).
  */
 export type PlayedAction = {
+  /** Discriminant. */
   readonly type: "played";
+  /** The track that started; becomes `current` and leads `queue`. */
   readonly music: Music;
   /** Playback order (already shuffled when `shuffle` is true). */
   readonly queue: readonly Music[];
   /** The view's natural order — the restore target when shuffle turns off. */
   readonly orderedQueue: readonly Music[];
+  /** Which view supplied the list; becomes `queueSource`. */
   readonly source: QueueSource;
   /** Shuffle mode after this play (`playShuffled` turns it on). */
   readonly shuffle: boolean;

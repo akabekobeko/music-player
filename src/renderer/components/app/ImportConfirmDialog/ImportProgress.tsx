@@ -3,6 +3,10 @@ import type { ImportEntryState } from "@/features/import/importStore/types";
 import { Stack } from "../stacks";
 
 type Props = {
+  /**
+   * The store's "importing" state: the latest progress push (`null`
+   * before the first) and whether Cancel was already pressed.
+   */
   readonly state: Extract<ImportEntryState, { status: "importing" }>;
 };
 

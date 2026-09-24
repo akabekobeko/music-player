@@ -14,6 +14,7 @@ export const applyTitleBarOverlayTheme = (dark: boolean): void => {
   const overlay = buildTitleBarOverlay(dark);
   for (const window of BrowserWindow.getAllWindows()) {
     const candidate = window as {
+      /** Present only on Windows / Linux windows created with WCO. */
       setTitleBarOverlay?: (options: typeof overlay) => void;
     };
     if (typeof candidate.setTitleBarOverlay === "function") {

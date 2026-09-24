@@ -5,7 +5,13 @@ import { DatabaseDowngradeError } from "./DatabaseDowngradeError";
 
 /** Localised title / message pair for the startup-abort dialog. */
 export type StartupErrorContent = {
+  /** Localised dialog title (first argument of `dialog.showErrorBox`). */
   readonly title: string;
+  /**
+   * Localised dialog body. A downgrade gets the fixed "update the app" copy;
+   * any other failure gets the generic text with the underlying error
+   * message interpolated.
+   */
   readonly message: string;
 };
 

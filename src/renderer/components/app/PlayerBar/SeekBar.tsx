@@ -9,6 +9,10 @@ const asNumber = (value: number | readonly number[]): number =>
   Array.isArray(value) ? (value[0] ?? 0) : (value as number);
 
 type Props = {
+  /**
+   * Playback position in seconds from the engine snapshot; during a
+   * deferred seek it already reports the target, so the thumb holds.
+   */
   readonly currentTime: number;
   /** Engine duration; `0` = unknown, the slider is disabled until it resolves. */
   readonly duration: number;
@@ -19,7 +23,9 @@ type Props = {
   readonly displayDuration: number;
   /** Deferred seek in progress — shows the spinner over the bar. */
   readonly seeking: boolean;
+  /** Called with the position in whole seconds when the slider commits. */
   readonly onSeek: (timeSec: number) => void;
+  /** Extra classes for the row container (`PlayerBand` passes the flex). */
   readonly className?: string;
 };
 

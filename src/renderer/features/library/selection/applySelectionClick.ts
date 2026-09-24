@@ -7,6 +7,7 @@
  * keeps its own selection state; only the transition is shared.
  */
 export type SelectionState = {
+  /** Ids of the selected rows; empty when nothing is selected. */
   readonly selectedIds: ReadonlySet<number>;
   /** Range base for Shift-clicks (the last plain click). */
   readonly anchorId: number | null;

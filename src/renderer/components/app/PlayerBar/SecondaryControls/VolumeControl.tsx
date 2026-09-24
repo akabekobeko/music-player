@@ -15,6 +15,10 @@ import { useVolumeControl } from "./useVolumeControl";
 type Props = {
   /** Current volume in `[0, 1]`. */
   readonly volume: number;
+  /**
+   * Called with the new volume in `[0, 1]` on every slider move and on
+   * the mute toggle (mute sends `0`, unmute the remembered level).
+   */
   readonly onChange: (volume: number) => void;
 };
 

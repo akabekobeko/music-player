@@ -14,12 +14,15 @@ import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
 
 type Props = {
+  /** The album section: identity key, artwork, title, and summary fields. */
   readonly group: AlbumGroup;
   /** The album's tracks in disc / track order (menu targets). */
   readonly musics: readonly Music[];
   /** Whether the album contains the playing / paused track. */
   readonly playing: boolean;
+  /** Play overlay / menu "Play album"; the parent queues this album. */
   readonly onPlay: () => void;
+  /** Menu "Add to queue"; the parent appends this album's tracks. */
   readonly onAddToQueue: () => void;
 };
 

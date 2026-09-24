@@ -34,7 +34,9 @@ import { removeAt } from "./removeAt";
  * replaces the value and thereby retires the override, no effect needed.
  */
 type PendingOrder = {
+  /** The query store value the order was derived from (identity check). */
   readonly base: readonly Music[];
+  /** The reordered tracks, shown until a refetch replaces `base`. */
   readonly order: readonly Music[];
 };
 
@@ -46,13 +48,17 @@ type PendingOrder = {
  * needed (`docs/specs/v1.1/features/selection.md`).
  */
 type BoundSelection = {
+  /** The displayed order the selection was made on (identity check). */
   readonly base: readonly Music[];
+  /** Selected row positions and the Shift anchor (`applySelectionClick`). */
   readonly selection: SelectionState;
 };
 
 /** One row of the list: the track and its position in the unfiltered order. */
 type PlaylistRow = {
+  /** The track at this row. */
   readonly music: Music;
+  /** 0-based position in the unfiltered order (shown 1-based as ordinal). */
   readonly index: number;
 };
 

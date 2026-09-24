@@ -18,12 +18,31 @@ export const TEMP_FILE_SUFFIX = ".parade-tmp";
 
 /** Injectable seams (real mme / fs in production, fakes in tests). */
 export type WriteMusicFileDeps = {
+  /**
+   * Read a file's metadata (mme `loadTrack`). Called twice per write: for
+   * the base to edit, then to read the rewritten file back as the result.
+   */
   readonly loadTrack: (filePath: string) => Promise<Track>;
+  /**
+   * Rebuild the file with the edited tag / pictures (mme `saveTrack`).
+   * Always called with `options.source` set to the original and
+   * `options.outputPath` to its `TEMP_FILE_SUFFIX` sibling; must never
+   * write the original in place.
+   */
   readonly saveTrack: (
     track: SavableTrack,
     options: SaveTrackOptions,
   ) => Promise<void>;
+  /**
+   * Replace the original with the temporary file (`fs.promises.rename`).
+   * Both paths sit in the same directory, so the move is an atomic
+   * same-volume rename.
+   */
   readonly rename: (from: string, to: string) => Promise<void>;
+  /**
+   * Remove the temporary file after a failure (`fs.promises.unlink`). Its
+   * own errors are swallowed: the file may never have been created.
+   */
   readonly unlink: (filePath: string) => Promise<void>;
 };
 

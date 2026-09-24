@@ -44,6 +44,10 @@ export type PlayerCommands = {
   /**
    * Start a track, replacing the queue with the view's list. While shuffle
    * mode is on the track plays first and the rest follows shuffled.
+   *
+   * @param music - The track to start (becomes `current`).
+   * @param queue - The view's list in display order.
+   * @param source - Which view supplied the list.
    */
   readonly playMusic: (
     music: Music,
@@ -52,7 +56,10 @@ export type PlayerCommands = {
   ) => Promise<void>;
   /**
    * Turn shuffle mode on and play the view's list in a shuffled order
-   * (the headers' shuffle play).
+   * (the headers' shuffle play). An empty list is a no-op.
+   *
+   * @param queue - The view's list in display order.
+   * @param source - Which view supplied the list.
    */
   readonly playShuffled: (
     queue: readonly Music[],
@@ -63,10 +70,21 @@ export type PlayerCommands = {
    * first), off restores the view order. Playback keeps running.
    */
   readonly toggleShuffle: () => void;
+  /**
+   * Start the next track (`nextOf`); a no-op at the queue tail. Swaps the
+   * engine and leaves the queue untouched.
+   */
   readonly playNext: () => Promise<void>;
+  /**
+   * Start the previous track (`previousOf`); a no-op at the head or when
+   * the current track is outside the queue.
+   */
   readonly playPrevious: () => Promise<void>;
+  /** Pause when playing, otherwise play; a no-op before the first track. */
   readonly togglePlayPause: () => void;
+  /** Rewind the active engine to the start and stop; `current` stays. */
   readonly stop: () => void;
+  /** Seek the active engine (seconds); a no-op before the first track. */
   readonly seek: (timeSec: number) => void;
   /** Set the app volume (`[0, 1]`); survives across tracks. */
   readonly setVolume: (volume: number) => void;
@@ -283,6 +301,7 @@ const createCommands = (
 };
 
 type Props = {
+  /** Subtree that may use the player hooks. */
   readonly children: ReactNode;
 };
 

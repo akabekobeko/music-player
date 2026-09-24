@@ -17,11 +17,13 @@ import { cn } from "@/libs/utils";
 import { artistPathOf } from "../../artistPath";
 
 type Props = {
+  /** The artist shown: name, picture, song count, and stored initial. */
   readonly artist: Artist;
   /** Whether this artist is the one selected by the route. */
   readonly selected: boolean;
   /** Virtualised position: top offset and height in px. */
   readonly top: number;
+  /** Row height in px (`ARTIST_ROW_HEIGHT`, via the virtualiser). */
   readonly height: number;
 };
 

@@ -14,6 +14,7 @@ import { cn } from "@/libs/utils";
 import { AlbumIndexPicker } from "./AlbumIndexPicker";
 
 type Props = {
+  /** Artist name from the route; `""` is the "Unknown Artist" bucket. */
   readonly artistName: string;
   /** Library entry of the artist; `null` until loaded or for the unknown bucket. */
   readonly artist: Artist | null;
@@ -21,7 +22,9 @@ type Props = {
   readonly groups: readonly AlbumGroup[];
   /** The artist's full play order; also the "Add to playlist" target. */
   readonly playOrder: readonly Music[];
+  /** Picture overlay / menu "Play artist"; plays `playOrder` from the top. */
   readonly onPlayAll: () => void;
+  /** Shuffle circle / menu "Shuffle play"; plays `playOrder` shuffled. */
   readonly onPlayShuffled: () => void;
   /** Scroll the list to the album with this key (album index grid). */
   readonly onJumpToAlbum: (albumKey: string) => void;

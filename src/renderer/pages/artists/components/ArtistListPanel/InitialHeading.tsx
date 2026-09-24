@@ -6,9 +6,11 @@ import { type Initial, OTHER_INITIAL } from "./initials";
 import { INITIAL_HEADING_HEIGHT } from "./itemHeightOf";
 
 type Props = {
+  /** Section key to show: a letter, or the localised "other" label. */
   readonly initial: Initial;
   /** Extra classes (absolute positioning, translucency for the pinned copy). */
   readonly className?: string;
+  /** Inline styles merged after the height (the in-list row's transform). */
   readonly style?: CSSProperties;
 };
 

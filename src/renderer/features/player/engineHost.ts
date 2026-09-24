@@ -30,11 +30,25 @@ const idleSnapshot = (volume: number): PlaybackSnapshot => ({
 export type EngineHost = {
   /** Swap in the next engine (or `null`); the previous one is closed. */
   readonly set: (engine: AudioEngine | null) => void;
+  /**
+   * The active engine, or `null` before the first track (an engine exists
+   * exactly while a track is loaded).
+   */
   readonly get: () => AudioEngine | null;
   /** App-level volume: applied to the active engine and kept for the next. */
   readonly setVolume: (volume: number) => void;
+  /** The app-level volume in `[0, 1]`; handed to every new engine. */
   readonly getVolume: () => number;
+  /**
+   * Register a listener; returns the unsubscribe function. Fires on engine
+   * swaps, on every change of the active engine, and on volume changes
+   * while idle. The identity is stable across swaps.
+   */
   readonly subscribe: (listener: () => void) => () => void;
+  /**
+   * The active engine's snapshot, or an idle `stopped` snapshot carrying
+   * the app-level volume while no engine exists.
+   */
   readonly getSnapshot: () => PlaybackSnapshot;
 };
 

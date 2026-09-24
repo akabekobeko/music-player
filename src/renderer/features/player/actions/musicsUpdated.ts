@@ -7,6 +7,11 @@ import type { Music } from "@mp/ipc";
  * touched (a current track stopped before the write stays stopped).
  */
 export type MusicsUpdatedAction = {
+  /** Discriminant. */
   readonly type: "musicsUpdated";
+  /**
+   * The re-read tracks, matched by `id`; ids absent from the queue and the
+   * current track are ignored.
+   */
   readonly musics: readonly Music[];
 };

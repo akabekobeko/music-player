@@ -16,7 +16,13 @@ import type { MenuAction, MenuStateSnapshot } from "../ipc/types";
 
 /** Inputs deciding the template. */
 export type MenuBuildOptions = {
+  /**
+   * `process.platform` value. `"darwin"` gets the app menu (About, Settings,
+   * Quit) and File > Close; every other platform puts Settings / Quit under
+   * File and About under Help.
+   */
   readonly platform: NodeJS.Platform;
+  /** Resolved UI locale; every label is translated through `tFor(locale)`. */
   readonly locale: Locale;
   /** App display name (the macOS app menu title / about label). */
   readonly appName: string;

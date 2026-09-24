@@ -7,6 +7,8 @@ import type { PlaylistKind } from "@mp/ipc";
  * ids are only unique within their kind (separate tables).
  */
 export type PlaylistRef = {
+  /** Playlist id; unique only within `kind`. */
   readonly id: number;
+  /** `static` (route prefix `p`) or `smart` (route prefix `s`). */
   readonly kind: PlaylistKind;
 };

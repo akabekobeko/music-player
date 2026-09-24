@@ -13,6 +13,7 @@ import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
 import { usePlaylistContent } from "./usePlaylistContent";
 
 type Props = {
+  /** Route id, `p<id>` (static) or `s<id>` (smart); the parent validates it. */
   readonly routeId: string;
 };
 

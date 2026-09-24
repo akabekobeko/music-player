@@ -14,6 +14,7 @@ import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { cn } from "@/libs/utils";
 
 type Props = {
+  /** The album shown: artwork, name, artist, year, and its identity key. */
   readonly album: AlbumSummary;
   /** Card width in px, computed by the grid layout. */
   readonly width: number;
@@ -21,7 +22,9 @@ type Props = {
   readonly expanded: boolean;
   /** Whether this card's album contains the playing / paused track. */
   readonly playing: boolean;
+  /** Artwork click; the page expands or collapses this album's detail. */
   readonly onToggle: () => void;
+  /** Hover play button click; the page queues this album from the top. */
   readonly onPlay: () => void;
 };
 

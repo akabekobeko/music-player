@@ -10,6 +10,10 @@
 
 /** Artist under edit: the dialog's subject. */
 export type ArtistEditTarget = {
+  /**
+   * Artist name as stored; it identifies the artist in the
+   * `mp:library:setArtist*` requests the dialog sends.
+   */
   readonly name: string;
   /** Current picture path, or `null` when the artist has none. */
   readonly picturePath: string | null;
