@@ -1,5 +1,5 @@
 import type { SmartPlaylistRules } from "../ipc/types";
-import { MUSIC_COLUMNS } from "../library/MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "../library/constants";
 import { buildConditionSql } from "./buildConditionSql/buildConditionSql";
 import type { SqlFragment } from "./types";
 

@@ -2,8 +2,8 @@ import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
 import { smartPlaylistRulesSchema } from "../../shared/schemas/smartPlaylistRulesSchema";
 import type { Playlist, PlaylistCreateRequest } from "../ipc/types";
+import { TABLE_OF } from "./constants";
 import { readPlaylist } from "./readPlaylist";
-import { TABLE_OF } from "./TABLE_OF";
 
 /** Row of the next-sort-order lookup below. */
 const nextOrderRowSchema = z.object({ next: z.number().int() });

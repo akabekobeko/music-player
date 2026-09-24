@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+import { ALBUM_ARTIST_SQL } from "./constants";
 
 /**
  * Drop `artist_initials` rows whose display artist (`album_artist` falling

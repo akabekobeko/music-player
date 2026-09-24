@@ -1,4 +1,4 @@
-import { IMAGE_EXTENSION_BY_MIME } from "../../../shared/IMAGE_EXTENSION_BY_MIME";
+import { IMAGE_EXTENSION_BY_MIME } from "../../../shared/constants";
 import type { IpcError, UpdateMusicsRequest } from "../types";
 
 /**

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "./constants";
 import { mergeSettings } from "./mergeSettings";
 
 it("merges a partial window patch onto current values", () => {

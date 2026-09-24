@@ -1,9 +1,9 @@
 import type { DatabaseSync } from "node:sqlite";
 import { albumSummarySchema } from "../../shared/schemas/albumSummarySchema";
 import type { AlbumFilter, AlbumSummary } from "../ipc/types";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 import { albumKeyOf } from "./albumKeyOf";
 import { buildAlbumWhere } from "./buildAlbumWhere/buildAlbumWhere";
+import { ALBUM_ARTIST_SQL } from "./constants";
 
 /** Row shape of the album summary SELECT below: the summary minus the derived key. */
 const albumRowSchema = albumSummarySchema.omit({ albumKey: true });

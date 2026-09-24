@@ -1,7 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import { artistSchema } from "../../shared/schemas/artistSchema";
 import type { Artist } from "../ipc/types";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+import { ALBUM_ARTIST_SQL } from "./constants";
 
 /**
  * Artist-list query for `mp:library:getArtists`

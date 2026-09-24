@@ -1,7 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music, PlaylistGetMusicsRequest } from "../ipc/types";
-import { MUSIC_COLUMNS } from "../library/MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "../library/constants";
 import { evaluateSmartPlaylist } from "./evaluateSmartPlaylist";
 import { readPlaylist } from "./readPlaylist";
 

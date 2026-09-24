@@ -1,6 +1,6 @@
 import type { AppSettings } from "../ipc/types";
 import { asFiniteNumber } from "./asFiniteNumber";
-import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "./constants";
 import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";

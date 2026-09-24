@@ -1,8 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music } from "../ipc/types";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
-import { MUSIC_COLUMNS } from "./MUSIC_COLUMNS";
+import { ALBUM_ARTIST_SQL, MUSIC_COLUMNS } from "./constants";
 
 /**
  * All tracks of one artist (`mp:library:getMusicsByArtist`).

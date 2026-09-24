@@ -2,7 +2,7 @@ import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
 import { genreCountSchema } from "../../shared/schemas/filterOptionsSchema";
 import type { FilterOptions } from "../ipc/types";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+import { ALBUM_ARTIST_SQL } from "./constants";
 
 /**
  * Row of the decade query; a NULL bucket holds the unknown-year albums. Like

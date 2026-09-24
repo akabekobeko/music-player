@@ -1,7 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music } from "../ipc/types";
-import { MUSIC_COLUMNS } from "./MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "./constants";
 
 /**
  * Look up tracks by id, in the order of `musicIds`.

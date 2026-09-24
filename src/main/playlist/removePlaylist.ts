@@ -1,7 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { PlaylistRemoveRequest } from "../ipc/types";
 import { assertPlaylistExists } from "./assertPlaylistExists";
-import { TABLE_OF } from "./TABLE_OF";
+import { TABLE_OF } from "./constants";
 
 /**
  * Delete a playlist (`mp:playlist:remove`). Static playlist rows cascade to
