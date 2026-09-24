@@ -2,6 +2,8 @@
 
 release lookup の応答 ([検索と照合](lookup-strategy.md)) から `MusicInfoCandidate.tags` ([IPC 型定義](ipc-types.md)) を組み立てる規則です。純関数 `toMusicInfoCandidate(release, track)` として実装し、応答 JSON のフィクスチャーでテストします。
 
+`release` / `track` の型は [応答スキーマ](response-schema.md) から `z.infer` で導出したものです。マッピングが読む項目はすべてスキーマに宣言し、フィクスチャーはテストでスキーマを `parse` してから渡します。
+
 ## 項目
 
 | 項目 | 出どころ | 変換 |

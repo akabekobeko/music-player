@@ -50,6 +50,8 @@ MusicBrainz には MBID なしで引ける API が検索 (search) しかあり�
 
 閾値は Phase 4 の QA で調整します ([ロードマップ](../roadmap.md))。「該当なし」は失敗ではなく結果の 1 つとして扱い、一括取得では `notFound` に集約します ([一括取得の処理](fetch-run.md))。
 
+採用条件の判定は、[応答スキーマ](response-schema.md) で `parse` 済みの値に対して行います。ここで読む項目 (`score`、`releases`、`status`、medium / track の `position`、`length` など) はすべてスキーマに宣言し、閾値そのものはスキーマの制約にしません。
+
 ## アートワーク
 
 release が決まったら Cover Art Archive から `/release/<MBID>/front-1200` を取得します ([MusicBrainz クライアント](musicbrainz-client.md))。404 なら `/front` (原寸)、それも 404 なら release group の `/release-group/<MBID>/front-1200` を試し、すべて 404 なら「画像なし」です。画像は候補に `{ mimeType, data }` として載せ、保存するかどうかは呼び出し側が決めます。

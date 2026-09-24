@@ -25,7 +25,7 @@ v1.1 と同じく、エントリーポイントを README、機能仕様を `fea
 ### アーキテクチャー
 
 - [MusicBrainz クライアント](architecture/musicbrainz-client.md)
-  - Main プロセスの HTTP クライアント、User-Agent、レート制限の遵守、再試行。[レート制限の実装](architecture/rate-limit.md)
+  - Main プロセスの HTTP クライアント、User-Agent、レート制限の遵守、再試行。[レート制限の実装](architecture/rate-limit.md)、[応答スキーマ](architecture/response-schema.md)
 - [User-Agent と設定の検討](architecture/user-agent.md)
   - User-Agent をアプリ固定値とし、設定項目を追加しない判断とその理由
 - [検索と照合](architecture/lookup-strategy.md)
