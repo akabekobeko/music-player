@@ -10,7 +10,9 @@ import { ALBUM_ARTIST_SQL } from "./constants";
  * rule of the write path, not of the column.
  */
 const decadeBucketSchema = z.object({
+  /** Decade start year, or `null` for the unknown-year bucket. */
   decade: z.number().nullable(),
+  /** Number of albums (identity key groups) with a track in the bucket. */
   count: z.number().int(),
 });
 

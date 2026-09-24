@@ -39,20 +39,44 @@ const halfStepText = (min: number, max: number, message: string) =>
 const text = () => z.string().nullable();
 
 export const musicInfoSchema = z.object({
+  /**
+   * Track title. Required for a single-track edit (a field rule, not a
+   * schema rule).
+   */
   title: text(),
+  /** Track artist. */
   artist: text(),
+  /** Album artist. */
   albumArtist: text(),
+  /** Album title. */
   album: text(),
+  /** Genre. */
   genre: text(),
+  /** Composer. */
   composer: text(),
+  /** Lyricist. */
   lyricist: text(),
+  /** Producer. */
   producer: text(),
+  /** Conductor. */
   conductor: text(),
+  /** Publisher / record label. */
   publisher: text(),
+  /**
+   * Release year; empty clears it (`null`). 0 is rejected because the DB
+   * stores an unknown year as `null`.
+   */
   year: integerText(1, 9999, "musicInfo.error.year"),
+  /** Track number; empty applies the DB default 0. */
   track: integerText(0, 9999, "musicInfo.error.track"),
+  /** Disc number; empty applies the DB default 1. */
   disc: integerText(1, 999, "musicInfo.error.disc"),
+  /** Beats per minute; empty clears it (`null`). */
   bpm: integerText(1, 999, "musicInfo.error.bpm"),
+  /**
+   * Rating as 0 to 5 stars in half steps; empty clears it (`null`).
+   * `toMusicTagPatch` divides by `RATING_SCALE` to the stored `[0, 1]`.
+   */
   rating: halfStepText(0, 5, "musicInfo.error.rating"),
 });
 

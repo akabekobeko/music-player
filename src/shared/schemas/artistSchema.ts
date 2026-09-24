@@ -6,6 +6,11 @@ import { z } from "zod";
  * with this schema.
  */
 export const artistSchema = z.object({
+  /**
+   * Display artist name (`album_artist` falling back to `artist`). Empty
+   * string for tracks that carry neither tag; they form one row and the UI
+   * decides its label.
+   */
   name: z.string(),
   /** Number of tracks by this artist. */
   musicCount: z.number().int(),
