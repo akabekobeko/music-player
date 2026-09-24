@@ -29,9 +29,9 @@ v1.1 と同じく、エントリーポイントを README、機能仕様を `fea
 - [User-Agent と設定の検討](architecture/user-agent.md)
   - User-Agent をアプリ固定値とし、設定項目を追加しない判断とその理由
 - [検索と照合](architecture/lookup-strategy.md)
-  - アルバム単位・曲単位の検索、採用条件、リクエスト数。[検索クエリー](architecture/search-query.md)
+  - アルバム単位・曲単位の検索、採用条件、リクエスト数。[検索クエリー](architecture/search-query.md)、[release lookup の取得方法](architecture/release-lookup.md)
 - [メタデータのマッピング](architecture/metadata-mapping.md)
-  - MusicBrainz の応答から `musics` 列への変換規則
+  - MusicBrainz の応答から `musics` 列への変換規則。[MusicBrainz データと曲情報の対応表](architecture/musicbrainz-data-mapping.md)
 - [一括取得の処理](architecture/fetch-run.md)
   - メニューから実行したときの Main 側の手順、進捗、キャンセル
 - [IPC 設計](architecture/ipc.md)

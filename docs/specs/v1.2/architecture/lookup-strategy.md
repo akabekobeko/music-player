@@ -23,6 +23,7 @@ MusicBrainz には MBID なしで引ける API が検索 (search) しかあり�
    - `labels` でレーベル (publisher)、`release-groups` で初出年とタイプ、`genres` でジャンル
    - `artist-rels` + `recording-level-rels` で各 recording のプロデューサー・指揮者
    - `work-rels` + `work-level-rels` (+ `artist-rels`) で作曲者・作詞者
+   - 各値の意味とスイッチの組み合わせは [release lookup の取得方法](release-lookup.md)、応答のどこを読むかは [MusicBrainz データと曲情報の対応表](musicbrainz-data-mapping.md) を参照
 4. グループの各曲を release のトラックへ照合する (下記)
 
 ## トラックへの照合

@@ -4,6 +4,8 @@ release lookup の応答 ([検索と照合](lookup-strategy.md)) から `MusicIn
 
 `release` / `track` の型は [応答スキーマ](response-schema.md) から `z.infer` で導出したものです。マッピングが読む項目はすべてスキーマに宣言し、フィクスチャーはテストでスキーマを `parse` してから渡します。
 
+各項目を応答 JSON のどのパスから読み、そのためにどの `inc=` が必要かは [MusicBrainz データと曲情報の対応表](musicbrainz-data-mapping.md) と [release lookup の取得方法](release-lookup.md) にまとめています。ここでは変換規則だけを扱います。
+
 ## 項目
 
 | 項目 | 出どころ | 変換 |
