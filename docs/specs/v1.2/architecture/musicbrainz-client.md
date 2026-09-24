@@ -41,7 +41,7 @@ src/main/musicbrainz/
 | release lookup | `https://musicbrainz.org/ws/2/release/<MBID>?inc=<INC>&fmt=json` |
 | フロントカバー | `https://coverartarchive.org/release/<MBID>/front-1200` → 404 なら `/front` → 404 なら `/release-group/<MBID>/front-1200` |
 
-`inc=` の内容は [検索と照合](lookup-strategy.md) を参照してください。
+`inc=` の内容は [release lookup の取得方法](release-lookup.md) を参照してください。応答のどの項目を曲情報のどこへ写すかは [MusicBrainz データと曲情報の対応表](musicbrainz-data-mapping.md) にまとめています。
 
 ## エラーの扱い
 

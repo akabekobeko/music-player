@@ -36,7 +36,7 @@ export const releaseSchema = z.object({
 export type Release = z.infer<typeof releaseSchema>;
 ```
 
-- **読む項目だけを宣言する**: [メタデータのマッピング](metadata-mapping.md) と [検索と照合](lookup-strategy.md) が参照する項目に限る。宣言しない項目は zod の既定 (strip) で落ちるため、MusicBrainz 側の項目追加で壊れない
+- **読む項目だけを宣言する**: [メタデータのマッピング](metadata-mapping.md) と [検索と照合](lookup-strategy.md) が参照する項目に限る (一覧は [MusicBrainz データと曲情報の対応表](musicbrainz-data-mapping.md))。宣言しない項目は zod の既定 (strip) で落ちるため、MusicBrainz 側の項目追加で壊れない
 - **欠けやすい項目は `optional()` / `nullable()` にする**: MusicBrainz は `date` や `length`、relations などを持たないことが多い。必須にしてよいのは MBID (`id`) と `title` のような、なければ照合そのものが成り立たない項目だけ
 - **制約は形だけ**: `score` の範囲やトラック数の下限などの採用条件はスキーマではなく [検索と照合](lookup-strategy.md) の判定に置く (DB 行の「制約は型契約に留める」と同じ)
 - **不一致は 1 リクエストの失敗**: スキーマ不一致は `MB_INVALID_RESPONSE` として呼び出し側 (一括取得なら該当グループの曲) の失敗に集約し、他の曲の処理は止めない
