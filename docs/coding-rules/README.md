@@ -66,6 +66,14 @@ pages/albums/
 - `readonly` は `types.ts` の `DeepReadonly` で型側だけに付け、zod の `.readonly()` (実行時の `Object.freeze`) は使わない
 - 一覧クエリは 1 行の破損で全体を失敗させない (壊れた行を欠損つきで返すか隔離し、削除で復旧できる経路を残す)
 
+### 外部 API の応答も zod スキーマで parse する
+
+- HTTP で受け取った JSON も `as` でキャストせず、zod スキーマで `parse` してから使う。型は `z.infer` で導出し、手書きの応答型を持たない (例: v1.2 の [応答スキーマ](../specs/v1.2/architecture/response-schema.md))
+- スキーマは読む項目だけを宣言し、欠けやすい項目は `optional()` / `nullable()` にする (相手側の項目追加・欠落で壊れないようにする)
+- 採用条件や閾値はスキーマの制約にせず、呼び出し側の判定に置く
+- Renderer が生の応答を見ないデータのスキーマは `src/main/` 側に置く。`src/shared/schemas/` は両プロセスで使う型のためのもの
+- 一方、Main が検証済みの値から組み立てる IPC ペイロード (Request / Response 型) はスキーマを持たず `types.ts` に手書きでよい
+
 ## コンポーネント設計
 
 ### 1 ファイル 1 コンポーネントにする

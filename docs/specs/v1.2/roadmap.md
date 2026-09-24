@@ -15,6 +15,7 @@ Phase 4  仕上げ             オフライン・失敗時の文言 / i18n / 実
 
 - `MusicBrainzClient` と直列化・待機・再試行 ([MusicBrainz クライアント](architecture/musicbrainz-client.md)、[レート制限の実装](architecture/rate-limit.md))
 - User-Agent の組み立て ([User-Agent と設定の検討](architecture/user-agent.md))
+- 応答の zod スキーマ (`src/main/musicbrainz/schemas/`) と `z.infer` による応答型 ([応答スキーマ](architecture/response-schema.md))
 - 検索クエリーの組み立てと Lucene エスケープ、release / recording の lookup ([検索と照合](architecture/lookup-strategy.md)、[検索クエリー](architecture/search-query.md))
 - 応答から `MusicInfoCandidate` へのマッピング ([メタデータのマッピング](architecture/metadata-mapping.md))。応答 JSON をフィクスチャーに保存してユニットテストする
 - Cover Art Archive からのフロントカバー取得

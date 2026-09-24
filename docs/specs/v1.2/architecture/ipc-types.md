@@ -63,6 +63,7 @@ export type FetchMusicInfoSummary = {
 ```
 
 - `MusicPictureInput` (`{ mimeType, data: Uint8Array }`) と `UpdatedMusic` は v1.1 の定義 ([v1.1 IPC 型定義](../../v1.1/architecture/ipc-types.md)) を再利用します
+- ここに挙げた型は DB 行でも外部 API の応答でもなく、Main が検証済みの値から組み立てる IPC ペイロードなので、zod スキーマを持たず `types.ts` に手書きします ([コーディングルール](../../../coding-rules/README.md))。検証は MusicBrainz の [応答スキーマ](response-schema.md) と DB 行のスキーマで済んでいます。`UpdatedMusic.music` の `Music` は `src/shared/schemas/musicSchema.ts` から導出した型です
 - `MusicInfoCandidateTags` は `MusicTagPatch` の部分集合 (bpm / rating を除く) に `null` を加えた形です。Renderer はダイアログで採用した項目だけを `MusicTagPatch` へ写します ([Details タブ](../features/music-info-compare.md))
 - `lookupMusic` の入力検証 (id が DB に未登録) は `ok: false` にします。「該当なし」は `ok: true, value: null` で、エラーではありません
 - `fetchMusicInfo` の外側 `IpcResult` が `ok: false` になるのは、空配列・重複 id・実行中の二重要求 (`MB_BUSY`) のときだけです。曲ごとの失敗は `failed` に集約します
