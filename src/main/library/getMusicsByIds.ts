@@ -1,6 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
+import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music } from "../ipc/types";
-import { MUSIC_COLUMNS, type MusicRow } from "./MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "./MUSIC_COLUMNS";
 
 /**
  * Look up tracks by id, in the order of `musicIds`.
@@ -21,15 +22,17 @@ export const getMusicsByIds = (
   }
 
   const placeholders = musicIds.map(() => "?").join(", ");
-  const rows = db
-    .prepare(
-      `SELECT ${MUSIC_COLUMNS}
-       FROM musics m
-       LEFT JOIN pictures p ON p.id = m.picture_id
-       WHERE m.id IN (${placeholders})`,
-    )
-    .all(...musicIds) as MusicRow[];
-  const byId = new Map(rows.map((row) => [row.id, { ...row } as Music]));
+  const musics = musicSchema.array().parse(
+    db
+      .prepare(
+        `SELECT ${MUSIC_COLUMNS}
+         FROM musics m
+         LEFT JOIN pictures p ON p.id = m.picture_id
+         WHERE m.id IN (${placeholders})`,
+      )
+      .all(...musicIds),
+  );
+  const byId = new Map(musics.map((music) => [music.id, music]));
   return musicIds.flatMap((id) => {
     const music = byId.get(id);
     return music === undefined ? [] : [music];

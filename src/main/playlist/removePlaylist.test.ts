@@ -69,3 +69,16 @@ it("removes a playlist and its rows, keeping the musics", () => {
     count: 2,
   });
 });
+
+it("removes a smart playlist whose stored rules are corrupted", () => {
+  db.prepare(
+    `INSERT INTO smart_playlists (id, name, rules, sort_order, created_at, updated_at)
+     VALUES (9, 'Broken', 'not json', 0, ?, ?)`,
+  ).run(NOW, NOW);
+
+  removePlaylist(db, { id: 9, kind: "smart" });
+
+  expect(db.prepare("SELECT 1 FROM smart_playlists WHERE id = 9").get()).toBe(
+    undefined,
+  );
+});

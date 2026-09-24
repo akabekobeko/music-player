@@ -1,5 +1,20 @@
-import type { AudioFormat } from "@akabeko/music-metadata-editor";
+import type { z } from "zod";
 import type { LocalePreference } from "../../shared/locales/types";
+import type { albumSummarySchema } from "../../shared/schemas/albumSummarySchema";
+import type { artistSchema } from "../../shared/schemas/artistSchema";
+import type { audioFormatSchema } from "../../shared/schemas/audioFormatSchema";
+import type { filterOptionsSchema } from "../../shared/schemas/filterOptionsSchema";
+import type { libraryStatsSchema } from "../../shared/schemas/libraryStatsSchema";
+import type { musicSchema } from "../../shared/schemas/musicSchema";
+import type {
+  playlistKindSchema,
+  playlistSchema,
+} from "../../shared/schemas/playlistSchema";
+import type {
+  smartConditionSchema,
+  smartPlaylistRulesSchema,
+  smartSortFieldSchema,
+} from "../../shared/schemas/smartPlaylistRulesSchema";
 
 /**
  * Single definition site for every type that crosses the Main / Renderer
@@ -9,6 +24,11 @@ import type { LocalePreference } from "../../shared/locales/types";
  * Renderer references these exclusively through type-only imports (the
  * `@mp/ipc` virtual module declared in `src/renderer/vite-env.d.ts`), so the
  * only process with a value-level dependency on `src/main` is Main itself.
+ *
+ * Domain types that mirror database rows are inferred from the zod schemas
+ * in `src/shared/schemas/` (schema first, `z.infer` second): the same schema
+ * that declares the type also validates the rows the queries read back. The
+ * imports stay type-only so this file never carries a runtime dependency.
  */
 
 // ---------------------------------------------------------------------------
@@ -45,96 +65,48 @@ export type IpcResult<T> =
 // ---------------------------------------------------------------------------
 
 /**
- * One track in the library. Mirrors a row of the `musics` table
- * (`docs/specs/v1.0/architecture/database.md`) in camelCase.
+ * Deeply-readonly counterpart of `T`.
+ *
+ * The schema-derived domain types are made readonly here, at the type level,
+ * instead of with zod's `.readonly()`: that modifier also `Object.freeze`s
+ * every parsed row at runtime, a per-row cost on the hot track queries (a
+ * smart playlist without conditions returns the whole library) that buys
+ * nothing, since Main never mutates the rows and the freeze does not survive
+ * the structured clone across IPC anyway.
  */
-export type Music = {
-  readonly id: number;
-  /** Absolute path of the audio file. Unique within the library. */
-  readonly filePath: string;
-  /** Audio container format (mme's `AudioFormat`, type-only import). */
-  readonly audioFormat: AudioFormat;
-  /** Track title; the importer fills in the file name when the tag is empty. */
-  readonly title: string;
-  readonly artist: string;
-  readonly albumArtist: string;
-  readonly album: string;
-  readonly disc: number;
-  readonly track: number;
-  /** Release year. `null` when unknown (never 0). */
-  readonly year: number | null;
-  readonly genre: string;
-  readonly composer: string;
-  readonly lyricist: string;
-  readonly producer: string;
-  readonly conductor: string;
-  /** Publisher / record label. */
-  readonly publisher: string;
-  /** Duration reported by mme; may be inaccurate for VBR MP3 without Xing. */
-  readonly durationMs: number;
-  readonly bpm: number | null;
-  /** Normalised rating in `[0, 1]`. */
-  readonly rating: number | null;
-  /** Artwork reference into the `pictures` table. */
-  readonly pictureId: number | null;
-  /**
-   * Absolute artwork path joined from `pictures.file_path`, or `null`.
-   * Renderer turns this into a `media-file://` URL (PlayerBar, track lists).
-   */
-  readonly picturePath: string | null;
-  /** ISO-8601 timestamp the track was first imported. */
-  readonly addedAt: string;
-  /** ISO-8601 timestamp of the last (re-)import. */
-  readonly updatedAt: string;
-};
+export type DeepReadonly<T> =
+  T extends ReadonlyArray<infer U>
+    ? ReadonlyArray<DeepReadonly<U>>
+    : T extends object
+      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+      : T;
+
+/**
+ * Audio container format of a track
+ * (`src/shared/schemas/audioFormatSchema.ts`); the same union as mme's
+ * `AudioFormat`.
+ */
+export type AudioFormat = z.infer<typeof audioFormatSchema>;
+
+/**
+ * One track in the library. Mirrors a row of the `musics` table
+ * (`docs/specs/v1.0/architecture/database.md`) in camelCase
+ * (`src/shared/schemas/musicSchema.ts`).
+ */
+export type Music = DeepReadonly<z.infer<typeof musicSchema>>;
 
 /**
  * One artist row of the Artist view, grouped by the display artist
- * (`album_artist` falling back to `artist`).
+ * (`album_artist` falling back to `artist`)
+ * (`src/shared/schemas/artistSchema.ts`).
  */
-export type Artist = {
-  readonly name: string;
-  /** Number of tracks by this artist. */
-  readonly musicCount: number;
-  /**
-   * Absolute path of the representative artwork under `userData/images/`,
-   * or `null` when the artist has none. Renderer turns this into a
-   * `media-file://` URL.
-   */
-  readonly picturePath: string | null;
-  /**
-   * User-chosen initial (capital letter A–Z) that overrides the automatic
-   * section classification of the artist list, or `null` when none is
-   * stored ("Other" / automatic).
-   */
-  readonly initial: string | null;
-};
+export type Artist = DeepReadonly<z.infer<typeof artistSchema>>;
 
-/** One album card of the Album view (grouped by album identity key). */
-export type AlbumSummary = {
-  /**
-   * Opaque identity key produced by Main from
-   * `(COALESCE(NULLIF(album_artist, ''), artist), album)`. Pass it back to
-   * `mp:library:getMusicsByAlbum` verbatim.
-   */
-  readonly albumKey: string;
-  readonly album: string;
-  /** Display artist of the album (album_artist, falling back to artist). */
-  readonly artist: string;
-  /** Representative release year. `null` when unknown. */
-  readonly year: number | null;
-  readonly genre: string;
-  /** Representative producer (any non-empty value of the group). */
-  readonly producer: string;
-  /** Representative conductor (any non-empty value of the group). */
-  readonly conductor: string;
-  /** Representative publisher / record label (any non-empty value of the group). */
-  readonly publisher: string;
-  readonly musicCount: number;
-  readonly totalDurationMs: number;
-  /** Absolute path of the representative artwork, or `null`. */
-  readonly picturePath: string | null;
-};
+/**
+ * One album card of the Album view (grouped by album identity key)
+ * (`src/shared/schemas/albumSummarySchema.ts`).
+ */
+export type AlbumSummary = DeepReadonly<z.infer<typeof albumSummarySchema>>;
 
 /**
  * Filter condition of the Album view, converted to a WHERE clause by Main.
@@ -159,35 +131,17 @@ export type AlbumFilter = {
   readonly decades?: ReadonlyArray<number | null>;
 };
 
-/** Choices offered by the Album view's filter UI. */
-export type FilterOptions = {
-  /** Distinct genres (empty string excluded) with their album counts. */
-  readonly genres: ReadonlyArray<{
-    readonly name: string;
-    readonly count: number;
-  }>;
-  /**
-   * Distinct decade start years (e.g. `1990` = 1990s) that actually contain
-   * tracks, ascending, with their album counts. Empty when no track has a
-   * year — unknown-year tracks are handled by the panel's separate "Unknown"
-   * item (`unknownYearCount`), not this list.
-   */
-  readonly decades: ReadonlyArray<{
-    readonly decade: number;
-    readonly count: number;
-  }>;
-  /** Number of albums with at least one track whose year is unknown. */
-  readonly unknownYearCount: number;
-};
+/**
+ * Choices offered by the Album view's filter UI
+ * (`src/shared/schemas/filterOptionsSchema.ts`).
+ */
+export type FilterOptions = DeepReadonly<z.infer<typeof filterOptionsSchema>>;
 
-/** Library-wide counters shown by the settings page's library section. */
-export type LibraryStats = {
-  readonly musicCount: number;
-  readonly artistCount: number;
-  /** Number of album identity groups (album_artist ⊕ album). */
-  readonly albumCount: number;
-  readonly totalDurationMs: number;
-};
+/**
+ * Library-wide counters shown by the settings page's library section
+ * (`src/shared/schemas/libraryStatsSchema.ts`).
+ */
+export type LibraryStats = DeepReadonly<z.infer<typeof libraryStatsSchema>>;
 
 /** Final report of one `mp:library:import` run. */
 export type ImportSummary = {
@@ -318,79 +272,39 @@ export type UpdateProgressPayload = {
 // Playlist
 // ---------------------------------------------------------------------------
 
-/** Sortable fields of a smart playlist rule. */
-export type SmartSortField =
-  | "title"
-  | "artist"
-  | "album"
-  | "year"
-  | "duration"
-  | "rating"
-  | "addedAt";
+/**
+ * Sortable fields of a smart playlist rule
+ * (`src/shared/schemas/smartPlaylistRulesSchema.ts`).
+ */
+export type SmartSortField = z.infer<typeof smartSortFieldSchema>;
 
 /**
  * One condition row of a smart playlist
- * (`docs/specs/v1.0/features/playlist.md`).
+ * (`docs/specs/v1.0/features/playlist.md`,
+ * `src/shared/schemas/smartPlaylistRulesSchema.ts`).
  */
-export type SmartCondition =
-  | {
-      readonly field: "artist" | "albumArtist" | "album" | "genre" | "title";
-      readonly operator: "is" | "isNot" | "contains";
-      readonly value: string;
-    }
-  | {
-      readonly field: "year";
-      readonly operator: "is" | "between" | "gte" | "lte";
-      readonly value: number;
-      readonly value2?: number;
-    }
-  | {
-      /** Normalised rating in `[0, 1]`. */
-      readonly field: "rating";
-      readonly operator: "gte" | "lte";
-      readonly value: number;
-    }
-  | {
-      /** Duration in seconds. */
-      readonly field: "duration";
-      readonly operator: "gte" | "lte";
-      readonly value: number;
-    }
-  | {
-      /** "Recently added" style condition. */
-      readonly field: "addedAt";
-      readonly operator: "inLastDays";
-      readonly value: number;
-    };
+export type SmartCondition = DeepReadonly<z.infer<typeof smartConditionSchema>>;
 
-/** Rule document stored in `smart_playlists.rules` (JSON). */
-export type SmartPlaylistRules = {
-  readonly version: 1;
-  /** How conditions combine: AND (`"all"`) or OR (`"any"`). */
-  readonly match: "all" | "any";
-  readonly conditions: readonly SmartCondition[];
-  readonly sort?:
-    | { readonly field: SmartSortField; readonly order: "asc" | "desc" }
-    | { readonly field: "random" };
-  /** Maximum number of tracks in the evaluated result. */
-  readonly limit?: number;
-};
+/**
+ * Rule document stored in `smart_playlists.rules` (JSON)
+ * (`src/shared/schemas/smartPlaylistRulesSchema.ts`).
+ */
+export type SmartPlaylistRules = DeepReadonly<
+  z.infer<typeof smartPlaylistRulesSchema>
+>;
 
-/** Discriminates the two playlist tables. */
-export type PlaylistKind = "static" | "smart";
+/**
+ * Discriminates the two playlist tables
+ * (`src/shared/schemas/playlistSchema.ts`).
+ */
+export type PlaylistKind = z.infer<typeof playlistKindSchema>;
 
 /**
  * One playlist as listed by `mp:playlist:list`. `id` is only unique within
- * its `kind` (static and smart playlists live in separate tables).
+ * its `kind` (static and smart playlists live in separate tables)
+ * (`src/shared/schemas/playlistSchema.ts`).
  */
-export type Playlist = {
-  readonly id: number;
-  readonly kind: PlaylistKind;
-  readonly name: string;
-  readonly sortOrder: number;
-  /** Rule document; present only when `kind` is `"smart"`. */
-  readonly rules?: SmartPlaylistRules;
-};
+export type Playlist = DeepReadonly<z.infer<typeof playlistSchema>>;
 
 /** Request payload for `mp:playlist:create`. */
 export type PlaylistCreateRequest = {

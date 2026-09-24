@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { idRowSchema } from "../db/idRowSchema";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 import { removeMusicsFromLibrary } from "./removeMusicsFromLibrary";
 
@@ -28,11 +29,14 @@ export const removeArtistFromLibrary = (
   db: DatabaseSync,
   artist: string,
 ): RemoveByGroupResult => {
-  const ids = (
-    db
-      .prepare(`SELECT id FROM musics m WHERE ${ALBUM_ARTIST_SQL} = ?`)
-      .all(artist) as Array<{ id: number }>
-  ).map((row) => row.id);
+  const ids = idRowSchema
+    .array()
+    .parse(
+      db
+        .prepare(`SELECT id FROM musics m WHERE ${ALBUM_ARTIST_SQL} = ?`)
+        .all(artist),
+    )
+    .map((row) => row.id);
   return {
     removed: ids.length,
     orphanedFiles: removeMusicsFromLibrary(db, ids),

@@ -1,22 +1,12 @@
 import type { DatabaseSync } from "node:sqlite";
+import { albumSummarySchema } from "../../shared/schemas/albumSummarySchema";
 import type { AlbumFilter, AlbumSummary } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
 import { albumKeyOf } from "./albumKeyOf";
 import { buildAlbumWhere } from "./buildAlbumWhere/buildAlbumWhere";
 
-/** Raw row shape of the album summary SELECT below. */
-type AlbumRow = {
-  artist: string;
-  album: string;
-  year: number | null;
-  genre: string;
-  producer: string;
-  conductor: string;
-  publisher: string;
-  musicCount: number;
-  totalDurationMs: number;
-  picturePath: string | null;
-};
+/** Row shape of the album summary SELECT below: the summary minus the derived key. */
+const albumRowSchema = albumSummarySchema.omit({ albumKey: true });
 
 /**
  * List album summaries matching a filter (`mp:library:getAlbums`)
@@ -48,37 +38,30 @@ export const getAlbums = (
   // GROUP BY / ORDER BY repeat the artist expression: a bare `artist` would
   // resolve to the m.artist column, not the SELECT alias, splitting albums
   // whose tracks differ in track artist.
-  const rows = db
-    .prepare(
-      `SELECT
-         ${ALBUM_ARTIST_SQL} AS artist,
-         m.album             AS album,
-         MIN(m.year)         AS year,
-         MAX(m.genre)        AS genre,
-         MAX(m.producer)     AS producer,
-         MAX(m.conductor)    AS conductor,
-         MAX(m.publisher)    AS publisher,
-         COUNT(*)            AS musicCount,
-         SUM(m.duration_ms)  AS totalDurationMs,
-         MAX(p.file_path)    AS picturePath
-       FROM musics m
-       LEFT JOIN pictures p ON p.id = m.picture_id
-       ${where}
-       GROUP BY ${ALBUM_ARTIST_SQL}, m.album
-       ORDER BY ${ALBUM_ARTIST_SQL}, MIN(m.year), m.album`,
-    )
-    .all(...fragments.flatMap((fragment) => fragment.params)) as AlbumRow[];
+  const rows = albumRowSchema.array().parse(
+    db
+      .prepare(
+        `SELECT
+           ${ALBUM_ARTIST_SQL} AS artist,
+           m.album             AS album,
+           MIN(m.year)         AS year,
+           MAX(m.genre)        AS genre,
+           MAX(m.producer)     AS producer,
+           MAX(m.conductor)    AS conductor,
+           MAX(m.publisher)    AS publisher,
+           COUNT(*)            AS musicCount,
+           SUM(m.duration_ms)  AS totalDurationMs,
+           MAX(p.file_path)    AS picturePath
+         FROM musics m
+         LEFT JOIN pictures p ON p.id = m.picture_id
+         ${where}
+         GROUP BY ${ALBUM_ARTIST_SQL}, m.album
+         ORDER BY ${ALBUM_ARTIST_SQL}, MIN(m.year), m.album`,
+      )
+      .all(...fragments.flatMap((fragment) => fragment.params)),
+  );
   return rows.map((row) => ({
     albumKey: albumKeyOf(row.artist, row.album),
-    album: row.album,
-    artist: row.artist,
-    year: row.year,
-    genre: row.genre,
-    producer: row.producer,
-    conductor: row.conductor,
-    publisher: row.publisher,
-    musicCount: row.musicCount,
-    totalDurationMs: row.totalDurationMs,
-    picturePath: row.picturePath,
+    ...row,
   }));
 };

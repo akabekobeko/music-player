@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { idRowSchema } from "../db/idRowSchema";
 
 /**
  * Resolve the `pictures.id` for an artwork path, inserting the row when it
@@ -18,8 +19,7 @@ export const getOrCreatePictureId = (
   db.prepare(
     "INSERT INTO pictures (file_path) VALUES (?) ON CONFLICT(file_path) DO NOTHING",
   ).run(filePath);
-  const row = db
-    .prepare("SELECT id FROM pictures WHERE file_path = ?")
-    .get(filePath) as { id: number };
-  return row.id;
+  return idRowSchema.parse(
+    db.prepare("SELECT id FROM pictures WHERE file_path = ?").get(filePath),
+  ).id;
 };

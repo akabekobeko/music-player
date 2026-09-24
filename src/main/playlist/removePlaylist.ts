@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { PlaylistRemoveRequest } from "../ipc/types";
-import { readPlaylist } from "./readPlaylist";
+import { assertPlaylistExists } from "./assertPlaylistExists";
 import { TABLE_OF } from "./TABLE_OF";
 
 /**
@@ -14,7 +14,7 @@ export const removePlaylist = (
   db: DatabaseSync,
   request: PlaylistRemoveRequest,
 ): void => {
-  readPlaylist(db, request.kind, request.id); // Existence check.
+  assertPlaylistExists(db, request.kind, request.id);
   db.prepare(`DELETE FROM ${TABLE_OF[request.kind]} WHERE id = ?`).run(
     request.id,
   );

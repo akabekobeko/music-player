@@ -1,4 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
+import { libraryStatsSchema } from "../../shared/schemas/libraryStatsSchema";
 import type { LibraryStats } from "../ipc/types";
 
 /**
@@ -15,24 +16,20 @@ import type { LibraryStats } from "../ipc/types";
  * @returns Track / artist / album counts and the summed duration.
  */
 export const getLibraryStats = (db: DatabaseSync): LibraryStats => {
-  const row = db
-    .prepare(
-      `SELECT
-         COUNT(*)                       AS musicCount,
-         COUNT(DISTINCT COALESCE(NULLIF(album_artist, ''), artist))
-                                        AS artistCount,
-         COALESCE(SUM(duration_ms), 0)  AS totalDurationMs,
-         (SELECT COUNT(*) FROM (
-            SELECT 1 FROM musics
-            GROUP BY COALESCE(NULLIF(album_artist, ''), artist), album
-         ))                             AS albumCount
-       FROM musics`,
-    )
-    .get() as LibraryStats;
-  return {
-    musicCount: row.musicCount,
-    artistCount: row.artistCount,
-    albumCount: row.albumCount,
-    totalDurationMs: row.totalDurationMs,
-  };
+  return libraryStatsSchema.parse(
+    db
+      .prepare(
+        `SELECT
+           COUNT(*)                       AS musicCount,
+           COUNT(DISTINCT COALESCE(NULLIF(album_artist, ''), artist))
+                                          AS artistCount,
+           COALESCE(SUM(duration_ms), 0)  AS totalDurationMs,
+           (SELECT COUNT(*) FROM (
+              SELECT 1 FROM musics
+              GROUP BY COALESCE(NULLIF(album_artist, ''), artist), album
+           ))                             AS albumCount
+         FROM musics`,
+      )
+      .get(),
+  );
 };

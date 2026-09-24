@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
+import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music, SmartPlaylistRules } from "../ipc/types";
-import type { MusicRow } from "../library/MUSIC_COLUMNS";
 import { buildSmartSql } from "./buildSmartSql";
 
 /**
@@ -22,6 +22,5 @@ export const evaluateSmartPlaylist = (
   now: Date = new Date(),
 ): Music[] => {
   const { sql, params } = buildSmartSql(rules, now);
-  const rows = db.prepare(sql).all(...params) as MusicRow[];
-  return rows.map((row) => ({ ...row })) as Music[];
+  return musicSchema.array().parse(db.prepare(sql).all(...params));
 };

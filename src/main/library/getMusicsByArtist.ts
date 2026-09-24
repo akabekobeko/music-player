@@ -1,7 +1,8 @@
 import type { DatabaseSync } from "node:sqlite";
+import { musicSchema } from "../../shared/schemas/musicSchema";
 import type { Music } from "../ipc/types";
 import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
-import { MUSIC_COLUMNS, type MusicRow } from "./MUSIC_COLUMNS";
+import { MUSIC_COLUMNS } from "./MUSIC_COLUMNS";
 
 /**
  * All tracks of one artist (`mp:library:getMusicsByArtist`).
@@ -20,14 +21,15 @@ export const getMusicsByArtist = (
   db: DatabaseSync,
   artist: string,
 ): Music[] => {
-  const rows = db
-    .prepare(
-      `SELECT ${MUSIC_COLUMNS}
-       FROM musics m
-       LEFT JOIN pictures p ON p.id = m.picture_id
-       WHERE ${ALBUM_ARTIST_SQL} = ?
-       ORDER BY m.album, m.disc, m.track, m.title`,
-    )
-    .all(artist) as MusicRow[];
-  return rows.map((row) => ({ ...row })) as Music[];
+  return musicSchema.array().parse(
+    db
+      .prepare(
+        `SELECT ${MUSIC_COLUMNS}
+         FROM musics m
+         LEFT JOIN pictures p ON p.id = m.picture_id
+         WHERE ${ALBUM_ARTIST_SQL} = ?
+         ORDER BY m.album, m.disc, m.track, m.title`,
+      )
+      .all(artist),
+  );
 };

@@ -192,9 +192,24 @@ ON CONFLICT(file_path) DO UPDATE SET
 -- added_at と id は保持される
 ```
 
+## クエリ結果の検証
+
+SQLite は動的型付けで、列の型宣言は親和性 (affinity) にすぎません。`INTEGER` 列に文字列を書き込んでもエラーにならず、そのまま格納されます。そのため `node:sqlite` が返す行を TypeScript の `as` でキャストするだけでは、書き込み側のバグや手作業での編集、ファイル破損によって型と食い違った値がそのまま UI へ流れます。
+
+v1.2 以降、クエリ結果は zod スキーマで `parse` してから返します。
+
+- ドメイン型 (`Music`, `Artist`, `AlbumSummary`, `FilterOptions`, `LibraryStats`, `Playlist`, `SmartPlaylistRules`) のスキーマは `src/shared/schemas/` に置き、`src/main/ipc/types.ts` の型は `z.infer` で導出します (スキーマが唯一の定義)。行が camelCase の alias で返るため、`Music` などはスキーマをそのまま行の検証に使えます
+- クエリ固有の行 (`SELECT id ...` や集計行) は、そのクエリのファイルにローカルなスキーマを定義して `parse` します
+- `smart_playlists.rules` の JSON は行スキーマの中で `JSON.parse` と `smartPlaylistRulesSchema` による検証をまとめて行い、壊れた文書が SQL 生成へ届く前に弾きます。書き込み側 (`createPlaylist` / `updatePlaylist`) も同じスキーマで `parse` してから保存し、Renderer 側のバグで DB を汚染しません
+- ただし一覧 (`listPlaylists`) は 1 件の壊れた rules で全体を失敗させず、その行を `rules` なしのエントリーとして返して警告をログに残します。存在確認 (`assertPlaylistExists`) も `SELECT 1` だけで rules を読まないため、壊れたスマートプレイリストは UI から削除して復旧できます
+- スキーマの `readonly` は型側だけ (`src/main/ipc/types.ts` の `DeepReadonly`) に付け、zod の `.readonly()` は使いません。`.readonly()` は parse 結果を実行時に `Object.freeze` するため、全曲を返し得るクエリで行数に比例したコストになる一方、Main は行を変更せず IPC の structured clone で freeze は失われるため利益がないからです
+- スキーマの制約は型契約そのものに留めます (整数性を主張するのは DB が生成する id や件数だけ)。mme が小数の再生時間やタグ値を報告し得るため、値域の業務ルールを読み出し側で追加すると正常なライブラリーが読めなくなります
+- 検証失敗は例外として IPC ハンドラーの `toIpcError()` に渡り、`ok: false` で Renderer へ届きます。黙って既定値に置き換えることはしません
+- コスト: 1 万曲を一括で `parse` して 10〜20 ms (クエリ自体と同程度)。実際のクエリは 1 アーティストや 1 アルバム分の部分集合を返すため無視できます
+
 ## Renderer への公開クエリ
 
-一覧系クエリの結果型 (`Artist`, `AlbumSummary`, `Music` など) は `src/main/ipc/types.ts` に定義します ([IPC 設計](ipc.md))。代表的なもの:
+一覧系クエリの結果型 (`Artist`, `AlbumSummary`, `Music` など) は `src/shared/schemas/` の zod スキーマから `src/main/ipc/types.ts` で導出します ([IPC 設計](ipc.md)、[クエリ結果の検証](#クエリ結果の検証))。代表的なもの:
 
 - アーティスト一覧: `DISTINCT COALESCE(NULLIF(album_artist, ''), artist)` (表示アーティスト) + `artist_pictures` / `pictures` / `artist_initials` の LEFT JOIN。`artist_pictures.artist` / `artist_initials.artist` も表示アーティスト名をキーとする (003 マイグレーションで再キー)
 - アルバム一覧 (Album ビュー): アルバムキーで GROUP BY し、曲数・総時間・年・ジャンル・プロデューサー・指揮者・パブリッシャー・代表アートワークを集計。フィルター条件 (`genre`, `year` 範囲、テキスト) は WHERE 句に変換

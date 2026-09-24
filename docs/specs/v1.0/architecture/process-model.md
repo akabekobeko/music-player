@@ -96,8 +96,8 @@ src/
 ```
 
 - `tsconfig.node.json` と `tsconfig.web.json` の両方の include に `src/shared/**/*` を追加します
-- `src/shared/` に置いてよいのは**両プロセスから値として参照される、依存のないコード**のみです (定数、純関数、辞書)
-- ドメイン型 (Music、Album など) は shared ではなく `src/main/ipc/types.ts` に置き、Renderer へは type-only import で渡します ([IPC 設計](ipc.md))。audio-player のように Renderer が `src/main/db/*` を直接 import する構成は禁止します
+- `src/shared/` に置いてよいのは**両プロセスから値として参照される、プロセス固有の依存 (electron、node 組み込み、mme) を持たないコード**のみです (定数、純関数、辞書、zod スキーマ)
+- ドメイン型 (Music、Album など) の zod スキーマは `src/shared/schemas/` に置き、型は `src/main/ipc/types.ts` で `z.infer` により導出して Renderer へ type-only import で渡します ([IPC 設計](ipc.md)、[データベース](database.md) の「クエリ結果の検証」)。audio-player のように Renderer が `src/main/db/*` を直接 import する構成は禁止します
 
 ## ウィンドウとアプリのライフサイクル
 

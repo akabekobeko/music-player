@@ -98,3 +98,10 @@ it("matches by display artist — album_artist wins over artist", () => {
 it("returns an empty list for an unknown artist", () => {
   expect(getMusicsByArtist(db, "Nobody")).toEqual([]);
 });
+
+it("throws instead of returning a wrongly typed track for a corrupted row", () => {
+  upsertMusic(db, row("/m/a.mp3"), NOW);
+  db.prepare("UPDATE musics SET year = 'junk'").run();
+
+  expect(() => getMusicsByArtist(db, "Artist")).toThrow();
+});

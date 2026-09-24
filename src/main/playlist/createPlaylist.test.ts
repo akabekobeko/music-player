@@ -1,6 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { runMigrations } from "../db/runMigrations";
+import type { SmartPlaylistRules } from "../ipc/types";
 import { createPlaylist } from "./createPlaylist";
 
 let db: DatabaseSync;
@@ -46,5 +47,20 @@ it("creates a smart playlist with its rules and rejects missing rules", () => {
 
   expect(() => createPlaylist(db, { kind: "smart", name: "Bad" }, NOW)).toThrow(
     /rules/,
+  );
+});
+
+it("rejects a rule document that fails the schema instead of storing it", () => {
+  const rules = {
+    version: 1,
+    match: "all",
+    conditions: [{ field: "genre", operator: "is", value: 1 }],
+  } as unknown as SmartPlaylistRules;
+
+  expect(() =>
+    createPlaylist(db, { kind: "smart", name: "S", rules }, NOW),
+  ).toThrow();
+  expect(db.prepare("SELECT COUNT(*) AS n FROM smart_playlists").get()).toEqual(
+    { n: 0 },
   );
 });

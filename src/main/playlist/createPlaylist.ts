@@ -1,7 +1,12 @@
 import type { DatabaseSync } from "node:sqlite";
+import { z } from "zod";
+import { smartPlaylistRulesSchema } from "../../shared/schemas/smartPlaylistRulesSchema";
 import type { Playlist, PlaylistCreateRequest } from "../ipc/types";
 import { readPlaylist } from "./readPlaylist";
 import { TABLE_OF } from "./TABLE_OF";
+
+/** Row of the next-sort-order lookup below. */
+const nextOrderRowSchema = z.object({ next: z.number().int() });
 
 /**
  * Create a playlist at the end of its kind's sort order
@@ -22,10 +27,10 @@ export const createPlaylist = (
   }
 
   const table = TABLE_OF[request.kind];
-  const nextOrder = (
+  const nextOrder = nextOrderRowSchema.parse(
     db
       .prepare(`SELECT COALESCE(MAX(sort_order) + 1, 0) AS next FROM ${table}`)
-      .get() as { next: number }
+      .get(),
   ).next;
   const result =
     request.kind === "static"
@@ -42,7 +47,9 @@ export const createPlaylist = (
           )
           .run(
             request.name,
-            JSON.stringify(request.rules),
+            // Validated on the way in so a malformed document from the
+            // Renderer never reaches the table and breaks later reads.
+            JSON.stringify(smartPlaylistRulesSchema.parse(request.rules)),
             nextOrder,
             now,
             now,

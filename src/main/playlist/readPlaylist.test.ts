@@ -29,3 +29,14 @@ it("throws for unknown playlist ids", () => {
     getPlaylistMusics(db, { playlistId: 99, kind: "static" }),
   ).toThrow(/not found/i);
 });
+
+it("throws for a smart playlist whose stored rules are corrupted", () => {
+  db.prepare(
+    `INSERT INTO smart_playlists (id, name, rules, sort_order, created_at, updated_at)
+     VALUES (1, 'S', '{"version":1,"match":"all"', 0, ?, ?)`,
+  ).run(NOW, NOW);
+
+  expect(() => getPlaylistMusics(db, { playlistId: 1, kind: "smart" })).toThrow(
+    /not valid JSON/,
+  );
+});
