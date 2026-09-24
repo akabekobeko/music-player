@@ -1,5 +1,5 @@
 import type { AlbumFilter } from "../../ipc/types";
-import { ALBUM_ARTIST_SQL } from "../ALBUM_ARTIST_SQL";
+import { ALBUM_ARTIST_SQL } from "../constants";
 import { escapeLikePattern } from "./escapeLikePattern";
 
 /** Fragment of a WHERE clause: SQL snippet plus its bound parameters. */

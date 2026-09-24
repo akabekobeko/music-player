@@ -1,5 +1,5 @@
 import { PictureKind } from "@akabeko/music-metadata-editor";
-import { IMAGE_EXTENSION_BY_MIME } from "../../shared/IMAGE_EXTENSION_BY_MIME";
+import { IMAGE_EXTENSION_BY_MIME } from "../../shared/constants";
 import { getDatabase } from "../db/connection";
 import { deleteArtworkFiles } from "../library/deleteArtworkFiles";
 import { getOrCreatePictureId } from "../library/getOrCreatePictureId";

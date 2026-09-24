@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "./constants";
 import {
   flushSettings,
   getSettings,

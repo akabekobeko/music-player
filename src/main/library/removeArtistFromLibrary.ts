@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
 import { idRowSchema } from "../db/idRowSchema";
-import { ALBUM_ARTIST_SQL } from "./ALBUM_ARTIST_SQL";
+import { ALBUM_ARTIST_SQL } from "./constants";
 import { removeMusicsFromLibrary } from "./removeMusicsFromLibrary";
 
 /** Outcome of an artist / album removal. */

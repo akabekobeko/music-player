@@ -1,4 +1,4 @@
-import { AUDIO_FILE_EXTENSIONS } from "../library/AUDIO_FILE_EXTENSIONS";
+import { AUDIO_FILE_EXTENSIONS } from "../library/constants";
 
 /**
  * Options for the import target picker

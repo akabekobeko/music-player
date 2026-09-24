@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { PlaylistKind } from "../ipc/types";
-import { TABLE_OF } from "./TABLE_OF";
+import { TABLE_OF } from "./constants";
 
 /**
  * Throw when a playlist id does not exist in its kind's table.

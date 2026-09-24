@@ -14,7 +14,7 @@ import {
   usePlayerState,
 } from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
-import { IMAGE_EXTENSION_BY_MIME } from "../../../../../shared/IMAGE_EXTENSION_BY_MIME";
+import { IMAGE_EXTENSION_BY_MIME } from "../../../../../shared/constants";
 import { diffFormValues } from "./diffFormValues";
 import { mergeMusics } from "./mergeMusics";
 import { musicInfoSchema } from "./musicInfoSchema";

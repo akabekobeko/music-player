@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AUDIO_FILE_EXTENSIONS } from "./AUDIO_FILE_EXTENSIONS";
+import { AUDIO_FILE_EXTENSIONS } from "./constants";
 
 /** Extension set for O(1) membership tests (lowercase, without the dot). */
 const EXTENSION_SET: ReadonlySet<string> = new Set(AUDIO_FILE_EXTENSIONS);

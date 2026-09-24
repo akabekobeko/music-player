@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from "vitest";
-import { DEFAULT_SETTINGS } from "../settings/DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "../settings/constants";
 import {
   resetSettingsForTest,
   updateSettings,

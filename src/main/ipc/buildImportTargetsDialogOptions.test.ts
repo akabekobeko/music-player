@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { AUDIO_FILE_EXTENSIONS } from "../library/AUDIO_FILE_EXTENSIONS";
+import { AUDIO_FILE_EXTENSIONS } from "../library/constants";
 import { buildImportTargetsDialogOptions } from "./buildImportTargetsDialogOptions";
 
 it("allows picking files and directories with multi-selection", () => {

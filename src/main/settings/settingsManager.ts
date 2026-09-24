@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { AppSettings, DeepPartial } from "../ipc/types";
-import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "./constants";
 import { mergeSettings } from "./mergeSettings";
 import { sanitizeSettings } from "./sanitizeSettings";
 

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { DEFAULT_SETTINGS } from "./DEFAULT_SETTINGS";
+import { DEFAULT_SETTINGS } from "./constants";
 import { sanitizeSettings } from "./sanitizeSettings";
 
 it("returns defaults for non-object input", () => {
