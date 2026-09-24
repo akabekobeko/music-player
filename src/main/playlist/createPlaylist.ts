@@ -6,7 +6,10 @@ import { TABLE_OF } from "./constants";
 import { readPlaylist } from "./readPlaylist";
 
 /** Row of the next-sort-order lookup below. */
-const nextOrderRowSchema = z.object({ next: z.number().int() });
+const nextOrderRowSchema = z.object({
+  /** `MAX(sort_order) + 1` of the kind's table, or 0 when it is empty. */
+  next: z.number().int(),
+});
 
 /**
  * Create a playlist at the end of its kind's sort order

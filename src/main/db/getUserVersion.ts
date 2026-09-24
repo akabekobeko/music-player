@@ -2,7 +2,13 @@ import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
 
 /** Row of `PRAGMA user_version`. */
-const userVersionRowSchema = z.object({ user_version: z.number().int() });
+const userVersionRowSchema = z.object({
+  /**
+   * Schema version the migrations stamped into the file; 0 for a fresh
+   * file.
+   */
+  user_version: z.number().int(),
+});
 
 /**
  * Read `PRAGMA user_version` from an open connection.

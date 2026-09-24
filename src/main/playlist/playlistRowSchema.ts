@@ -3,8 +3,11 @@ import { smartPlaylistRulesSchema } from "../../shared/schemas/smartPlaylistRule
 
 /** Row of the `playlists` SELECTs. */
 export const playlistRowSchema = z.object({
+  /** Row id; unique only within the table the SELECT ran against. */
   id: z.number().int(),
+  /** User-given name; not unique. */
   name: z.string(),
+  /** `sort_order` column: position within the kind's list, ascending. */
   sortOrder: z.number().int(),
 });
 
@@ -30,5 +33,6 @@ export const smartPlaylistRulesJsonSchema = z
 
 /** Row of the `smart_playlists` SELECTs with the rules decoded. */
 export const smartPlaylistRowSchema = playlistRowSchema.extend({
+  /** `rules` column, decoded from JSON and validated in one step. */
   rules: smartPlaylistRulesJsonSchema,
 });
