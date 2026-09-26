@@ -58,40 +58,43 @@ export const ArtworkPanel = ({
 }: Props) => {
   const t = useT();
   const compare = fetchedImageUrl !== null;
-  const current = (
-    <Stack className="min-h-0 flex-1">
-      <Frame adopted={compare && !adoptPicture}>
-        <AspectFitPicture src={imageUrl} placeholderIcon={Music} />
-      </Frame>
-      <HStack className="shrink-0">
-        <Input
-          type="file"
-          accept="image/*"
-          aria-label={t("musicInfo.imageFile")}
-          disabled={disabled}
-          onChange={(event) => {
-            const picked = event.target.files?.[0];
-            if (picked !== undefined) {
-              onSelectFile(picked);
-            }
-          }}
-        />
-        <Button
-          variant="outline"
-          disabled={disabled || !canRemove}
-          onClick={onRemove}
-        >
-          {t("musicInfo.removeArtwork")}
-        </Button>
-      </HStack>
-    </Stack>
+  const picture = (
+    <Frame adopted={compare && !adoptPicture}>
+      <AspectFitPicture src={imageUrl} placeholderIcon={Music} />
+    </Frame>
+  );
+  const controls = (
+    <HStack className="shrink-0">
+      <Input
+        type="file"
+        accept="image/*"
+        aria-label={t("musicInfo.imageFile")}
+        disabled={disabled}
+        onChange={(event) => {
+          const picked = event.target.files?.[0];
+          if (picked !== undefined) {
+            onSelectFile(picked);
+          }
+        }}
+      />
+      <Button
+        variant="outline"
+        disabled={disabled || !canRemove}
+        onClick={onRemove}
+      >
+        {t("musicInfo.removeArtwork")}
+      </Button>
+    </HStack>
   );
   return (
     <DialogTabPanel value="picture" keepMounted className="flex flex-col gap-4">
       {compare ? (
         <HStack className="min-h-0 flex-1 items-stretch gap-4">
-          {current}
-          <Stack className="min-h-0 flex-1">
+          <Stack className="min-h-0 flex-1 gap-4">
+            {picture}
+            {controls}
+          </Stack>
+          <Stack className="min-h-0 flex-1 gap-4">
             <Frame adopted={adoptPicture}>
               <AspectFitPicture src={fetchedImageUrl} placeholderIcon={Music} />
             </Frame>
@@ -115,7 +118,10 @@ export const ArtworkPanel = ({
           </Stack>
         </HStack>
       ) : (
-        current
+        <>
+          {picture}
+          {controls}
+        </>
       )}
       {unsupportedImageType !== null && (
         <p className="shrink-0 text-destructive text-xs">

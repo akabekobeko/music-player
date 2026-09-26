@@ -6,7 +6,7 @@ import type {
   UpdateMusicsSummary,
 } from "@mp/ipc";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { lookupMusic } from "@/features/library/lookupMusic";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { updateMusics } from "@/features/library/updateMusics";
@@ -27,11 +27,7 @@ import { defaultAdoptedOf } from "./defaultAdoptedOf";
 import { diffFormValues } from "./diffFormValues";
 import { effectiveValuesOf } from "./effectiveValuesOf";
 import { mergeMusics } from "./mergeMusics";
-import {
-  MUSIC_INFO_FIELDS,
-  type MusicInfoFormValues,
-  musicInfoSchema,
-} from "./musicInfoSchema";
+import { type MusicInfoFormValues, musicInfoSchema } from "./musicInfoSchema";
 import { toDataUrl } from "./toDataUrl";
 import { toMusicTagPatch } from "./toMusicTagPatch";
 
@@ -50,11 +46,14 @@ export type PictureChange = null | { readonly file: File } | "clear";
  * session — `MusicInfoDialog` keys the content on the tracks — so every
  * piece of state starts fresh with the tracks it belongs to.
  *
- * Apply is enabled only when something would change and nothing that
- * would be saved is invalid. The values that would be saved are the form
- * values with the adopted fetched values swapped in (`effectiveValuesOf`),
- * so a change edited back to its initial text counts as unchanged and an
- * invalid current value whose fetched value is adopted does not block.
+ * Apply is enabled only when something would change and what would be
+ * saved is valid. The values that would be saved are the form values with
+ * the adopted fetched values swapped in (`effectiveValuesOf`); they are
+ * validated as a whole by the schema, so a change edited back to its
+ * initial text counts as unchanged, an invalid current value whose fetched
+ * value is adopted does not block, and an out-of-range fetched value does.
+ * Both verdicts come out of one store selector as booleans, so typing
+ * re-renders the dialog only when a verdict flips.
  *
  * Several tracks open on their merged values
  * (`docs/specs/v1.1/features/multi-edit.md`): a field that differs between
@@ -76,9 +75,6 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     defaultValues: initialValues,
     validators: { onChange: musicInfoSchema },
   });
-  const values = useStore(form.store, (state) => state.values);
-  const fieldMeta = useStore(form.store, (state) => state.fieldMeta);
-  const isValid = useStore(form.store, (state) => state.isValid);
 
   const [pictureChange, setPictureChange] = useState<PictureChange>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -94,6 +90,8 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<IpcError | null>(null);
   const [notFound, setNotFound] = useState(false);
+  /** Bumped per fetch and on close so a late answer is ignored. */
+  const fetchSession = useRef(0);
   const progress = useSyncExternalStore(
     updateProgressStore.subscribe,
     updateProgressStore.getSnapshot,
@@ -161,22 +159,28 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   const canFetch = musics.length === 1 && !fetching && !applying;
 
   /**
-   * Look the track up. A repeat fetch discards the previous candidate and
-   * adopt state but keeps the form as edited.
+   * Look the track up. A repeat fetch keeps the previous candidate on
+   * screen until the answer arrives (no flicker of the compare view), then
+   * replaces it and recomputes the adopt defaults from the form as edited;
+   * a failed or empty repeat keeps the previous candidate and shows the
+   * message.
    */
-  const fetch = async (): Promise<void> => {
+  const fetchCandidate = async (): Promise<void> => {
     const single = musics[0];
     if (!canFetch || single === undefined) {
       return;
     }
 
+    fetchSession.current += 1;
+    const session = fetchSession.current;
     setFetching(true);
-    setCandidate(null);
-    setAdopted(NO_ADOPTED);
-    setAdoptPicture(false);
     setFetchError(null);
     setNotFound(false);
     const result = await lookupMusic({ musicId: single.id });
+    if (session !== fetchSession.current) {
+      return;
+    }
+
     setFetching(false);
     if (!result.ok) {
       setFetchError(result.error);
@@ -206,34 +210,34 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     }
   };
 
+  /**
+   * Closing while a lookup is in flight is allowed: the answer is dropped
+   * (the session moves on) and Main finishes the request on its own. Only
+   * an apply pins the dialog open.
+   */
   const close = (): void => {
-    if (applying || fetching) {
+    if (applying) {
       return;
     }
 
+    fetchSession.current += 1;
     revokePreview();
     musicInfoStore.close();
   };
 
-  const effectiveValues = effectiveValuesOf(values, candidate, adopted);
-  const valuesChanged =
-    Object.keys(diffFormValues(initialValues, effectiveValues)).length > 0;
+  const verdict = useStore(form.store, (state) => {
+    const effective = effectiveValuesOf(state.values, candidate, adopted);
+    return {
+      changed: Object.keys(diffFormValues(initialValues, effective)).length > 0,
+      valid:
+        musicInfoSchema.safeParse(effective).success &&
+        !(musics.length === 1 && (effective.title ?? "").trim() === ""),
+    };
+  });
   const pictureChanged = adoptPicture || pictureChange !== null;
-  // An adopted field is saved from the candidate, so an error on its
-  // current input must not block; every other field's error does.
-  const hasBlockingError =
-    candidate === null
-      ? !isValid
-      : MUSIC_INFO_FIELDS.some(
-          (name) =>
-            !(isCandidateField(name) && adopted[name]) &&
-            (fieldMeta[name]?.errors ?? []).some(
-              (entry) => entry !== undefined,
-            ),
-        );
   const canApply =
-    (valuesChanged || pictureChanged) &&
-    !hasBlockingError &&
+    (verdict.changed || pictureChanged) &&
+    verdict.valid &&
     !applying &&
     !fetching;
 
@@ -243,7 +247,10 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     }
 
     const patch = toMusicTagPatch(
-      diffFormValues(initialValues, effectiveValues),
+      diffFormValues(
+        initialValues,
+        effectiveValuesOf(form.state.values, candidate, adopted),
+      ),
     );
     const picture =
       adoptPicture && candidate?.picture !== null && candidate !== null
@@ -314,7 +321,7 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     removeArtwork,
     apply,
     close,
-    fetch,
+    fetchCandidate,
     setAdoptedField,
     setAdoptPicture,
     onFieldEdited,

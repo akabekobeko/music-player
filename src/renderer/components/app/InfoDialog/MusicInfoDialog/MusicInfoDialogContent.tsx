@@ -38,7 +38,7 @@ type Props = {
  * One session of the music info dialog: the popup with its three tabs and
  * the Fetch / Cancel / Apply footer. Owns the `Dialog` root so every way of
  * closing (Cancel, Esc, backdrop, the X) goes through the hook's `close`,
- * which refuses while an apply or a fetch runs. The parent remounts this
+ * which refuses while an apply runs (a running fetch is simply dropped). The parent remounts this
  * component per track set, so the form starts from the right defaults
  * every time. The popup widens once a candidate is shown so the two
  * compare columns never stack (`docs/specs/v1.2/features/music-info-compare.md`).
@@ -68,7 +68,7 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
     removeArtwork,
     apply,
     close,
-    fetch,
+    fetchCandidate,
     setAdoptedField,
     setAdoptPicture,
     onFieldEdited,
@@ -160,7 +160,7 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
                         variant="outline"
                         size="sm"
                         disabled={!canFetch}
-                        onClick={() => void fetch()}
+                        onClick={() => void fetchCandidate()}
                       />
                     }
                   >
@@ -184,7 +184,7 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
             </HStack>
           }
         >
-          <Button variant="outline" disabled={busy} onClick={close}>
+          <Button variant="outline" disabled={applying} onClick={close}>
             {t("common.cancel")}
           </Button>
           <Button disabled={!canApply} onClick={() => void apply()}>

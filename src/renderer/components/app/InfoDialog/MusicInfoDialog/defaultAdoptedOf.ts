@@ -1,24 +1,23 @@
 import type { MusicInfoCandidate } from "@mp/ipc";
-import {
-  type MissingFieldsInput,
-  missingFieldsOf,
-} from "../../../../../shared/missingFieldsOf";
+import { missingFieldsOf } from "../../../../../shared/missingFieldsOf";
 import {
   type AdoptedFields,
   CANDIDATE_FIELDS,
   NO_ADOPTED,
 } from "./candidateFields";
 import type { MusicInfoFormValues } from "./musicInfoSchema";
+import { toMusicTagPatch } from "./toMusicTagPatch";
 
 /**
  * Default adopt state right after a fetch
  * (`docs/specs/v1.2/features/music-info-compare.md`): on for every field
  * that is missing in the form and that the candidate has a value for, off
  * otherwise. "Missing" is the bulk fetch's rule (`missingFieldsOf`) read
- * off the form: a text that trims to nothing, an empty year, a track of
- * `""` or `"0"`. `title` never counts as missing, and `albumArtist` only
- * when `artist` is empty too, exactly as in the bulk fetch, so the two
- * entrances propose the same completions.
+ * off the form as it would be saved: the texts go through
+ * `toMusicTagPatch` (trim, empty year to `null`, empty track to `0`) so
+ * the defaults and the saved values can never disagree. `title` never
+ * counts as missing, and `albumArtist` only when `artist` is empty too,
+ * exactly as in the bulk fetch. A mixed (`null`) value counts as empty.
  *
  * @param values - The form's current values.
  * @param candidate - The fetched candidate.
@@ -28,7 +27,27 @@ export const defaultAdoptedOf = (
   values: MusicInfoFormValues,
   candidate: MusicInfoCandidate,
 ): AdoptedFields => {
-  const missing = missingFieldsOf(toMissingInput(values));
+  const texts: Partial<Record<keyof MusicInfoFormValues, string>> = {};
+  for (const [key, value] of Object.entries(values)) {
+    if (value !== null) {
+      texts[key as keyof MusicInfoFormValues] = value;
+    }
+  }
+
+  const patch = toMusicTagPatch(texts);
+  const missing = missingFieldsOf({
+    artist: patch.artist ?? "",
+    albumArtist: patch.albumArtist ?? "",
+    album: patch.album ?? "",
+    genre: patch.genre ?? "",
+    composer: patch.composer ?? "",
+    lyricist: patch.lyricist ?? "",
+    producer: patch.producer ?? "",
+    conductor: patch.conductor ?? "",
+    publisher: patch.publisher ?? "",
+    year: patch.year ?? null,
+    track: patch.track ?? 0,
+  });
   const adopted = { ...NO_ADOPTED };
   for (const field of CANDIDATE_FIELDS) {
     if (
@@ -41,24 +60,4 @@ export const defaultAdoptedOf = (
   }
 
   return adopted;
-};
-
-/** Read the form texts as the stored-value shape the missing rule expects. */
-const toMissingInput = (values: MusicInfoFormValues): MissingFieldsInput => {
-  const text = (value: string | null): string => value?.trim() ?? "";
-  const year = text(values.year);
-  const track = text(values.track);
-  return {
-    artist: text(values.artist),
-    albumArtist: text(values.albumArtist),
-    album: text(values.album),
-    genre: text(values.genre),
-    composer: text(values.composer),
-    lyricist: text(values.lyricist),
-    producer: text(values.producer),
-    conductor: text(values.conductor),
-    publisher: text(values.publisher),
-    year: year === "" ? null : Number(year),
-    track: track === "" ? 0 : Number(track),
-  };
 };
