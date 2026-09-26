@@ -24,13 +24,15 @@ declare const __APP_PRODUCT_NAME__: string;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Development runs (`pnpm run dev`) use the shared Electron binary, so userData
+// Unpackaged runs (`pnpm run dev`) use the shared Electron binary, so userData
 // would default to the generic "Electron" directory. Point it at the directory
 // electron-builder derives from `productName` instead, so development and the
 // packaged app read and write the same library DB, settings and artwork.
-// `import.meta.env.DEV` is a build-time constant (the dev script builds in
-// development mode), so the production bundle carries no trace of this block.
-if (import.meta.env.DEV) {
+// A runtime check on purpose (not `import.meta.env.DEV`): "running
+// unpackaged" is a fact of the process, and a production bundle started with
+// `electron .` must still land on the shared directory rather than the stale
+// "Electron" one.
+if (!app.isPackaged) {
   app.setPath(
     "userData",
     path.join(app.getPath("appData"), __APP_PRODUCT_NAME__),

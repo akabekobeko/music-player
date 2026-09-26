@@ -154,8 +154,8 @@ export const AlbumCard = ({ album, width }: Props) => { … };
 
 - 開発中の診断 (リクエストのログ、UI が既に文言で伝えている失敗の詳細を `console.warn` する等) は `if (import.meta.env.DEV) { ... }` で囲む
   - Vite がビルド時に `import.meta.env.DEV` をリテラルへ置換し、バンドラーが到達不能なブロックを削除するため、本番バンドルにはコードも文字列も残らない (if-def 相当)
-  - `import.meta.env.DEV` は `--mode` ではなく `NODE_ENV` に従う。`scripts/dev.ts` は `NODE_ENV=development` で main / preload をビルド (`true`)、`pnpm build` は Vite 既定の `NODE_ENV=production` (`false`)、vitest は `true` なのでテストはそのブロックも通る
-- `app.isPackaged` のような実行時判定は本番バンドルにコードが残るので、開発専用の分岐には使わない (userData の振り替えも `import.meta.env.DEV` に統一済み)
+  - `import.meta.env.DEV` は `--mode` ではなく `NODE_ENV` に従い、環境にある `NODE_ENV` をそのまま使う。そのため main / preload の vite.config が mode から `NODE_ENV` を決める (`scripts/dev.ts` は development モードで `true`、`pnpm build` は production モードで `false`。呼び出し側のシェルに何があっても変わらない)。vitest は `true` なのでテストはそのブロックも通る
+- 対象は「診断のためだけに存在するコード」に限る。プロセスの事実 (未パッケージで動いているか等) に基づく分岐は、本番バンドルを未パッケージで起動した場合にも正しく動く必要があるので `app.isPackaged` などの実行時判定のままにする (userData の振り替えがその例)
 - ユーザーに伝えるべき成否やエラーは console ではなく UI に表示する。console はその補助であり、本番では動かない前提で書く
 
 ## スタイリング
