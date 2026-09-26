@@ -60,6 +60,10 @@ async function startDev(): Promise<void> {
   await build({
     configFile: path.join(root, "src/preload/vite.config.ts"),
     root: path.join(root, "src/preload"),
+    // The vite configs derive NODE_ENV from the mode, so this is what keeps
+    // the development-only blocks (`import.meta.env.DEV`) in the bundles;
+    // `pnpm build` runs in production mode and drops them.
+    mode: "development",
     build: {
       watch: {},
     },
@@ -78,6 +82,7 @@ async function startDev(): Promise<void> {
   await build({
     configFile: path.join(root, "src/main/vite.config.ts"),
     root: path.join(root, "src/main"),
+    mode: "development",
     build: {
       watch: {},
     },

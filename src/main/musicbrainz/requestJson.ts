@@ -11,10 +11,11 @@ import type { MusicBrainzResult } from "./types";
  * schema (`docs/specs/v1.2/architecture/response-schema.md`).
  *
  * A body that is not JSON or does not match the schema is one failed
- * request (`MB_INVALID_RESPONSE`); the zod issue paths are logged so a
- * MusicBrainz-side change can be diagnosed without dumping the body. The
- * body download runs under the same timeout and cancellation as the
- * request, so those failures keep their own codes.
+ * request (`MB_INVALID_RESPONSE`) whose message names the zod issue paths,
+ * so a MusicBrainz-side change can be diagnosed from what the UI shows;
+ * development builds additionally log the same detail. The body download
+ * runs under the same timeout and cancellation as the request, so those
+ * failures keep their own codes.
  *
  * @param client - The shared client.
  * @param url - Absolute URL to fetch.
@@ -44,7 +45,10 @@ export const requestJson = async <S extends z.ZodType>(
             message: `Invalid JSON: ${error.message}`,
           }
         : toFetchError(error, options.signal);
-    console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+    if (import.meta.env.DEV) {
+      console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+    }
+
     return { ok: false, error: failure };
   }
 
@@ -53,7 +57,10 @@ export const requestJson = async <S extends z.ZodType>(
     const paths = parsed.error.issues
       .map((issue) => issue.path.join(".") || "(root)")
       .join(", ");
-    console.warn(`[musicbrainz] unexpected response shape ${url}: ${paths}`);
+    if (import.meta.env.DEV) {
+      console.warn(`[musicbrainz] unexpected response shape ${url}: ${paths}`);
+    }
+
     return {
       ok: false,
       error: {

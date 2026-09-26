@@ -91,8 +91,11 @@ export const runUpdateMusics = async (
         request.picture,
         deps,
       );
-      for (const warning of track.warnings) {
-        console.warn(`[update] ${music.filePath}: ${warning.message}`);
+      // Reader warnings do not fail the track; they are a development aid.
+      if (import.meta.env.DEV) {
+        for (const warning of track.warnings) {
+          console.warn(`[update] ${music.filePath}: ${warning.message}`);
+        }
       }
 
       // Artwork is best-effort, as on import: a failed image write degrades
@@ -105,10 +108,12 @@ export const runUpdateMusics = async (
         try {
           artworkPath = await deps.saveArtwork(picture);
         } catch (error) {
-          console.warn(
-            `[update] ${music.filePath}: artwork save failed`,
-            error,
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              `[update] ${music.filePath}: artwork save failed`,
+              error,
+            );
+          }
         }
       }
 

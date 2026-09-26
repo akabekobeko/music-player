@@ -46,10 +46,15 @@ export const listPlaylists = (db: DatabaseSync): Playlist[] => {
     ...smarts.map(({ rules, ...row }): Playlist => {
       const decoded = smartPlaylistRulesJsonSchema.safeParse(rules);
       if (!decoded.success) {
-        console.warn(
-          `[playlist] smart playlist #${row.id}: stored rules are corrupted`,
-          decoded.error,
-        );
+        // The list still shows the playlist (without rules) so the user can
+        // repair or delete it; the zod detail is a development aid.
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[playlist] smart playlist #${row.id}: stored rules are corrupted`,
+            decoded.error,
+          );
+        }
+
         return { ...row, kind: "smart" };
       }
 

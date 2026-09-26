@@ -28,6 +28,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // would default to the generic "Electron" directory. Point it at the directory
 // electron-builder derives from `productName` instead, so development and the
 // packaged app read and write the same library DB, settings and artwork.
+// A runtime check on purpose (not `import.meta.env.DEV`): "running
+// unpackaged" is a fact of the process, and a production bundle started with
+// `electron .` must still land on the shared directory rather than the stale
+// "Electron" one.
 if (!app.isPackaged) {
   app.setPath(
     "userData",
