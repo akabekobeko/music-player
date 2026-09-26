@@ -1,5 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 import type { PictureInfo } from "@akabeko/music-metadata-editor";
+import { albumKeyOf } from "../../../shared/albumKeyOf";
+import { displayArtistOf } from "../../../shared/displayArtistOf";
 import type {
   IpcError,
   UpdatedMusic,
@@ -9,7 +11,6 @@ import type {
 } from "../../ipc/types";
 import { toIpcError } from "../../ipc/utils/toIpcError";
 import { imagesDirectory } from "../../protocol/imagesDirectory";
-import { albumKeyOf } from "../albumKeyOf";
 import { getMusicsByIds } from "../getMusicsByIds";
 import { getOrCreatePictureId } from "../getOrCreatePictureId";
 import { upsertMusic } from "../musicRepository";
@@ -160,11 +161,3 @@ export const runUpdateMusics = async (
 
   return { updated, failed };
 };
-
-/** Display artist: `album_artist` falling back to `artist`. */
-const displayArtistOf = (music: {
-  /** `album_artist` tag; empty string when unset. */
-  readonly albumArtist: string;
-  /** `artist` tag, used when `albumArtist` is empty. */
-  readonly artist: string;
-}): string => (music.albumArtist !== "" ? music.albumArtist : music.artist);

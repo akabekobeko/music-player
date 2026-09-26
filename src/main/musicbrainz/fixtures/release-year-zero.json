@@ -1,0 +1,356 @@
+{
+  "id": "0f6a5c2e-1111-4a5b-9c2d-000000000001",
+  "title": "Year Zero",
+  "status": "Official",
+  "status-id": "4e304316-386d-3040-9fbf-86b2d7fa3e6d",
+  "quality": "normal",
+  "packaging": "Jewel Case",
+  "date": "2007-04-17",
+  "country": "US",
+  "barcode": "602517291768",
+  "asin": "B000NJLVJI",
+  "disambiguation": "",
+  "text-representation": { "language": "eng", "script": "Latn" },
+  "cover-art-archive": {
+    "artwork": true,
+    "front": true,
+    "back": true,
+    "count": 4,
+    "darkened": false
+  },
+  "artist-credit": [
+    {
+      "name": "Nine Inch Nails",
+      "joinphrase": "",
+      "artist": {
+        "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+        "name": "Nine Inch Nails",
+        "sort-name": "Nine Inch Nails",
+        "type": "Group"
+      }
+    }
+  ],
+  "release-group": {
+    "id": "2e3d1f4a-2222-4b6c-8d3e-000000000001",
+    "title": "Year Zero",
+    "primary-type": "Album",
+    "primary-type-id": "f529b476-6e62-324f-b0aa-1f3e33d54d75",
+    "secondary-types": [],
+    "first-release-date": "2007-04-13",
+    "disambiguation": "",
+    "genres": [
+      {
+        "id": "g-industrial",
+        "name": "industrial",
+        "count": 3,
+        "disambiguation": ""
+      },
+      {
+        "id": "g-industrial-rock",
+        "name": "industrial rock",
+        "count": 5,
+        "disambiguation": ""
+      }
+    ]
+  },
+  "label-info": [
+    { "catalog-number": "B0008764-02", "label": null },
+    {
+      "catalog-number": "B0008764-02",
+      "label": {
+        "id": "cd21e4f3-3333-4c7d-9e4f-000000000001",
+        "name": "Interscope Records",
+        "sort-name": "Interscope Records",
+        "type": "Original Production"
+      }
+    },
+    {
+      "catalog-number": "0602517291768",
+      "label": {
+        "id": "cd21e4f3-3333-4c7d-9e4f-000000000002",
+        "name": "Nothing Records"
+      }
+    }
+  ],
+  "genres": [
+    { "id": "g-rock", "name": "rock", "count": 1, "disambiguation": "" }
+  ],
+  "relations": [
+    {
+      "type": "design/illustration",
+      "type-id": "x",
+      "target-type": "artist",
+      "direction": "backward",
+      "artist": { "id": "a-rob", "name": "Rob Sheridan" }
+    }
+  ],
+  "media": [
+    {
+      "position": 1,
+      "format": "CD",
+      "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+      "title": "",
+      "track-count": 3,
+      "track-offset": 0,
+      "tracks": [
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000001",
+          "position": 1,
+          "number": "1",
+          "title": "HYPERPOWER!",
+          "length": 118000,
+          "artist-credit": [
+            {
+              "name": "Nine Inch Nails",
+              "joinphrase": "",
+              "artist": {
+                "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+                "name": "Nine Inch Nails"
+              }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000001",
+            "title": "HYPERPOWER!",
+            "length": 118000,
+            "video": false,
+            "disambiguation": "",
+            "first-release-date": "2007-04-13",
+            "genres": [],
+            "artist-credit": [
+              {
+                "name": "Nine Inch Nails",
+                "joinphrase": "",
+                "artist": {
+                  "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+                  "name": "Nine Inch Nails"
+                }
+              }
+            ],
+            "relations": [
+              {
+                "type": "producer",
+                "type-id": "5c0ceac3-feb4-41f0-868d-dc06f6e27fc0",
+                "target-type": "artist",
+                "direction": "backward",
+                "target-credit": "",
+                "attributes": [],
+                "artist": {
+                  "id": "a-trent",
+                  "name": "Trent Reznor",
+                  "sort-name": "Reznor, Trent"
+                }
+              },
+              {
+                "type": "producer",
+                "type-id": "5c0ceac3-feb4-41f0-868d-dc06f6e27fc0",
+                "target-type": "artist",
+                "direction": "backward",
+                "target-credit": "",
+                "attributes": [],
+                "artist": {
+                  "id": "a-atticus",
+                  "name": "Atticus Ross",
+                  "sort-name": "Ross, Atticus"
+                }
+              },
+              {
+                "type": "performance",
+                "type-id": "a3005666-a872-32c3-ad06-98af558e99b0",
+                "target-type": "work",
+                "direction": "forward",
+                "target-credit": "",
+                "attributes": [],
+                "work": {
+                  "id": "w-hyperpower",
+                  "title": "HYPERPOWER!",
+                  "type": "Song",
+                  "relations": [
+                    {
+                      "type": "composer",
+                      "type-id": "d59d99ea-23d4-4a80-b066-edca32ee158f",
+                      "target-type": "artist",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "artist": { "id": "a-trent", "name": "Trent Reznor" }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000002",
+          "position": 2,
+          "number": "2",
+          "title": "The Beginning of the End",
+          "length": 167000,
+          "artist-credit": [
+            {
+              "name": "Nine Inch Nails",
+              "joinphrase": " feat. ",
+              "artist": {
+                "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+                "name": "Nine Inch Nails"
+              }
+            },
+            {
+              "name": "Saul Williams",
+              "joinphrase": "",
+              "artist": { "id": "a-saul", "name": "Saul Williams" }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000002",
+            "title": "The Beginning of the End",
+            "length": 167000,
+            "genres": [],
+            "relations": [
+              {
+                "type": "performance",
+                "type-id": "a3005666-a872-32c3-ad06-98af558e99b0",
+                "target-type": "work",
+                "direction": "forward",
+                "target-credit": "",
+                "work": {
+                  "id": "w-botw-1",
+                  "title": "The Beginning of the End (part 1)",
+                  "relations": [
+                    {
+                      "type": "composer",
+                      "target-type": "artist",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "artist": { "id": "a-trent", "name": "Trent Reznor" }
+                    },
+                    {
+                      "type": "lyricist",
+                      "target-type": "artist",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "artist": { "id": "a-trent", "name": "Trent Reznor" }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "performance",
+                "type-id": "a3005666-a872-32c3-ad06-98af558e99b0",
+                "target-type": "work",
+                "direction": "forward",
+                "target-credit": "",
+                "work": {
+                  "id": "w-botw-2",
+                  "title": "The Beginning of the End (part 2)",
+                  "relations": [
+                    {
+                      "type": "composer",
+                      "target-type": "artist",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "artist": { "id": "a-saul", "name": "Saul Williams" }
+                    },
+                    {
+                      "type": "lyricist",
+                      "target-type": "artist",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "artist": { "id": "a-trent", "name": "Trent Reznor" }
+                    },
+                    {
+                      "type": "publishing",
+                      "target-type": "label",
+                      "direction": "backward",
+                      "target-credit": "",
+                      "label": { "id": "l-x", "name": "Leaving Hope Music" }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000003",
+          "position": 3,
+          "number": "3",
+          "title": "Survivalism",
+          "length": 262000,
+          "artist-credit": [
+            {
+              "name": "Nine Inch Nails",
+              "joinphrase": "",
+              "artist": {
+                "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+                "name": "Nine Inch Nails"
+              }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000003",
+            "title": "Survivalism",
+            "length": 262500,
+            "genres": [
+              {
+                "id": "g-electronic",
+                "name": "electronic",
+                "count": 2,
+                "disambiguation": ""
+              }
+            ],
+            "relations": [
+              {
+                "type": "conductor",
+                "target-type": "artist",
+                "direction": "backward",
+                "target-credit": "Maestro T. R.",
+                "artist": { "id": "a-trent", "name": "Trent Reznor" }
+              },
+              {
+                "type": "producer",
+                "target-type": "artist",
+                "direction": "backward",
+                "target-credit": "",
+                "artist": { "id": "a-trent", "name": "Trent Reznor" }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "format": "CD",
+      "title": "",
+      "track-count": 1,
+      "track-offset": 0,
+      "tracks": [
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000021",
+          "position": 1,
+          "number": "1",
+          "title": "Zero-Sum (Bonus)",
+          "length": null,
+          "artist-credit": [
+            {
+              "name": "Nine Inch Nails",
+              "joinphrase": "",
+              "artist": {
+                "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+                "name": "Nine Inch Nails"
+              }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000021",
+            "title": "Zero-Sum",
+            "length": 373000,
+            "genres": [],
+            "relations": []
+          }
+        }
+      ]
+    }
+  ]
+}

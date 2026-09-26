@@ -1,5 +1,5 @@
 import type { Music } from "@mp/ipc";
-import { albumArtistOf } from "./albumArtistOf";
+import { displayArtistOf } from "../../../../shared/displayArtistOf";
 import { albumKeyOf } from "./albumKeyOf";
 import type { AlbumGroup } from "./types";
 
@@ -40,7 +40,7 @@ export const groupAlbums = (musics: readonly Music[]): AlbumGroup[] => {
     return {
       key,
       album: first.album,
-      artist: albumArtistOf(first),
+      artist: displayArtistOf(first),
       year: sorted.reduce<number | null>(
         (min, music) =>
           music.year !== null && (min === null || music.year < min)

@@ -14,6 +14,8 @@ MusicBrainz には MBID なしで引ける API が検索 (search) しかあり�
 
 曲情報ダイアログからの取得 (単曲) も同じ関数 `lookupMusicInfo(music)` を使い、長さ 1 のグループとして扱います。
 
+グループ内では release の lookup とフロントカバーを release MBID ごとに 1 回だけ取得します (`ReleaseCache`)。アルバム単位で照合できなかった曲の曲単位検索が同じ release に行き着いても、lookup とカバーは再取得しません。フロントカバーは 1 曲以上がトラックへ照合できたときだけ取得します。
+
 ## release 検索 (アルバム単位)
 
 1. `buildReleaseQuery` で検索クエリーを組み立てる ([検索クエリー](search-query.md))

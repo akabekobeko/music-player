@@ -1,7 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
+import { albumKeyOf } from "../../shared/albumKeyOf";
 import { albumSummarySchema } from "../../shared/schemas/albumSummarySchema";
 import type { AlbumFilter, AlbumSummary } from "../ipc/types";
-import { albumKeyOf } from "./albumKeyOf";
 import { buildAlbumWhere } from "./buildAlbumWhere/buildAlbumWhere";
 import { ALBUM_ARTIST_SQL } from "./constants";
 

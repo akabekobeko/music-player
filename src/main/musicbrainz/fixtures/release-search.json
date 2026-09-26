@@ -1,0 +1,98 @@
+{
+  "created": "2026-09-25T00:00:00.000Z",
+  "count": 3,
+  "offset": 0,
+  "releases": [
+    {
+      "id": "0f6a5c2e-1111-4a5b-9c2d-000000000001",
+      "score": 100,
+      "status-id": "4e304316-386d-3040-9fbf-86b2d7fa3e6d",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "count": 1,
+      "title": "Year Zero",
+      "status": "Official",
+      "packaging": "Jewel Case",
+      "text-representation": { "language": "eng", "script": "Latn" },
+      "artist-credit": [
+        {
+          "name": "Nine Inch Nails",
+          "artist": {
+            "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+            "name": "Nine Inch Nails",
+            "sort-name": "Nine Inch Nails"
+          }
+        }
+      ],
+      "release-group": {
+        "id": "2e3d1f4a-2222-4b6c-8d3e-000000000001",
+        "type-id": "f529b476-6e62-324f-b0aa-1f3e33d54d75",
+        "primary-type-id": "f529b476-6e62-324f-b0aa-1f3e33d54d75",
+        "title": "Year Zero",
+        "primary-type": "Album"
+      },
+      "date": "2007-04-17",
+      "country": "US",
+      "release-events": [
+        {
+          "date": "2007-04-17",
+          "area": {
+            "id": "489ce91b-6658-3307-9877-795b68554c98",
+            "name": "United States",
+            "sort-name": "United States",
+            "iso-3166-1-codes": ["US"]
+          }
+        }
+      ],
+      "barcode": "602517291768",
+      "label-info": [
+        {
+          "catalog-number": "B0008764-02",
+          "label": {
+            "id": "cd21e4f3-3333-4c7d-9e4f-000000000001",
+            "name": "Interscope Records"
+          }
+        }
+      ],
+      "track-count": 16,
+      "media": [{ "format": "CD", "disc-count": 3, "track-count": 16 }]
+    },
+    {
+      "id": "0f6a5c2e-1111-4a5b-9c2d-000000000002",
+      "score": 95,
+      "count": 1,
+      "title": "Year Zero",
+      "status": "Promotion",
+      "artist-credit": [
+        {
+          "name": "Nine Inch Nails",
+          "artist": {
+            "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+            "name": "Nine Inch Nails"
+          }
+        }
+      ],
+      "date": "2007",
+      "track-count": 2,
+      "media": [{ "format": "CD", "disc-count": 0, "track-count": 2 }]
+    },
+    {
+      "id": "0f6a5c2e-1111-4a5b-9c2d-000000000003",
+      "score": 60,
+      "count": 1,
+      "title": "Year Zero Remixed",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "name": "Nine Inch Nails",
+          "artist": {
+            "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+            "name": "Nine Inch Nails"
+          }
+        }
+      ],
+      "date": "2007-11-20",
+      "track-count": 14,
+      "media": [{ "format": "CD", "disc-count": 1, "track-count": 14 }]
+    }
+  ]
+}
