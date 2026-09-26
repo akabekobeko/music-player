@@ -76,6 +76,7 @@
 - hover でトラック番号が ▶ に変わる。クリックまたはダブルクリックで再生
 - 再生開始時のキュー: **選択したアルバムだけでなく、表示中アーティストの全曲 (アルバム年順)** をキューとし、クリック曲の位置から開始します (audio-player の挙動を踏襲。アルバムをまたいで聴き続けられる)
 - 曲メニュー ([⋯]): Play / Play next (キューの次に挿入) / Add to queue (末尾) / Add to playlist / Remove from library
+- 曲行の右クリックメニュー: [⋯] と同じ項目を表示する (共通の `MusicRow` が両方を持つため、Album / Playlist ビューの曲行も同様)。対象の判定も [⋯] と同じ (Add to playlist / Song info / Fetch song info は行が複数選択に含まれていれば選択全体、含まれていなければその行だけを対象にし、Play / Play next / Add to queue / Remove はその行だけを対象にする)
 - 再生中曲のハイライトは [プレーヤー UI](player-ui.md) の共通仕様
 - 選択状態 (クリックで選択、Shift/Cmd で複数選択) を実装し、複数曲まとめてプレイリストへ追加できるようにします
 

@@ -1,9 +1,15 @@
 import type { Music } from "@mp/ipc";
 import type { MouseEvent, ReactNode } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { formatTime } from "@/libs/formatTime";
 import { cn } from "@/libs/utils";
 import { EllipsisText } from "../EllipsisText/EllipsisText";
-import { HStack } from "../stacks";
+import { RowMenu, type RowMenuItems } from "../RowMenu/RowMenu";
+import { RowMenuEntries } from "../RowMenu/RowMenuItems";
 import { PausedButton } from "./PausedButton";
 import { PlayingButton } from "./PlayingButton";
 import { TrackNumberButton } from "./TrackNumberButton";
@@ -38,16 +44,22 @@ type Props = {
    * play button — the play button resumes from the paused position, unlike `onPlay`).
    */
   readonly onTogglePlayPause?: () => void;
-  /** Per-track menu slot (the [...] dropdown, #43). */
-  readonly menu?: ReactNode;
+  /**
+   * Per-track menu entries (#43), shown by the [...] dropdown and by the
+   * row's right-click menu alike.
+   */
+  readonly menuItems: RowMenuItems;
 };
 
 /**
  * Classes for the row container. The hovered and the selected row show the
- * rounded accent rectangle; the playing / paused row lights that rectangle's
- * border up with a blurred glow like the album artwork in `AlbumCard` /
- * `AlbumHeaderRow` (plain border plus blur, no spread ring, so it reads as a
- * calm lamp next to the hovered artwork), whatever its selection. Every row
+ * rounded accent rectangle, as does the row whose right-click menu is open
+ * (`data-popup-open`, set by the context-menu trigger) so the menu's target
+ * stays visible while the pointer is inside the menu; the playing / paused
+ * row lights that rectangle's border up with a blurred glow like the album
+ * artwork in `AlbumCard` / `AlbumHeaderRow` (plain border plus blur, no
+ * spread ring, so it reads as a calm lamp next to the hovered artwork),
+ * whatever its selection. Every row
  * keeps a transparent border so lighting it never shifts the content. Rows
  * abut each other, so the glow reaches into the neighbouring rows: the row
  * is `relative` so that in a plain-flow list it paints above the following
@@ -60,10 +72,10 @@ type Props = {
  */
 const rowClassName = (playing: boolean, selected: boolean): string =>
   cn(
-    "group relative h-9 w-full rounded-md border border-transparent px-2 text-sm transition-[border-color,box-shadow] duration-200",
+    "group relative flex h-9 w-full flex-row items-center gap-2 rounded-md border border-transparent px-2 text-sm transition-[border-color,box-shadow] duration-200",
     selected
       ? "bg-accent text-accent-foreground selected-above:rounded-t-none selected-below:rounded-b-none"
-      : "hover:bg-accent/50",
+      : "hover:bg-accent/50 data-popup-open:bg-accent/50",
     playing &&
       "border-foreground shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
   );
@@ -83,6 +95,12 @@ const rowClassName = (playing: boolean, selected: boolean): string =>
  * it; only the leading cell (play / pause) and the menu keep their own
  * controls, so opening the menu never resets a multi-selection.
  *
+ * The menu entries render twice: in the [...] dropdown (`RowMenu`) and in
+ * the right-click menu of the whole row (`ContextMenu`, the row itself is
+ * the trigger element so the sibling-based selection styling still sees
+ * rows next to each other). Both act on the same targets, so right-clicking
+ * a row of the multi-selection addresses the selection like its [...] does.
+ *
  * The leading cell doubles as the playback indicator / control (Apple Music
  * style), picked by `playing`: `PlayingButton` for the playing row,
  * `PausedButton` for the paused row, `TrackNumberButton` for any other
@@ -99,16 +117,13 @@ export const MusicRow = ({
   onClick,
   onPlay,
   onTogglePlayPause,
-  menu,
+  menuItems,
 }: Props) => {
   const number =
     ordinal !== undefined ? ordinal : music.track > 0 ? music.track : "-";
 
-  return (
-    <HStack
-      data-selected={selected || undefined}
-      className={rowClassName(playing !== null, selected)}
-    >
+  const cells = (
+    <>
       <span className="flex w-7 shrink-0 items-center justify-end font-mono text-muted-foreground text-xs tabular-nums">
         {playing === "playing" ? (
           <PlayingButton onPause={onTogglePlayPause} />
@@ -140,7 +155,23 @@ export const MusicRow = ({
           {formatTime(music.durationMs / 1000)}
         </span>
       </button>
-      {menu !== undefined && <span className="shrink-0">{menu}</span>}
-    </HStack>
+      <span className="shrink-0">
+        <RowMenu items={menuItems} />
+      </span>
+    </>
+  );
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger
+        data-selected={selected || undefined}
+        className={rowClassName(playing !== null, selected)}
+      >
+        {cells}
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <RowMenuEntries items={menuItems} />
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };

@@ -10,11 +10,14 @@ import { cn } from "@/libs/utils";
  * their own padding instead of drawing an inset rounded box, so the focus
  * highlight spans edge to edge. "basic" keeps the stock shadcn look
  * (inset rounded rows). Set the variant on `DropdownMenuContent`; it flows
- * to every part through context, submenus included.
+ * to every part through context, submenus included. `context-menu.tsx`
+ * shares the context (and the item / submenu parts) so entries render the
+ * same in a right-click menu.
  */
-type DropdownMenuVariant = "normal" | "basic";
+export type DropdownMenuVariant = "normal" | "basic";
 
-const DropdownMenuVariantContext = createContext<DropdownMenuVariant>("normal");
+export const DropdownMenuVariantContext =
+  createContext<DropdownMenuVariant>("normal");
 
 // Horizontal metrics per variant. "normal" moves the popup's 4px side
 // padding into the rows (6px -> 10px), so text keeps its position while
