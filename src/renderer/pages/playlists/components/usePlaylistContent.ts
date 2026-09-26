@@ -2,6 +2,7 @@ import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState, useSyncExternalStore } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicRow/MusicRow";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import {
   applySelectionClick,
@@ -163,6 +164,15 @@ export const usePlaylistContent = (routeId: string) => {
       ),
     );
 
+  /**
+   * Menu "Song info": the row's targets, with the shown rows' tracks as the
+   * list the dialog's header arrows step through (a single track only; the
+   * store counts a repeated track once).
+   */
+  const openMusicInfo = (row: PlaylistRow): void => {
+    musicInfoStore.open(menuTargetsOfRow(row), visibleMusics);
+  };
+
   const playAll = (): void => {
     const first = visibleMusics[0];
     if (first !== undefined) {
@@ -251,6 +261,7 @@ export const usePlaylistContent = (routeId: string) => {
     selection,
     selectRow,
     menuTargetsOfRow,
+    openMusicInfo,
     playingStateOf,
   };
 };

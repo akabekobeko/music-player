@@ -102,7 +102,7 @@ export const PageContent = () => {
           <>
             <ResizableHandle withHandle />
             <ResizablePanel className="min-h-0" defaultSize="40" minSize="15">
-              <AlbumDetail album={selectedAlbum} />
+              <AlbumDetail album={selectedAlbum} albums={albums} />
             </ResizablePanel>
           </>
         )}

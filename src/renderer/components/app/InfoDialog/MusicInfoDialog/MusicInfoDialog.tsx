@@ -1,29 +1,23 @@
 import { useSyncExternalStore } from "react";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
-import { MusicInfoDialogContent } from "./MusicInfoDialogContent";
+import { MusicInfoDialogSession } from "./MusicInfoDialogSession";
 
 /**
  * Track info dialog (track row menu → "Song info"), mounted once in the
  * AppLayout (the menu that started the flow is gone by the time this
  * opens). Reads the tracks from `musicInfoStore` and mounts one
- * `MusicInfoDialogContent` per track set — keyed on the ids, so a new
- * session always starts from a fresh form and artwork state.
+ * `MusicInfoDialogSession` while it holds tracks; the session keys its
+ * content on the track ids, so a new track set always starts from a fresh
+ * form and artwork state.
  */
 export const MusicInfoDialog = () => {
-  const musics = useSyncExternalStore(
+  const state = useSyncExternalStore(
     musicInfoStore.subscribe,
     musicInfoStore.getSnapshot,
   );
-  const primary = musics?.[0];
-  if (musics === null || primary === undefined) {
+  if (state === null) {
     return null;
   }
 
-  return (
-    <MusicInfoDialogContent
-      key={musics.map((music) => music.id).join(",")}
-      musics={musics}
-      primary={primary}
-    />
-  );
+  return <MusicInfoDialogSession state={state} />;
 };

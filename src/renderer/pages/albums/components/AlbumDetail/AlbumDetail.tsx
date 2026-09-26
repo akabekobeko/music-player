@@ -9,8 +9,6 @@ import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
-import { albumInfoStore } from "@/features/library/albumInfoStore";
-import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { formatTime } from "@/libs/formatTime";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { useAlbumDetail } from "./useAlbumDetail";
@@ -18,6 +16,8 @@ import { useAlbumDetail } from "./useAlbumDetail";
 type Props = {
   /** The expanded album; the header shows it, `albumKey` loads the tracks. */
   readonly album: AlbumSummary;
+  /** The grid's albums in display order (the album info dialog's arrows). */
+  readonly albums: readonly AlbumSummary[];
 };
 
 /**
@@ -34,7 +34,7 @@ type Props = {
  * (click / Shift / Cmd-Ctrl); the row menus ([...] and right-click) act on
  * the selection.
  */
-export const AlbumDetail = ({ album }: Props) => {
+export const AlbumDetail = ({ album, albums }: Props) => {
   const t = useT();
   const fetchMusicInfoItem = useFetchMusicInfoItem();
   const {
@@ -44,12 +44,14 @@ export const AlbumDetail = ({ album }: Props) => {
     selection,
     selectRow,
     menuTargetsOfRow,
+    openMusicInfo,
+    openAlbumInfo,
     commands,
     playFrom,
     playAll,
     removeFromLibrary,
     playingStateOf,
-  } = useAlbumDetail(album.albumKey);
+  } = useAlbumDetail(album, albums);
 
   return (
     <div className="flex h-full flex-col">
@@ -111,7 +113,7 @@ export const AlbumDetail = ({ album }: Props) => {
               {
                 label: t("menu.albumInfo"),
                 icon: <NotepadText />,
-                onSelect: () => albumInfoStore.open(album),
+                onSelect: openAlbumInfo,
                 separatorBefore: true,
               },
               fetchMusicInfoItem(musics),
@@ -173,8 +175,7 @@ export const AlbumDetail = ({ album }: Props) => {
                     {
                       label: t("menu.musicInfo"),
                       icon: <NotepadText />,
-                      onSelect: () =>
-                        musicInfoStore.open(menuTargetsOfRow(music)),
+                      onSelect: () => openMusicInfo(music),
                       separatorBefore: true,
                     },
                     fetchMusicInfoItem(menuTargetsOfRow(music)),

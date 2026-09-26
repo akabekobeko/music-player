@@ -1,5 +1,10 @@
-import type { Music } from "@mp/ipc";
+import type { AlbumSummary, Music } from "@mp/ipc";
 import { useState, useSyncExternalStore } from "react";
+import {
+  albumInfoStore,
+  albumInfoTargetOf,
+} from "@/features/library/albumInfoStore";
+import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import {
   applySelectionClick,
@@ -38,10 +43,17 @@ type BoundSelection = {
  * multi-selection, and every playback / library action — each queues
  * **only this album's tracks**. The component only renders what this hook
  * returns.
+ *
+ * @param album - The expanded album.
+ * @param albums - The grid's albums in display order (the album info
+ * dialog's header arrows step through them).
  */
-export const useAlbumDetail = (albumKey: string) => {
+export const useAlbumDetail = (
+  album: AlbumSummary,
+  albums: readonly AlbumSummary[],
+) => {
   const musicsState = useLibraryQuery<readonly Music[]>(
-    queryKeys.musicsByAlbum(albumKey),
+    queryKeys.musicsByAlbum(album.albumKey),
   );
   const commands = usePlayerCommands();
   const { current } = usePlayerState();
@@ -89,6 +101,22 @@ export const useAlbumDetail = (albumKey: string) => {
   const menuTargetsOfRow = (music: Music): readonly Music[] =>
     menuTargetsOf(selection, musics, (entry) => entry.id, music);
 
+  /**
+   * Menu "Song info": the row's targets, with the album's tracks as the
+   * list the dialog's header arrows step through (a single track only).
+   */
+  const openMusicInfo = (music: Music): void => {
+    musicInfoStore.open(menuTargetsOfRow(music), musics);
+  };
+
+  /** Header menu "Album info", with the grid's albums as the arrows' list. */
+  const openAlbumInfo = (): void => {
+    albumInfoStore.open(
+      albumInfoTargetOf(album),
+      albums.map(albumInfoTargetOf),
+    );
+  };
+
   const playFrom = (music: Music): void => {
     void commands.playMusic(music, [...musics], "album");
   };
@@ -116,6 +144,8 @@ export const useAlbumDetail = (albumKey: string) => {
     selection,
     selectRow,
     menuTargetsOfRow,
+    openMusicInfo,
+    openAlbumInfo,
     commands,
     playFrom,
     playAll,

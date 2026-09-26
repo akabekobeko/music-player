@@ -35,6 +35,8 @@ export const ArtistContent = ({ artistName }: Props) => {
     scrollToAlbum,
     albumMusicsOf,
     menuTargetsOfRow,
+    openMusicInfo,
+    openAlbumInfo,
     removeFromLibrary,
     playingStateOf,
     activeAlbumKey,
@@ -101,6 +103,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                     onAddToQueue={() =>
                       commands.appendToQueue(albumMusicsOf(row.group))
                     }
+                    onAlbumInfo={() => openAlbumInfo(row.group)}
                   />
                 )}
                 {row.type === "disc" && (
@@ -124,6 +127,7 @@ export const ArtistContent = ({ artistName }: Props) => {
                     onTogglePlayPause={() => commands.togglePlayPause()}
                     onPlayNext={() => commands.insertNext([row.music])}
                     onAddToQueue={() => commands.appendToQueue([row.music])}
+                    onMusicInfo={() => openMusicInfo(row.music)}
                     onRemoveFromLibrary={() => removeFromLibrary(row.music)}
                   />
                 )}

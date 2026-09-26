@@ -6,7 +6,6 @@ import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { Stack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
-import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { cn } from "@/libs/utils";
 import { PlaylistHeader } from "./PlaylistHeader";
 import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
@@ -52,6 +51,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
     selection,
     selectRow,
     menuTargetsOfRow,
+    openMusicInfo,
     playingStateOf,
   } = usePlaylistContent(routeId);
 
@@ -175,8 +175,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
                     {
                       label: t("menu.musicInfo"),
                       icon: <NotepadText />,
-                      onSelect: () =>
-                        musicInfoStore.open(menuTargetsOfRow(row)),
+                      onSelect: () => openMusicInfo(row),
                       separatorBefore: true,
                     },
                     fetchMusicInfoItem(menuTargetsOfRow(row)),

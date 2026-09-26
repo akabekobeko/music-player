@@ -2,6 +2,7 @@ import type { Music } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
+import { albumInfoStore } from "@/features/library/albumInfoStore";
 import { flattenAlbumMusics } from "@/features/library/flattenAlbumMusics";
 import { groupAlbums } from "@/features/library/groupAlbums/groupAlbums";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
@@ -124,6 +125,19 @@ export const useArtistContent = (artistName: string) => {
   const menuTargetsOfRow = (music: Music): readonly Music[] =>
     menuTargetsOf(selection, playOrder, (entry) => entry.id, music);
 
+  /**
+   * Menu "Song info": the row's targets, with the play order as the list
+   * the dialog's header arrows step through (a single track only).
+   */
+  const openMusicInfo = (music: Music): void => {
+    musicInfoStore.open(menuTargetsOfRow(music), playOrder);
+  };
+
+  /** Album menu "Album info", with the shown albums as the arrows' list. */
+  const openAlbumInfo = (group: AlbumGroup): void => {
+    albumInfoStore.open(group, groups);
+  };
+
   const removeFromLibrary = (music: Music): void => {
     void window.mp.library.removeMusics({ musicIds: [music.id] });
     // The broadcast mp:library:changed invalidates the query store, which
@@ -191,6 +205,8 @@ export const useArtistContent = (artistName: string) => {
     scrollToAlbum,
     albumMusicsOf,
     menuTargetsOfRow,
+    openMusicInfo,
+    openAlbumInfo,
     removeFromLibrary,
     playingStateOf,
     activeAlbumKey,

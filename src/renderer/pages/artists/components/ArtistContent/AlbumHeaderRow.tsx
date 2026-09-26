@@ -7,7 +7,6 @@ import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { HStack, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
-import { albumInfoStore } from "@/features/library/albumInfoStore";
 import type { AlbumGroup } from "@/features/library/groupAlbums/types";
 import { libraryRemoveStore } from "@/features/library/libraryRemoveStore";
 import { formatTime } from "@/libs/formatTime";
@@ -25,6 +24,8 @@ type Props = {
   readonly onPlay: () => void;
   /** Menu "Add to queue"; the parent appends this album's tracks. */
   readonly onAddToQueue: () => void;
+  /** Menu "Album info"; the parent opens the dialog for this album. */
+  readonly onAlbumInfo: () => void;
 };
 
 /**
@@ -58,6 +59,7 @@ export const AlbumHeaderRow = ({
   playing,
   onPlay,
   onAddToQueue,
+  onAlbumInfo,
 }: Props) => {
   const t = useT();
   const fetchMusicInfoItem = useFetchMusicInfoItem();
@@ -119,7 +121,7 @@ export const AlbumHeaderRow = ({
           {
             label: t("menu.albumInfo"),
             icon: <NotepadText />,
-            onSelect: () => albumInfoStore.open(group),
+            onSelect: onAlbumInfo,
             separatorBefore: true,
           },
           fetchMusicInfoItem(musics),
