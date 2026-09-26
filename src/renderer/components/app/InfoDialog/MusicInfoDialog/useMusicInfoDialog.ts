@@ -6,7 +6,13 @@ import type {
   UpdateMusicsSummary,
 } from "@mp/ipc";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { lookupMusic } from "@/features/library/lookupMusic";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { updateMusics } from "@/features/library/updateMusics";
@@ -42,9 +48,12 @@ export type PictureChange = null | { readonly file: File } | "clear";
  * Logic of the music info dialog (`docs/specs/v1.1/features/music-info-dialog.md`):
  * the tag form (TanStack Form validated by the zod schema on every change),
  * the artwork change with its preview, and the apply / close flow
- * (`docs/specs/v1.1/features/apply-flow.md`). Mounted once per dialog
- * session — `MusicInfoDialog` keys the content on the tracks — so every
- * piece of state starts fresh with the tracks it belongs to.
+ * (`docs/specs/v1.1/features/apply-flow.md`). Mounted once per track set —
+ * `MusicInfoDialogSession` keys the content on the tracks — so every piece
+ * of state starts fresh with the tracks it belongs to, and stepping to a
+ * neighbouring track with the header arrows discards unsaved edits with
+ * the rest of it (`docs/specs/v1.1/features/music-info-dialog.md`,
+ * previous / next navigation).
  *
  * Apply is enabled only when something would change and what would be
  * saved is valid. The values that would be saved are the form values with
@@ -92,6 +101,18 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   const [notFound, setNotFound] = useState(false);
   /** Bumped per fetch and on close so a late answer is ignored. */
   const fetchSession = useRef(0);
+  // A preview's object URL is released once it is no longer shown: when
+  // another pick or a removal replaces it, and when the component goes,
+  // whatever took it away (Cancel, Esc / backdrop, a successful apply, or a
+  // step to another track).
+  useEffect(
+    () => () => {
+      if (previewUrl !== null) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    },
+    [previewUrl],
+  );
   const progress = useSyncExternalStore(
     updateProgressStore.subscribe,
     updateProgressStore.getSnapshot,
@@ -121,20 +142,12 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     [candidate],
   );
 
-  const revokePreview = (): void => {
-    if (previewUrl !== null) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
-  };
-
   const selectFile = (file: File): void => {
     if (IMAGE_EXTENSION_BY_MIME[file.type.toLowerCase()] === undefined) {
       setUnsupportedImageType(file.type === "" ? file.name : file.type);
       return;
     }
 
-    revokePreview();
     setUnsupportedImageType(null);
     setPictureChange({ file });
     setPreviewUrl(URL.createObjectURL(file));
@@ -149,7 +162,7 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
    * one there instead" (the user unticks it to really clear).
    */
   const removeArtwork = (): void => {
-    revokePreview();
+    setPreviewUrl(null);
     setUnsupportedImageType(null);
     setPictureChange(hasArtwork ? "clear" : null);
     setAdoptPicture(fetchedImageUrl !== null);
@@ -221,8 +234,27 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     }
 
     fetchSession.current += 1;
-    revokePreview();
     musicInfoStore.close();
+  };
+
+  /**
+   * Step to the previous / next track of the list the dialog was opened
+   * from (header arrows). The store swaps the track and the session
+   * remounts the content, so unsaved edits go with it. Refused while an
+   * apply runs (like closing) and while a lookup runs: unlike closing, a
+   * step shows a new form, and a lookup answered mid-step would be lost
+   * for nothing, so the arrows wait for it.
+   */
+  const showPrevious = (): void => {
+    if (!applying && !fetching) {
+      musicInfoStore.previous();
+    }
+  };
+
+  const showNext = (): void => {
+    if (!applying && !fetching) {
+      musicInfoStore.next();
+    }
   };
 
   const verdict = useStore(form.store, (state) => {
@@ -291,7 +323,6 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
       return;
     }
 
-    revokePreview();
     musicInfoStore.close();
   };
 
@@ -325,6 +356,8 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     setAdoptedField,
     setAdoptPicture,
     onFieldEdited,
+    showPrevious,
+    showNext,
   };
 };
 

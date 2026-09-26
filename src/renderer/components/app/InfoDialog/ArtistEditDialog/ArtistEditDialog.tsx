@@ -49,7 +49,12 @@ export const ArtistEditDialog = () => {
         }
       }}
     >
-      <DialogContent className="sm:max-w-lg md:max-w-2xl xl:max-w-3xl">
+      {/* No close button in the popup corner, like the song / album info
+          dialogs: Cancel, Esc and the backdrop close it. */}
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-lg md:max-w-2xl xl:max-w-3xl"
+      >
         <DialogHeader>
           <DialogTitle>{t("artistEdit.title")}</DialogTitle>
         </DialogHeader>

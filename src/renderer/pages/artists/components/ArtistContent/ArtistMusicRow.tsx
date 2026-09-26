@@ -6,7 +6,6 @@ import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { useT } from "@/features/i18n/useT";
-import { musicInfoStore } from "@/features/library/musicInfoStore";
 
 type Props = {
   /** The track this row shows. */
@@ -16,8 +15,8 @@ type Props = {
   /** Whether the row is part of the multi-selection. */
   readonly selected: boolean;
   /**
-   * Tracks "Add to playlist" and "Song info" apply to: the multi-selection
-   * or this track alone.
+   * Tracks "Add to playlist" and "Fetch song info" apply to: the
+   * multi-selection or this track alone.
    */
   readonly menuTargets: readonly Music[];
   /** Row click; the parent reads Shift / Cmd-Ctrl off the event. */
@@ -30,6 +29,8 @@ type Props = {
   readonly onPlayNext: () => void;
   /** Menu "Add to queue"; the parent appends this track to the queue. */
   readonly onAddToQueue: () => void;
+  /** Menu "Song info"; the parent opens the dialog for the menu targets. */
+  readonly onMusicInfo: () => void;
   /** Menu "Remove from library"; the parent removes this track at once. */
   readonly onRemoveFromLibrary: () => void;
 };
@@ -48,6 +49,7 @@ export const ArtistMusicRow = ({
   onTogglePlayPause,
   onPlayNext,
   onAddToQueue,
+  onMusicInfo,
   onRemoveFromLibrary,
 }: Props) => {
   const t = useT();
@@ -81,7 +83,7 @@ export const ArtistMusicRow = ({
         {
           label: t("menu.musicInfo"),
           icon: <NotepadText />,
-          onSelect: () => musicInfoStore.open(menuTargets),
+          onSelect: onMusicInfo,
           separatorBefore: true,
         },
         fetchMusicInfoItem(menuTargets),

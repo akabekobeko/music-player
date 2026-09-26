@@ -37,8 +37,83 @@ it("opens with the given tracks and notifies subscribers", () => {
 
   const musics = [music(1), music(2)];
   store.open(musics);
-  expect(store.getSnapshot()).toBe(musics);
+  expect(store.getSnapshot()?.musics).toBe(musics);
   expect(notified).toBe(1);
+});
+
+it("opens without neighbours when no list is given", () => {
+  const store = new MusicInfoStore();
+  store.open([music(1)]);
+  expect(store.getSnapshot()).toEqual({
+    musics: [music(1)],
+    previous: null,
+    next: null,
+  });
+});
+
+it("opens a single track with its neighbours in the given list", () => {
+  const store = new MusicInfoStore();
+  const siblings = [music(1), music(2), music(3)];
+  store.open([music(2)], siblings);
+  expect(store.getSnapshot()).toEqual({
+    musics: [music(2)],
+    previous: music(1),
+    next: music(3),
+  });
+});
+
+it("has no neighbours for a multi-track selection", () => {
+  const store = new MusicInfoStore();
+  const siblings = [music(1), music(2), music(3)];
+  store.open([music(1), music(2)], siblings);
+  expect(store.getSnapshot()?.previous).toBeNull();
+  expect(store.getSnapshot()?.next).toBeNull();
+});
+
+it("previous / next step through the list and notify subscribers", () => {
+  const store = new MusicInfoStore();
+  const siblings = [music(1), music(2), music(3)];
+  store.open([music(1)], siblings);
+  let notified = 0;
+  store.subscribe(() => {
+    notified += 1;
+  });
+
+  store.next();
+  expect(store.getSnapshot()).toEqual({
+    musics: [music(2)],
+    previous: music(1),
+    next: music(3),
+  });
+  store.next();
+  expect(store.getSnapshot()?.musics).toEqual([music(3)]);
+  expect(store.getSnapshot()?.next).toBeNull();
+  store.previous();
+  expect(store.getSnapshot()?.musics).toEqual([music(2)]);
+  expect(notified).toBe(3);
+});
+
+it("ignores a step past either end of the list", () => {
+  const store = new MusicInfoStore();
+  store.open([music(1)], [music(1)]);
+  let notified = 0;
+  store.subscribe(() => {
+    notified += 1;
+  });
+
+  store.previous();
+  store.next();
+  expect(store.getSnapshot()?.musics).toEqual([music(1)]);
+  expect(notified).toBe(0);
+});
+
+it("counts a track listed twice once when stepping", () => {
+  const store = new MusicInfoStore();
+  store.open([music(1)], [music(1), music(2), music(1), music(3)]);
+  store.next();
+  store.next();
+  expect(store.getSnapshot()?.musics).toEqual([music(3)]);
+  expect(store.getSnapshot()?.next).toBeNull();
 });
 
 it("ignores an empty list", () => {
@@ -51,6 +126,15 @@ it("ignores an empty list", () => {
   store.open([]);
   expect(store.getSnapshot()).toBeNull();
   expect(notified).toBe(0);
+});
+
+it("an empty list leaves an open dialog and its neighbours untouched", () => {
+  const store = new MusicInfoStore();
+  store.open([music(2)], [music(1), music(2), music(3)]);
+  store.open([]);
+  expect(store.getSnapshot()?.previous).toEqual(music(1));
+  store.next();
+  expect(store.getSnapshot()?.musics).toEqual([music(3)]);
 });
 
 it("close clears the tracks", () => {
