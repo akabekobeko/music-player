@@ -116,17 +116,26 @@ export const runFetchMusicInfo = async (
     try {
       lookups = await deps.lookupAlbumGroup(group, { signal: events.signal });
     } catch (error) {
-      // A thrown lookup (not a returned failure) fails the whole group.
+      // A thrown lookup (not a returned failure) fails the whole group with
+      // its own error, so the cause stays visible instead of being dressed
+      // up as a MusicBrainz code.
       const failure = toIpcError(error);
-      lookups = new Map(
-        group.map((music) => [
-          music.id,
-          {
-            ok: false,
-            error: { code: "MB_NETWORK", message: failure.message },
-          },
-        ]),
-      );
+      for (const music of group) {
+        failed.push({
+          musicId: music.id,
+          filePath: music.filePath,
+          error: failure,
+        });
+        current += 1;
+        events.onProgress({
+          current,
+          total,
+          filePath: music.filePath,
+          result: "failed",
+        });
+      }
+
+      continue;
     }
     for (const music of group) {
       if (events.signal.aborted) {

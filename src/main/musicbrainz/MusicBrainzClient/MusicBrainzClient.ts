@@ -40,9 +40,17 @@ export type MusicBrainzClientDeps = {
    * with a virtual clock.
    */
   readonly sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
+  /**
+   * Sink for one line per completed request (status and URL, never the
+   * body), used to read the request spacing off the log during the
+   * rate-limit QA. Absent means silent; the singleton wires it up in
+   * development only.
+   */
+  readonly log?: (line: string) => void;
 };
 
-const DEFAULT_DEPS: MusicBrainzClientDeps = {
+/** Production seams without a log sink (the singleton adds one in development). */
+export const DEFAULT_CLIENT_DEPS: MusicBrainzClientDeps = {
   fetch: (url, init) => net.fetch(url, init),
   now: () => performance.now(),
   sleep: abortableSleep,
@@ -87,7 +95,10 @@ export class MusicBrainzClient {
    * @param userAgent - Value of the `User-Agent` header (`buildUserAgent`).
    * @param deps - Injectable seams; omit for production defaults.
    */
-  constructor(userAgent: string, deps: MusicBrainzClientDeps = DEFAULT_DEPS) {
+  constructor(
+    userAgent: string,
+    deps: MusicBrainzClientDeps = DEFAULT_CLIENT_DEPS,
+  ) {
     this.#userAgent = userAgent;
     this.#deps = deps;
   }
@@ -210,6 +221,7 @@ export class MusicBrainzClient {
         };
       }
 
+      this.#deps.log?.(`[musicbrainz] ${response.status} ${url}`);
       return { ok: true, value: response };
     }
   }
