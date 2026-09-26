@@ -312,6 +312,72 @@ export type UpdateProgressPayload = {
 };
 
 // ---------------------------------------------------------------------------
+// MusicBrainz
+// ---------------------------------------------------------------------------
+
+/**
+ * Tags MusicBrainz can supply for one track
+ * (`docs/specs/v1.2/architecture/ipc-types.md`). The subset of
+ * {@link MusicTagPatch} without bpm / rating (MusicBrainz has neither), with
+ * `null` meaning "MusicBrainz has no value", as opposed to the empty string
+ * of a patch, which clears a tag. Values follow
+ * `docs/specs/v1.2/architecture/metadata-mapping.md`.
+ */
+export type MusicInfoCandidateTags = {
+  /** Track title as printed on the release, falling back to the recording title. */
+  readonly title: string | null;
+  /** Track artist credit joined with its join phrases (`A feat. B`). */
+  readonly artist: string | null;
+  /** Release artist credit joined the same way; `Various Artists` as is. */
+  readonly albumArtist: string | null;
+  /** Release title. */
+  readonly album: string | null;
+  /**
+   * Most voted genre of the release group, then the release, then the
+   * recording; first letter capitalised.
+   */
+  readonly genre: string | null;
+  /** First four digits of the release date, then of the group's first release date. */
+  readonly year: number | null;
+  /** Track position within its medium (1-based). */
+  readonly track: number | null;
+  /** Medium position within the release (1-based). */
+  readonly disc: number | null;
+  /** Composers of the performed works, joined with `, `. */
+  readonly composer: string | null;
+  /** Lyricists of the performed works, joined with `, `. */
+  readonly lyricist: string | null;
+  /** Producers related to the recording, joined with `, `. */
+  readonly producer: string | null;
+  /** Conductors related to the recording, joined with `, `. */
+  readonly conductor: string | null;
+  /** Name of the first label of the release. */
+  readonly publisher: string | null;
+};
+
+/**
+ * One track's worth of information looked up from MusicBrainz
+ * (`docs/specs/v1.2/architecture/ipc-types.md`). Returned by
+ * `mp:musicbrainz:lookupMusic` and consumed by the bulk fetch; the MBIDs are
+ * never stored in the library (`docs/specs/v1.2/scope.md`).
+ */
+export type MusicInfoCandidate = {
+  /** MBID of the matched recording; for the completion report and logs. */
+  readonly recordingId: string;
+  /** MBID of the release the tags were taken from; the Cover Art Archive key. */
+  readonly releaseId: string;
+  /** Lucene search score (0 to 100) of the hit that led to the release. */
+  readonly score: number;
+  /** The tag values; `null` where MusicBrainz has none. */
+  readonly tags: MusicInfoCandidateTags;
+  /**
+   * Front cover from the Cover Art Archive, or `null` when none exists.
+   * Temporary bytes: persisted only when the user adopts them.
+   */
+  readonly picture: MusicPictureInput | null;
+};
+
+// ---------------------------------------------------------------------------
 // Playlist
 // ---------------------------------------------------------------------------
 

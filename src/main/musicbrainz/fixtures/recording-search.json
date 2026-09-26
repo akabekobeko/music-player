@@ -1,0 +1,97 @@
+{
+  "created": "2026-09-25T00:00:00.000Z",
+  "count": 2,
+  "offset": 0,
+  "recordings": [
+    {
+      "id": "7a1b2c3d-4444-4e5f-8a9b-000000000003",
+      "score": 100,
+      "title": "Survivalism",
+      "length": 262000,
+      "video": null,
+      "artist-credit": [
+        {
+          "name": "Nine Inch Nails",
+          "artist": {
+            "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+            "name": "Nine Inch Nails"
+          }
+        }
+      ],
+      "first-release-date": "2007-03-13",
+      "releases": [
+        {
+          "id": "0f6a5c2e-1111-4a5b-9c2d-000000000009",
+          "status-id": "4e304316-386d-3040-9fbf-86b2d7fa3e6d",
+          "count": 1,
+          "title": "Survivalism",
+          "status": "Official",
+          "release-group": {
+            "id": "2e3d1f4a-2222-4b6c-8d3e-000000000009",
+            "primary-type": "Single",
+            "title": "Survivalism"
+          },
+          "date": "2007-03-13",
+          "track-count": 1,
+          "media": [
+            {
+              "position": 1,
+              "format": "Digital Media",
+              "track": [
+                {
+                  "id": "t1",
+                  "number": "1",
+                  "title": "Survivalism",
+                  "length": 262000
+                }
+              ],
+              "track-count": 1,
+              "track-offset": 0
+            }
+          ]
+        },
+        {
+          "id": "0f6a5c2e-1111-4a5b-9c2d-000000000004",
+          "count": 1,
+          "title": "Year Zero",
+          "status": "Bootleg",
+          "date": "2007",
+          "track-count": 16
+        },
+        {
+          "id": "0f6a5c2e-1111-4a5b-9c2d-000000000001",
+          "status-id": "4e304316-386d-3040-9fbf-86b2d7fa3e6d",
+          "count": 1,
+          "title": "Year Zero",
+          "status": "Official",
+          "date": "2007-04-17",
+          "track-count": 16
+        }
+      ]
+    },
+    {
+      "id": "7a1b2c3d-4444-4e5f-8a9b-000000000010",
+      "score": 80,
+      "title": "Survivalism (Tardusted)",
+      "length": 305000,
+      "artist-credit": [
+        {
+          "name": "Nine Inch Nails",
+          "artist": {
+            "id": "b7ffd2af-418f-4be2-bdd1-22f8b48613da",
+            "name": "Nine Inch Nails"
+          }
+        }
+      ],
+      "releases": [
+        {
+          "id": "0f6a5c2e-1111-4a5b-9c2d-000000000003",
+          "count": 1,
+          "title": "Year Zero Remixed",
+          "status": "Official",
+          "track-count": 14
+        }
+      ]
+    }
+  ]
+}

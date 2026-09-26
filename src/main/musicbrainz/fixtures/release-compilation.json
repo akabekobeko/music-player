@@ -1,0 +1,80 @@
+{
+  "id": "0f6a5c2e-1111-4a5b-9c2d-000000000100",
+  "title": "Now That Is What I Call a Fixture",
+  "status": "Official",
+  "quality": "normal",
+  "disambiguation": "",
+  "artist-credit": [
+    {
+      "name": "Various Artists",
+      "joinphrase": "",
+      "artist": {
+        "id": "89ad4ac3-39f7-470e-963a-56509c546377",
+        "name": "Various Artists"
+      }
+    }
+  ],
+  "release-group": {
+    "id": "2e3d1f4a-2222-4b6c-8d3e-000000000100",
+    "title": "Now That Is What I Call a Fixture",
+    "primary-type": "Album",
+    "secondary-types": ["Compilation"],
+    "first-release-date": "1999-11",
+    "genres": []
+  },
+  "genres": [
+    { "id": "g-pop", "name": "pop", "count": 4, "disambiguation": "" },
+    { "id": "g-dance", "name": "dance", "count": 4, "disambiguation": "" }
+  ],
+  "media": [
+    {
+      "position": 1,
+      "format": "Digital Media",
+      "track-count": 2,
+      "track-offset": 0,
+      "tracks": [
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000101",
+          "position": 1,
+          "number": "1",
+          "title": "Opening Act",
+          "length": 200000,
+          "artist-credit": [
+            {
+              "name": "Artist X",
+              "joinphrase": " & ",
+              "artist": { "id": "a-x", "name": "Artist X (canonical)" }
+            },
+            {
+              "name": "Artist Y",
+              "artist": { "id": "a-y", "name": "Artist Y" }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000101",
+            "title": "Opening Act",
+            "length": 200000
+          }
+        },
+        {
+          "id": "9b0c1d2e-5555-4f6a-9b7c-000000000102",
+          "position": 2,
+          "number": "2",
+          "title": "Closing Act",
+          "artist-credit": [
+            {
+              "name": "Artist Z",
+              "joinphrase": "",
+              "artist": { "id": "a-z", "name": "Artist Z" }
+            }
+          ],
+          "recording": {
+            "id": "7a1b2c3d-4444-4e5f-8a9b-000000000102",
+            "title": "Closing Act",
+            "length": null
+          }
+        }
+      ]
+    }
+  ]
+}

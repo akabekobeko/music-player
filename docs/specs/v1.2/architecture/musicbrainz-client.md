@@ -14,7 +14,10 @@ MusicBrainz API ([私訳](../reference/musicbrainz-api.md)) と Cover Art Archiv
 
 ```
 src/main/musicbrainz/
-├── MusicBrainzClient.ts        # class: 直列化・待機・再試行を持つ HTTP クライアント (状態を持つため class)
+├── MusicBrainzClient/          # class: 直列化・待機・再試行を持つ HTTP クライアント (状態を持つため class) とそのサブルーチン
+│   ├── MusicBrainzClient.ts
+│   ├── retryDelayOf.ts         # Retry-After の解釈
+│   └── toFetchError.ts         # fetch の失敗をエラーコードへ分類
 ├── musicBrainzClient.ts        # シングルトン (User-Agent を app.getVersion() から組み立てて生成)
 ├── buildUserAgent.ts           # 純関数
 ├── schemas/                    # 応答の zod スキーマ (Main 専用。Renderer は生の応答を見ないため shared に置かない)
@@ -27,6 +30,7 @@ src/main/musicbrainz/
 ├── searchRecordings.ts         # /recording?query=
 ├── searchReleases.ts           # /release?query=
 ├── lookupRelease.ts            # /release/<mbid>?inc=...
+├── requestJson.ts              # クライアント経由で取得した JSON をスキーマで parse する共通処理
 ├── fetchFrontCover.ts          # coverartarchive.org
 ├── lookupMusicInfo/            # 1 曲分の候補を組み立てる代表関数とサブルーチン (lookup-strategy.md)
 └── toMusicInfoCandidate/       # 応答 → 候補のマッピング (metadata-mapping.md)
@@ -52,6 +56,7 @@ src/main/musicbrainz/
 | 503 | `Retry-After` (なければ 2 秒) 待って再試行。3 回で諦め `MB_THROTTLED` |
 | 404 (Cover Art Archive) | 画像なし。エラーにしない |
 | その他 4xx / 5xx | `MB_HTTP_<status>` |
+| 呼び出し側の `AbortSignal` による中断 (一括取得のキャンセル) | `MB_ABORTED`。キューは次のリクエストへ進む |
 | JSON 解析失敗・応答スキーマ不一致 | `MB_INVALID_RESPONSE`。zod の issue (パス) をログに残す |
 
 - クライアントは throw せず、`IpcResult` ではなく Main 内部の Result 型 (`{ ok, value } | { ok, error }`) を返す。IPC ハンドラーがそのまま `IpcError` に詰め替える
