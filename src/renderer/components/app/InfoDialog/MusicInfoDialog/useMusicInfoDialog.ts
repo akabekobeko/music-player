@@ -1,11 +1,13 @@
 import type {
   IpcError,
   Music,
+  MusicInfoCandidate,
   MusicPictureInput,
   UpdateMusicsSummary,
 } from "@mp/ipc";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { lookupMusic } from "@/features/library/lookupMusic";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { updateMusics } from "@/features/library/updateMusics";
 import { updateProgressStore } from "@/features/library/updateProgressStore";
@@ -15,9 +17,22 @@ import {
 } from "@/features/player/PlayerProvider";
 import { toMediaFileUrl } from "@/libs/toMediaFileUrl";
 import { IMAGE_EXTENSION_BY_MIME } from "../../../../../shared/constants";
+import {
+  type AdoptedFields,
+  type CandidateField,
+  isCandidateField,
+  NO_ADOPTED,
+} from "./candidateFields";
+import { defaultAdoptedOf } from "./defaultAdoptedOf";
 import { diffFormValues } from "./diffFormValues";
+import { effectiveValuesOf } from "./effectiveValuesOf";
 import { mergeMusics } from "./mergeMusics";
-import { musicInfoSchema } from "./musicInfoSchema";
+import {
+  MUSIC_INFO_FIELDS,
+  type MusicInfoFormValues,
+  musicInfoSchema,
+} from "./musicInfoSchema";
+import { toDataUrl } from "./toDataUrl";
 import { toMusicTagPatch } from "./toMusicTagPatch";
 
 /**
@@ -35,16 +50,23 @@ export type PictureChange = null | { readonly file: File } | "clear";
  * session — `MusicInfoDialog` keys the content on the tracks — so every
  * piece of state starts fresh with the tracks it belongs to.
  *
- * Apply is enabled only when something changed (a form value differs from
- * its default, or the artwork was edited) and nothing is invalid. A change
- * edited back to its initial text counts as unchanged (`isDefaultValue`,
- * never the sticky `isDirty`).
+ * Apply is enabled only when something would change and nothing that
+ * would be saved is invalid. The values that would be saved are the form
+ * values with the adopted fetched values swapped in (`effectiveValuesOf`),
+ * so a change edited back to its initial text counts as unchanged and an
+ * invalid current value whose fetched value is adopted does not block.
  *
  * Several tracks open on their merged values
  * (`docs/specs/v1.1/features/multi-edit.md`): a field that differs between
  * them is "mixed" (`null`) and stays out of the patch until edited; the
  * artwork shows only when every track has the same one, and a pick or a
  * removal applies to all of them.
+ *
+ * The fetch (`docs/specs/v1.2/features/music-info-fetch.md`) is a single
+ * track affair: it looks the track up on MusicBrainz and holds the
+ * candidate, the adopt state per field and the cover choice
+ * (`docs/specs/v1.2/features/music-info-compare.md`,
+ * `docs/specs/v1.2/features/artwork-compare.md`) until the dialog closes.
  *
  * @param musics - Tracks under edit; never empty.
  */
@@ -54,7 +76,8 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     defaultValues: initialValues,
     validators: { onChange: musicInfoSchema },
   });
-  const isDefaultValue = useStore(form.store, (state) => state.isDefaultValue);
+  const values = useStore(form.store, (state) => state.values);
+  const fieldMeta = useStore(form.store, (state) => state.fieldMeta);
   const isValid = useStore(form.store, (state) => state.isValid);
 
   const [pictureChange, setPictureChange] = useState<PictureChange>(null);
@@ -65,6 +88,12 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<IpcError | null>(null);
   const [failures, setFailures] = useState<UpdateMusicsSummary["failed"]>([]);
+  const [candidate, setCandidate] = useState<MusicInfoCandidate | null>(null);
+  const [adopted, setAdopted] = useState<AdoptedFields>(NO_ADOPTED);
+  const [adoptPicture, setAdoptPicture] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<IpcError | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const progress = useSyncExternalStore(
     updateProgressStore.subscribe,
     updateProgressStore.getSnapshot,
@@ -79,6 +108,20 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   const hasArtwork = musics.some((music) => music.picturePath !== null);
   /** The artwork every target shares, `null` when absent or mixed. */
   const sharedPicturePath = sharedPicturePathOf(musics);
+  /** Artwork to show on the current side: the pick's preview, else the shared one. */
+  const imageUrl =
+    previewUrl ??
+    (pictureChange === "clear" || sharedPicturePath === null
+      ? null
+      : toMediaFileUrl(sharedPicturePath));
+  /** The fetched cover for `<img src>`; encoded once per candidate. */
+  const fetchedImageUrl = useMemo(
+    () =>
+      candidate?.picture === null || candidate === null
+        ? null
+        : toDataUrl(candidate.picture),
+    [candidate],
+  );
 
   const revokePreview = (): void => {
     if (previewUrl !== null) {
@@ -97,20 +140,74 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     setUnsupportedImageType(null);
     setPictureChange({ file });
     setPreviewUrl(URL.createObjectURL(file));
+    // A picked file is the user's choice over the fetched cover.
+    setAdoptPicture(false);
   };
 
   /**
    * Drop the picked file; with an artwork on any track this also asks for
-   * its removal, without one it merely returns to "untouched".
+   * its removal, without one it merely returns to "untouched". With a
+   * fetched cover at hand, removing the current one means "put the fetched
+   * one there instead" (the user unticks it to really clear).
    */
   const removeArtwork = (): void => {
     revokePreview();
     setUnsupportedImageType(null);
     setPictureChange(hasArtwork ? "clear" : null);
+    setAdoptPicture(fetchedImageUrl !== null);
+  };
+
+  /** Only a single track can be looked up; never while busy. */
+  const canFetch = musics.length === 1 && !fetching && !applying;
+
+  /**
+   * Look the track up. A repeat fetch discards the previous candidate and
+   * adopt state but keeps the form as edited.
+   */
+  const fetch = async (): Promise<void> => {
+    const single = musics[0];
+    if (!canFetch || single === undefined) {
+      return;
+    }
+
+    setFetching(true);
+    setCandidate(null);
+    setAdopted(NO_ADOPTED);
+    setAdoptPicture(false);
+    setFetchError(null);
+    setNotFound(false);
+    const result = await lookupMusic({ musicId: single.id });
+    setFetching(false);
+    if (!result.ok) {
+      setFetchError(result.error);
+      return;
+    }
+
+    if (result.value === null) {
+      setNotFound(true);
+      return;
+    }
+
+    setCandidate(result.value);
+    setAdopted(defaultAdoptedOf(form.state.values, result.value));
+    setAdoptPicture(result.value.picture !== null && imageUrl === null);
+  };
+
+  const setAdoptedField = (field: CandidateField, on: boolean): void => {
+    setAdopted((previous) =>
+      previous[field] === on ? previous : { ...previous, [field]: on },
+    );
+  };
+
+  /** Editing the current value means the user prefers it: unadopt. */
+  const onFieldEdited = (name: keyof MusicInfoFormValues): void => {
+    if (candidate !== null && isCandidateField(name)) {
+      setAdoptedField(name, false);
+    }
   };
 
   const close = (): void => {
-    if (applying) {
+    if (applying || fetching) {
       return;
     }
 
@@ -118,8 +215,27 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     musicInfoStore.close();
   };
 
+  const effectiveValues = effectiveValuesOf(values, candidate, adopted);
+  const valuesChanged =
+    Object.keys(diffFormValues(initialValues, effectiveValues)).length > 0;
+  const pictureChanged = adoptPicture || pictureChange !== null;
+  // An adopted field is saved from the candidate, so an error on its
+  // current input must not block; every other field's error does.
+  const hasBlockingError =
+    candidate === null
+      ? !isValid
+      : MUSIC_INFO_FIELDS.some(
+          (name) =>
+            !(isCandidateField(name) && adopted[name]) &&
+            (fieldMeta[name]?.errors ?? []).some(
+              (entry) => entry !== undefined,
+            ),
+        );
   const canApply =
-    (!isDefaultValue || pictureChange !== null) && isValid && !applying;
+    (valuesChanged || pictureChanged) &&
+    !hasBlockingError &&
+    !applying &&
+    !fetching;
 
   const apply = async (): Promise<void> => {
     if (!canApply) {
@@ -127,9 +243,12 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     }
 
     const patch = toMusicTagPatch(
-      diffFormValues(initialValues, form.state.values),
+      diffFormValues(initialValues, effectiveValues),
     );
-    const picture = await pictureInputOf(pictureChange);
+    const picture =
+      adoptPicture && candidate?.picture !== null && candidate !== null
+        ? candidate.picture
+        : await pictureInputOf(pictureChange);
     if (stopsPlayback) {
       commands.stop();
     }
@@ -137,6 +256,8 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     setApplying(true);
     setError(null);
     setFailures([]);
+    setFetchError(null);
+    setNotFound(false);
     updateProgressStore.reset();
     const result = await updateMusics({
       musicIds: musics.map((music) => music.id),
@@ -169,12 +290,7 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
 
   return {
     form,
-    /** Artwork to show: the picked file's preview, else the shared one. */
-    imageUrl:
-      previewUrl ??
-      (pictureChange === "clear" || sharedPicturePath === null
-        ? null
-        : toMediaFileUrl(sharedPicturePath)),
+    imageUrl,
     /** Remove has something to undo: a pick, or an artwork not yet removed. */
     canRemoveArtwork:
       pictureChange !== null ? pictureChange !== "clear" : hasArtwork,
@@ -186,10 +302,22 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
     canApply,
     error,
     failures,
+    candidate,
+    adopted,
+    adoptPicture,
+    fetchedImageUrl,
+    fetching,
+    canFetch,
+    fetchError,
+    notFound,
     selectFile,
     removeArtwork,
     apply,
     close,
+    fetch,
+    setAdoptedField,
+    setAdoptPicture,
+    onFieldEdited,
   };
 };
 

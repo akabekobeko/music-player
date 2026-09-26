@@ -81,6 +81,7 @@ const buildBridge = (): MpBridge => ({
       subscribe<LibraryChangedPayload>(IpcKeys.LibraryChanged, listener),
   },
   musicbrainz: {
+    lookupMusic: (request) => ipcRenderer.invoke(IpcKeys.LookupMusic, request),
     fetchMusicInfo: (request) =>
       ipcRenderer.invoke(IpcKeys.FetchMusicInfo, request),
     cancelFetch: () => ipcRenderer.invoke(IpcKeys.CancelFetch),

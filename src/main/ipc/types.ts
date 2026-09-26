@@ -377,6 +377,12 @@ export type MusicInfoCandidate = {
   readonly picture: MusicPictureInput | null;
 };
 
+/** Request payload for `mp:musicbrainz:lookupMusic`. */
+export type LookupMusicRequest = {
+  /** `Music.id` of the track shown in the music info dialog. */
+  readonly musicId: number;
+};
+
 /** Request payload for `mp:musicbrainz:fetchMusicInfo`. */
 export type FetchMusicInfoRequest = {
   /**
@@ -917,6 +923,14 @@ export type MpBridge = {
   };
   /** MusicBrainz lookups (`docs/specs/v1.2/architecture/ipc.md`). */
   readonly musicbrainz: {
+    /**
+     * Look up one track's candidate for the music info dialog. `null` when
+     * MusicBrainz has no match; `ok: false` for an unknown id or a failed
+     * request.
+     */
+    readonly lookupMusic: (
+      request: LookupMusicRequest,
+    ) => Promise<IpcResult<MusicInfoCandidate | null>>;
     /**
      * Complete the missing tags / artwork of tracks from MusicBrainz;
      * progress arrives via {@link MpBridge.musicbrainz.onFetchProgress}.

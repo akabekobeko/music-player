@@ -209,6 +209,18 @@ export const en: Dictionary = {
   "musicInfo.field.addedAt": "Date added",
   "musicInfo.field.updatedAt": "Date modified",
   "musicInfo.apply": "Apply",
+  "musicInfo.fetch": "Fetch",
+  "musicInfo.fetchTooltip": "Fetch song info from MusicBrainz",
+  "musicInfo.column.current": "Current",
+  "musicInfo.column.fetched": "MusicBrainz",
+  "musicInfo.adoptField": "Use the fetched {field}",
+  "musicInfo.adoptFetched": "Use this one",
+  "musicInfo.notFound": "No matching song was found on MusicBrainz.",
+  "musicInfo.fetchNetwork":
+    "Could not connect to MusicBrainz. Check your network connection.",
+  "musicInfo.fetchThrottled":
+    "MusicBrainz is busy. Wait a moment and try again.",
+  "musicInfo.fetchFailed": "Failed to fetch song info: {message}",
   "musicInfo.imageFile": "Image file",
   "musicInfo.removeArtwork": "Remove",
   "musicInfo.unsupportedImage": "Unsupported image type: {type}",

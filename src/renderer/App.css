@@ -38,6 +38,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-adopt: var(--adopt);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -94,6 +95,14 @@
   --border: oklch(0.835 0.012 225);
   --input: oklch(0.835 0.012 225);
   --ring: oklch(0.65 0.0225 230);
+  /*
+   * Side that will be saved in the music info dialog's compare view
+   * (docs/specs/v1.2/features/adopt-color.md): a blue-leaning green (hue
+   * 160) so it sits with the cool neutrals yet reads apart from the input
+   * border, the focus ring and the red of errors. Named for its meaning,
+   * not its colour.
+   */
+  --adopt: oklch(0.6 0.15 160);
   --chart-1: oklch(0.8 0.015 225);
   --chart-2: oklch(0.5 0.0225 235);
   --chart-3: oklch(0.4 0.026 240);
@@ -129,6 +138,7 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --adopt: oklch(0.75 0.15 160);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
