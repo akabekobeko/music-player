@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
+import { musicBrainzErrorKeyOf } from "@/features/musicbrainz/musicBrainzErrorKeyOf";
 import { cn } from "@/libs/utils";
 import { HStack } from "../../stacks";
 import { DialogTabList } from "../DialogTabList";
@@ -24,7 +25,6 @@ import { ApplyFailures } from "./ApplyFailures";
 import { ArtworkPanel } from "./ArtworkPanel";
 import { DetailsPanel } from "./DetailsPanel";
 import { FilePanel } from "./FilePanel";
-import { fetchErrorKeyOf } from "./fetchErrorKeyOf";
 import { useMusicInfoDialog } from "./useMusicInfoDialog";
 
 type Props = {
@@ -74,7 +74,8 @@ export const MusicInfoDialogContent = ({ musics, primary }: Props) => {
     onFieldEdited,
   } = useMusicInfoDialog(musics);
   const busy = applying || fetching;
-  const fetchMessage = fetchError === null ? null : fetchErrorKeyOf(fetchError);
+  const fetchMessage =
+    fetchError === null ? null : musicBrainzErrorKeyOf(fetchError);
 
   return (
     <Dialog

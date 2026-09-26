@@ -1,10 +1,18 @@
-import { expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { readFixture } from "./fixtures/readFixture";
 import { lookupRelease } from "./lookupRelease";
 import {
   MusicBrainzClient,
   type MusicBrainzClientDeps,
 } from "./MusicBrainzClient/MusicBrainzClient";
+
+beforeEach(() => {
+  vi.spyOn(console, "info").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 it("requests the release with the full inc set, keeping the plus separators", async () => {
   const urls: string[] = [];

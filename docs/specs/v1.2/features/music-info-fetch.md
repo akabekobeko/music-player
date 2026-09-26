@@ -50,9 +50,12 @@ fetch():
 | 状況 | 文言 (ja) |
 | --- | --- |
 | 該当なし | MusicBrainz に該当する曲が見つかりませんでした |
-| `MB_NETWORK` / `MB_TIMEOUT` | MusicBrainz に接続できませんでした。ネットワーク接続を確認してください |
+| `MB_NETWORK` | MusicBrainz に接続できませんでした。ネットワーク接続を確認してから再試行してください |
+| `MB_TIMEOUT` | MusicBrainz から時間内に応答がありませんでした。しばらく待ってから再試行してください |
 | `MB_THROTTLED` | MusicBrainz が混み合っています。しばらく待ってから再試行してください |
 | その他 | 曲情報の取得に失敗しました: {message} |
+
+文言の選択は `musicBrainzErrorKeyOf` (Renderer 共通) で行い、[取得ダイアログ](fetch-dialog.md) の失敗一覧も同じ関数を使います。再試行は自動では行わず、案内に従ってユーザーが取得ボタンを押し直します。
 
 ## 適用との関係
 

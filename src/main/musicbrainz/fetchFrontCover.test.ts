@@ -13,6 +13,7 @@ const GROUP_1200 = `https://coverartarchive.org/release-group/${GROUP}/front-120
 
 beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {});
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 afterEach(() => {

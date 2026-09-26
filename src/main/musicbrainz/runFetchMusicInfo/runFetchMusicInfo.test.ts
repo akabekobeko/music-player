@@ -337,3 +337,39 @@ it("records an exception from the lookup under every track of the group", async 
   expect(summary.failed[0]?.error.message).toBe("boom");
   expect(summary.notFound.map((entry) => entry.musicId)).toEqual([c]);
 });
+
+it("keeps processing later groups when a group is throttled (503 streak)", async () => {
+  const a = seed("/a.mp3", { album: "X" });
+  const b = seed("/b.mp3", { album: "X" });
+  const c = seed("/c.mp3", { album: "Y" });
+
+  const summary = await runFetchMusicInfo(
+    db,
+    { musicIds: [a, b, c] },
+    events(),
+    {
+      lookupAlbumGroup: async (musics) =>
+        new Map(
+          musics.map((music) => [
+            music.id,
+            music.album === "X"
+              ? {
+                  ok: false as const,
+                  error: { code: "MB_THROTTLED" as const, message: "503" },
+                }
+              : ok(candidate()),
+          ]),
+        ),
+      updateMusics: updateOk,
+    },
+  );
+
+  expect(
+    summary.failed.map((entry) => [entry.musicId, entry.error.code]),
+  ).toEqual([
+    [a, "MB_THROTTLED"],
+    [b, "MB_THROTTLED"],
+  ]);
+  expect(summary.updated.map((entry) => entry.music.id)).toEqual([c]);
+  expect(summary.cancelled).toBe(false);
+});

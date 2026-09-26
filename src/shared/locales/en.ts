@@ -216,11 +216,13 @@ export const en: Dictionary = {
   "musicInfo.adoptField": "Use the fetched {field}",
   "musicInfo.adoptFetched": "Use this one",
   "musicInfo.notFound": "No matching song was found on MusicBrainz.",
-  "musicInfo.fetchNetwork":
-    "Could not connect to MusicBrainz. Check your network connection.",
-  "musicInfo.fetchThrottled":
+  "musicbrainz.error.network":
+    "Could not connect to MusicBrainz. Check your network connection and try again.",
+  "musicbrainz.error.timeout":
+    "MusicBrainz did not respond in time. Try again in a moment.",
+  "musicbrainz.error.throttled":
     "MusicBrainz is busy. Wait a moment and try again.",
-  "musicInfo.fetchFailed": "Failed to fetch song info: {message}",
+  "musicbrainz.error.failed": "Failed to fetch song info: {message}",
   "musicInfo.imageFile": "Image file",
   "musicInfo.removeArtwork": "Remove",
   "musicInfo.unsupportedImage": "Unsupported image type: {type}",

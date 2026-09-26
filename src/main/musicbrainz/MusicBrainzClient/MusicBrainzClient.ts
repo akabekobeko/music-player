@@ -210,6 +210,9 @@ export class MusicBrainzClient {
         };
       }
 
+      // URL and status only, never the body: enough to read the request
+      // spacing off the log during the rate-limit QA.
+      console.info(`[musicbrainz] ${response.status} ${url}`);
       return { ok: true, value: response };
     }
   }

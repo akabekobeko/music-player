@@ -25,6 +25,7 @@ let clock: Clock;
 beforeEach(() => {
   clock = { now: 10_000, sleeps: [] };
   vi.spyOn(console, "warn").mockImplementation(() => {});
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 afterEach(() => {

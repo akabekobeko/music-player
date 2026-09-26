@@ -1,10 +1,18 @@
-import { expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { readFixture } from "./fixtures/readFixture";
 import {
   MusicBrainzClient,
   type MusicBrainzClientDeps,
 } from "./MusicBrainzClient/MusicBrainzClient";
 import { searchRecordings } from "./searchRecordings";
+
+beforeEach(() => {
+  vi.spyOn(console, "info").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 it("requests the recording endpoint with the query, limit and JSON format", async () => {
   const urls: string[] = [];
