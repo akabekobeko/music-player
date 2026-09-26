@@ -7,7 +7,8 @@
 | 項目 | 不足とみなす条件 | 備考 |
 | --- | --- | --- |
 | title | 不足とみなさない | インポート時にファイル名で補完済みのため常に値がある。ファイル名由来かどうかは判別できず、上書きはダイアログで行う |
-| artist / albumArtist / album / genre | 空文字 | |
+| artist / album / genre | 空文字 | |
+| albumArtist | 空文字かつ `artist` も空文字 | 表示アーティスト (Artists ビューの単位) は `albumArtist` → `artist` のフォールバックで決まる。`artist` があるのに `albumArtist` を補完すると、MusicBrainz 側の表記 (大文字小文字や綴りの差) で表示アーティストが変わり、既存の値の上書きに相当する。上書きはダイアログで明示的に採用したときだけ行う |
 | composer / lyricist / producer / conductor / publisher | 空文字 | |
 | year | `null` | |
 | track | `0` | DB の既定値 = 未設定 |

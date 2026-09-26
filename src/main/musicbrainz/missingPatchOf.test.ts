@@ -79,10 +79,19 @@ it("never touches title, existing values, or fields the candidate lacks", () => 
   );
 
   expect(result.patch).toEqual({
-    albumArtist: "Album Artist",
     track: 3,
     disc: 2,
   });
+});
+
+it("keeps the display artist: no albumArtist while artist exists", () => {
+  const result = missingPatchOf(
+    music({ artist: "foo", albumArtist: "" }),
+    candidate({ albumArtist: "Foo" }),
+  );
+
+  expect(result.patch).not.toHaveProperty("albumArtist");
+  expect(result.patch).not.toHaveProperty("artist");
 });
 
 it("leaves the artwork alone when the track already has one or the candidate has none", () => {

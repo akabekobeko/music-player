@@ -46,7 +46,6 @@ export type MissingFieldsInput = {
 
 const TEXT_FIELDS = [
   "artist",
-  "albumArtist",
   "album",
   "genre",
   "composer",
@@ -63,8 +62,16 @@ const TEXT_FIELDS = [
  * Text tags are missing when empty, `year` when `null`, `track` when `0`.
  * `disc` cannot be told apart from "disc 1" (the DB default is `1`), so it
  * is missing exactly when `track` is, and the two are completed together
- * from the same medium. The music info dialog uses the same rule for its
- * default "adopt" checkboxes so the two entrances never disagree.
+ * from the same medium.
+ *
+ * `albumArtist` is missing only when `artist` is empty too: the display
+ * artist (the Artist view's identity) is `albumArtist` falling back to
+ * `artist`, so filling `albumArtist` next to an existing `artist` would
+ * replace the artist the track is shown under (a different spelling or
+ * case from MusicBrainz moves it to another artist). That is an overwrite
+ * of existing data, which only an explicit choice in the music info dialog
+ * may do. The dialog uses the same rule for its default "adopt" checkboxes
+ * so the two entrances never disagree.
  *
  * @param music - The track's tags.
  * @returns The missing fields.
@@ -77,6 +84,10 @@ export const missingFieldsOf = (
     if (music[field] === "") {
       missing.add(field);
     }
+  }
+
+  if (music.albumArtist === "" && music.artist === "") {
+    missing.add("albumArtist");
   }
 
   if (music.year === null) {

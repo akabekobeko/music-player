@@ -25,6 +25,15 @@ it("reports empty text tags", () => {
   ]).toEqual(["artist", "genre", "publisher"]);
 });
 
+it("reports the album artist only when the track artist is empty too", () => {
+  // Filling albumArtist next to an existing artist would change the
+  // display artist, which is an overwrite of existing data.
+  expect([...missingFieldsOf({ ...full, albumArtist: "" })]).toEqual([]);
+  expect([
+    ...missingFieldsOf({ ...full, artist: "", albumArtist: "" }),
+  ]).toEqual(["artist", "albumArtist"]);
+});
+
 it("reports a null year", () => {
   expect([...missingFieldsOf({ ...full, year: null })]).toEqual(["year"]);
 });
