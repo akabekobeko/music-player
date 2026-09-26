@@ -27,6 +27,7 @@ export const IpcKeys = {
   SetArtistPicture: "mp:library:setArtistPicture",
   SetArtistInitial: "mp:library:setArtistInitial",
   UpdateMusics: "mp:library:updateMusics",
+  LookupMusic: "mp:musicbrainz:lookupMusic",
   FetchMusicInfo: "mp:musicbrainz:fetchMusicInfo",
   CancelFetch: "mp:musicbrainz:cancelFetch",
   PlaylistList: "mp:playlist:list",

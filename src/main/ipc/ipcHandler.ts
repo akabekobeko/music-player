@@ -14,6 +14,7 @@ import { onGetSettings } from "./onGetSettings";
 import { onGetStats } from "./onGetStats";
 import { onGetVersions } from "./onGetVersions";
 import { onCancelImport, onImportMusics } from "./onImportMusics";
+import { onLookupMusic } from "./onLookupMusic";
 import { onMenuPopup } from "./onMenuPopup";
 import { onMenuSetState } from "./onMenuSetState";
 import { onOpenImportTargets } from "./onOpenImportTargets";
@@ -72,6 +73,7 @@ export const initializeIpcEvents = (): void => {
   ipcMain.handle(IpcKeys.SetArtistPicture, onSetArtistPicture);
   ipcMain.handle(IpcKeys.SetArtistInitial, onSetArtistInitial);
   ipcMain.handle(IpcKeys.UpdateMusics, onUpdateMusics);
+  ipcMain.handle(IpcKeys.LookupMusic, onLookupMusic);
   ipcMain.handle(IpcKeys.FetchMusicInfo, onFetchMusicInfo);
   ipcMain.handle(IpcKeys.CancelFetch, onCancelFetch);
   ipcMain.handle(IpcKeys.GetMusicsByAlbum, onGetMusicsByAlbum);
@@ -115,6 +117,7 @@ export const releaseIpcEvents = (): void => {
   ipcMain.removeHandler(IpcKeys.SetArtistPicture);
   ipcMain.removeHandler(IpcKeys.SetArtistInitial);
   ipcMain.removeHandler(IpcKeys.UpdateMusics);
+  ipcMain.removeHandler(IpcKeys.LookupMusic);
   ipcMain.removeHandler(IpcKeys.FetchMusicInfo);
   ipcMain.removeHandler(IpcKeys.CancelFetch);
   ipcMain.removeHandler(IpcKeys.GetMusicsByAlbum);

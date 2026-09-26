@@ -209,6 +209,18 @@ export const ja: Dictionary = {
   "musicInfo.field.addedAt": "追加日時",
   "musicInfo.field.updatedAt": "更新日時",
   "musicInfo.apply": "適用",
+  "musicInfo.fetch": "曲情報の取得",
+  "musicInfo.fetchTooltip": "MusicBrainz から曲情報を取得",
+  "musicInfo.column.current": "現在",
+  "musicInfo.column.fetched": "MusicBrainz",
+  "musicInfo.adoptField": "{field} に取得した値を採用",
+  "musicInfo.adoptFetched": "こちらを採用",
+  "musicInfo.notFound": "MusicBrainz に該当する曲が見つかりませんでした",
+  "musicInfo.fetchNetwork":
+    "MusicBrainz に接続できませんでした。ネットワーク接続を確認してください",
+  "musicInfo.fetchThrottled":
+    "MusicBrainz が混み合っています。しばらく待ってから再試行してください",
+  "musicInfo.fetchFailed": "曲情報の取得に失敗しました: {message}",
   "musicInfo.imageFile": "画像ファイル",
   "musicInfo.removeArtwork": "削除",
   "musicInfo.unsupportedImage": "対応していない画像形式です: {type}",

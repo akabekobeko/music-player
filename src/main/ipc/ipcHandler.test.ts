@@ -26,6 +26,10 @@ it("registers every implemented invoke handler", () => {
     expect.any(Function),
   );
   expect(handle).toHaveBeenCalledWith(
+    IpcKeys.LookupMusic,
+    expect.any(Function),
+  );
+  expect(handle).toHaveBeenCalledWith(
     IpcKeys.FetchMusicInfo,
     expect.any(Function),
   );
