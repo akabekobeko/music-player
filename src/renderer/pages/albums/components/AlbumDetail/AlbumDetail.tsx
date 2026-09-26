@@ -31,7 +31,8 @@ type Props = {
  * Artist view). Each playback action queues
  * **only this album's tracks** — unlike the Artist view, the filter context
  * means "listen to this album". Rows multi-select like the Artist view
- * (click / Shift / Cmd-Ctrl); the row menus act on the selection.
+ * (click / Shift / Cmd-Ctrl); the row menus ([...] and right-click) act on
+ * the selection.
  */
 export const AlbumDetail = ({ album }: Props) => {
   const t = useT();
@@ -149,46 +150,42 @@ export const AlbumDetail = ({ album }: Props) => {
                   }}
                   onPlay={() => playFrom(music)}
                   onTogglePlayPause={() => commands.togglePlayPause()}
-                  menu={
-                    <RowMenu
-                      items={[
-                        {
-                          label: t("menu.playMusic"),
-                          icon: <PlayFillIcon />,
-                          onSelect: () => playFrom(music),
-                        },
-                        {
-                          label: t("menu.playNext"),
-                          icon: <ListStart />,
-                          onSelect: () => commands.insertNext([music]),
-                        },
-                        {
-                          label: t("menu.addToQueue"),
-                          icon: <ListEnd />,
-                          onSelect: () => commands.appendToQueue([music]),
-                        },
-                        <AddToPlaylistSubmenu
-                          key="playlist"
-                          musics={menuTargetsOfRow(music)}
-                        />,
-                        {
-                          label: t("menu.musicInfo"),
-                          icon: <NotepadText />,
-                          onSelect: () =>
-                            musicInfoStore.open(menuTargetsOfRow(music)),
-                          separatorBefore: true,
-                        },
-                        fetchMusicInfoItem(menuTargetsOfRow(music)),
-                        {
-                          label: t("menu.removeFromLibrary"),
-                          icon: <Trash2 />,
-                          onSelect: () => removeFromLibrary(music),
-                          destructive: true,
-                          separatorBefore: true,
-                        },
-                      ]}
-                    />
-                  }
+                  menuItems={[
+                    {
+                      label: t("menu.playMusic"),
+                      icon: <PlayFillIcon />,
+                      onSelect: () => playFrom(music),
+                    },
+                    {
+                      label: t("menu.playNext"),
+                      icon: <ListStart />,
+                      onSelect: () => commands.insertNext([music]),
+                    },
+                    {
+                      label: t("menu.addToQueue"),
+                      icon: <ListEnd />,
+                      onSelect: () => commands.appendToQueue([music]),
+                    },
+                    <AddToPlaylistSubmenu
+                      key="playlist"
+                      musics={menuTargetsOfRow(music)}
+                    />,
+                    {
+                      label: t("menu.musicInfo"),
+                      icon: <NotepadText />,
+                      onSelect: () =>
+                        musicInfoStore.open(menuTargetsOfRow(music)),
+                      separatorBefore: true,
+                    },
+                    fetchMusicInfoItem(menuTargetsOfRow(music)),
+                    {
+                      label: t("menu.removeFromLibrary"),
+                      icon: <Trash2 />,
+                      onSelect: () => removeFromLibrary(music),
+                      destructive: true,
+                      separatorBefore: true,
+                    },
+                  ]}
                 />
               ))}
           </div>

@@ -4,7 +4,6 @@ import type { MouseEvent } from "react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicRow/MusicRow";
-import { RowMenu } from "@/components/app/RowMenu/RowMenu";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
@@ -36,7 +35,8 @@ type Props = {
 };
 
 /**
- * Music area: one track row of the artist view with its context menu.
+ * Music area: one track row of the artist view with its menus (the [...]
+ * dropdown and the right-click menu, both from `MusicRow`).
  */
 export const ArtistMusicRow = ({
   music,
@@ -61,42 +61,38 @@ export const ArtistMusicRow = ({
       onClick={onSelect}
       onPlay={onPlay}
       onTogglePlayPause={onTogglePlayPause}
-      menu={
-        <RowMenu
-          items={[
-            {
-              label: t("menu.playMusic"),
-              icon: <PlayFillIcon />,
-              onSelect: onPlay,
-            },
-            {
-              label: t("menu.playNext"),
-              icon: <ListStart />,
-              onSelect: onPlayNext,
-            },
-            {
-              label: t("menu.addToQueue"),
-              icon: <ListEnd />,
-              onSelect: onAddToQueue,
-            },
-            <AddToPlaylistSubmenu key="playlist" musics={menuTargets} />,
-            {
-              label: t("menu.musicInfo"),
-              icon: <NotepadText />,
-              onSelect: () => musicInfoStore.open(menuTargets),
-              separatorBefore: true,
-            },
-            fetchMusicInfoItem(menuTargets),
-            {
-              label: t("menu.removeFromLibrary"),
-              icon: <Trash2 />,
-              onSelect: onRemoveFromLibrary,
-              destructive: true,
-              separatorBefore: true,
-            },
-          ]}
-        />
-      }
+      menuItems={[
+        {
+          label: t("menu.playMusic"),
+          icon: <PlayFillIcon />,
+          onSelect: onPlay,
+        },
+        {
+          label: t("menu.playNext"),
+          icon: <ListStart />,
+          onSelect: onPlayNext,
+        },
+        {
+          label: t("menu.addToQueue"),
+          icon: <ListEnd />,
+          onSelect: onAddToQueue,
+        },
+        <AddToPlaylistSubmenu key="playlist" musics={menuTargets} />,
+        {
+          label: t("menu.musicInfo"),
+          icon: <NotepadText />,
+          onSelect: () => musicInfoStore.open(menuTargets),
+          separatorBefore: true,
+        },
+        fetchMusicInfoItem(menuTargets),
+        {
+          label: t("menu.removeFromLibrary"),
+          icon: <Trash2 />,
+          onSelect: onRemoveFromLibrary,
+          destructive: true,
+          separatorBefore: true,
+        },
+      ]}
     />
   );
 };
