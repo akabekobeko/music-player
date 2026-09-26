@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
 import { IpcKeys } from "../main/ipc/ipcKeys";
 import type {
+  FetchProgressPayload,
   ImportProgressPayload,
   LibraryChangedPayload,
   MenuActionPayload,
@@ -78,6 +79,13 @@ const buildBridge = (): MpBridge => ({
       subscribe<UpdateProgressPayload>(IpcKeys.UpdateProgress, listener),
     onChanged: (listener) =>
       subscribe<LibraryChangedPayload>(IpcKeys.LibraryChanged, listener),
+  },
+  musicbrainz: {
+    fetchMusicInfo: (request) =>
+      ipcRenderer.invoke(IpcKeys.FetchMusicInfo, request),
+    cancelFetch: () => ipcRenderer.invoke(IpcKeys.CancelFetch),
+    onFetchProgress: (listener) =>
+      subscribe<FetchProgressPayload>(IpcKeys.FetchProgress, listener),
   },
   playlist: {
     list: () => ipcRenderer.invoke(IpcKeys.PlaylistList),

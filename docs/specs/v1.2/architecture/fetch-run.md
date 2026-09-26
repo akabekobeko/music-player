@@ -24,7 +24,7 @@ runFetchMusicInfo({ musicIds }):
  11. FetchMusicInfoSummary を返す
 ```
 
-- 曲ごとに `patch` が異なるため、`runUpdateMusics` は 1 曲ずつ呼びます。孤児 GC と `mp:library:changed` は `runUpdateMusics` 内ではなく手順 10 でまとめて 1 回行うように、`runUpdateMusics` に「通知を抑止するオプション」を足します
+- 曲ごとに `patch` が異なるため、`runUpdateMusics` は 1 曲ずつ呼びます。孤児 GC と `mp:library:changed` は `runUpdateMusics` の責務ではなく呼び出し側 (v1.1 では `onUpdateMusics`、v1.2 では `onFetchMusicInfo`) が行うため、手順 10 でまとめて 1 回行います (`runUpdateMusics` にオプションは足しません)
 - 進捗は「曲」単位で数えます。グループの検索中は `current` が進まないため、Renderer は最後に push された曲名の代わりに「<アルバム名> を検索中」を表示します ([取得ダイアログ](../features/fetch-dialog.md))
 - 対象に現在再生中の曲が含まれる場合、v1.1 の適用と同じ理由で**書き込みの直前に停止**します。Renderer が `fetchInfoStore` の開始時に `player.commands.stop()` を呼び、確認ダイアログに注意文を出します
 

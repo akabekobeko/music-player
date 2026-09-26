@@ -5,6 +5,7 @@ import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddT
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { useT } from "@/features/i18n/useT";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 
@@ -50,6 +51,7 @@ export const ArtistMusicRow = ({
   onRemoveFromLibrary,
 }: Props) => {
   const t = useT();
+  const fetchMusicInfoItem = useFetchMusicInfoItem();
 
   return (
     <MusicRow
@@ -84,6 +86,7 @@ export const ArtistMusicRow = ({
               onSelect: () => musicInfoStore.open(menuTargets),
               separatorBefore: true,
             },
+            fetchMusicInfoItem(menuTargets),
             {
               label: t("menu.removeFromLibrary"),
               icon: <Trash2 />,

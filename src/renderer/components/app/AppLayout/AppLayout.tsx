@@ -11,6 +11,7 @@ import {
 } from "@/features/layout/sidebarStore";
 import { AboutDialog } from "../AboutDialog/AboutDialog";
 import { NewPlaylistDialog } from "../AddToPlaylistSubmenu/NewPlaylistDialog";
+import { FetchInfoDialog } from "../FetchInfoDialog/FetchInfoDialog";
 import { ImportConfirmDialog } from "../ImportConfirmDialog/ImportConfirmDialog";
 import { AlbumInfoDialog } from "../InfoDialog/AlbumInfoDialog/AlbumInfoDialog";
 import { ArtistEditDialog } from "../InfoDialog/ArtistEditDialog/ArtistEditDialog";
@@ -68,6 +69,7 @@ export const AppLayout = () => {
       </ResizablePanelGroup>
       <PlayerBar />
       <ImportConfirmDialog />
+      <FetchInfoDialog />
       <NewPlaylistDialog />
       <ArtistEditDialog />
       <MusicInfoDialog />

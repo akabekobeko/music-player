@@ -377,6 +377,74 @@ export type MusicInfoCandidate = {
   readonly picture: MusicPictureInput | null;
 };
 
+/** Request payload for `mp:musicbrainz:fetchMusicInfo`. */
+export type FetchMusicInfoRequest = {
+  /**
+   * Tracks to complete, in the order the confirmation dialog lists them;
+   * must be non-empty and free of duplicates. Main groups them by album
+   * identity in first-appearance order.
+   */
+  readonly musicIds: readonly number[];
+};
+
+/** Outcome of one track of a bulk fetch (`FetchProgressPayload.result`). */
+export type FetchMusicResult = "updated" | "unchanged" | "notFound" | "failed";
+
+/**
+ * Payload of the `mp:musicbrainz:fetchProgress` push channel
+ * (`docs/specs/v1.2/architecture/ipc.md`). Emitted once per track after it
+ * was processed; `current` does not advance while an album group is being
+ * searched, so the Renderer shows the searched album instead.
+ */
+export type FetchProgressPayload = {
+  /** Number of tracks processed so far. */
+  readonly current: number;
+  /** Total number of tracks in this run. */
+  readonly total: number;
+  /** File of the track just processed. */
+  readonly filePath: string;
+  /** How that track ended up. */
+  readonly result: FetchMusicResult;
+};
+
+/**
+ * Final report of one `mp:musicbrainz:fetchMusicInfo` run
+ * (`docs/specs/v1.2/architecture/fetch-run.md`). Without a cancellation,
+ * the four lists add up to the request size.
+ */
+export type FetchMusicInfoSummary = {
+  /** Tracks that got at least one tag or the artwork written. */
+  readonly updated: readonly UpdatedMusic[];
+  /**
+   * Tracks that had a candidate but nothing missing, or whose missing
+   * fields MusicBrainz has no value for either.
+   */
+  readonly unchanged: ReadonlyArray<{
+    /** `Music.id` of the track. */
+    readonly musicId: number;
+    /** Path of the file, as stored in the library. */
+    readonly filePath: string;
+  }>;
+  /** Tracks the search found no match for. */
+  readonly notFound: ReadonlyArray<{
+    /** `Music.id` of the track. */
+    readonly musicId: number;
+    /** Path of the file, as stored in the library. */
+    readonly filePath: string;
+  }>;
+  /** Tracks that failed to look up or to write; one never aborts the run. */
+  readonly failed: ReadonlyArray<{
+    /** `Music.id` of the track. */
+    readonly musicId: number;
+    /** Path of the file, as stored in the library. */
+    readonly filePath: string;
+    /** Why it failed (a MusicBrainz code or a write error), serialised. */
+    readonly error: IpcError;
+  }>;
+  /** Whether the run was cut short by `mp:musicbrainz:cancelFetch`. */
+  readonly cancelled: boolean;
+};
+
 // ---------------------------------------------------------------------------
 // Playlist
 // ---------------------------------------------------------------------------
@@ -845,6 +913,22 @@ export type MpBridge = {
     /** Subscribe to library-changed pushes; views re-run their queries. */
     readonly onChanged: (
       listener: (payload: LibraryChangedPayload) => void,
+    ) => Unsubscribe;
+  };
+  /** MusicBrainz lookups (`docs/specs/v1.2/architecture/ipc.md`). */
+  readonly musicbrainz: {
+    /**
+     * Complete the missing tags / artwork of tracks from MusicBrainz;
+     * progress arrives via {@link MpBridge.musicbrainz.onFetchProgress}.
+     */
+    readonly fetchMusicInfo: (
+      request: FetchMusicInfoRequest,
+    ) => Promise<IpcResult<FetchMusicInfoSummary>>;
+    /** Request cancellation of the running bulk fetch (track-boundary check). */
+    readonly cancelFetch: () => Promise<IpcResult<void>>;
+    /** Subscribe to bulk fetch progress pushes. */
+    readonly onFetchProgress: (
+      listener: (payload: FetchProgressPayload) => void,
     ) => Unsubscribe;
   };
   /** Static / smart playlist management. */
