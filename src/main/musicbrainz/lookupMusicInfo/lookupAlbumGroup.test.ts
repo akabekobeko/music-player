@@ -14,7 +14,6 @@ const BOOTLEG = "0f6a5c2e-1111-4a5b-9c2d-000000000004";
 
 beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {});
-  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 afterEach(() => {

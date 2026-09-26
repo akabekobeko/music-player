@@ -14,8 +14,9 @@ const failure = (code: string | undefined, musicId = 1) => ({
 it("returns the shared wording when every failure has the same actionable cause", () => {
   expect(
     fetchFailureHintOf([failure("MB_NETWORK", 1), failure("MB_NETWORK", 2)]),
-  ).toEqual({ key: "musicbrainz.error.network" });
+  ).toEqual({ kind: "network", key: "musicbrainz.error.network" });
   expect(fetchFailureHintOf([failure("MB_THROTTLED")])).toEqual({
+    kind: "throttled",
     key: "musicbrainz.error.throttled",
   });
 });

@@ -23,11 +23,13 @@ export const fetchFailureHintOf = (
   }
 
   const hint = musicBrainzErrorKeyOf(first.error);
-  if (hint.key === "musicbrainz.error.failed") {
+  if (hint.kind === "other") {
     return null;
   }
 
-  return failed.every((entry) => entry.error.code === first.error.code)
+  return failed.every(
+    (entry) => musicBrainzErrorKeyOf(entry.error).kind === hint.kind,
+  )
     ? hint
     : null;
 };

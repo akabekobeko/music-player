@@ -1,9 +1,24 @@
+import type { IpcError } from "@mp/ipc";
 import { useMemo } from "react";
 import { fetchFailureHintOf } from "@/features/fetchInfo/fetchFailureHintOf";
 import type { FetchInfoState } from "@/features/fetchInfo/fetchInfoStore/types";
 import { useT } from "@/features/i18n/useT";
 import { musicBrainzErrorKeyOf } from "@/features/musicbrainz/musicBrainzErrorKeyOf";
 import { Stack } from "../stacks";
+
+/**
+ * Per-row text: the shared MusicBrainz wording for a lookup failure, the
+ * raw message for anything else (a write error is not a fetch failure).
+ */
+const messageOf = (
+  error: IpcError,
+  t: (key: string, params?: Readonly<Record<string, string>>) => string,
+): string => {
+  const classified = musicBrainzErrorKeyOf(error);
+  return classified.kind === "other"
+    ? error.message
+    : t(classified.key, classified.params);
+};
 
 type Props = {
   /** The store's "done" state; its `summary` and tracks are rendered. */
@@ -16,10 +31,11 @@ type Props = {
  * and retry, or to fetch those songs one by one from the info dialog
  * (`docs/specs/v1.2/features/fetch-dialog.md`).
  *
- * Failures wear the same wording as the info dialog's fetch button
- * (`musicBrainzErrorKeyOf`); when every failure has one actionable cause
- * (offline, timeout, throttling) the advice is shown once above the list
- * and the entries keep only their file names.
+ * MusicBrainz failures wear the same wording as the info dialog's fetch
+ * button (`musicBrainzErrorKeyOf`); any other failure (a write error) keeps
+ * its raw message. When every failure has one actionable cause (offline,
+ * timeout, throttling) the advice is shown once above the list and the
+ * entries keep only their file names.
  */
 export const FetchSummaryView = ({ state }: Props) => {
   const t = useT();
@@ -31,7 +47,8 @@ export const FetchSummaryView = ({ state }: Props) => {
   );
   const titleOf = (musicId: number): string =>
     titles.get(musicId) ?? String(musicId);
-  const hint = fetchFailureHintOf(summary.failed);
+  // One scan per run, not per render (the list can hold hundreds).
+  const hint = useMemo(() => fetchFailureHintOf(summary.failed), [summary]);
   return (
     <Stack className="text-sm">
       <p>{t("fetch.result.updated", { count: summary.updated.length })}</p>
@@ -73,23 +90,20 @@ export const FetchSummaryView = ({ state }: Props) => {
                 </p>
               )}
               <ul className="max-h-48 overflow-y-auto rounded-md border bg-muted/30 p-2 font-mono text-xs">
-                {summary.failed.map((failure) => {
-                  const message = musicBrainzErrorKeyOf(failure.error);
-                  return (
-                    <li key={failure.musicId} className="py-0.5">
-                      <span className="block break-all">
-                        {failure.filePath !== ""
-                          ? failure.filePath
-                          : titleOf(failure.musicId)}
+                {summary.failed.map((failure) => (
+                  <li key={failure.musicId} className="py-0.5">
+                    <span className="block break-all">
+                      {failure.filePath !== ""
+                        ? failure.filePath
+                        : titleOf(failure.musicId)}
+                    </span>
+                    {hint === null && (
+                      <span className="block break-all text-muted-foreground">
+                        {messageOf(failure.error, t)}
                       </span>
-                      {hint === null && (
-                        <span className="block break-all text-muted-foreground">
-                          {t(message.key, message.params)}
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
+                    )}
+                  </li>
+                ))}
               </ul>
             </Stack>
           </div>

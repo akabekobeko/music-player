@@ -10,6 +10,9 @@ import type {
 import { getMusicsByIds } from "../../library/getMusicsByIds";
 import { upsertMusic } from "../../library/musicRepository";
 import type { MusicRowInput } from "../../library/trackMapping";
+import { readFixture } from "../fixtures/readFixture";
+import { lookupAlbumGroup } from "../lookupMusicInfo/lookupAlbumGroup";
+import { MusicBrainzClient } from "../MusicBrainzClient/MusicBrainzClient";
 import type { MusicBrainzResult } from "../types";
 import {
   type FetchRunDeps,
@@ -334,7 +337,7 @@ it("records an exception from the lookup under every track of the group", async 
   );
 
   expect(summary.failed.map((entry) => entry.musicId)).toEqual([a, b]);
-  expect(summary.failed[0]?.error.message).toBe("boom");
+  expect(summary.failed[0]?.error).toEqual({ name: "Error", message: "boom" });
   expect(summary.notFound.map((entry) => entry.musicId)).toEqual([c]);
 });
 
@@ -372,4 +375,75 @@ it("keeps processing later groups when a group is throttled (503 streak)", async
   ]);
   expect(summary.updated.map((entry) => entry.music.id)).toEqual([c]);
   expect(summary.cancelled).toBe(false);
+});
+
+it("survives a 503 streak on one group through the real client and keeps the next group", async () => {
+  const x1 = seed("/x1.mp3", { album: "X", title: "Song 1", track: 1 });
+  const x2 = seed("/x2.mp3", { album: "X", title: "Song 2", track: 2 });
+  const y = seed("/y.mp3", {
+    album: "Year Zero",
+    artist: "Nine Inch Nails",
+    title: "HYPERPOWER!",
+    track: 1,
+    genre: "",
+  });
+  // Virtual clock so the interval waits collapse; the 503 attempts are
+  // what this test counts.
+  let clock = 0;
+  let throttledAttempts = 0;
+  const client = new MusicBrainzClient("ua", {
+    now: () => clock,
+    sleep: async (ms) => {
+      clock += ms;
+    },
+    fetch: async (raw) => {
+      const url = new URL(raw);
+      if (url.hostname === "coverartarchive.org") {
+        return new Response(null, { status: 404 });
+      }
+
+      const query = url.searchParams.get("query") ?? "";
+      if (url.pathname === "/ws/2/release" && query.includes('release:"X"')) {
+        throttledAttempts += 1;
+        return new Response(null, {
+          status: 503,
+          headers: { "Retry-After": "1" },
+        });
+      }
+
+      if (url.pathname === "/ws/2/release") {
+        return Response.json(readFixture("release-search.json"));
+      }
+
+      if (url.pathname.startsWith("/ws/2/release/")) {
+        return Response.json(readFixture("release-year-zero.json"));
+      }
+
+      throw new Error(`unexpected url ${raw}`);
+    },
+  });
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+
+  const summary = await runFetchMusicInfo(
+    db,
+    { musicIds: [x1, x2, y] },
+    events(),
+    {
+      lookupAlbumGroup: (musics, options) =>
+        lookupAlbumGroup(client, musics, options),
+      updateMusics: updateOk,
+    },
+  );
+
+  // Three attempts, then the group gives up and the next group still runs
+  // through the same client and queue.
+  expect(throttledAttempts).toBe(3);
+  expect(
+    summary.failed.map((entry) => [entry.musicId, entry.error.code]),
+  ).toEqual([
+    [x1, "MB_THROTTLED"],
+    [x2, "MB_THROTTLED"],
+  ]);
+  expect(summary.updated.map((entry) => entry.music.id)).toEqual([y]);
+  vi.restoreAllMocks();
 });

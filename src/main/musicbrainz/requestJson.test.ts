@@ -11,7 +11,6 @@ const schema = z.object({ id: z.string(), extra: z.number().optional() });
 
 beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {});
-  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 afterEach(() => {
