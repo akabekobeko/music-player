@@ -135,7 +135,12 @@ export class MusicBrainzClient {
       return await this.#attempts(url, signal);
     } catch (error) {
       const failure = toFetchError(error, signal);
-      console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[musicbrainz] ${failure.code} ${url}: ${failure.message}`,
+        );
+      }
+
       return { ok: false, error: failure };
     }
   }
@@ -175,9 +180,12 @@ export class MusicBrainzClient {
         });
       } catch (error) {
         const failure = toFetchError(error, signal);
-        console.warn(
-          `[musicbrainz] ${failure.code} ${url}: ${failure.message}`,
-        );
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[musicbrainz] ${failure.code} ${url}: ${failure.message}`,
+          );
+        }
+
         return { ok: false, error: failure };
       }
 
@@ -187,9 +195,12 @@ export class MusicBrainzClient {
           attempt < MUSICBRAINZ_MAX_ATTEMPTS &&
           delay <= MUSICBRAINZ_MAX_RETRY_DELAY_MS
         ) {
-          console.warn(
-            `[musicbrainz] 503 ${url}: retrying in ${delay} ms (attempt ${attempt})`,
-          );
+          if (import.meta.env.DEV) {
+            console.warn(
+              `[musicbrainz] 503 ${url}: retrying in ${delay} ms (attempt ${attempt})`,
+            );
+          }
+
           await this.#deps.sleep(delay, signal);
           if (isAborted(signal)) {
             return ABORTED;
@@ -198,9 +209,12 @@ export class MusicBrainzClient {
           continue;
         }
 
-        console.warn(
-          `[musicbrainz] 503 ${url}: giving up (Retry-After ${delay} ms)`,
-        );
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[musicbrainz] 503 ${url}: giving up (Retry-After ${delay} ms)`,
+          );
+        }
+
         return {
           ok: false,
           error: {
@@ -211,7 +225,10 @@ export class MusicBrainzClient {
       }
 
       if (!response.ok) {
-        console.warn(`[musicbrainz] ${response.status} ${url}`);
+        if (import.meta.env.DEV) {
+          console.warn(`[musicbrainz] ${response.status} ${url}`);
+        }
+
         return {
           ok: false,
           error: {

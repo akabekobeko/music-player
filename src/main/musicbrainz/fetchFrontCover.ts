@@ -54,7 +54,12 @@ export const fetchFrontCover = async (
 
     const mimeType = mimeTypeOf(response.value.headers.get("Content-Type"));
     if (mimeType === null || IMAGE_EXTENSION_BY_MIME[mimeType] === undefined) {
-      console.warn(`[musicbrainz] unsupported cover type ${url}: ${mimeType}`);
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[musicbrainz] unsupported cover type ${url}: ${mimeType}`,
+        );
+      }
+
       await response.value.body?.cancel().catch(() => undefined);
       continue;
     }
@@ -64,9 +69,12 @@ export const fetchFrontCover = async (
       return { ok: true, value: { mimeType, data } };
     } catch (error) {
       const failure = toFetchError(error, options.signal);
-      console.warn(
-        `[musicbrainz] cover download failed ${url}: ${failure.message}`,
-      );
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[musicbrainz] cover download failed ${url}: ${failure.message}`,
+        );
+      }
+
       return { ok: false, error: failure };
     }
   }

@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Vite `?raw` imports used by the Main process (migration SQL files).
  * Both Vite and vitest resolve these natively; this declaration only informs

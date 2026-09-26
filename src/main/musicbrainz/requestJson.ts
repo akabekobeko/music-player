@@ -44,7 +44,10 @@ export const requestJson = async <S extends z.ZodType>(
             message: `Invalid JSON: ${error.message}`,
           }
         : toFetchError(error, options.signal);
-    console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+    if (import.meta.env.DEV) {
+      console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+    }
+
     return { ok: false, error: failure };
   }
 
@@ -53,7 +56,10 @@ export const requestJson = async <S extends z.ZodType>(
     const paths = parsed.error.issues
       .map((issue) => issue.path.join(".") || "(root)")
       .join(", ");
-    console.warn(`[musicbrainz] unexpected response shape ${url}: ${paths}`);
+    if (import.meta.env.DEV) {
+      console.warn(`[musicbrainz] unexpected response shape ${url}: ${paths}`);
+    }
+
     return {
       ok: false,
       error: {

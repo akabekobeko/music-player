@@ -10,13 +10,14 @@ import {
  * hold across every caller (`docs/specs/v1.2/architecture/rate-limit.md`);
  * IPC handlers must go through this and never construct their own.
  *
- * In development every completed request is logged (status and URL) so
- * the one-per-second spacing can be checked in the console; a packaged
- * build stays silent.
+ * In development builds every completed request is logged (status and
+ * URL) so the one-per-second spacing can be checked in the console; the
+ * production bundle has no log sink at all (`import.meta.env.DEV` is a
+ * build-time constant).
  */
 export const musicBrainzClient = new MusicBrainzClient(
   buildUserAgent(app.getVersion()),
-  app.isPackaged
-    ? DEFAULT_CLIENT_DEPS
-    : { ...DEFAULT_CLIENT_DEPS, log: (line) => console.info(line) },
+  import.meta.env.DEV
+    ? { ...DEFAULT_CLIENT_DEPS, log: (line) => console.info(line) }
+    : DEFAULT_CLIENT_DEPS,
 );

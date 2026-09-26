@@ -45,6 +45,11 @@ function startElectron(root: string): void {
  * processes.
  */
 async function startDev(): Promise<void> {
+  // `import.meta.env.DEV` follows NODE_ENV, not the Vite mode: `vite build`
+  // sets NODE_ENV=production by default even with `--mode development`.
+  // Setting it here makes the main / preload bundles keep their
+  // development-only blocks; `pnpm build` (NODE_ENV=production) drops them.
+  process.env.NODE_ENV = "development";
   const root = path.join(import.meta.dirname, "..");
 
   // 1. Start renderer dev server
@@ -60,6 +65,7 @@ async function startDev(): Promise<void> {
   await build({
     configFile: path.join(root, "src/preload/vite.config.ts"),
     root: path.join(root, "src/preload"),
+    mode: "development",
     build: {
       watch: {},
     },
@@ -78,6 +84,7 @@ async function startDev(): Promise<void> {
   await build({
     configFile: path.join(root, "src/main/vite.config.ts"),
     root: path.join(root, "src/main"),
+    mode: "development",
     build: {
       watch: {},
     },

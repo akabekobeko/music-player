@@ -88,7 +88,7 @@ pnpm run dev
 
 ## Development userData Directory
 
-When running unpackaged (`pnpm run dev`), the app runs on the shared Electron binary, so Electron's `userData` path would default to a generic `Electron` directory shared by every Electron app in development. To make development use the same data (library DB, settings, artwork) as the packaged app, `src/main/main.ts` redirects `userData` to the directory named after the `productName` field in `package.json`, which is the same directory electron-builder gives the packaged app:
+When running in development (`pnpm run dev`), the app runs on the shared Electron binary, so Electron's `userData` path would default to a generic `Electron` directory shared by every Electron app in development. To make development use the same data (library DB, settings, artwork) as the packaged app, `src/main/main.ts` redirects `userData` to the directory named after the `productName` field in `package.json`, which is the same directory electron-builder gives the packaged app:
 
 - macOS: `~/Library/Application Support/<productName>`
 - Windows: `%APPDATA%\<productName>`
@@ -98,9 +98,14 @@ The product name is injected into the main process at build time via Vite's `def
 
 Notes:
 
-- **Packaged builds are not affected.** The redirect only applies when `app.isPackaged` is `false`.
+- **Production builds are not affected.** The redirect sits behind `import.meta.env.DEV`, a build-time constant: the dev script builds the main process with `NODE_ENV=development` (`true`), while `pnpm build` / `pnpm package` build with Vite's default `NODE_ENV=production` (`false`) and drop the block from the bundle entirely. See "Development-only code" below.
+- A production bundle started unpackaged (`pnpm build && electron .`) therefore uses Electron's default `userData`, not the shared directory.
 - Keep `productName` in `package.json` and `electron-builder.yml` identical. If they differ, development and the packaged app end up with separate directories.
 - Development and the packaged app share one library DB, so running a development build with newer migrations upgrades that DB for the packaged app as well.
+
+## Development-only Code
+
+Diagnostics that help while developing but must not ship (request logs, `console.warn` details that the UI already reports in its own words) are wrapped in `if (import.meta.env.DEV) { ... }`. Vite replaces `import.meta.env.DEV` with a literal at build time and the bundler removes the dead branch, so the production bundle carries neither the code nor its strings. `scripts/dev.ts` builds the main and preload bundles with `NODE_ENV=development` (`true`; Vite ties `import.meta.env.DEV` to `NODE_ENV`, not to `--mode`); `pnpm build` uses Vite's default `NODE_ENV=production` (`false`); vitest runs with `true`, so tests still exercise those branches. Prefer this over a runtime check such as `app.isPackaged`, which leaves the code in the bundle.
 
 ## Adding shadcn/ui Components
 

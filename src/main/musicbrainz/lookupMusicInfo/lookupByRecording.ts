@@ -68,9 +68,12 @@ export const lookupByRecording = async (
 
   const matched = findTrackByRecording(release.value, hit.id);
   if (matched === null) {
-    console.warn(
-      `[musicbrainz] recording ${hit.id} not listed on release ${releaseRef.id}`,
-    );
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[musicbrainz] recording ${hit.id} not listed on release ${releaseRef.id}`,
+      );
+    }
+
     return { ok: true, value: null };
   }
 
