@@ -160,8 +160,11 @@ export const runImport = async (
 
         try {
           const track = await deps.loadTrack(filePath);
-          for (const warning of track.warnings ?? []) {
-            console.warn(`[import] ${filePath}: ${warning.message}`);
+          // Reader warnings do not fail the file; they are a development aid.
+          if (import.meta.env.DEV) {
+            for (const warning of track.warnings ?? []) {
+              console.warn(`[import] ${filePath}: ${warning.message}`);
+            }
           }
 
           // Artwork is best-effort: a failed image write degrades the track
@@ -172,7 +175,12 @@ export const runImport = async (
             try {
               artworkPath = await deps.saveArtwork(picture);
             } catch (error) {
-              console.warn(`[import] ${filePath}: artwork save failed`, error);
+              if (import.meta.env.DEV) {
+                console.warn(
+                  `[import] ${filePath}: artwork save failed`,
+                  error,
+                );
+              }
             }
           }
 

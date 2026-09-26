@@ -8,9 +8,10 @@ import { warnedKeys } from "./warnedKeys";
  * cascade.
  *
  * Shared by both {@link import("./t").t} and {@link import("./tFor").tFor} so
- * the fallback / warning behaviour stays single-sourced. Emits one
- * `console.warn` per key that misses every dictionary, deduplicated through
- * {@link warnedKeys}.
+ * the fallback / warning behaviour stays single-sourced. In development
+ * builds it emits one `console.warn` per key that misses every dictionary,
+ * deduplicated through {@link warnedKeys}; a production bundle only returns
+ * the key (the dictionary tests keep the key set complete before release).
  *
  * @param key - Translation key.
  * @param locale - Preferred locale to read first.
@@ -27,7 +28,7 @@ export const lookup = (key: string, locale: Locale): string => {
     return fallback;
   }
 
-  if (!warnedKeys.has(key)) {
+  if (import.meta.env.DEV && !warnedKeys.has(key)) {
     warnedKeys.add(key);
     console.warn(`[i18n] missing translation key: ${key}`);
   }

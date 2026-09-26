@@ -38,7 +38,11 @@ const write = (): void => {
     writeFileSync(tmpPath, `${JSON.stringify(current, null, 2)}\n`, "utf8");
     renameSync(tmpPath, filePath);
   } catch (error) {
-    console.error("Failed to write settings file", error);
+    // The settings in memory stay valid and the next change retries the
+    // write; the cause is only worth a line while developing.
+    if (import.meta.env.DEV) {
+      console.error("Failed to write settings file", error);
+    }
   }
 };
 
