@@ -31,9 +31,10 @@ export const resetFetchStateForTest = (): void => {
  * Validates the request, runs the bulk fetch with progress going out as
  * `mp:musicbrainz:fetchProgress` pushes, GCs artwork orphaned by the
  * writes, and broadcasts `mp:library:changed` once anything was updated.
- * Per-track failures aggregate into the summary; the outer result is
- * `ok: false` only for an invalid request or a run already in progress
- * (`MB_BUSY`).
+ * Per-track failures aggregate into the summary (the run never throws once
+ * it started writing); the outer result is `ok: false` only for an invalid
+ * request, a run already in progress (`MB_BUSY`), or a failure before the
+ * first write (opening the database).
  *
  * @param _ev - Electron event object (unused; pushes are broadcast).
  * @param request - Tracks to complete.

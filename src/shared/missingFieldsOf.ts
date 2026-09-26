@@ -70,8 +70,8 @@ const TEXT_FIELDS = [
  * replace the artist the track is shown under (a different spelling or
  * case from MusicBrainz moves it to another artist). That is an overwrite
  * of existing data, which only an explicit choice in the music info dialog
- * may do. The dialog uses the same rule for its default "adopt" checkboxes
- * so the two entrances never disagree.
+ * may do. The dialog's default "adopt" checkboxes (v1.2 Phase 3) must be
+ * derived from this same function so the two entrances never disagree.
  *
  * @param music - The track's tags.
  * @returns The missing fields.

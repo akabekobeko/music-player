@@ -8,10 +8,14 @@ import {
   usePlayerCommands,
   usePlayerState,
 } from "@/features/player/PlayerProvider";
+import { albumKeyOf } from "../../../../shared/albumKeyOf";
+import { displayArtistOf } from "../../../../shared/displayArtistOf";
 import { groupMusicsByAlbum } from "../../../../shared/groupMusicsByAlbum";
 
 /** One row of the confirmation list: an album group and its size. */
 export type FetchGroupRow = {
+  /** Album identity key (`albumKeyOf`); the React key of the row. */
+  readonly key: string;
   /** Display artist of the group; empty for the unknown artist. */
   readonly artist: string;
   /** Album title of the group; empty for the unknown album. */
@@ -41,7 +45,7 @@ const description = (
     case "running":
       return t("fetch.progress.processing", {
         current: state.progress?.current ?? 0,
-        total: state.musics.length,
+        total: state.progress?.total ?? state.musics.length,
       });
     case "done":
       return state.summary.cancelled
@@ -74,14 +78,21 @@ export const useFetchInfoDialog = () => {
   // caption walks; memoised on the target identity so it is built once
   // per run rather than on every progress push.
   const groups = useMemo(() => groupMusicsByAlbum(musics), [musics]);
-  const groupRows: readonly FetchGroupRow[] = groups.map((group) => {
-    const first = group[0] as Music;
-    return {
-      artist: first.albumArtist !== "" ? first.albumArtist : first.artist,
+  const groupRows: FetchGroupRow[] = [];
+  for (const group of groups) {
+    const first = group[0];
+    if (first === undefined) {
+      continue;
+    }
+
+    const artist = displayArtistOf(first);
+    groupRows.push({
+      key: albumKeyOf(artist, first.album),
+      artist,
       album: first.album,
       count: group.length,
-    };
-  });
+    });
+  }
 
   /** The current track is among the targets: starting stops playback. */
   const stopsPlayback =

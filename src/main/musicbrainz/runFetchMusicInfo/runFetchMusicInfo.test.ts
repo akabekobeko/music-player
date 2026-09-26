@@ -286,3 +286,54 @@ it("hands the signal to the lookup and skips groups after a cancel during the se
   });
   expect(ev.pushes).toEqual([]);
 });
+
+it("records an exception from the write under the track and keeps going", async () => {
+  const a = seed("/a.mp3");
+  const b = seed("/b.mp3");
+
+  const summary = await runFetchMusicInfo(db, { musicIds: [a, b] }, events(), {
+    lookupAlbumGroup: lookupWith({
+      [a]: ok(candidate()),
+      [b]: ok(candidate()),
+    }),
+    updateMusics: async (database, request) => {
+      if (request.musicIds[0] === a) {
+        throw Object.assign(new Error("gone"), { code: "MUSIC_NOT_FOUND" });
+      }
+
+      return updateOk(database, request);
+    },
+  });
+
+  expect(
+    summary.failed.map((entry) => [entry.musicId, entry.error.code]),
+  ).toEqual([[a, "MUSIC_NOT_FOUND"]]);
+  expect(summary.updated.map((entry) => entry.music.id)).toEqual([b]);
+  expect(summary.cancelled).toBe(false);
+});
+
+it("records an exception from the lookup under every track of the group", async () => {
+  const a = seed("/a.mp3", { album: "X" });
+  const b = seed("/b.mp3", { album: "X" });
+  const c = seed("/c.mp3", { album: "Y" });
+
+  const summary = await runFetchMusicInfo(
+    db,
+    { musicIds: [a, b, c] },
+    events(),
+    {
+      lookupAlbumGroup: async (musics) => {
+        if (musics[0]?.album === "X") {
+          throw new Error("boom");
+        }
+
+        return new Map(musics.map((music) => [music.id, ok(null)]));
+      },
+      updateMusics: updateOk,
+    },
+  );
+
+  expect(summary.failed.map((entry) => entry.musicId)).toEqual([a, b]);
+  expect(summary.failed[0]?.error.message).toBe("boom");
+  expect(summary.notFound.map((entry) => entry.musicId)).toEqual([c]);
+});

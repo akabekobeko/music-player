@@ -15,9 +15,13 @@ import type { RowMenuItem } from "./RowMenu";
  */
 export const useFetchMusicInfoItem = () => {
   const t = useT();
-  const running =
-    useSyncExternalStore(fetchInfoStore.subscribe, fetchInfoStore.getSnapshot)
-      .status === "running";
+  // A selector to a primitive: every progress push replaces the snapshot,
+  // and this hook sits in every row menu, so subscribing to the whole
+  // state would re-render each row on each push.
+  const running = useSyncExternalStore(
+    fetchInfoStore.subscribe,
+    () => fetchInfoStore.getSnapshot().status === "running",
+  );
 
   return (
     musics: readonly Music[],

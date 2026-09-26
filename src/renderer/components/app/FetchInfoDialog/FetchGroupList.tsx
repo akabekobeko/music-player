@@ -17,7 +17,7 @@ export const FetchGroupList = ({ rows }: Props) => {
   return (
     <ul className="max-h-64 overflow-y-auto rounded-md border bg-muted/30 p-2 text-xs">
       {rows.map((row) => (
-        <li key={`${row.artist}\u0000${row.album}`} className="py-0.5">
+        <li key={row.key} className="py-0.5">
           <HStack className="gap-4">
             <span className="min-w-0 truncate">
               {[

@@ -13,7 +13,9 @@ type Props = {
 /** Progress body while a fetch runs: bar, caption, outcome counters. */
 export const FetchProgress = ({ state, caption }: Props) => {
   const t = useT();
-  const total = state.musics.length;
+  // Main's total excludes ids no longer in the library, so the push, not
+  // the target list, is the authority once the run has started.
+  const total = state.progress?.total ?? state.musics.length;
   const current = state.progress?.current ?? 0;
   const ratio = total > 0 ? current / total : 0;
   const { counts } = state;

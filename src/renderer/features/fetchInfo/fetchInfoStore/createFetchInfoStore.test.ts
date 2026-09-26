@@ -212,3 +212,40 @@ it("lands in error when the channel refuses (busy) or rejects", async () => {
   thrown.close();
   expect(thrown.getSnapshot()).toEqual({ status: "idle" });
 });
+
+it("re-enables Cancel when the cancel call fails", async () => {
+  let resolve: ((value: IpcResult<FetchMusicInfoSummary>) => void) | undefined;
+  const bridge = createBridge({
+    fetchMusicInfo: vi.fn(
+      () =>
+        new Promise<IpcResult<FetchMusicInfoSummary>>((r) => {
+          resolve = r;
+        }),
+    ),
+    cancelFetch: vi
+      .fn()
+      .mockRejectedValueOnce(new Error("ipc down"))
+      .mockResolvedValueOnce(ok(undefined)),
+  });
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const store = createFetchInfoStore(bridge);
+  store.open([music(1)]);
+  const run = store.start();
+
+  await store.cancelFetch();
+  expect(store.getSnapshot()).toMatchObject({
+    status: "running",
+    cancelRequested: false,
+  });
+
+  await store.cancelFetch();
+  expect(store.getSnapshot()).toMatchObject({
+    status: "running",
+    cancelRequested: true,
+  });
+  expect(bridge.cancelFetch).toHaveBeenCalledTimes(2);
+
+  resolve?.(ok(summary({ cancelled: true })));
+  await run;
+  vi.restoreAllMocks();
+});

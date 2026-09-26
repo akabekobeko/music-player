@@ -11,6 +11,7 @@ import type {
   UpdateMusicsRequest,
   UpdateMusicsSummary,
 } from "../../ipc/types";
+import { toIpcError } from "../../ipc/utils/toIpcError";
 import { getMusicsByIds } from "../../library/getMusicsByIds";
 import { runUpdateMusics } from "../../library/runUpdateMusics/runUpdateMusics";
 import {
@@ -60,8 +61,10 @@ const DEFAULT_DEPS: FetchRunDeps = {
  * The tracks are grouped by album identity and each group is looked up as
  * a whole (`lookupAlbumGroup`); per track, only what `missingPatchOf`
  * reports is written through the v1.1 pipeline, one track at a time
- * because every patch differs. One failed track never aborts the run. The
- * orphan GC and the library broadcast are the caller's job, once per run.
+ * because every patch differs. One failed track never aborts the run: a
+ * failure result and an exception from the lookup or the write alike land
+ * in `failed` (the whole group for a lookup exception). The orphan GC and
+ * the library broadcast are the caller's job, once per run.
  *
  * Cancellation is honoured at group and track boundaries: writes already
  * made stay, the rest is dropped and the summary says `cancelled`.
@@ -109,9 +112,22 @@ export const runFetchMusicInfo = async (
       break;
     }
 
-    const lookups = await deps.lookupAlbumGroup(group, {
-      signal: events.signal,
-    });
+    let lookups: AlbumGroupLookup;
+    try {
+      lookups = await deps.lookupAlbumGroup(group, { signal: events.signal });
+    } catch (error) {
+      // A thrown lookup (not a returned failure) fails the whole group.
+      const failure = toIpcError(error);
+      lookups = new Map(
+        group.map((music) => [
+          music.id,
+          {
+            ok: false,
+            error: { code: "MB_NETWORK", message: failure.message },
+          },
+        ]),
+      );
+    }
     for (const music of group) {
       if (events.signal.aborted) {
         cancelled = true;
@@ -140,28 +156,15 @@ export const runFetchMusicInfo = async (
           unchanged.push({ musicId: music.id, filePath: music.filePath });
           result = "unchanged";
         } else {
-          const written = await deps.updateMusics(db, {
-            musicIds: [music.id],
+          result = await writeTrack(
+            db,
+            deps,
+            music,
             patch,
-            ...(picture === undefined ? {} : { picture }),
-          });
-          const entry = written.updated[0];
-          if (entry !== undefined) {
-            updated.push(entry);
-            result = "updated";
-          } else {
-            failed.push(
-              written.failed[0] ?? {
-                musicId: music.id,
-                filePath: music.filePath,
-                error: {
-                  name: "Error",
-                  message: "The write reported nothing.",
-                },
-              },
-            );
-            result = "failed";
-          }
+            picture,
+            updated,
+            failed,
+          );
         }
       }
 
@@ -176,4 +179,48 @@ export const runFetchMusicInfo = async (
   }
 
   return { updated, unchanged, notFound, failed, cancelled };
+};
+
+/**
+ * Write one track's patch and record the outcome. `runUpdateMusics` throws
+ * only before writing (an id no longer in the library), and that too is
+ * one track's failure, not the run's.
+ */
+const writeTrack = async (
+  db: DatabaseSync,
+  deps: FetchRunDeps,
+  music: Music,
+  patch: UpdateMusicsRequest["patch"],
+  picture: UpdateMusicsRequest["picture"],
+  updated: UpdatedMusic[],
+  failed: Array<{ musicId: number; filePath: string; error: IpcError }>,
+): Promise<FetchMusicResult> => {
+  try {
+    const written = await deps.updateMusics(db, {
+      musicIds: [music.id],
+      patch,
+      ...(picture === undefined ? {} : { picture }),
+    });
+    const entry = written.updated[0];
+    if (entry !== undefined) {
+      updated.push(entry);
+      return "updated";
+    }
+
+    failed.push(
+      written.failed[0] ?? {
+        musicId: music.id,
+        filePath: music.filePath,
+        error: { name: "Error", message: "The write reported nothing." },
+      },
+    );
+  } catch (error) {
+    failed.push({
+      musicId: music.id,
+      filePath: music.filePath,
+      error: toIpcError(error),
+    });
+  }
+
+  return "failed";
 };

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { FetchInfoState } from "@/features/fetchInfo/fetchInfoStore/types";
 import { useT } from "@/features/i18n/useT";
 import { Stack } from "../stacks";
@@ -16,8 +17,13 @@ type Props = {
 export const FetchSummaryView = ({ state }: Props) => {
   const t = useT();
   const { summary, musics } = state;
+  // Built once per run: the lists can hold hundreds of entries each.
+  const titles = useMemo(
+    () => new Map(musics.map((music) => [music.id, music.title])),
+    [musics],
+  );
   const titleOf = (musicId: number): string =>
-    musics.find((music) => music.id === musicId)?.title ?? String(musicId);
+    titles.get(musicId) ?? String(musicId);
   return (
     <Stack className="text-sm">
       <p>{t("fetch.result.updated", { count: summary.updated.length })}</p>

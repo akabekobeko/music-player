@@ -110,20 +110,29 @@ export const createFetchInfoStore = (bridge: FetchInfoBridge) => {
       }
     },
 
-    /** Request cancellation of the running fetch (button disables). */
+    /**
+     * Request cancellation of the running fetch (button disables). A cancel
+     * call that fails re-enables the button so the user can try again.
+     */
     cancelFetch: async (): Promise<void> => {
       if (state.status !== "running" || state.cancelRequested) {
         return;
       }
 
       setState({ ...state, cancelRequested: true });
+      let accepted = false;
       try {
         const result = await bridge.cancelFetch();
+        accepted = result.ok;
         if (!result.ok) {
           console.error("Failed to cancel fetch", result.error);
         }
       } catch (reason) {
         console.error("Failed to cancel fetch", reason);
+      }
+
+      if (!accepted && state.status === "running") {
+        setState({ ...state, cancelRequested: false });
       }
     },
 
