@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router";
 import App from "./App";
 import "./App.css";
+import { fetchInfoStore } from "@/features/fetchInfo/fetchInfoStore/fetchInfoStore";
 import { aboutStore } from "./features/about/aboutStore";
 import { importStore } from "./features/import/importStore/importStore";
 import { registerWindowDropHandler } from "./features/import/registerWindowDropHandler";
@@ -87,6 +88,9 @@ const bootstrap = async (): Promise<void> => {
   });
   window.mp.library.onImportProgress((payload) => {
     importStore.handleProgress(payload);
+  });
+  window.mp.musicbrainz.onFetchProgress((payload) => {
+    fetchInfoStore.handleProgress(payload);
   });
   window.mp.menu.onAction(({ action }) => {
     menuActionBus.publish(action);

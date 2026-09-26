@@ -5,6 +5,7 @@ import { CircleIconButton } from "@/components/app/Buttons/CircleIconButton";
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { HStack, Spacer, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { artistEditStore } from "@/features/library/artistEditStore";
@@ -60,6 +61,7 @@ export const ArtistHeader = ({
   onJumpToAlbum,
 }: Props) => {
   const t = useT();
+  const fetchMusicInfoItem = useFetchMusicInfoItem();
   const musicCount = playOrder.length;
 
   return (
@@ -124,6 +126,7 @@ export const ArtistHeader = ({
               onSelect: onPlayShuffled,
             },
             <AddToPlaylistSubmenu key="playlist" musics={playOrder} />,
+            fetchMusicInfoItem(playOrder, { separatorBefore: true }),
             ...(artistName !== ""
               ? [
                   {
@@ -136,7 +139,6 @@ export const ArtistHeader = ({
                         musicCount: artist?.musicCount ?? musicCount,
                         initial: artist?.initial ?? null,
                       }),
-                    separatorBefore: true,
                   },
                 ]
               : []),

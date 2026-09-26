@@ -4,6 +4,7 @@ import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddT
 import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { HStack, VStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { albumInfoStore } from "@/features/library/albumInfoStore";
@@ -59,6 +60,7 @@ export const AlbumHeaderRow = ({
   onAddToQueue,
 }: Props) => {
   const t = useT();
+  const fetchMusicInfoItem = useFetchMusicInfoItem();
 
   return (
     <HStack className="items-end gap-4 pt-6 pr-2 pb-4">
@@ -120,6 +122,7 @@ export const AlbumHeaderRow = ({
             onSelect: () => albumInfoStore.open(group),
             separatorBefore: true,
           },
+          fetchMusicInfoItem(musics),
           {
             label: t("menu.removeFromLibrary"),
             icon: <Trash2 />,

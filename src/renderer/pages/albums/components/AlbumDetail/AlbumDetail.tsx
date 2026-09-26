@@ -6,6 +6,7 @@ import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
 import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { RowMenu } from "@/components/app/RowMenu/RowMenu";
+import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { HStack } from "@/components/app/stacks";
 import { useT } from "@/features/i18n/useT";
 import { albumInfoStore } from "@/features/library/albumInfoStore";
@@ -34,6 +35,7 @@ type Props = {
  */
 export const AlbumDetail = ({ album }: Props) => {
   const t = useT();
+  const fetchMusicInfoItem = useFetchMusicInfoItem();
   const {
     musics,
     musicsState,
@@ -111,6 +113,7 @@ export const AlbumDetail = ({ album }: Props) => {
                 onSelect: () => albumInfoStore.open(album),
                 separatorBefore: true,
               },
+              fetchMusicInfoItem(musics),
             ]}
           />
         </HStack>
@@ -175,6 +178,7 @@ export const AlbumDetail = ({ album }: Props) => {
                             musicInfoStore.open(menuTargetsOfRow(music)),
                           separatorBefore: true,
                         },
+                        fetchMusicInfoItem(menuTargetsOfRow(music)),
                         {
                           label: t("menu.removeFromLibrary"),
                           icon: <Trash2 />,
