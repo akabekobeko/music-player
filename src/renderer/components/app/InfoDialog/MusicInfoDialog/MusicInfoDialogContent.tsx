@@ -67,7 +67,8 @@ type Props = {
  *
  * With a single track, the header shows the previous / next arrows; they
  * are disabled at the ends of the list the track was opened from (or when
- * it was opened without one), and hidden for a multi-track selection.
+ * it was opened without one) and while an apply or a fetch runs, and
+ * hidden for a multi-track selection.
  */
 export const MusicInfoDialogContent = ({
   musics,
@@ -132,8 +133,8 @@ export const MusicInfoDialogContent = ({
             ? {
                 previousLabel: t("musicInfo.previous"),
                 nextLabel: t("musicInfo.next"),
-                hasPrevious: previous !== null && !applying,
-                hasNext: next !== null && !applying,
+                hasPrevious: previous !== null && !busy,
+                hasNext: next !== null && !busy,
                 onPrevious: showPrevious,
                 onNext: showNext,
               }

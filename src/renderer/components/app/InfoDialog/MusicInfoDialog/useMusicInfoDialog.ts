@@ -240,17 +240,19 @@ export const useMusicInfoDialog = (musics: readonly Music[]) => {
   /**
    * Step to the previous / next track of the list the dialog was opened
    * from (header arrows). The store swaps the track and the session
-   * remounts the content, so unsaved edits and a running lookup go with
-   * it. Like closing, refused while an apply runs.
+   * remounts the content, so unsaved edits go with it. Refused while an
+   * apply runs (like closing) and while a lookup runs: unlike closing, a
+   * step shows a new form, and a lookup answered mid-step would be lost
+   * for nothing, so the arrows wait for it.
    */
   const showPrevious = (): void => {
-    if (!applying) {
+    if (!applying && !fetching) {
       musicInfoStore.previous();
     }
   };
 
   const showNext = (): void => {
-    if (!applying) {
+    if (!applying && !fetching) {
       musicInfoStore.next();
     }
   };
