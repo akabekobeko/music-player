@@ -1,7 +1,5 @@
 import type { Music, MusicInfoCandidate } from "../../ipc/types";
 import { buildRecordingQuery } from "../buildRecordingQuery";
-import { fetchFrontCover } from "../fetchFrontCover";
-import { lookupRelease } from "../lookupRelease";
 import type {
   MusicBrainzClient,
   MusicBrainzRequestOptions,
@@ -10,6 +8,7 @@ import { searchRecordings } from "../searchRecordings";
 import { toMusicInfoCandidate } from "../toMusicInfoCandidate/toMusicInfoCandidate";
 import type { MusicBrainzResult } from "../types";
 import { findTrackByRecording } from "./findTrackByRecording";
+import type { ReleaseCache } from "./ReleaseCache";
 import { selectRecordingHit } from "./selectRecordingHit";
 import { selectRecordingRelease } from "./selectRecordingRelease";
 
@@ -21,17 +20,20 @@ import { selectRecordingRelease } from "./selectRecordingRelease";
  *
  * The strict query (with duration window and track number) runs first; when
  * it returns no hits at all, the relaxed query runs once. The chosen
- * recording's release is looked up with the full `inc=` set, the track
- * playing that recording is mapped, and the release's front cover is
- * fetched. Two to three requests to musicbrainz.org per song.
+ * recording's release is looked up with the full `inc=` set (through the
+ * group's cache, so songs landing on the same release share one lookup and
+ * one cover), the track playing that recording is mapped, and the
+ * release's front cover is fetched.
  *
  * @param client - The shared client.
+ * @param cache - The group's release / cover memo.
  * @param music - The library song.
  * @param options - Cancellation signal.
  * @returns The candidate, `null` when nothing matched, or the failure.
  */
 export const lookupByRecording = async (
   client: MusicBrainzClient,
+  cache: ReleaseCache,
   music: Music,
   options: MusicBrainzRequestOptions = {},
 ): Promise<MusicBrainzResult<MusicInfoCandidate | null>> => {
@@ -59,7 +61,7 @@ export const lookupByRecording = async (
     return { ok: true, value: null };
   }
 
-  const release = await lookupRelease(client, releaseRef.id, options);
+  const release = await cache.lookup(releaseRef.id);
   if (!release.ok) {
     return release;
   }
@@ -72,12 +74,7 @@ export const lookupByRecording = async (
     return { ok: true, value: null };
   }
 
-  const picture = await fetchFrontCover(
-    client,
-    release.value.id,
-    release.value["release-group"]?.id,
-    options,
-  );
+  const picture = await cache.cover(release.value);
   if (!picture.ok) {
     return picture;
   }

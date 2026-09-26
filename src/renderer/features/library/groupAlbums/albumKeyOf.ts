@@ -1,17 +1,14 @@
 import type { Music } from "@mp/ipc";
-import { albumArtistOf } from "./albumArtistOf";
+import { albumKeyOf as keyOf } from "../../../../shared/albumKeyOf";
+import { displayArtistOf } from "../../../../shared/displayArtistOf";
 
 /**
- * The album identity key of one track: `(albumArtist falling back to
- * artist, album)` serialised with a NUL separator. The same key shape
- * `groupAlbums` uses for `AlbumGroup.key` and the Main process builds for
- * `AlbumSummary.albumKey`, so a track can be matched against either view.
- *
- * NUL cannot occur in tag strings, so ("A B", "C") and ("A", "B C") never
- * collide.
+ * The album identity key of one track, built with the shared rule
+ * (`displayArtistOf` + NUL + album) so it matches `AlbumGroup.key` and the
+ * Main process's `AlbumSummary.albumKey`.
  *
  * @param music - The track.
  * @returns The album identity key.
  */
 export const albumKeyOf = (music: Music): string =>
-  `${albumArtistOf(music)}\u0000${music.album}`;
+  keyOf(displayArtistOf(music), music.album);

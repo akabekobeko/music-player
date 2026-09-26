@@ -25,11 +25,36 @@ const relations = [
 ];
 
 it("collects the artists of one relationship type, credited name first, without duplicates", () => {
-  expect(relatedArtistsOf(relations, "producer")).toBe("A, B (credited)");
-  expect(relatedArtistsOf(relations, "conductor")).toBe("C");
+  expect(relatedArtistsOf(relations, "producer")).toEqual([
+    "A",
+    "B (credited)",
+  ]);
+  expect(relatedArtistsOf(relations, "conductor")).toEqual(["C"]);
 });
 
-it("returns null when nothing matches or the list is absent", () => {
-  expect(relatedArtistsOf(relations, "composer")).toBeNull();
-  expect(relatedArtistsOf(undefined, "producer")).toBeNull();
+it("returns an empty list when nothing matches or the list is absent", () => {
+  expect(relatedArtistsOf(relations, "composer")).toEqual([]);
+  expect(relatedArtistsOf(undefined, "producer")).toEqual([]);
+});
+
+it("keeps a credited name containing the separator intact", () => {
+  expect(
+    relatedArtistsOf(
+      [
+        {
+          type: "composer",
+          "target-type": "artist",
+          "target-credit": "Rodgers, Richard",
+          artist: { name: "Richard Rodgers" },
+        },
+        {
+          type: "composer",
+          "target-type": "artist",
+          "target-credit": "",
+          artist: { name: "Richard" },
+        },
+      ],
+      "composer",
+    ),
+  ).toEqual(["Rodgers, Richard", "Richard"]);
 });

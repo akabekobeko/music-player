@@ -40,6 +40,13 @@ export const MUSICBRAINZ_MAX_ATTEMPTS = 3;
 export const MUSICBRAINZ_DEFAULT_RETRY_DELAY_MS = 2000;
 
 /**
+ * Longest `Retry-After` in ms the client honours. A 503 asking for more
+ * gives up at once with `MB_THROTTLED` instead of holding the app-wide
+ * queue; the user retries later.
+ */
+export const MUSICBRAINZ_MAX_RETRY_DELAY_MS = 30000;
+
+/**
  * Number of search results requested per query (`limit=`). The top hits are
  * enough because only candidates scoring at least
  * {@link SEARCH_SCORE_THRESHOLD} are considered.

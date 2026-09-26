@@ -5,6 +5,7 @@ import type {
   MusicBrainzClient,
   MusicBrainzRequestOptions,
 } from "./MusicBrainzClient/MusicBrainzClient";
+import { toFetchError } from "./MusicBrainzClient/toFetchError";
 import type { MusicBrainzResult } from "./types";
 
 /**
@@ -15,8 +16,8 @@ import type { MusicBrainzResult } from "./types";
  * group's thumbnail; a 404 at each step moves on to the next and a 404 at
  * the last step means "no artwork", which is a result, not an error. The
  * archive redirects to archive.org for the bytes; `net.fetch` follows it.
- * A body whose `Content-Type` is not one of the supported image types is
- * treated as no artwork too.
+ * A 2xx body whose `Content-Type` is not a supported image (an HTML
+ * interstitial, for example) is skipped like a 404.
  *
  * @param client - The shared client.
  * @param releaseId - Release MBID.
@@ -54,16 +55,19 @@ export const fetchFrontCover = async (
     const mimeType = mimeTypeOf(response.value.headers.get("Content-Type"));
     if (mimeType === null || IMAGE_EXTENSION_BY_MIME[mimeType] === undefined) {
       console.warn(`[musicbrainz] unsupported cover type ${url}: ${mimeType}`);
-      return { ok: true, value: null };
+      await response.value.body?.cancel().catch(() => undefined);
+      continue;
     }
 
     try {
       const data = new Uint8Array(await response.value.arrayBuffer());
       return { ok: true, value: { mimeType, data } };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.warn(`[musicbrainz] cover download failed ${url}: ${message}`);
-      return { ok: false, error: { code: "MB_NETWORK", message } };
+      const failure = toFetchError(error, options.signal);
+      console.warn(
+        `[musicbrainz] cover download failed ${url}: ${failure.message}`,
+      );
+      return { ok: false, error: failure };
     }
   }
 

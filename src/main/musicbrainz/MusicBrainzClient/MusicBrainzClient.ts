@@ -2,10 +2,12 @@ import { net } from "electron";
 import {
   MUSICBRAINZ_HOST,
   MUSICBRAINZ_MAX_ATTEMPTS,
+  MUSICBRAINZ_MAX_RETRY_DELAY_MS,
   MUSICBRAINZ_MIN_INTERVAL_MS,
   MUSICBRAINZ_TIMEOUT_MS,
 } from "../constants";
 import type { MusicBrainzResult } from "../types";
+import { abortableSleep } from "./abortableSleep";
 import { retryDelayOf } from "./retryDelayOf";
 import { toFetchError } from "./toFetchError";
 
@@ -13,7 +15,8 @@ import { toFetchError } from "./toFetchError";
 export type MusicBrainzRequestOptions = {
   /**
    * Caller-side cancellation (the bulk fetch's cancel). An aborted request
-   * resolves to `MB_ABORTED`; the queue moves on to the next request.
+   * resolves to `MB_ABORTED`, also while it is waiting for the minimum
+   * interval or a retry; the queue moves on to the next request.
    */
   readonly signal?: AbortSignal;
 };
@@ -32,17 +35,22 @@ export type MusicBrainzClientDeps = {
   ) => Promise<Response>;
   /** Monotonic clock in ms, compared against the last request start. */
   readonly now: () => number;
-  /** Delay helper; tests replace it with a virtual clock. */
-  readonly sleep: (ms: number) => Promise<void>;
+  /**
+   * Delay helper that returns early when `signal` aborts; tests replace it
+   * with a virtual clock.
+   */
+  readonly sleep: (ms: number, signal?: AbortSignal) => Promise<void>;
 };
 
 const DEFAULT_DEPS: MusicBrainzClientDeps = {
   fetch: (url, init) => net.fetch(url, init),
   now: () => performance.now(),
-  sleep: (ms) =>
-    new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    }),
+  sleep: abortableSleep,
+};
+
+const ABORTED: MusicBrainzResult<never> = {
+  ok: false,
+  error: { code: "MB_ABORTED", message: "The request was cancelled." },
 };
 
 /**
@@ -58,8 +66,11 @@ const DEFAULT_DEPS: MusicBrainzClientDeps = {
  * share the queue (and the user agent and timeout) but never wait.
  *
  * A 503 is retried after `Retry-After` (or a default delay) while holding
- * the queue, so the whole app slows down instead of piling up. The client
- * never throws: every outcome is a {@link MusicBrainzResult}.
+ * the queue, so the whole app slows down instead of piling up; a
+ * `Retry-After` beyond `MUSICBRAINZ_MAX_RETRY_DELAY_MS` gives up at once.
+ * The client never throws and never lets one failure block the queue:
+ * every outcome, including an unexpected exception, is a
+ * {@link MusicBrainzResult}.
  *
  * A class because the queue tail and the last start time are shared,
  * mutable state.
@@ -98,29 +109,45 @@ export class MusicBrainzClient {
     options: MusicBrainzRequestOptions = {},
   ): Promise<MusicBrainzResult<Response>> {
     const run = this.#tail.then(() => this.#execute(url, options.signal));
-    this.#tail = run.then(() => undefined);
+    // Both branches are swallowed: a rejected tail would skip every later
+    // request's `then` and poison the queue for the rest of the session.
+    this.#tail = run.then(noop, noop);
     return run;
   }
 
+  /** {@link MusicBrainzClient.attempts} with a last-resort exception guard. */
   async #execute(
+    url: string,
+    signal: AbortSignal | undefined,
+  ): Promise<MusicBrainzResult<Response>> {
+    try {
+      return await this.#attempts(url, signal);
+    } catch (error) {
+      const failure = toFetchError(error, signal);
+      console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+      return { ok: false, error: failure };
+    }
+  }
+
+  async #attempts(
     url: string,
     signal: AbortSignal | undefined,
   ): Promise<MusicBrainzResult<Response>> {
     const rateLimited = new URL(url).hostname === MUSICBRAINZ_HOST;
 
     for (let attempt = 1; ; attempt += 1) {
-      if (signal?.aborted === true) {
-        return {
-          ok: false,
-          error: { code: "MB_ABORTED", message: "The request was cancelled." },
-        };
+      if (isAborted(signal)) {
+        return ABORTED;
       }
 
       if (rateLimited) {
         const wait =
           this.#lastStartedAt + MUSICBRAINZ_MIN_INTERVAL_MS - this.#deps.now();
         if (wait > 0) {
-          await this.#deps.sleep(wait);
+          await this.#deps.sleep(wait, signal);
+          if (isAborted(signal)) {
+            return ABORTED;
+          }
         }
 
         this.#lastStartedAt = this.#deps.now();
@@ -144,21 +171,30 @@ export class MusicBrainzClient {
       }
 
       if (response.status === 503) {
-        if (attempt < MUSICBRAINZ_MAX_ATTEMPTS) {
-          const delay = retryDelayOf(response.headers.get("Retry-After"));
+        const delay = retryDelayOf(response.headers.get("Retry-After"));
+        if (
+          attempt < MUSICBRAINZ_MAX_ATTEMPTS &&
+          delay <= MUSICBRAINZ_MAX_RETRY_DELAY_MS
+        ) {
           console.warn(
             `[musicbrainz] 503 ${url}: retrying in ${delay} ms (attempt ${attempt})`,
           );
-          await this.#deps.sleep(delay);
+          await this.#deps.sleep(delay, signal);
+          if (isAborted(signal)) {
+            return ABORTED;
+          }
+
           continue;
         }
 
-        console.warn(`[musicbrainz] 503 ${url}: giving up`);
+        console.warn(
+          `[musicbrainz] 503 ${url}: giving up (Retry-After ${delay} ms)`,
+        );
         return {
           ok: false,
           error: {
             code: "MB_THROTTLED",
-            message: `Service unavailable after ${attempt} attempts.`,
+            message: `Service unavailable after ${attempt} attempt(s).`,
           },
         };
       }
@@ -178,6 +214,12 @@ export class MusicBrainzClient {
     }
   }
 }
+
+const noop = (): void => {};
+
+/** Re-read the live flag; TS would otherwise keep an earlier narrowing. */
+const isAborted = (signal: AbortSignal | undefined): boolean =>
+  signal?.aborted === true;
 
 /** Timeout signal, joined with the caller's signal when there is one. */
 const combineSignals = (signal: AbortSignal | undefined): AbortSignal => {

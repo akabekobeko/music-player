@@ -16,6 +16,8 @@ type Clock = {
   now: number;
   /** Every `sleep` duration, in call order. */
   readonly sleeps: number[];
+  /** When set, the next `sleep` aborts this controller mid-wait. */
+  abortDuringSleep?: AbortController;
 };
 
 let clock: Clock;
@@ -34,9 +36,16 @@ type FetchFake = MusicBrainzClientDeps["fetch"];
 const deps = (fetch: FetchFake): MusicBrainzClientDeps => ({
   fetch,
   now: () => clock.now,
-  sleep: async (ms) => {
+  sleep: async (ms, signal) => {
     clock.sleeps.push(ms);
     clock.now += ms;
+    // Simulate an abort that arrives during this wait.
+    if (clock.abortDuringSleep !== undefined) {
+      clock.abortDuringSleep.abort();
+      clock.abortDuringSleep = undefined;
+    }
+
+    void signal;
   },
 });
 
@@ -266,4 +275,59 @@ it("keeps serving the queue after a failed request", async () => {
 
   expect(first.ok).toBe(false);
   expect(second.ok).toBe(true);
+});
+
+it("resolves MB_ABORTED when the cancel arrives during the interval wait", async () => {
+  const { fetch, calls } = recordingFetch();
+  const client = new MusicBrainzClient("ua", deps(fetch));
+  const controller = new AbortController();
+
+  await client.request(MB_URL);
+  clock.abortDuringSleep = controller;
+  const result = await client.request(MB_URL, { signal: controller.signal });
+
+  expect(calls).toHaveLength(1);
+  expect(result).toMatchObject({ ok: false, error: { code: "MB_ABORTED" } });
+});
+
+it("resolves MB_ABORTED when the cancel arrives during the retry wait", async () => {
+  const { fetch, calls } = recordingFetch(
+    0,
+    () => new Response(null, { status: 503, headers: { "Retry-After": "5" } }),
+  );
+  const client = new MusicBrainzClient("ua", deps(fetch));
+  const controller = new AbortController();
+
+  clock.abortDuringSleep = controller;
+  const result = await client.request(MB_URL, { signal: controller.signal });
+
+  expect(calls).toHaveLength(1);
+  expect(clock.sleeps).toEqual([5000]);
+  expect(result).toMatchObject({ ok: false, error: { code: "MB_ABORTED" } });
+});
+
+it("gives up at once when Retry-After exceeds the cap instead of holding the queue", async () => {
+  const { fetch, calls } = recordingFetch(
+    0,
+    () =>
+      new Response(null, { status: 503, headers: { "Retry-After": "3600" } }),
+  );
+  const client = new MusicBrainzClient("ua", deps(fetch));
+
+  const result = await client.request(MB_URL);
+
+  expect(calls).toHaveLength(1);
+  expect(clock.sleeps).toEqual([]);
+  expect(result).toMatchObject({ ok: false, error: { code: "MB_THROTTLED" } });
+});
+
+it("turns an unexpected exception into a failure without poisoning the queue", async () => {
+  const { fetch } = recordingFetch();
+  const client = new MusicBrainzClient("ua", deps(fetch));
+
+  const broken = await client.request("not a url");
+  const next = await client.request(MB_URL);
+
+  expect(broken.ok).toBe(false);
+  expect(next.ok).toBe(true);
 });

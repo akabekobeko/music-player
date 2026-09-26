@@ -103,13 +103,52 @@ it("skips the release group step when the group id is unknown", async () => {
   expect(urls).toEqual([RELEASE_1200, RELEASE_FULL]);
 });
 
-it("treats an unsupported Content-Type as no artwork", async () => {
-  const { client } = clientFor({ [RELEASE_1200]: () => image("text/html") });
+it("skips a 2xx body with an unsupported Content-Type and tries the next step", async () => {
+  const { client, urls } = clientFor({
+    [RELEASE_1200]: () => image("text/html"),
+    [RELEASE_FULL]: image,
+  });
+
+  expect(await fetchFrontCover(client, RELEASE, GROUP)).toMatchObject({
+    ok: true,
+    value: { mimeType: "image/jpeg" },
+  });
+  expect(urls).toEqual([RELEASE_1200, RELEASE_FULL]);
+});
+
+it("returns null when every step is unsupported or 404", async () => {
+  const { client } = clientFor({
+    [RELEASE_1200]: () => image("text/html"),
+    [RELEASE_FULL]: notFound,
+    [GROUP_1200]: () => image("application/json"),
+  });
 
   expect(await fetchFrontCover(client, RELEASE, GROUP)).toEqual({
     ok: true,
     value: null,
   });
+});
+
+it("reports a cancel during the body download as MB_ABORTED", async () => {
+  const controller = new AbortController();
+  const { client } = clientFor({
+    [RELEASE_1200]: () =>
+      new Response(
+        new ReadableStream({
+          pull: () => {
+            controller.abort();
+            throw new DOMException("aborted", "AbortError");
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "image/jpeg" } },
+      ),
+  });
+
+  expect(
+    await fetchFrontCover(client, RELEASE, GROUP, {
+      signal: controller.signal,
+    }),
+  ).toMatchObject({ ok: false, error: { code: "MB_ABORTED" } });
 });
 
 it("propagates errors other than 404", async () => {

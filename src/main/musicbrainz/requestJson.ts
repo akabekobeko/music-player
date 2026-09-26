@@ -3,6 +3,7 @@ import type {
   MusicBrainzClient,
   MusicBrainzRequestOptions,
 } from "./MusicBrainzClient/MusicBrainzClient";
+import { toFetchError } from "./MusicBrainzClient/toFetchError";
 import type { MusicBrainzResult } from "./types";
 
 /**
@@ -11,7 +12,9 @@ import type { MusicBrainzResult } from "./types";
  *
  * A body that is not JSON or does not match the schema is one failed
  * request (`MB_INVALID_RESPONSE`); the zod issue paths are logged so a
- * MusicBrainz-side change can be diagnosed without dumping the body.
+ * MusicBrainz-side change can be diagnosed without dumping the body. The
+ * body download runs under the same timeout and cancellation as the
+ * request, so those failures keep their own codes.
  *
  * @param client - The shared client.
  * @param url - Absolute URL to fetch.
@@ -34,15 +37,15 @@ export const requestJson = async <S extends z.ZodType>(
   try {
     json = await response.value.json();
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(`[musicbrainz] invalid JSON ${url}: ${message}`);
-    return {
-      ok: false,
-      error: {
-        code: "MB_INVALID_RESPONSE",
-        message: `Invalid JSON: ${message}`,
-      },
-    };
+    const failure =
+      error instanceof SyntaxError
+        ? {
+            code: "MB_INVALID_RESPONSE" as const,
+            message: `Invalid JSON: ${error.message}`,
+          }
+        : toFetchError(error, options.signal);
+    console.warn(`[musicbrainz] ${failure.code} ${url}: ${failure.message}`);
+    return { ok: false, error: failure };
   }
 
   const parsed = schema.safeParse(json);

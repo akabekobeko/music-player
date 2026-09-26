@@ -1,4 +1,3 @@
-import { NAME_SEPARATOR } from "../constants";
 import type { ReleaseTrack } from "../schemas/releaseSchema";
 import { relatedArtistsOf } from "./relatedArtistsOf";
 
@@ -11,29 +10,24 @@ import { relatedArtistsOf } from "./relatedArtistsOf";
  *
  * @param track - The matched track.
  * @param type - Work relationship name (`"composer"` or `"lyricist"`).
- * @returns The joined names, or `null` when no work names anyone.
+ * @returns The distinct names; empty when no work names anyone.
  */
 export const workArtistsOf = (
   track: ReleaseTrack,
   type: string,
-): string | null => {
+): readonly string[] => {
   const names: string[] = [];
   for (const relation of track.recording.relations ?? []) {
     if (relation["target-type"] !== "work" || relation.work === undefined) {
       continue;
     }
 
-    const joined = relatedArtistsOf(relation.work.relations, type);
-    if (joined === null) {
-      continue;
-    }
-
-    for (const name of joined.split(NAME_SEPARATOR)) {
+    for (const name of relatedArtistsOf(relation.work.relations, type)) {
       if (!names.includes(name)) {
         names.push(name);
       }
     }
   }
 
-  return names.length === 0 ? null : names.join(NAME_SEPARATOR);
+  return names;
 };

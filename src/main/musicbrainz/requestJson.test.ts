@@ -64,3 +64,42 @@ it("passes a transport failure through unchanged", async () => {
     error: { code: "MB_HTTP_500" },
   });
 });
+
+it("reports a cancel during the body download as MB_ABORTED, not as invalid JSON", async () => {
+  const controller = new AbortController();
+  const client = clientWith(
+    async () =>
+      new Response(
+        new ReadableStream({
+          pull: () => {
+            controller.abort();
+            throw new DOMException("aborted", "AbortError");
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+  );
+
+  expect(
+    await requestJson(client, URL, schema, { signal: controller.signal }),
+  ).toMatchObject({ ok: false, error: { code: "MB_ABORTED" } });
+});
+
+it("reports a TimeoutError during the body download as MB_TIMEOUT", async () => {
+  const client = clientWith(
+    async () =>
+      new Response(
+        new ReadableStream({
+          pull: () => {
+            throw new DOMException("timed out", "TimeoutError");
+          },
+        }),
+        { status: 200 },
+      ),
+  );
+
+  expect(await requestJson(client, URL, schema)).toMatchObject({
+    ok: false,
+    error: { code: "MB_TIMEOUT" },
+  });
+});

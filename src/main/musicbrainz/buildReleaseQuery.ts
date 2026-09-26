@@ -1,3 +1,4 @@
+import { displayArtistOf } from "../../shared/displayArtistOf";
 import type { Music } from "../ipc/types";
 import { quoteTerm } from "./quoteTerm";
 
@@ -20,8 +21,7 @@ export type ReleaseQueryInput = Pick<Music, "album" | "albumArtist" | "artist">;
  */
 export const buildReleaseQuery = (input: ReleaseQueryInput): string => {
   const clauses = [`release:${quoteTerm(input.album)}`];
-  const displayArtist =
-    input.albumArtist !== "" ? input.albumArtist : input.artist;
+  const displayArtist = displayArtistOf(input);
   if (displayArtist !== "") {
     clauses.push(`artist:${quoteTerm(displayArtist)}`);
   }

@@ -6,6 +6,7 @@ import type {
 } from "../schemas/releaseSchema";
 import { genreOf } from "./genreOf";
 import { joinArtistCredit } from "./joinArtistCredit";
+import { joinNames } from "./joinNames";
 import { publisherOf } from "./publisherOf";
 import { relatedArtistsOf } from "./relatedArtistsOf";
 import { workArtistsOf } from "./workArtistsOf";
@@ -55,10 +56,14 @@ export const toMusicInfoCandidate = (
       year: yearOf(release),
       track: track.position,
       disc: medium.position,
-      composer: workArtistsOf(track, "composer"),
-      lyricist: workArtistsOf(track, "lyricist"),
-      producer: relatedArtistsOf(track.recording.relations, "producer"),
-      conductor: relatedArtistsOf(track.recording.relations, "conductor"),
+      composer: joinNames(workArtistsOf(track, "composer")),
+      lyricist: joinNames(workArtistsOf(track, "lyricist")),
+      producer: joinNames(
+        relatedArtistsOf(track.recording.relations, "producer"),
+      ),
+      conductor: joinNames(
+        relatedArtistsOf(track.recording.relations, "conductor"),
+      ),
       publisher: publisherOf(release),
     },
     picture,
