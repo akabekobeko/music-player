@@ -83,6 +83,7 @@ pnpm run dev
 | `build`        | Build all processes (main, preload, renderer)              |
 | `typecheck`    | Run TypeScript type checking                               |
 | `package`      | Build and package the app with electron-builder            |
+| `icons`        | Rasterise `build/icon.svg` into the app icons (macOS only) |
 | `sync-targets` | Sync tsconfig targets with the installed Electron version  |
 | `shadcn`       | Run the shadcn CLI against the renderer tsconfig           |
 

@@ -19,6 +19,10 @@ mac:
       arch:
         - arm64
         - x64
+  # The plate of build/icon.png fills the whole canvas, which suits Windows and
+  # Linux. macOS 15 and earlier draw the icon as is, so macOS gets a variant
+  # that keeps the margin of the Apple icon grid.
+  icon: build/icon-mac.png
   artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
 win:
   target:
@@ -30,6 +34,8 @@ linux:
   # read the author email from package.json, so no personal email address has
   # to appear in the code (a GitHub noreply address is used here).
   maintainer: akabeko <1257526+akabekobeko@users.noreply.github.com>
+  # Must be set explicitly: without it Linux falls back to mac.icon.
+  icon: build/icon.png
   target:
     - AppImage
     - deb
