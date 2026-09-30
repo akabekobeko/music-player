@@ -16,6 +16,7 @@
     "sync-targets": "node scripts/sync-electron-targets.ts",
     "typecheck": "tsc --build && tsc -p tsconfig.scripts.json",
     "package": "npm run build && electron-builder",
+    "icons": "sips -s format png build/icon.svg --out build/icon.png && sips -z 824 824 -p 1024 1024 build/icon.png --out build/icon-mac.png",
     "init": "node scripts/init.ts",
     "test": "vitest",
     "check": "biome check",

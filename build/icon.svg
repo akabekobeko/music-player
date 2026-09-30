@@ -4,8 +4,22 @@
     App icon: an extra bold letter P carrying a torch flame over its bowl,
     standing for the parade torch. All colors are Tailwind CSS v4 palette
     values written as hex, because Finder thumbnails and Inkscape cannot parse
-    the oklch notation. build/icon.png is rasterised from this file at 1024px
-    via qlmanage; regenerate both files together when the design changes.
+    the oklch notation.
+
+    The background plate fills the whole canvas with rounded corners, and
+    everything outside the plate is transparent. `pnpm run icons` rasterises
+    this file with sips into the two images below; run it whenever the design
+    changes.
+      build/icon.png      The plate fills the canvas. Windows and Linux draw
+                          the image as is, without a mask or extra padding.
+      build/icon-mac.png  The same image scaled to 824px and centered on the
+                          1024px canvas, which leaves the margin of the Apple
+                          icon grid. macOS 15 and earlier draw the image as
+                          is; macOS 26 and later refit the plate to the system
+                          icon shape.
+    Do not rasterise with qlmanage: Quick Look paints thumbnails on an opaque
+    white background, which ends up as a white border around the plate.
+
       background: slate-800 #1d293d highlight at the top, slate-900 #0f172b to slate-950 #020618
       letter P:   amber-50 #fffbeb
       flame:      red-500 #fb2c36, orange-500 #ff6900, amber-400 #ffb900
@@ -25,8 +39,8 @@
       <stop offset="1" stop-color="#ffb900"/>
     </linearGradient>
   </defs>
-  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
-  <g transform="translate(580.0 484.5) scale(1.12) rotate(-18) translate(-537.5 -525.0)">
+  <rect width="1024" height="1024" rx="229" fill="url(#bg)"/>
+  <g transform="translate(589.7 480.6) scale(1.28) rotate(-18) translate(-537.5 -525.0)">
     <!-- Extra bold P with its bowl counter -->
     <path d="M300 230 H580 A195 195 0 0 1 580 620 H470 V820 H300 Z M470 335 H580 A90 90 0 0 1 580 515 H470 Z" fill="#fffbeb" fill-rule="evenodd"/>
     <!-- Bright core filling the hollow of the flame -->
