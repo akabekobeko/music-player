@@ -1,6 +1,7 @@
 import type { AlbumSummary } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useElementWidth } from "@/features/layout/useElementWidth";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import { useLibraryQuery } from "@/features/library/useLibraryQuery";
@@ -16,7 +17,6 @@ import { buildAlbumGridRows } from "./buildAlbumGridRows";
 import { computeAlbumGridLayout } from "./computeAlbumGridLayout";
 import { nextAlbumKeyOf } from "./nextAlbumKeyOf";
 import { sortAlbums } from "./sortAlbums";
-import { useElementWidth } from "./useElementWidth";
 
 /**
  * Logic of `PageContent`: the applied filter's album summaries, the

@@ -6,8 +6,9 @@ import { PlaylistContent } from "./PlaylistContent";
 /**
  * Playlist view content (`/playlists/:playlistId?`)
  * (`docs/specs/v1.0/features/playlist.md`): header (name, counts, Play /
- * Shuffle) and the position-ordered track list — ordinal numbers, artist /
- * album columns, drag & drop reorder, and per-row removal. Every playback
+ * Shuffle) and the position-ordered track table
+ * (`docs/specs/v1.3/features/playlist-table.md`) with drag & drop reorder
+ * and per-row removal. Every playback
  * action queues the playlist's tracks (`QueueSource: "playlist"`).
  */
 export const PageContent = () => {

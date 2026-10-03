@@ -30,8 +30,8 @@ type Props = {
 /**
  * Playlist area laid out like `ArtistHeader`: icon tile with a hover play
  * overlay, name and counts on the left; shuffle / menu circles on the
- * right. The right padding matches the list's `px-6` plus the rows' `pr-2`,
- * so the menu lines up with the track menus. Smart playlists expose
+ * right. The right padding matches the table's horizontal padding (24px)
+ * plus the menu cell's `px-2`, so the menu lines up with the track menus. Smart playlists expose
  * "Edit rules" from the menu.
  */
 export const PlaylistHeader = ({
