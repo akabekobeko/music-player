@@ -21,11 +21,11 @@
 ```
 ☑ Artist
 ☑ Album
-☐ Album Artist
+☐ Album artist
 ☐ Genre
 ☐ Year
 ...
-☑ Time
+☑ Duration
 ──────────────
   Reset columns
 ```

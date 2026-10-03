@@ -16,6 +16,7 @@ import type {
   PlaylistColumnId,
 } from "@/features/playlistColumns/types";
 import { cn } from "@/libs/utils";
+import { PLAYLIST_TABLE_MENU_STICKY_RIGHT } from "./constants";
 import { renderPlaylistCell } from "./renderPlaylistCell/renderPlaylistCell";
 
 type Props = {
@@ -91,15 +92,23 @@ const isRowEvent = (event: MouseEvent<HTMLTableRowElement>): boolean =>
  * Classes for the row, carried over from `MusicRow`. The hovered and the
  * selected row show the rounded accent rectangle, as does the row whose
  * right-click menu is open (`data-popup-open`, set by the context-menu
- * trigger). The playing / paused row lights a 1px outline up with a blurred
- * glow and rises above its neighbours so their backgrounds never cover the
- * glow (the transformed rows are stacking contexts). The outline is an
- * inset shadow rather than a border: a border would take 2px off the cells
- * and misalign them with the header. Contiguous selected rows merge into
- * one rounded rectangle (`selected-above` / `selected-below` in `App.css`
- * look at the sibling row). A drop target draws the insertion line at its
- * top edge with a pseudo element, so the line takes no space either. Text
- * is unselectable so Shift-clicks and drags never start a text selection.
+ * trigger). The colour goes through `--row-bg`, which the fixed menu cell
+ * reads to paint the same surface (`MENU_CELL_CLASS_NAME`). The hover colour
+ * is the half-transparent accent of `MusicRow` already blended with the
+ * page background, because the menu cell has to be opaque.
+ *
+ * The playing / paused row lights a 1px outline up with a blurred glow and
+ * rises above its neighbours so their backgrounds never cover the glow (the
+ * transformed rows are stacking contexts). The outline is an inset shadow
+ * rather than a border: a border would take 2px off the cells and misalign
+ * them with the header. It is drawn by a pseudo element on top of the
+ * cells, because the opaque menu cell would cover a shadow of the row
+ * itself. Contiguous selected rows merge into one rounded rectangle
+ * (`selected-above` / `selected-below` in `App.css` look at the sibling
+ * row). A drop target draws the insertion line at its top edge with a
+ * pseudo element, so the line takes no space either; it is raised above the
+ * menu cell. Text is unselectable so Shift-clicks and drags never start a
+ * text selection.
  */
 const rowClassName = (
   playing: boolean,
@@ -107,15 +116,28 @@ const rowClassName = (
   dropTarget: boolean,
 ): string =>
   cn(
-    "group absolute top-0 left-0 flex h-9 w-full cursor-default select-none items-center rounded-md text-sm transition-shadow duration-200",
+    "group absolute top-0 left-0 flex h-9 w-full cursor-default select-none items-center rounded-md bg-(--row-bg) text-sm transition-shadow duration-200",
+    "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:transition-shadow after:duration-200",
     selected
-      ? "bg-accent text-accent-foreground selected-above:rounded-t-none selected-below:rounded-b-none"
-      : "hover:bg-accent/50 data-popup-open:bg-accent/50",
+      ? "text-accent-foreground [--row-bg:var(--accent)] selected-above:rounded-t-none selected-below:rounded-b-none"
+      : "data-popup-open:[--row-bg:color-mix(in_srgb,var(--accent)_50%,var(--background))] hover:[--row-bg:color-mix(in_srgb,var(--accent)_50%,var(--background))]",
     playing &&
-      "z-[1] shadow-[inset_0_0_0_1px_var(--foreground),0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)]",
+      "z-[1] shadow-[0_0_5px_1px_color-mix(in_oklch,var(--foreground)_60%,transparent)] after:shadow-[inset_0_0_0_1px_var(--foreground)]",
     dropTarget &&
-      "before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-primary",
+      "before:absolute before:inset-x-0 before:top-0 before:z-[1] before:h-0.5 before:bg-primary",
   );
+
+/**
+ * Classes for the menu cell, fixed to the right edge of the scroll
+ * container so the [...] button stays reachable while the table is
+ * scrolled sideways (`docs/specs/v1.3/architecture/table-structure.md`).
+ * The cell is opaque, hiding the cells that pass beneath: it takes the
+ * row's surface colour (`--row-bg`), or the page background the row shows
+ * through while it has none. It takes the row's right corners, so it never
+ * pokes out of the rounded rectangle when it rests at the end of the row.
+ */
+const MENU_CELL_CLASS_NAME =
+  "sticky flex shrink-0 items-center justify-end rounded-r-[inherit] bg-[var(--row-bg,var(--background))] px-2";
 
 /**
  * One row of the Playlist table
@@ -219,8 +241,8 @@ export const PlaylistTableRow = ({
               // biome-ignore lint/a11y/noRedundantRoles: the display override drops the implicit role.
               role="cell"
               data-row-control
-              className="flex shrink-0 items-center justify-end px-2"
-              style={style}
+              className={MENU_CELL_CLASS_NAME}
+              style={{ ...style, right: PLAYLIST_TABLE_MENU_STICKY_RIGHT }}
             >
               <RowMenu items={menuItems} />
             </td>

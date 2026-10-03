@@ -11,7 +11,7 @@ it("uses the default widths when nothing is saved", () => {
     title: 280,
     artist: 200,
     album: 200,
-    duration: 72,
+    duration: 88,
     menu: 44,
   });
 });
@@ -36,7 +36,7 @@ it("uses the default width for a saved width that is not a positive number", () 
   });
   expect(widths.artist).toBe(200);
   expect(widths.album).toBe(200);
-  expect(widths.duration).toBe(72);
+  expect(widths.duration).toBe(88);
   expect(widths.title).toBe(280);
 });
 

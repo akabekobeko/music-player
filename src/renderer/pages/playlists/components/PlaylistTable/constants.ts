@@ -12,6 +12,16 @@ export const PLAYLIST_TABLE_HEADER_HEIGHT = 32;
 export const PLAYLIST_TABLE_PADDING_X = 24;
 
 /**
+ * `right` offset in px of the sticky menu column (header and cells). A
+ * sticky box is held inside the scroll container's padding, so the negative
+ * padding brings the column flush with the container's right edge while the
+ * table is scrolled sideways: no sliver of the passing cells shows between
+ * the column and the edge. At the end of the scroll the row itself holds
+ * the column back, at its place in the row.
+ */
+export const PLAYLIST_TABLE_MENU_STICKY_RIGHT = -PLAYLIST_TABLE_PADDING_X;
+
+/**
  * Vertical padding in px before the first and after the last row, inside
  * the table body. Keeps the first row's glow clear of the fixed header.
  */
