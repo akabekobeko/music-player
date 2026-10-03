@@ -40,6 +40,24 @@ it("delegates an image inside the directory to net.fetch", async () => {
   expect(await response.text()).toBe("jpeg-bytes");
 });
 
+it("adds Access-Control-Allow-Origin and keeps the Content-Type", async () => {
+  const imagePath = path.join(imagesDir, "abc.jpg");
+  writeFileSync(imagePath, "jpeg-bytes");
+  vi.spyOn(net, "fetch").mockResolvedValue(
+    new Response("jpeg-bytes", { headers: { "Content-Type": "image/jpeg" } }),
+  );
+
+  const response = await fetchMediaFile(
+    new Request(fileUrl(imagePath)),
+    imagesDir,
+  );
+
+  // Without this header the Renderer's fetch gets an opaque response and
+  // cannot build the MediaSession artwork Blob URL.
+  expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+  expect(response.headers.get("Content-Type")).toBe("image/jpeg");
+});
+
 it("returns 403 for a path outside the images directory", async () => {
   const outsidePath = path.join(tempDir, "settings.json");
   writeFileSync(outsidePath, "{}");
@@ -69,4 +87,22 @@ it("returns 404 for a missing image inside the directory", async () => {
   );
 
   expect(response.status).toBe(404);
+});
+
+it("adds Access-Control-Allow-Origin to error responses", async () => {
+  // Without the header the Renderer's fetch rejects with a CORS failure
+  // (and a console error) instead of reading the status.
+  const forbidden = await fetchMediaFile(
+    new Request(fileUrl(path.join(tempDir, "settings.json"))),
+    imagesDir,
+  );
+  const missing = await fetchMediaFile(
+    new Request(fileUrl(path.join(imagesDir, "missing.jpg"))),
+    imagesDir,
+  );
+
+  expect(forbidden.status).toBe(403);
+  expect(forbidden.headers.get("Access-Control-Allow-Origin")).toBe("*");
+  expect(missing.status).toBe(404);
+  expect(missing.headers.get("Access-Control-Allow-Origin")).toBe("*");
 });

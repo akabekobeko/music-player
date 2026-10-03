@@ -16,10 +16,19 @@ import { fetchMediaStream } from "./fetchMediaStream";
 // CORS-mode request to a scheme without this privilege fails outright
 // (MEDIA_ELEMENT_ERROR: Format error) —
 // docs/specs/v1.0/architecture/process-model.md.
+//
+// media-file needs `supportFetchAPI` + `corsEnabled` for one consumer: the
+// Renderer fetches the artwork to hand MediaSession a Blob URL, because
+// Chromium only accepts http / https / data / blob there. `<img src>` keeps
+// working without either privilege.
 protocol.registerSchemesAsPrivileged([
   {
     scheme: PROTOCOL_MEDIA_FILE,
-    privileges: { bypassCSP: true },
+    privileges: {
+      bypassCSP: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
   },
   {
     scheme: PROTOCOL_MEDIA_STREAM,

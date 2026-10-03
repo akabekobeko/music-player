@@ -70,7 +70,11 @@ Renderer 中心方針に合わせ、Main の `globalShortcut` ではなく **Web
 MediaSession への同期も useEffect では行いません ([状態管理](../renderer/state-management.md) の方針)。
 
 - `navigator.mediaSession.metadata` (title / artist / album / artwork) は、**現在曲を変更するコマンド (`playMusic` / `playNext` / `playPrevious` / `stop`) の中で**更新します
-  - artwork の URL は `media-file://` を指定します。MediaSession が受け付けない場合は Blob URL へフォールバックします (実装時に検証。Phase 3 の確認項目)
+  - artwork には Blob URL を指定します (2026-10-03 改訂、issue #268)。Chromium は `MediaImage.src` に `http` / `https` / `data` / `blob` スキームしか受け付けず、`media-file://` を渡すと警告が出て OS 側にアートワークが表示されません
+    - Renderer が `media-file://` を `fetch` し、`URL.createObjectURL` で Blob URL にします。`data:` URL は base64 化で画像の約 1.33 倍の文字列を複製するうえ、大きなカバー画像では Chromium の URL 長の上限 (2MB) を超えるおそれがあるため採用しません
+    - title / artist / album は即時に反映し、artwork は読み込み完了後に反映します。同じアートワーク (同一アルバムの曲) が続く場合は読み込み済みの Blob URL を再利用します
+    - 保持する Blob URL は現在曲の 1 件だけです。アートワークが変わる、またはアートワークのない曲へ切り替わった時点で前の Blob URL を `revokeObjectURL` します。読み込み中に次の曲へ切り替わった場合は `fetch` を中断します
+    - 読み込みに失敗した場合 (画像ファイルの欠落など) は artwork なしで表示し、アートワークが変わるまで再取得しません
 - action handler (`play` / `pause` / `stop` / `previoustrack` / `nexttrack` / `seekto` → PlayerCommands) の登録は PlayerProvider の初期化時に 1 回だけ行います (コマンド参照は React 外のディスパッチャー経由で常に最新を呼ぶ)
 - `navigator.mediaSession.playbackState` と `setPositionState()` は、エンジン生成時にコマンド内で登録する snapshot 購読 (`engine.subscribe`) の中で同期します。React のレンダリングを経由しません
 
