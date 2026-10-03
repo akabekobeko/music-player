@@ -17,6 +17,7 @@ import { menuActionBus } from "./features/menu/menuActionBus";
 import { PlayerProvider } from "./features/player/PlayerProvider";
 import { getActivePlayer } from "./features/player/playerBridge";
 import { registerPlayerHotkeys } from "./features/player/registerPlayerHotkeys/registerPlayerHotkeys";
+import { playlistColumnsStore } from "./features/playlistColumns/playlistColumnsStore";
 import { SettingsProvider } from "./features/settings/SettingsProvider";
 import {
   applyThemePreference,
@@ -80,6 +81,7 @@ const bootstrap = async (): Promise<void> => {
   watchSystemTheme();
   albumFilterStore.initialize(settings.albumFilter);
   sidebarStore.initialize(settings.sidebar);
+  playlistColumnsStore.initialize(settings.playlistColumns);
   await restoreLastView(settings.lastView);
 
   registerWindowDropHandler();
