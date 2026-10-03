@@ -42,6 +42,11 @@ export const PlaylistContent = ({ routeId }: Props) => {
     widthOf,
     tableWidth,
     measured,
+    sort,
+    sortBy,
+    resize,
+    minWidthOf,
+    resetWidth,
     scrollRef,
     virtualizer,
     commands,
@@ -107,7 +112,15 @@ export const PlaylistContent = ({ routeId }: Props) => {
       >
         {measured && (
           <PlaylistTable width={tableWidth}>
-            <PlaylistTableHeader columns={columns} widthOf={widthOf} />
+            <PlaylistTableHeader
+              columns={columns}
+              widthOf={widthOf}
+              sort={sort}
+              onSort={sortBy}
+              resize={resize}
+              minWidthOf={minWidthOf}
+              onResetWidth={resetWidth}
+            />
             <PlaylistTableBody height={virtualizer.getTotalSize()}>
               {virtualizer.getVirtualItems().map((item) => {
                 const row = rows[item.index];

@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { useT } from "@/features/i18n/useT";
+import { ColumnsMenu } from "./ColumnsMenu";
 import { ToolbarIconCluster } from "./ToolbarIconCluster";
 import { useContentToolbar } from "./useContentToolbar";
 
@@ -11,12 +12,12 @@ import { useContentToolbar } from "./useContentToolbar";
  * (`--content-toolbar-inset-right`) keeps everything right-aligned about
  * one character clear of it. While the sidebar is closed its icon cluster
  * moves here, keeping every icon's screen position across the toggle. The
- * song filter input shows only on routes with a track list
- * (`useContentToolbar`).
+ * song filter input shows only on routes with a track list, and the columns
+ * menu to its left only in the Playlists section (`useContentToolbar`).
  */
 export const ContentToolbar = () => {
   const t = useT();
-  const { sidebar, filter } = useContentToolbar();
+  const { sidebar, filter, columns } = useContentToolbar();
 
   return (
     <div className="app-region-drag flex h-(--toolbar-height) shrink-0 items-center gap-2 pr-(--content-toolbar-inset-right)">
@@ -27,6 +28,14 @@ export const ContentToolbar = () => {
         />
       )}
       <div className="min-w-0 flex-1" />
+      {columns !== null && (
+        <ColumnsMenu
+          items={columns.items}
+          resettable={columns.resettable}
+          onToggle={columns.toggle}
+          onReset={columns.reset}
+        />
+      )}
       {filter !== null && (
         <Input
           type="search"
