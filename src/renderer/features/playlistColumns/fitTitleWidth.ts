@@ -1,3 +1,4 @@
+import { titleFillWidthOf } from "./titleFillWidthOf";
 import type { PlaylistColumnWidths } from "./types";
 
 /**
@@ -18,7 +19,6 @@ export const fitTitleWidth = (
   containerWidth: number,
 ): PlaylistColumnWidths => {
   const title = widths.title ?? 0;
-  const total = Object.values(widths).reduce((sum, width) => sum + width, 0);
-  const fitted = Math.max(title, containerWidth - (total - title));
+  const fitted = Math.max(title, titleFillWidthOf(widths, containerWidth));
   return fitted === title ? widths : { ...widths, title: fitted };
 };

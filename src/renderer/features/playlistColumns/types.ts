@@ -48,3 +48,24 @@ export type PlaylistColumn = {
 export type PlaylistColumnWidths = Readonly<
   Partial<Record<PlaylistColumnId, number>>
 >;
+
+/**
+ * Column layout of the Playlist table as the user set it: the state of
+ * `playlistColumnsStore` and the shape saved to the settings
+ * (`docs/specs/v1.3/architecture/column-settings.md`). Shared by every
+ * playlist.
+ */
+export type PlaylistColumnsState = {
+  /**
+   * Ids of the optional columns shown. The pinned columns are never listed
+   * and the order is not significant: the table always shows the columns in
+   * declaration order.
+   */
+  readonly visibleIds: readonly string[];
+  /**
+   * User-resized column widths in px keyed by column id. Columns that were
+   * never resized are absent and use the default width; hiding a column
+   * keeps its entry, so showing it again restores the width.
+   */
+  readonly widths: Readonly<Record<string, number>>;
+};

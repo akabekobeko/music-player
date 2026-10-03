@@ -33,37 +33,18 @@ export const PlaylistContent = ({ routeId }: Props) => {
   const {
     ref,
     playlist,
-    rows,
     musicsState,
+    rows,
     filterActive,
-    reorderable,
     totalDurationMs,
-    columns,
-    widthOf,
-    tableWidth,
-    measured,
-    scrollRef,
-    virtualizer,
-    commands,
-    dragIndex,
-    overIndex,
-    startDrag,
-    dragOver,
-    dropOn,
-    endDrag,
-    editingRules,
-    openRulesEditor,
-    closeRulesEditor,
-    submitRules,
-    playFrom,
-    playAll,
-    playShuffled,
-    removeRowAt,
+    table,
+    sort,
+    resize,
     selection,
-    selectRow,
-    menuTargetsOfRow,
-    openMusicInfo,
-    playingStateOf,
+    reorder,
+    playback,
+    menu,
+    rulesEditor,
   } = usePlaylistContent(routeId);
 
   return (
@@ -73,17 +54,17 @@ export const PlaylistContent = ({ routeId }: Props) => {
         smart={ref.kind === "smart"}
         musics={rows.map((row) => row.music)}
         totalDurationMs={totalDurationMs}
-        onPlayAll={playAll}
-        onPlayShuffled={playShuffled}
-        onEditRules={openRulesEditor}
+        onPlayAll={playback.playAll}
+        onPlayShuffled={playback.playShuffled}
+        onEditRules={rulesEditor.show}
       />
 
-      {editingRules && playlist !== null && (
+      {rulesEditor.open && playlist !== null && (
         <SmartRulesDialog
           title={t("smart.editRules")}
           initialRules={playlist.rules}
-          onClose={closeRulesEditor}
-          onSubmit={(rules) => submitRules(rules)}
+          onClose={rulesEditor.close}
+          onSubmit={(rules) => rulesEditor.submit(rules)}
         />
       )}
 
@@ -101,15 +82,23 @@ export const PlaylistContent = ({ routeId }: Props) => {
         )}
 
       <div
-        ref={scrollRef}
+        ref={table.scrollRef}
         className="flex-1 overflow-auto"
         style={{ paddingInline: PLAYLIST_TABLE_PADDING_X }}
       >
-        {measured && (
-          <PlaylistTable width={tableWidth}>
-            <PlaylistTableHeader columns={columns} widthOf={widthOf} />
-            <PlaylistTableBody height={virtualizer.getTotalSize()}>
-              {virtualizer.getVirtualItems().map((item) => {
+        {table.measured && (
+          <PlaylistTable width={table.width}>
+            <PlaylistTableHeader
+              columns={table.columns}
+              widthOf={table.widthOf}
+              sort={sort.state}
+              onSort={sort.sortBy}
+              resize={resize.handlers}
+              minWidthOf={resize.minWidthOf}
+              onResetWidth={resize.resetWidth}
+            />
+            <PlaylistTableBody height={table.virtualizer.getTotalSize()}>
+              {table.virtualizer.getVirtualItems().map((item) => {
                 const row = rows[item.index];
                 if (row === undefined) {
                   return null;
@@ -119,63 +108,66 @@ export const PlaylistContent = ({ routeId }: Props) => {
                 return (
                   <PlaylistTableRow
                     key={item.index}
-                    columns={columns}
-                    widthOf={widthOf}
+                    columns={table.columns}
+                    widthOf={table.widthOf}
                     music={music}
                     ordinal={row.index + 1}
                     // `start` counts from the scroll container's top, the
                     // row from the body's, which begins below the header.
-                    offset={item.start - virtualizer.options.scrollMargin}
+                    offset={item.start - table.virtualizer.options.scrollMargin}
                     locale={locale}
-                    playing={playingStateOf(music)}
+                    playing={playback.stateOf(music)}
                     selected={selection.selectedIds.has(row.index)}
-                    draggable={reorderable}
-                    dropTarget={overIndex === item.index && dragIndex !== null}
+                    draggable={reorder.enabled}
+                    dropTarget={reorder.isDropTarget(item.index)}
                     onSelect={(event) => {
-                      selectRow(row.index, {
+                      selection.select(row.index, {
                         shift: event.shiftKey,
                         meta: event.metaKey || event.ctrlKey,
                       });
                     }}
-                    onPlay={() => playFrom(music)}
-                    onTogglePlayPause={() => commands.togglePlayPause()}
-                    onDragStart={() => startDrag(item.index)}
-                    onDragOver={() => dragOver(item.index)}
-                    onDrop={() => dropOn(item.index)}
-                    onDragEnd={endDrag}
+                    onPlay={() => playback.playFrom(music)}
+                    onTogglePlayPause={() =>
+                      playback.commands.togglePlayPause()
+                    }
+                    onDragStart={() => reorder.start(item.index)}
+                    onDragOver={() => reorder.over(item.index)}
+                    onDrop={() => reorder.drop(item.index)}
+                    onDragEnd={reorder.end}
                     menuItems={[
                       {
                         label: t("menu.playMusic"),
                         icon: <PlayFillIcon />,
-                        onSelect: () => playFrom(music),
+                        onSelect: () => playback.playFrom(music),
                       },
                       {
                         label: t("menu.playNext"),
                         icon: <ListStart />,
-                        onSelect: () => commands.insertNext([music]),
+                        onSelect: () => playback.commands.insertNext([music]),
                       },
                       {
                         label: t("menu.addToQueue"),
                         icon: <ListEnd />,
-                        onSelect: () => commands.appendToQueue([music]),
+                        onSelect: () =>
+                          playback.commands.appendToQueue([music]),
                       },
                       <AddToPlaylistSubmenu
                         key="playlist"
-                        musics={menuTargetsOfRow(row)}
+                        musics={menu.targetsOf(row)}
                       />,
                       {
                         label: t("menu.musicInfo"),
                         icon: <NotepadText />,
-                        onSelect: () => openMusicInfo(row),
+                        onSelect: () => menu.openMusicInfo(row),
                         separatorBefore: true,
                       },
-                      fetchMusicInfoItem(menuTargetsOfRow(row)),
+                      fetchMusicInfoItem(menu.targetsOf(row)),
                       ...(ref.kind === "static"
                         ? [
                             {
                               label: t("menu.removeFromPlaylist"),
                               icon: <ListX />,
-                              onSelect: () => removeRowAt(row.index),
+                              onSelect: () => menu.removeRowAt(row.index),
                               destructive: true,
                               separatorBefore: true,
                             },

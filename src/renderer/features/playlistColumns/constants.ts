@@ -1,4 +1,4 @@
-import type { PlaylistColumn } from "./types";
+import type { PlaylistColumn, PlaylistColumnsState } from "./types";
 
 /**
  * Smallest width in px a resizable column can take. Keeps the resize handle
@@ -174,3 +174,14 @@ export const PLAYLIST_COLUMNS: readonly PlaylistColumn[] = [
     align: "end",
   },
 ];
+
+/**
+ * Column layout before the user changes anything, and what "Reset columns"
+ * returns to: the optional columns visible by default and no resized width.
+ */
+export const DEFAULT_PLAYLIST_COLUMNS_STATE: PlaylistColumnsState = {
+  visibleIds: PLAYLIST_COLUMNS.filter(
+    (column) => !column.pinned && column.defaultVisible,
+  ).map((column) => column.id),
+  widths: {},
+};

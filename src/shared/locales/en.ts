@@ -20,6 +20,8 @@ export const en: Dictionary = {
   "toolbar.toggleSidebar": "Toggle sidebar",
   "toolbar.menu": "Menu",
   "toolbar.filterSongs": "Filter songs",
+  "toolbar.columns": "Columns",
+  "toolbar.resetColumns": "Reset columns",
   "import.dialog.title": "Import Music",
   "import.dialog.expanding": "Scanning for audio files…",
   "import.dialog.count": "{count} files will be imported.",

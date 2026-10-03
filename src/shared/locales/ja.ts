@@ -19,6 +19,8 @@ export const ja: Dictionary = {
   "toolbar.toggleSidebar": "サイドバーを開閉",
   "toolbar.menu": "メニュー",
   "toolbar.filterSongs": "曲を絞り込む",
+  "toolbar.columns": "カラム",
+  "toolbar.resetColumns": "カラムを初期状態へ戻す",
   "import.dialog.title": "音楽のインポート",
   "import.dialog.expanding": "音楽ファイルを検索しています…",
   "import.dialog.count": "{count} 件のファイルをインポートします。",
