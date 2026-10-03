@@ -32,6 +32,10 @@ const compareValues = (
       );
     case "genre":
     case "composer":
+    case "lyricist":
+    case "producer":
+    case "conductor":
+    case "publisher":
     case "audioFormat":
       return compareKeys(
         a.music[columnId].toLowerCase(),
@@ -58,9 +62,10 @@ const compareValues = (
  * Comparator for the table's rows (`docs/specs/v1.3/features/column-sort.md`).
  *
  * - Names (title, artist, album, album artist) compare without the leading
- *   article and case-insensitively, by the Artists view's sort key; genre,
- *   composer, and format compare case-insensitively; the rest compare as
- *   numbers, and the added date by its full timestamp.
+ *   article and case-insensitively, by the Artists view's sort key; the
+ *   other texts (genre, the credits from composer to publisher, format)
+ *   compare case-insensitively; the rest compare as numbers, and the added
+ *   date by its full timestamp.
  * - Rows without a value (`isValueMissing`) go last in either direction.
  * - Equal rows keep the playlist order, also when descending.
  *

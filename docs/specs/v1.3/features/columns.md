@@ -16,6 +16,10 @@ Playlists のテーブルが表示できるカラムの一覧です。定義は 
 | `track` | Track / トラック | `track` | 非表示 | 72 | 可 | 可 | 右 |
 | `disc` | Disc / ディスク | `disc` | 非表示 | 72 | 可 | 可 | 右 |
 | `composer` | Composer / 作曲者 | `composer` | 非表示 | 160 | 可 | 可 | 左 |
+| `lyricist` | Lyricist / 作詞者 | `lyricist` | 非表示 | 160 | 可 | 可 | 左 |
+| `producer` | Producer / プロデューサー | `producer` | 非表示 | 160 | 可 | 可 | 左 |
+| `conductor` | Conductor / 指揮者 | `conductor` | 非表示 | 160 | 可 | 可 | 左 |
+| `publisher` | Publisher / パブリッシャー | `publisher` | 非表示 | 160 | 可 | 可 | 左 |
 | `bpm` | BPM | `bpm` | 非表示 | 72 | 可 | 可 | 右 |
 | `rating` | Rating / レート | `rating` | 非表示 | 104 | 可 | 可 | 左 |
 | `audioFormat` | Format / フォーマット | `audioFormat` | 非表示 | 96 | 可 | 可 | 左 |
@@ -59,4 +63,6 @@ Playlists のテーブルが表示できるカラムの一覧です。定義は 
 
 ## 対象外の項目
 
-`lyricist`、`producer`、`conductor`、`publisher`、`filePath`、`updatedAt` は v1.3 ではカラムにしません。一覧で見比べる用途が薄く、メニューの項目数を抑えるためです。要望があればカラム定義へ足すだけで対応できます。
+`filePath`、`updatedAt` はカラムにしません。一覧で見比べる用途が薄いためです。
+
+`lyricist`、`producer`、`conductor`、`publisher` は当初対象外としていましたが、曲情報ダイアログにあるクレジットの項目がカラム メニューにないと探す手間になるため追加しました。いずれも既定では非表示です。

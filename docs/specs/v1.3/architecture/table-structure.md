@@ -43,7 +43,7 @@ v1.2 の `useVirtualizer` の設定 (`estimateSize: MUSIC_ROW_HEIGHT`、`oversca
 - ヘッダーの高さは定数 (`PLAYLIST_TABLE_HEADER_HEIGHT`、32px) とする。計測を避け、Virtualization の補正に同じ値を使う
 - ヘッダーはスクロール コンテナー内で行より前にあるため、`scrollMargin` にヘッダーの高さを指定する。`virtualItem.start` は `scrollMargin` を含み、行は `<thead>` の下から始まる `<tbody>` の中で配置するので、行の位置は `translateY(virtualItem.start - scrollMargin)` とする
 - `scrollPaddingStart` にもヘッダーの高さを指定し、`scrollToIndex` で移動した行が固定したヘッダーに隠れないようにする
-- カラムは Virtualization しない。表示するカラムは多くても十数個で、行ごとのセル数が描画の負荷にならない
+- カラムは Virtualization しない。表示するカラムは多くても 20 個ほどで、行ごとのセル数が描画の負荷にならない
 
 ## 横スクロール
 

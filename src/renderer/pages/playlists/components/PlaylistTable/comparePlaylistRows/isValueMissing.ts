@@ -23,6 +23,10 @@ export const isValueMissing = (
     case "albumArtist":
     case "genre":
     case "composer":
+    case "lyricist":
+    case "producer":
+    case "conductor":
+    case "publisher":
       return music[columnId] === "";
     case "year":
     case "bpm":
@@ -30,7 +34,14 @@ export const isValueMissing = (
       return music[columnId] === null;
     case "track":
       return music.track === 0;
-    default:
+    // Listed rather than left to a default, so a new column fails to
+    // compile until it is given a rule here.
+    case "ordinal":
+    case "disc":
+    case "audioFormat":
+    case "addedAt":
+    case "duration":
+    case "menu":
       return false;
   }
 };

@@ -15,10 +15,10 @@ const music = (patch: Partial<Music> = {}): Music => ({
   year: 1999,
   genre: "Rock",
   composer: "Composer",
-  lyricist: "",
-  producer: "",
-  conductor: "",
-  publisher: "",
+  lyricist: "Lyricist",
+  producer: "Producer",
+  conductor: "Conductor",
+  publisher: "Publisher",
   durationMs: 225_000,
   bpm: 120,
   rating: null,
@@ -39,6 +39,10 @@ it("shows text tags as they are", () => {
   expect(playlistCellTextOf("albumArtist", row, "en")).toBe("Album Artist");
   expect(playlistCellTextOf("genre", row, "en")).toBe("Rock");
   expect(playlistCellTextOf("composer", row, "en")).toBe("Composer");
+  expect(playlistCellTextOf("lyricist", row, "en")).toBe("Lyricist");
+  expect(playlistCellTextOf("producer", row, "en")).toBe("Producer");
+  expect(playlistCellTextOf("conductor", row, "en")).toBe("Conductor");
+  expect(playlistCellTextOf("publisher", row, "en")).toBe("Publisher");
   expect(playlistCellTextOf("audioFormat", row, "en")).toBe("flac");
 });
 

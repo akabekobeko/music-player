@@ -29,6 +29,10 @@ export const playlistCellTextOf = (
     case "albumArtist":
     case "genre":
     case "composer":
+    case "lyricist":
+    case "producer":
+    case "conductor":
+    case "publisher":
     case "audioFormat":
       return music[columnId];
     case "year":

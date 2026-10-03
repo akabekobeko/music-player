@@ -33,7 +33,7 @@
 | --- | --- |
 | `ordinal` | 位置の数値 |
 | `title` / `artist` / `album` / `albumArtist` | `compareNameWithoutArticle` (冠詞を除き、大文字と小文字を区別しない。Artists ビューと同じ) |
-| `genre` / `composer` / `audioFormat` | 大文字と小文字を区別しない文字列比較 |
+| `genre` / `composer` / `lyricist` / `producer` / `conductor` / `publisher` / `audioFormat` | 大文字と小文字を区別しない文字列比較 |
 | `year` / `track` / `disc` / `bpm` / `rating` / `duration` | 数値 |
 | `addedAt` | ISO-8601 文字列の比較 (日時順と一致する) |
 
@@ -43,7 +43,7 @@
 
 | カラム | 値のない条件 |
 | --- | --- |
-| 文字列のカラム (`title` から `composer` まで) | 空文字 |
+| タグの文字列のカラム (`title` から `publisher` まで) | 空文字 |
 | `year` / `bpm` / `rating` | `null`。0 は値として扱う (`rating` の 0 は星 0 個) |
 | `track` | 0 (タグなしを 0 で保存しているため) |
 | `ordinal` / `disc` / `duration` / `audioFormat` / `addedAt` | なし。常に値を持つ |
