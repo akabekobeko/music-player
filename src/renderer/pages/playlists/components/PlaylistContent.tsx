@@ -84,7 +84,12 @@ export const PlaylistContent = ({ routeId }: Props) => {
       <div
         ref={table.scrollRef}
         className="flex-1 overflow-auto"
-        style={{ paddingInline: PLAYLIST_TABLE_PADDING_X }}
+        style={{
+          paddingInline: PLAYLIST_TABLE_PADDING_X,
+          // Keeps a header button scrolled into view by keyboard focus
+          // clear of the menu column fixed to the right edge.
+          scrollPaddingInlineEnd: table.widthOf("menu"),
+        }}
       >
         {table.measured && (
           <PlaylistTable width={table.width}>

@@ -8,6 +8,7 @@ import { cn } from "@/libs/utils";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 import {
   PLAYLIST_TABLE_HEADER_HEIGHT,
+  PLAYLIST_TABLE_MENU_STICKY_RIGHT,
   PLAYLIST_TABLE_PADDING_X,
 } from "./constants";
 import type { PlaylistSort } from "./types";
@@ -45,6 +46,10 @@ type Props = {
  * drag handle on its right edge
  * (`docs/specs/v1.3/features/column-resize.md`); the drag starts from the
  * displayed width, which this header knows through `widthOf`.
+ *
+ * The menu column's header is fixed to the right edge like its cells, and
+ * opaque so the labels passing beneath do not show through
+ * (`docs/specs/v1.3/architecture/table-structure.md`).
  */
 export const PlaylistTableHeader = ({
   columns,
@@ -73,6 +78,7 @@ export const PlaylistTableHeader = ({
       >
         {columns.map((column) => {
           const sorted = sort.columnId === column.id;
+          const fixed = column.id === "menu";
           return (
             <th
               key={column.id}
@@ -86,8 +92,14 @@ export const PlaylistTableHeader = ({
                     : "descending"
                   : undefined
               }
-              className="relative flex shrink-0 font-medium text-muted-foreground text-xs"
-              style={{ width: widthOf(column.id) }}
+              className={cn(
+                "flex shrink-0 font-medium text-muted-foreground text-xs",
+                fixed ? "sticky bg-background" : "relative",
+              )}
+              style={{
+                width: widthOf(column.id),
+                right: fixed ? PLAYLIST_TABLE_MENU_STICKY_RIGHT : undefined,
+              }}
             >
               {column.labelKey === null ? null : column.sortable ? (
                 <button

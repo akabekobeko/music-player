@@ -10,22 +10,25 @@ Playlists のテーブルが表示できるカラムの一覧です。定義は 
 | `title` | Title / タイトル | `title` | 常に表示 | 280 | 可 | 可 | 左 |
 | `artist` | Artist / アーティスト | `artist` | 表示 | 200 | 可 | 可 | 左 |
 | `album` | Album / アルバム | `album` | 表示 | 200 | 可 | 可 | 左 |
-| `albumArtist` | Album Artist / アルバム アーティスト | `albumArtist` | 非表示 | 180 | 可 | 可 | 左 |
+| `albumArtist` | Album artist / アルバムアーティスト | `albumArtist` | 非表示 | 180 | 可 | 可 | 左 |
 | `genre` | Genre / ジャンル | `genre` | 非表示 | 140 | 可 | 可 | 左 |
 | `year` | Year / 年 | `year` | 非表示 | 72 | 可 | 可 | 右 |
 | `track` | Track / トラック | `track` | 非表示 | 72 | 可 | 可 | 右 |
 | `disc` | Disc / ディスク | `disc` | 非表示 | 72 | 可 | 可 | 右 |
 | `composer` | Composer / 作曲者 | `composer` | 非表示 | 160 | 可 | 可 | 左 |
 | `bpm` | BPM | `bpm` | 非表示 | 72 | 可 | 可 | 右 |
-| `rating` | Rating / 評価 | `rating` | 非表示 | 104 | 可 | 可 | 左 |
-| `audioFormat` | Format / 形式 | `audioFormat` | 非表示 | 80 | 可 | 可 | 左 |
-| `addedAt` | Date Added / 追加日 | `addedAt` | 非表示 | 120 | 可 | 可 | 左 |
-| `duration` | Time / 時間 | `durationMs` | 表示 | 72 | 可 | 可 | 右 |
+| `rating` | Rating / レート | `rating` | 非表示 | 104 | 可 | 可 | 左 |
+| `audioFormat` | Format / フォーマット | `audioFormat` | 非表示 | 96 | 可 | 可 | 左 |
+| `addedAt` | Date added / 追加日 | `addedAt` | 非表示 | 120 | 可 | 可 | 左 |
+| `duration` | Duration / 時間 | `durationMs` | 表示 | 88 | 可 | 可 | 右 |
 | `menu` | (空欄) | 曲メニュー | 常に表示 | 44 | 不可 | 不可 | 右 |
 
 - 既定の表示は v1.2 の曲リストと同じ構成 (連番、タイトル、アーティスト、アルバム、時間) です。更新した直後に見た目が大きく変わらないようにします
 - 幅の単位は px です
 - 表示名の i18n キーは `playlist.column.<id>` とします
+- 表示名は、同じ項目を指す曲情報ダイアログの項目名 (`musicInfo.field.*`) と表記を揃えます。`addedAt` だけは日付のみを表示するため、ダイアログの「追加日時」ではなく「追加日」とします
+- 既定幅は、en / ja の表示名がソートしていない状態で省略されない幅にします。既定で表示するカラムは、ソートの矢印が付いた状態でも省略されない幅にします
+- 表記のずれは `dictionaries.test.ts` で検出します
 
 ## 常に表示するカラム
 

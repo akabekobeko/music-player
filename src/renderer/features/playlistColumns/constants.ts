@@ -136,7 +136,7 @@ export const PLAYLIST_COLUMNS: readonly PlaylistColumn[] = [
   {
     id: "audioFormat",
     labelKey: "playlist.column.audioFormat",
-    width: 80,
+    width: 96,
     pinned: false,
     defaultVisible: false,
     resizable: true,
@@ -156,7 +156,7 @@ export const PLAYLIST_COLUMNS: readonly PlaylistColumn[] = [
   {
     id: "duration",
     labelKey: "playlist.column.duration",
-    width: 72,
+    width: 88,
     pinned: false,
     defaultVisible: true,
     resizable: true,
