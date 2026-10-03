@@ -1,5 +1,6 @@
 import type { Music } from "@mp/ipc";
 import { expect, it } from "vitest";
+import { PLAYLIST_COLUMNS } from "@/features/playlistColumns/constants";
 import { playlistCellTextOf } from "../renderPlaylistCell/playlistCellTextOf";
 import { isValueMissing } from "./isValueMissing";
 
@@ -16,10 +17,10 @@ const music = (patch: Partial<Music> = {}): Music => ({
   year: 1999,
   genre: "Rock",
   composer: "Composer",
-  lyricist: "",
-  producer: "",
-  conductor: "",
-  publisher: "",
+  lyricist: "Lyricist",
+  producer: "Producer",
+  conductor: "Conductor",
+  publisher: "Publisher",
   durationMs: 225_000,
   bpm: 120,
   rating: 0.6,
@@ -38,6 +39,10 @@ const EMPTY = music({
   album: "",
   genre: "",
   composer: "",
+  lyricist: "",
+  producer: "",
+  conductor: "",
+  publisher: "",
   track: 0,
   year: null,
   bpm: null,
@@ -45,21 +50,13 @@ const EMPTY = music({
   durationMs: 0,
 });
 
-const TEXT_COLUMNS = [
-  "title",
-  "artist",
-  "album",
-  "albumArtist",
-  "genre",
-  "composer",
-  "audioFormat",
-  "year",
-  "track",
-  "disc",
-  "bpm",
-  "addedAt",
-  "duration",
-] as const;
+/**
+ * Every column whose cell is plain text. Derived from the definitions, so
+ * a new column is checked without being listed here.
+ */
+const TEXT_COLUMNS = PLAYLIST_COLUMNS.map((column) => column.id).filter(
+  (id) => id !== "ordinal" && id !== "rating" && id !== "menu",
+);
 
 it("treats an empty text tag as missing", () => {
   for (const columnId of [
@@ -69,6 +66,10 @@ it("treats an empty text tag as missing", () => {
     "albumArtist",
     "genre",
     "composer",
+    "lyricist",
+    "producer",
+    "conductor",
+    "publisher",
   ] as const) {
     expect(isValueMissing(columnId, EMPTY)).toBe(true);
     expect(isValueMissing(columnId, music())).toBe(false);

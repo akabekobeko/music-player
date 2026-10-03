@@ -63,8 +63,15 @@ it("sorts names without the leading article and case-insensitively", () => {
   }
 });
 
-it("sorts genre, composer, and format case-insensitively", () => {
-  for (const columnId of ["genre", "composer"] as const) {
+it("sorts the other text columns case-insensitively", () => {
+  for (const columnId of [
+    "genre",
+    "composer",
+    "lyricist",
+    "producer",
+    "conductor",
+    "publisher",
+  ] as const) {
     const rows = rowsOf([
       { [columnId]: "rock" },
       { [columnId]: "Jazz" },
