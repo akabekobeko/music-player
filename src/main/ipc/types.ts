@@ -567,6 +567,25 @@ export type LastView = {
 };
 
 /**
+ * Column layout of the Playlist view's table, shared by every playlist
+ * (`docs/specs/v1.3/architecture/column-settings.md`). Column ids are plain
+ * strings so Main does not depend on the Renderer's column definitions.
+ */
+export type PlaylistColumnsSettings = {
+  /**
+   * Ids of the optional columns shown in the Playlist view's table. The
+   * always-visible columns are never listed. Order is not significant in
+   * v1.3.
+   */
+  readonly visibleIds: readonly string[];
+  /**
+   * User-resized column widths in pixels, keyed by column id. Columns that
+   * were never resized are absent and use the default width.
+   */
+  readonly widths: Readonly<Record<string, number>>;
+};
+
+/**
  * Persisted user preferences. Lives in `<userData>/settings.json`; only Main
  * touches the file directly
  * (`docs/specs/v1.0/architecture/process-model.md`).
@@ -617,6 +636,8 @@ export type AppSettings = {
   readonly importDialogPath?: string;
   /** Last main view (section + sidebar selection), restored on next launch. */
   readonly lastView?: LastView;
+  /** Column layout of the Playlist view's table, restored on next launch. */
+  readonly playlistColumns?: PlaylistColumnsSettings;
 };
 
 /**

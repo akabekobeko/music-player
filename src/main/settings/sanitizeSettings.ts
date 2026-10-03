@@ -5,6 +5,7 @@ import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
 import { sanitizeLastView } from "./sanitizeLastView";
+import { sanitizePlaylistColumns } from "./sanitizePlaylistColumns";
 import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
@@ -55,6 +56,9 @@ export const sanitizeSettings = (raw: unknown): AppSettings => {
       : {}),
     ...(sanitizeLastView(source.lastView)
       ? { lastView: sanitizeLastView(source.lastView) }
+      : {}),
+    ...(sanitizePlaylistColumns(source.playlistColumns)
+      ? { playlistColumns: sanitizePlaylistColumns(source.playlistColumns) }
       : {}),
   };
 };

@@ -17,6 +17,7 @@ it("keeps valid persisted fields", () => {
     albumFilter: { text: "abc", genres: ["Rock"], decades: [1990, null] },
     sidebar: { open: false, width: 300 },
     lastView: { section: "artists", artist: "Queen" },
+    playlistColumns: { visibleIds: ["artist"], widths: { title: 320 } },
   });
   expect(settings.window).toEqual({
     x: 10,
@@ -34,6 +35,10 @@ it("keeps valid persisted fields", () => {
   });
   expect(settings.sidebar).toEqual({ open: false, width: 300 });
   expect(settings.lastView).toEqual({ section: "artists", artist: "Queen" });
+  expect(settings.playlistColumns).toEqual({
+    visibleIds: ["artist"],
+    widths: { title: 320 },
+  });
 });
 
 it("drops invalid fields and falls back to defaults", () => {
@@ -44,6 +49,7 @@ it("drops invalid fields and falls back to defaults", () => {
     albumFilter: { text: 1, genres: "Rock" },
     sidebar: { open: "yes", width: -10 },
     lastView: { section: "settings" },
+    playlistColumns: { visibleIds: "artist", widths: { title: 320 } },
   });
   expect(settings.window).toEqual(DEFAULT_SETTINGS.window);
   expect(settings.locale).toBeUndefined();
@@ -51,6 +57,17 @@ it("drops invalid fields and falls back to defaults", () => {
   expect(settings.albumFilter).toBeUndefined();
   expect(settings.sidebar).toBeUndefined();
   expect(settings.lastView).toBeUndefined();
+  expect(settings.playlistColumns).toBeUndefined();
+});
+
+it("keeps the visible columns when only the widths are broken", () => {
+  const settings = sanitizeSettings({
+    playlistColumns: { visibleIds: ["artist", 1], widths: ["320"] },
+  });
+  expect(settings.playlistColumns).toEqual({
+    visibleIds: ["artist"],
+    widths: {},
+  });
 });
 
 it("ignores unknown keys instead of persisting them", () => {

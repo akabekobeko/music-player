@@ -98,3 +98,49 @@ it("keeps the current lastView when the patch value is invalid", () => {
     }).lastView,
   ).toEqual({ section: "albums" });
 });
+
+it("replaces playlistColumns wholesale", () => {
+  const current = {
+    ...DEFAULT_SETTINGS,
+    playlistColumns: {
+      visibleIds: ["artist", "album"],
+      widths: { title: 320, artist: 180 },
+    },
+  };
+  const merged = mergeSettings(current, {
+    playlistColumns: { visibleIds: ["year"], widths: { album: 240 } },
+  });
+  expect(merged.playlistColumns).toEqual({
+    visibleIds: ["year"],
+    widths: { album: 240 },
+  });
+  expect(mergeSettings(merged, { theme: "dark" }).playlistColumns).toEqual({
+    visibleIds: ["year"],
+    widths: { album: 240 },
+  });
+});
+
+it("sanitizes the playlistColumns of a patch", () => {
+  const merged = mergeSettings(DEFAULT_SETTINGS, {
+    playlistColumns: {
+      visibleIds: ["artist", "artist"],
+      widths: { title: 320.6, artist: 0.4, album: Number.NaN },
+    },
+  });
+  expect(merged.playlistColumns).toEqual({
+    visibleIds: ["artist"],
+    widths: { title: 321 },
+  });
+});
+
+it("keeps the current playlistColumns when the patch value is invalid", () => {
+  const current = {
+    ...DEFAULT_SETTINGS,
+    playlistColumns: { visibleIds: ["artist"], widths: { title: 320 } },
+  };
+  expect(
+    mergeSettings(current, {
+      playlistColumns: { widths: { title: 400 } },
+    }).playlistColumns,
+  ).toEqual({ visibleIds: ["artist"], widths: { title: 320 } });
+});

@@ -4,6 +4,7 @@ import { isLocalePreference } from "./isLocalePreference";
 import { isThemePreference } from "./isThemePreference";
 import { sanitizeAlbumFilter } from "./sanitizeAlbumFilter";
 import { sanitizeLastView } from "./sanitizeLastView";
+import { sanitizePlaylistColumns } from "./sanitizePlaylistColumns";
 import { sanitizeSidebar } from "./sanitizeSidebar";
 
 /**
@@ -69,11 +70,17 @@ export const mergeSettings = (
     patch.lastView !== undefined
       ? (sanitizeLastView(patch.lastView) ?? current.lastView)
       : current.lastView;
+  const playlistColumns =
+    patch.playlistColumns !== undefined
+      ? (sanitizePlaylistColumns(patch.playlistColumns) ??
+        current.playlistColumns)
+      : current.playlistColumns;
   return {
     ...merged,
     ...(albumFilter !== undefined ? { albumFilter } : {}),
     ...(sidebar !== undefined ? { sidebar } : {}),
     ...(importDialogPath !== undefined ? { importDialogPath } : {}),
     ...(lastView !== undefined ? { lastView } : {}),
+    ...(playlistColumns !== undefined ? { playlistColumns } : {}),
   };
 };
