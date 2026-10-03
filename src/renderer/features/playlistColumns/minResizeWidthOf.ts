@@ -1,4 +1,5 @@
 import { MIN_COLUMN_WIDTH } from "./constants";
+import { titleFillWidthOf } from "./titleFillWidthOf";
 import type { PlaylistColumnId, PlaylistColumnWidths } from "./types";
 
 /**
@@ -18,12 +19,7 @@ export const minResizeWidthOf = (
   columnId: PlaylistColumnId,
   widths: PlaylistColumnWidths,
   containerWidth: number,
-): number => {
-  if (columnId !== "title") {
-    return MIN_COLUMN_WIDTH;
-  }
-
-  const total = Object.values(widths).reduce((sum, width) => sum + width, 0);
-  const others = total - (widths.title ?? 0);
-  return Math.max(MIN_COLUMN_WIDTH, containerWidth - others);
-};
+): number =>
+  columnId === "title"
+    ? Math.max(MIN_COLUMN_WIDTH, titleFillWidthOf(widths, containerWidth))
+    : MIN_COLUMN_WIDTH;

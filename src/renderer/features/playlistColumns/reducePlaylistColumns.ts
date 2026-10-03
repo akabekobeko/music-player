@@ -24,7 +24,9 @@ export type PlaylistColumnsAction =
  * - `visibilityChanged` shows or hides an optional column. Pinned columns
  *   are ignored, and hiding keeps the column's saved width.
  * - `widthChanged` saves a resized width in px. Columns that cannot be
- *   resized are ignored.
+ *   resized are ignored, and a width equal to the column's default drops
+ *   the saved width instead, so "resized back to the default" and "never
+ *   resized" are the same state.
  * - `widthReset` drops a saved width, returning the column to its default.
  * - `reset` returns to `DEFAULT_PLAYLIST_COLUMNS_STATE`.
  *
@@ -45,6 +47,16 @@ export const reducePlaylistColumns = (
   if (column === undefined) {
     return state;
   }
+
+  /** The layout without a saved width for the column. */
+  const withoutWidth = (): PlaylistColumnsState => {
+    if (!(column.id in state.widths)) {
+      return state;
+    }
+
+    const { [column.id]: _, ...widths } = state.widths;
+    return { ...state, widths };
+  };
 
   switch (action.type) {
     case "visibilityChanged": {
@@ -67,18 +79,11 @@ export const reducePlaylistColumns = (
         return state;
       }
 
-      return {
-        ...state,
-        widths: { ...state.widths, [column.id]: action.width },
-      };
+      return action.width === column.width
+        ? withoutWidth()
+        : { ...state, widths: { ...state.widths, [column.id]: action.width } };
     }
-    case "widthReset": {
-      if (!(column.id in state.widths)) {
-        return state;
-      }
-
-      const { [column.id]: _, ...widths } = state.widths;
-      return { ...state, widths };
-    }
+    case "widthReset":
+      return withoutWidth();
   }
 };

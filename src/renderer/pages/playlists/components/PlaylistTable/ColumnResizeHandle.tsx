@@ -7,7 +7,10 @@ type Props = {
   readonly onPointerMove: (event: PointerEvent<HTMLElement>) => void;
   /** Commits the dragged width. */
   readonly onPointerUp: (event: PointerEvent<HTMLElement>) => void;
-  /** Abandons the drag. */
+  /**
+   * Abandons the drag: the pointer was cancelled, or the handle lost the
+   * capture without a `pointerup`.
+   */
   readonly onPointerCancel: () => void;
   /** Returns the column to its default width. */
   readonly onDoubleClick: () => void;
@@ -35,6 +38,7 @@ export const ColumnResizeHandle = ({
     onPointerMove={onPointerMove}
     onPointerUp={onPointerUp}
     onPointerCancel={onPointerCancel}
+    onLostPointerCapture={onPointerCancel}
     onDoubleClick={onDoubleClick}
   />
 );

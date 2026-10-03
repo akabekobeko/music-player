@@ -147,6 +147,17 @@ it("treats a zero rating and a zero duration as values", () => {
   expect(sorted(durations, "duration", "desc")).toEqual([0, 1]);
 });
 
+it("treats names that differ only in case or article as equal", () => {
+  const rows = rowsOf([
+    { album: "The Wall" },
+    { album: "the wall" },
+    { album: "Animals" },
+    { album: "Wall" },
+  ]);
+  expect(sorted(rows, "album", "asc")).toEqual([2, 0, 1, 3]);
+  expect(sorted(rows, "album", "desc")).toEqual([0, 1, 3, 2]);
+});
+
 it("keeps equal rows in the playlist order in either direction", () => {
   const rows = rowsOf([
     { album: "B" },

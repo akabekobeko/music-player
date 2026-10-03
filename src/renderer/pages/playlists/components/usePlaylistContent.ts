@@ -1,6 +1,6 @@
 import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicRow/MusicRow";
 import { useElementWidth } from "@/features/layout/useElementWidth";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
@@ -82,7 +82,8 @@ type BoundSelection = {
  * displayed widths and the resize drag, the sort state, the row
  * virtualiser, the row multi-selection, drag & drop reorder, the
  * smart-rules editor state, and every playback action. The component only
- * renders what this hook returns.
+ * renders what this hook returns: the playlist and its rows at the top
+ * level, everything else grouped by role.
  */
 export const usePlaylistContent = (routeId: string) => {
   // Parse cannot fail here — the parent only mounts this for valid ids.
@@ -137,7 +138,7 @@ export const usePlaylistContent = (routeId: string) => {
     PLAYLIST_COLUMNS,
     columnsState.visibleIds,
   );
-  const { liveWidths, ...resize } = useColumnResize({
+  const { liveWidths, handlers: resizeHandlers } = useColumnResize({
     baseWidths: resolveColumnWidths(columns, columnsState.widths),
     onColumnResize: (columnId, width) => {
       playlistColumnsStore.dispatch({ type: "widthChanged", columnId, width });
@@ -197,14 +198,19 @@ export const usePlaylistContent = (routeId: string) => {
   // dialog all follow this displayed order. Rows carry their position in
   // the playlist order because the ordinal, the selection, and mutations
   // (removal) address the playlist itself, not the displayed view.
-  const filtered: readonly PlaylistRow[] = musics
-    .map((music, index) => ({ music, index }))
-    .filter(({ music }) =>
-      matchesTrackFilter(music.title, trackFilter.playlists),
-    );
-  const rows = playlistOrder
-    ? filtered
-    : filtered.toSorted(comparePlaylistRows(sort));
+  //
+  // Memoised on measurement: sorting 10,000 rows by a name column takes
+  // about 16ms, a whole frame, and this hook re-renders on every pointer
+  // move of a column resize drag.
+  const filterText = trackFilter.playlists;
+  const rows = useMemo((): readonly PlaylistRow[] => {
+    const filtered = musics
+      .map((music, index) => ({ music, index }))
+      .filter(({ music }) => matchesTrackFilter(music.title, filterText));
+    return playlistOrder
+      ? filtered
+      : filtered.toSorted(comparePlaylistRows(sort));
+  }, [musics, filterText, sort, playlistOrder]);
   const visibleMusics = rows.map(({ music }) => music);
   const selection =
     bound !== null && bound.base === musics ? bound.selection : EMPTY_SELECTION;
@@ -316,6 +322,10 @@ export const usePlaylistContent = (routeId: string) => {
     setOverIndex(null);
   };
 
+  /** Whether a dragged row would be inserted before the row at `index`. */
+  const isDropTarget = (index: number): boolean =>
+    dragIndex !== null && overIndex === index;
+
   const openRulesEditor = (): void => {
     setEditingRules(true);
   };
@@ -336,41 +346,50 @@ export const usePlaylistContent = (routeId: string) => {
   return {
     ref,
     playlist,
-    rows,
     musicsState,
+    rows,
     filterActive,
-    reorderable,
     totalDurationMs,
-    columns,
-    widthOf,
-    tableWidth,
-    measured,
-    sort,
-    sortBy,
-    resize,
-    minWidthOf,
-    resetWidth,
-    scrollRef,
-    virtualizer,
-    commands,
-    dragIndex,
-    overIndex,
-    startDrag,
-    dragOver,
-    dropOn,
-    endDrag,
-    editingRules,
-    openRulesEditor,
-    closeRulesEditor,
-    submitRules,
-    playFrom,
-    playAll,
-    playShuffled,
-    removeRowAt,
-    selection,
-    selectRow,
-    menuTargetsOfRow,
-    openMusicInfo,
-    playingStateOf,
+    /** Table layout: columns, displayed widths, and the virtualised scroll. */
+    table: {
+      columns,
+      widthOf,
+      width: tableWidth,
+      measured,
+      scrollRef,
+      virtualizer,
+    },
+    /** Sort state and the header click that changes it. */
+    sort: { state: sort, sortBy },
+    /** Column resize: the handles' pointer handlers, bound, and reset. */
+    resize: { handlers: resizeHandlers, minWidthOf, resetWidth },
+    /** Row multi-selection by playlist position. */
+    selection: { selectedIds: selection.selectedIds, select: selectRow },
+    /** Drag & drop reorder of a static playlist. */
+    reorder: {
+      enabled: reorderable,
+      isDropTarget,
+      start: startDrag,
+      over: dragOver,
+      drop: dropOn,
+      end: endDrag,
+    },
+    /** Playback of the displayed tracks and the rows' playing state. */
+    playback: {
+      commands,
+      stateOf: playingStateOf,
+      playFrom,
+      playAll,
+      playShuffled,
+    },
+    /** Row menu: the tracks an entry applies to and the menu's actions. */
+    menu: { targetsOf: menuTargetsOfRow, openMusicInfo, removeRowAt },
+    /** Smart-rules editor dialog (smart playlists only). */
+    rulesEditor: {
+      open: editingRules,
+      show: openRulesEditor,
+      close: closeRulesEditor,
+      submit: submitRules,
+    },
   };
 };

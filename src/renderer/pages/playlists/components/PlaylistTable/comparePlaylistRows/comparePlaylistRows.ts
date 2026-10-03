@@ -1,14 +1,11 @@
-import { compareNameWithoutArticle } from "@/features/library/compareNameWithoutArticle/compareNameWithoutArticle";
+import { sortKeyWithoutArticle } from "@/features/library/compareNameWithoutArticle/sortKeyWithoutArticle";
 import type { PlaylistColumnId } from "@/features/playlistColumns/types";
 import type { PlaylistRow, PlaylistSort } from "../types";
 import { isValueMissing } from "./isValueMissing";
 
-/** Case-insensitive text order. */
-const compareText = (a: string, b: string): number => {
-  const lowerA = a.toLowerCase();
-  const lowerB = b.toLowerCase();
-  return lowerA < lowerB ? -1 : lowerA > lowerB ? 1 : 0;
-};
+/** Order of two sort keys by code unit. */
+const compareKeys = (a: string, b: string): number =>
+  a < b ? -1 : a > b ? 1 : 0;
 
 /**
  * Ascending order of two rows by a column's value. Rows without a value
@@ -26,11 +23,20 @@ const compareValues = (
     case "artist":
     case "album":
     case "albumArtist":
-      return compareNameWithoutArticle(a.music[columnId], b.music[columnId]);
+      // The key alone, without the raw-name tiebreak of
+      // `compareNameWithoutArticle`: names that differ only in case or in
+      // the article are equal here and keep the playlist order.
+      return compareKeys(
+        sortKeyWithoutArticle(a.music[columnId]),
+        sortKeyWithoutArticle(b.music[columnId]),
+      );
     case "genre":
     case "composer":
     case "audioFormat":
-      return compareText(a.music[columnId], b.music[columnId]);
+      return compareKeys(
+        a.music[columnId].toLowerCase(),
+        b.music[columnId].toLowerCase(),
+      );
     case "year":
     case "bpm":
     case "rating":
@@ -42,11 +48,7 @@ const compareValues = (
       return a.music.durationMs - b.music.durationMs;
     case "addedAt":
       // ISO-8601 strings order like the instants they denote.
-      return a.music.addedAt < b.music.addedAt
-        ? -1
-        : a.music.addedAt > b.music.addedAt
-          ? 1
-          : 0;
+      return compareKeys(a.music.addedAt, b.music.addedAt);
     case "menu":
       return 0;
   }
@@ -56,9 +58,9 @@ const compareValues = (
  * Comparator for the table's rows (`docs/specs/v1.3/features/column-sort.md`).
  *
  * - Names (title, artist, album, album artist) compare without the leading
- *   article and case-insensitively, like the Artists view; genre, composer,
- *   and format compare case-insensitively; the rest compare as numbers, and
- *   the added date by its full timestamp.
+ *   article and case-insensitively, by the Artists view's sort key; genre,
+ *   composer, and format compare case-insensitively; the rest compare as
+ *   numbers, and the added date by its full timestamp.
  * - Rows without a value (`isValueMissing`) go last in either direction.
  * - Equal rows keep the playlist order, also when descending.
  *

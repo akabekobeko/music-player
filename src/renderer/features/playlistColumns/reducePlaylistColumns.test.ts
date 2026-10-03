@@ -85,6 +85,22 @@ it("returns the same state when the width is already saved", () => {
   ).toBe(STATE);
 });
 
+it("drops the saved width when a column is resized back to its default", () => {
+  const next = reducePlaylistColumns(STATE, {
+    type: "widthChanged",
+    columnId: "artist",
+    width: 200,
+  });
+  expect(next.widths).toEqual({});
+  expect(
+    reducePlaylistColumns(STATE, {
+      type: "widthChanged",
+      columnId: "album",
+      width: 200,
+    }),
+  ).toBe(STATE);
+});
+
 it("ignores a width of a column that cannot be resized", () => {
   for (const columnId of ["ordinal", "menu"] as const) {
     expect(

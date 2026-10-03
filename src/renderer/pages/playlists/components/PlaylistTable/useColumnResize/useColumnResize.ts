@@ -36,8 +36,8 @@ type Drag = {
  * same element receives the move / up / cancel events wherever the pointer
  * goes; they are plain event handlers, no effect is involved.
  *
- * @returns `liveWidths` for display, and the pointer handlers for the
- *   resize handles.
+ * @returns `liveWidths` for display, and `handlers`, the pointer handlers
+ *   for the resize handles.
  */
 export const useColumnResize = ({ baseWidths, onColumnResize }: Args) => {
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -102,16 +102,23 @@ export const useColumnResize = ({ baseWidths, onColumnResize }: Args) => {
     }
   };
 
-  /** Abandon the drag on `pointercancel`; nothing is persisted. */
+  /**
+   * Abandon the drag on `pointercancel` or when the handle loses the
+   * pointer capture without a `pointerup`; nothing is persisted. After a
+   * regular `pointerup` the capture is released too, by which time the drag
+   * is already over.
+   */
   const cancelResize = (): void => {
     setDrag(null);
   };
 
-  return { liveWidths, beginResize, moveResize, endResize, cancelResize };
+  return {
+    liveWidths,
+    handlers: { beginResize, moveResize, endResize, cancelResize },
+  };
 };
 
 /** Pointer handlers of `useColumnResize`, for the resize handles. */
-export type ColumnResizeHandlers = Pick<
-  ReturnType<typeof useColumnResize>,
-  "beginResize" | "moveResize" | "endResize" | "cancelResize"
->;
+export type ColumnResizeHandlers = ReturnType<
+  typeof useColumnResize
+>["handlers"];

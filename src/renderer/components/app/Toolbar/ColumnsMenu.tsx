@@ -7,14 +7,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useT } from "@/features/i18n/useT";
 import type { PlaylistColumnId } from "@/features/playlistColumns/types";
-import { GlowIconButton } from "../Buttons/GlowIconButton";
+import { ClusterButton } from "./ClusterButton";
 
 /** Delay before the tooltip shows, like the toolbar's icon cluster. */
 const TOOLTIP_DELAY_MS = 700;
@@ -45,8 +41,9 @@ type Props = {
  * (`docs/specs/v1.3/features/column-visibility.md`): a checkbox per
  * optional column of the Playlist table, then "Reset columns". Toggling an
  * entry keeps the menu open so several columns can be switched in a row.
- * The pinned columns are not listed. The button opts out of the toolbar's
- * window drag region.
+ * The pinned columns are not listed. The trigger is the toolbar's
+ * `ClusterButton`: glowing icon, tooltip, and opt-out of the window drag
+ * region.
  */
 export const ColumnsMenu = ({
   items,
@@ -55,27 +52,17 @@ export const ColumnsMenu = ({
   onReset,
 }: Props) => {
   const t = useT();
-  const label = t("toolbar.columns");
   return (
     <DropdownMenu>
-      <Tooltip>
+      <TooltipProvider delay={TOOLTIP_DELAY_MS}>
         <DropdownMenuTrigger
           render={
-            <TooltipTrigger
-              delay={TOOLTIP_DELAY_MS}
-              render={
-                <GlowIconButton
-                  aria-label={label}
-                  className="app-region-no-drag shrink-0"
-                >
-                  <Columns3 />
-                </GlowIconButton>
-              }
-            />
+            <ClusterButton label={t("toolbar.columns")}>
+              <Columns3 />
+            </ClusterButton>
           }
         />
-        <TooltipContent side="bottom">{label}</TooltipContent>
-      </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent align="end">
         {items.map((item) => (
           <DropdownMenuCheckboxItem

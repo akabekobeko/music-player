@@ -38,7 +38,8 @@ type Props = {
  * padding, outside the header's box, so two unblurred shadows in the
  * background colour extend the cover over the padding on both sides.
  *
- * A sortable column's label is a button: a click sorts by the column or
+ * A sortable column's label is a button (plain text otherwise): a click
+ * sorts by the column or
  * flips the direction (`docs/specs/v1.3/features/column-sort.md`), and the
  * sorted column shows an arrow and `aria-sort`. A resizable column has a
  * drag handle on its right edge
@@ -88,7 +89,7 @@ export const PlaylistTableHeader = ({
               className="relative flex shrink-0 font-medium text-muted-foreground text-xs"
               style={{ width: widthOf(column.id) }}
             >
-              {column.sortable && column.labelKey !== null && (
+              {column.labelKey === null ? null : column.sortable ? (
                 <button
                   type="button"
                   className={cn(
@@ -106,6 +107,15 @@ export const PlaylistTableHeader = ({
                       <ChevronDown aria-hidden className="size-3 shrink-0" />
                     ))}
                 </button>
+              ) : (
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 self-center truncate px-2",
+                    column.align === "end" ? "text-end" : "text-start",
+                  )}
+                >
+                  {t(column.labelKey)}
+                </span>
               )}
               {column.resizable && (
                 <ColumnResizeHandle
