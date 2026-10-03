@@ -2,6 +2,7 @@ import type { Music, Playlist, SmartPlaylistRules } from "@mp/ipc";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState, useSyncExternalStore } from "react";
 import { MUSIC_ROW_HEIGHT } from "@/components/app/MusicRow/MusicRow";
+import { useElementWidth } from "@/features/layout/useElementWidth";
 import { musicInfoStore } from "@/features/library/musicInfoStore";
 import { queryKeys } from "@/features/library/queryStore/queryKeys";
 import {
@@ -24,9 +25,19 @@ import {
 import { parsePlaylistRouteId } from "@/features/playlist/parsePlaylistRouteId";
 import { replacePlaylistMusics } from "@/features/playlist/playlistCommands/replacePlaylistMusics";
 import { updatePlaylist } from "@/features/playlist/playlistCommands/updatePlaylist";
+import { PLAYLIST_COLUMNS } from "@/features/playlistColumns/constants";
+import { fitTitleWidth } from "@/features/playlistColumns/fitTitleWidth";
+import { resolveColumnWidths } from "@/features/playlistColumns/resolveColumnWidths";
+import { resolveVisibleColumns } from "@/features/playlistColumns/resolveVisibleColumns";
+import type { PlaylistColumnId } from "@/features/playlistColumns/types";
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { moveItem } from "./moveItem";
+import {
+  PLAYLIST_TABLE_HEADER_HEIGHT,
+  PLAYLIST_TABLE_PADDING_X,
+  PLAYLIST_TABLE_PADDING_Y,
+} from "./PlaylistTable/constants";
 import { removeAt } from "./removeAt";
 
 /**
@@ -65,9 +76,10 @@ type PlaylistRow = {
 
 /**
  * Logic of `PlaylistContent`: the playlist and its position-ordered tracks
- * (with the optimistic reorder override), the row virtualiser, the row
- * multi-selection, drag & drop reorder, the smart-rules editor state, and
- * every playback action. The component only renders what this hook returns.
+ * (with the optimistic reorder override), the table's columns and their
+ * displayed widths, the row virtualiser, the row multi-selection, drag &
+ * drop reorder, the smart-rules editor state, and every playback action.
+ * The component only renders what this hook returns.
  */
 export const usePlaylistContent = (routeId: string) => {
   // Parse cannot fail here — the parent only mounts this for valid ids.
@@ -125,11 +137,46 @@ export const usePlaylistContent = (routeId: string) => {
     0,
   );
 
+  // Reorder needs the displayed order to be the playlist order: drag
+  // indices are positions only while nothing is filtered out.
+  const reorderable = ref.kind === "static" && !filterActive;
+
+  // Columns and widths are derived in render
+  // (`docs/specs/v1.3/architecture/column-settings.md`). Until the column
+  // settings arrive, the definitions' default set and widths apply. The
+  // title column takes up whatever the container has left.
+  const columns = resolveVisibleColumns(PLAYLIST_COLUMNS, undefined);
+  const scrollWidth = useElementWidth(scrollRef);
+  // The table waits for the first measurement, so the columns never jump
+  // from the default widths to the fitted ones.
+  const measured = scrollWidth > 0;
+  const containerWidth = Math.max(
+    0,
+    scrollWidth - PLAYLIST_TABLE_PADDING_X * 2,
+  );
+  const widths = fitTitleWidth(
+    resolveColumnWidths(columns, undefined),
+    containerWidth,
+  );
+  /** Displayed width in px of a column, for the header and the cells. */
+  const widthOf = (columnId: PlaylistColumnId): number => widths[columnId] ?? 0;
+  const tableWidth = columns.reduce(
+    (total, column) => total + widthOf(column.id),
+    0,
+  );
+
+  // The fixed header sits above the rows inside the scroll container, so
+  // the rows start `scrollMargin` below its top; `scrollPaddingStart` keeps
+  // a row scrolled into view clear of the header.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => MUSIC_ROW_HEIGHT,
     overscan: 12,
+    scrollMargin: PLAYLIST_TABLE_HEADER_HEIGHT,
+    scrollPaddingStart: PLAYLIST_TABLE_HEADER_HEIGHT,
+    paddingStart: PLAYLIST_TABLE_PADDING_Y,
+    paddingEnd: PLAYLIST_TABLE_PADDING_Y,
   });
 
   const playFrom = (music: Music): void => {
@@ -204,7 +251,7 @@ export const usePlaylistContent = (routeId: string) => {
   };
 
   const dropOn = (index: number): void => {
-    if (dragIndex !== null && dragIndex !== index && !filterActive) {
+    if (dragIndex !== null && dragIndex !== index && reorderable) {
       commitOrder(moveItem(musics, dragIndex, index));
     }
 
@@ -240,7 +287,12 @@ export const usePlaylistContent = (routeId: string) => {
     rows,
     musicsState,
     filterActive,
+    reorderable,
     totalDurationMs,
+    columns,
+    widthOf,
+    tableWidth,
+    measured,
     scrollRef,
     virtualizer,
     commands,

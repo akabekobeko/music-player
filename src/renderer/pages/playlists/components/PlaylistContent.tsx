@@ -1,13 +1,16 @@
 import { ListEnd, ListStart, ListX, NotepadText } from "lucide-react";
 import { AddToPlaylistSubmenu } from "@/components/app/AddToPlaylistSubmenu/AddToPlaylistSubmenu";
-import { EllipsisText } from "@/components/app/EllipsisText/EllipsisText";
 import { PlayFillIcon } from "@/components/app/Icons/PlayFillIcon";
-import { MusicRow } from "@/components/app/MusicRow/MusicRow";
 import { useFetchMusicInfoItem } from "@/components/app/RowMenu/useFetchMusicInfoItem";
 import { Stack } from "@/components/app/stacks";
+import { useLocale } from "@/features/i18n/useLocale";
 import { useT } from "@/features/i18n/useT";
-import { cn } from "@/libs/utils";
 import { PlaylistHeader } from "./PlaylistHeader";
+import { PLAYLIST_TABLE_PADDING_X } from "./PlaylistTable/constants";
+import { PlaylistTable } from "./PlaylistTable/PlaylistTable";
+import { PlaylistTableBody } from "./PlaylistTable/PlaylistTableBody";
+import { PlaylistTableHeader } from "./PlaylistTable/PlaylistTableHeader";
+import { PlaylistTableRow } from "./PlaylistTable/PlaylistTableRow";
 import { SmartRulesDialog } from "./SmartRulesDialog/SmartRulesDialog";
 import { usePlaylistContent } from "./usePlaylistContent";
 
@@ -18,11 +21,14 @@ type Props = {
 
 /**
  * Selected-playlist content; remounted per playlist via the parent's `key`.
- * Rows multi-select like the Artist view (click / Shift / Cmd-Ctrl) by
- * position, and the row menus ([...] and right-click) act on the selection.
+ * The tracks show as a table with a fixed header row
+ * (`docs/specs/v1.3/features/playlist-table.md`). Rows multi-select like
+ * the Artist view (click / Shift / Cmd-Ctrl) by position, and the row menus
+ * ([...] and right-click) act on the selection.
  */
 export const PlaylistContent = ({ routeId }: Props) => {
   const t = useT();
+  const locale = useLocale();
   const fetchMusicInfoItem = useFetchMusicInfoItem();
   const {
     ref,
@@ -30,7 +36,12 @@ export const PlaylistContent = ({ routeId }: Props) => {
     rows,
     musicsState,
     filterActive,
+    reorderable,
     totalDurationMs,
+    columns,
+    widthOf,
+    tableWidth,
+    measured,
     scrollRef,
     virtualizer,
     commands,
@@ -89,113 +100,94 @@ export const PlaylistContent = ({ routeId }: Props) => {
           </p>
         )}
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-2">
-        <ul
-          className="relative w-full list-none"
-          style={{ height: virtualizer.getTotalSize() }}
-        >
-          {virtualizer.getVirtualItems().map((item) => {
-            const row = rows[item.index];
-            if (row === undefined) {
-              return null;
-            }
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-auto"
+        style={{ paddingInline: PLAYLIST_TABLE_PADDING_X }}
+      >
+        {measured && (
+          <PlaylistTable width={tableWidth}>
+            <PlaylistTableHeader columns={columns} widthOf={widthOf} />
+            <PlaylistTableBody height={virtualizer.getTotalSize()}>
+              {virtualizer.getVirtualItems().map((item) => {
+                const row = rows[item.index];
+                if (row === undefined) {
+                  return null;
+                }
 
-            const music = row.music;
-            return (
-              <li
-                key={item.index}
-                draggable={ref.kind === "static" && !filterActive}
-                className={cn(
-                  "absolute top-0 left-0 w-full",
-                  // The playing row's glow reaches into the next row; raise
-                  // its wrapper so the neighbour's accent background never
-                  // covers it (the transformed wrappers are stacking contexts).
-                  playingStateOf(music) !== null && "z-[1]",
-                  overIndex === item.index &&
-                    dragIndex !== null &&
-                    "border-primary border-t-2",
-                )}
-                style={{
-                  height: item.size,
-                  transform: `translateY(${item.start}px)`,
-                }}
-                onDragStart={() => startDrag(item.index)}
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  dragOver(item.index);
-                }}
-                onDrop={() => dropOn(item.index)}
-                onDragEnd={endDrag}
-              >
-                <MusicRow
-                  music={music}
-                  ordinal={row.index + 1}
-                  columns={
-                    <>
-                      <EllipsisText
-                        className="w-1/4 shrink-0 text-muted-foreground text-xs"
-                        text={music.artist}
-                      />
-                      <EllipsisText
-                        className="w-1/4 shrink-0 text-muted-foreground text-xs"
-                        text={music.album}
-                      />
-                    </>
-                  }
-                  playing={playingStateOf(music)}
-                  selected={selection.selectedIds.has(row.index)}
-                  onClick={(event) => {
-                    selectRow(row.index, {
-                      shift: event.shiftKey,
-                      meta: event.metaKey || event.ctrlKey,
-                    });
-                  }}
-                  onPlay={() => playFrom(music)}
-                  onTogglePlayPause={() => commands.togglePlayPause()}
-                  menuItems={[
-                    {
-                      label: t("menu.playMusic"),
-                      icon: <PlayFillIcon />,
-                      onSelect: () => playFrom(music),
-                    },
-                    {
-                      label: t("menu.playNext"),
-                      icon: <ListStart />,
-                      onSelect: () => commands.insertNext([music]),
-                    },
-                    {
-                      label: t("menu.addToQueue"),
-                      icon: <ListEnd />,
-                      onSelect: () => commands.appendToQueue([music]),
-                    },
-                    <AddToPlaylistSubmenu
-                      key="playlist"
-                      musics={menuTargetsOfRow(row)}
-                    />,
-                    {
-                      label: t("menu.musicInfo"),
-                      icon: <NotepadText />,
-                      onSelect: () => openMusicInfo(row),
-                      separatorBefore: true,
-                    },
-                    fetchMusicInfoItem(menuTargetsOfRow(row)),
-                    ...(ref.kind === "static"
-                      ? [
-                          {
-                            label: t("menu.removeFromPlaylist"),
-                            icon: <ListX />,
-                            onSelect: () => removeRowAt(row.index),
-                            destructive: true,
-                            separatorBefore: true,
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </li>
-            );
-          })}
-        </ul>
+                const music = row.music;
+                return (
+                  <PlaylistTableRow
+                    key={item.index}
+                    columns={columns}
+                    widthOf={widthOf}
+                    music={music}
+                    ordinal={row.index + 1}
+                    // `start` counts from the scroll container's top, the
+                    // row from the body's, which begins below the header.
+                    offset={item.start - virtualizer.options.scrollMargin}
+                    locale={locale}
+                    playing={playingStateOf(music)}
+                    selected={selection.selectedIds.has(row.index)}
+                    draggable={reorderable}
+                    dropTarget={overIndex === item.index && dragIndex !== null}
+                    onSelect={(event) => {
+                      selectRow(row.index, {
+                        shift: event.shiftKey,
+                        meta: event.metaKey || event.ctrlKey,
+                      });
+                    }}
+                    onPlay={() => playFrom(music)}
+                    onTogglePlayPause={() => commands.togglePlayPause()}
+                    onDragStart={() => startDrag(item.index)}
+                    onDragOver={() => dragOver(item.index)}
+                    onDrop={() => dropOn(item.index)}
+                    onDragEnd={endDrag}
+                    menuItems={[
+                      {
+                        label: t("menu.playMusic"),
+                        icon: <PlayFillIcon />,
+                        onSelect: () => playFrom(music),
+                      },
+                      {
+                        label: t("menu.playNext"),
+                        icon: <ListStart />,
+                        onSelect: () => commands.insertNext([music]),
+                      },
+                      {
+                        label: t("menu.addToQueue"),
+                        icon: <ListEnd />,
+                        onSelect: () => commands.appendToQueue([music]),
+                      },
+                      <AddToPlaylistSubmenu
+                        key="playlist"
+                        musics={menuTargetsOfRow(row)}
+                      />,
+                      {
+                        label: t("menu.musicInfo"),
+                        icon: <NotepadText />,
+                        onSelect: () => openMusicInfo(row),
+                        separatorBefore: true,
+                      },
+                      fetchMusicInfoItem(menuTargetsOfRow(row)),
+                      ...(ref.kind === "static"
+                        ? [
+                            {
+                              label: t("menu.removeFromPlaylist"),
+                              icon: <ListX />,
+                              onSelect: () => removeRowAt(row.index),
+                              destructive: true,
+                              separatorBefore: true,
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
+                );
+              })}
+            </PlaylistTableBody>
+          </PlaylistTable>
+        )}
       </div>
     </Stack>
   );
