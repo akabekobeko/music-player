@@ -9,7 +9,6 @@ import type { InternalPlayback } from "./types";
  * @returns The initial internal state.
  */
 export const createInitialPlayback = (volume: number): InternalPlayback => ({
-  mode: "streaming",
   state: "loading",
   intendedPlaying: false,
   currentTime: 0,

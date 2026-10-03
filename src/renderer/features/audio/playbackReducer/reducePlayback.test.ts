@@ -64,9 +64,9 @@ it("ended stops at the duration", () => {
   expect(state.currentTime).toBe(200);
 });
 
-it("a deferred seek surfaces its target as currentTime and seeking", () => {
+it("an in-flight seek surfaces its target as currentTime and seeking", () => {
   const state = reducePlayback(initial({ state: "playing", currentTime: 10 }), {
-    type: "seekDeferred",
+    type: "seekStarted",
     time: 120,
   });
   const snapshot = snapshotOfPlayback(state);
@@ -75,24 +75,30 @@ it("a deferred seek surfaces its target as currentTime and seeking", () => {
   expect(state.currentTime).toBe(10);
 });
 
-it("ticks are ignored while a deferred seek is pending", () => {
+it("ticks are ignored while a seek is in flight", () => {
   const state = apply(
     initial({ state: "playing" }),
-    { type: "seekDeferred", time: 120 },
+    { type: "seekStarted", time: 120 },
     { type: "tick", time: 11 },
   );
   expect(snapshotOfPlayback(state).currentTime).toBe(120);
 });
 
-it("seekRecovered commits the pending target", () => {
+it("seekFinished commits the pending target", () => {
   const state = apply(
     initial({ state: "playing", currentTime: 10 }),
-    { type: "seekDeferred", time: 120 },
-    { type: "seekRecovered" },
+    { type: "seekStarted", time: 120 },
+    { type: "seekFinished" },
   );
   expect(state.currentTime).toBe(120);
   expect(state.pendingSeekTime).toBeNull();
   expect(snapshotOfPlayback(state).seeking).toBe(false);
+});
+
+it("seekFinished without a pending seek changes nothing", () => {
+  // The media element also reports `seeked` for stop()'s rewind to zero.
+  const state = initial({ state: "playing", currentTime: 10 });
+  expect(reducePlayback(state, { type: "seekFinished" })).toBe(state);
 });
 
 it("ticks advance currentTime only while playing", () => {
@@ -121,18 +127,6 @@ it("durationChanged ignores non-finite and non-positive values", () => {
     reducePlayback(initial(), { type: "durationChanged", duration: 210 })
       .duration,
   ).toBe(210);
-});
-
-it("bufferEntered switches the mode, sets the resume offset, and clears pending seeks", () => {
-  const state = apply(
-    initial({ state: "playing", currentTime: 30 }),
-    { type: "seekDeferred", time: 90 },
-    { type: "bufferEntered", resumeOffset: 90 },
-  );
-  expect(state.mode).toBe("buffer");
-  expect(state.currentTime).toBe(90);
-  expect(state.pendingSeekTime).toBeNull();
-  expect(snapshotOfPlayback(state).bufferReady).toBe(true);
 });
 
 it("failed freezes the engine in the error state", () => {

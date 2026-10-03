@@ -1,31 +1,36 @@
 # オーディオエンジン
 
-音楽再生を担うオーディオエンジンの設計です。audio-player の AudioPlayer3 (class、556 行) の再生戦略を継承しつつ、**class (副作用リソースの器) + 純関数 reducer (状態遷移) + イベント駆動**に再設計します。
+音楽再生を担うオーディオエンジンの設計です。audio-player の AudioPlayer3 (class、556 行) から再生戦略を継承しつつ、**class (副作用リソースの器) + 純関数 reducer (状態遷移) + イベント駆動**に再設計します。
 
-## 継承する再生戦略: streaming / buffer ハイブリッド
+## 再生戦略: streaming 専用 (2026-10-03 改訂)
 
-AudioPlayer3 が解決した Electron / Chromium の制約は v1.0 でもそのまま有効です。
+Electron / Chromium の制約と、それに対する方針は次のとおりです。
 
 - **制約 A**: Renderer から `file://` で音声を読めない → `media-stream://` カスタムプロトコルで配信 ([プロセス構成](../architecture/process-model.md))
-- **制約 B**: `HTMLMediaElement` のストリーミング再生は、VBR MP3 (Xing ヘッダーなし) やインデックス不完全な m4a で任意位置シークが破綻する (`buffered` 外への `currentTime` 設定で PIPELINE_ERROR_READ)。完全なシーク耐性には `AudioBuffer` 再生が必要だが、全デコード完了まで再生開始できない
+- **制約 B (原因判明・解消済み)**: audio-player 時代は、`HTMLMediaElement` の streaming 再生中に `buffered` 外へ `currentTime` を設定すると `PIPELINE_ERROR_READ: FFmpegDemuxer: data source error` で再生が止まった ([electron/electron#38749](https://github.com/electron/electron/issues/38749))。v1.0 から v1.2 まではこの回避策として、裏で同じ URL を `fetch` → `decodeAudioData` し、デコード完了後に `AudioBufferSourceNode` 再生へ移行する streaming / buffer ハイブリッドを採用していた。2026-10-03 の調査で、原因は **`<audio>` を `crossOrigin` なし (opaque な no-cors レスポンス) で読み込んでいたこと**と確定した。Chromium の `UrlData::ValidateDataOrigin` (`third_party/blink/renderer/platform/media/url_index.cc`) は CORS モードでない場合、シークで発生する 2 回目以降の Range レスポンスの origin を最初のレスポンスと比較する。`media-stream://` のような非 standard スキームは比較のたびに一意な opaque origin を生成するので必ず不一致になり、データソースが失敗する。`crossOrigin = "anonymous"` + `Access-Control-Allow-Origin` で CORS 承認済みにするとこの比較は省かれ、同じ Electron 44 の実機で opaque なら再現・CORS なら成功することを確認した
 
-そこで両者を時間軸で切り替えます:
+ハイブリッドは **v1.2.2 で廃止**しました。理由は次の 2 点です。
 
-1. **streaming モード**: `HTMLAudioElement` + `MediaElementAudioSourceNode` で即時再生開始 (`canplay` で開始可能)
-2. 裏で同じ URL を `fetch` → `decodeAudioData` (失敗しても streaming のまま degrade)
-3. **buffer モード**: デコード完了時に、再生位置・再生状態・音量を引き継いで `AudioBufferSourceNode` 再生へ透過的に移行。以後シークは自由
-4. streaming 中の `buffered` 範囲外シークは**遅延シーク**: 目標値を記録して消音し、`buffered` の伸長 (progress) かデコード完了のどちらか早い方で回収する。UI 上の `currentTime` は目標値を返し、シークが成功したように見せる
+1. v1.0 以降は `<audio>` を `crossOrigin = "anonymous"` で読み込んでいるため制約 B の条件に当たらず、`media-stream://` に対する Range 付き再要求で `buffered` 外へのシークが成功する (Electron 44、1 時間の m4a と CBR MP3 で実機確認)。Chromium は非 HTTP スキームに対して 206 や `Content-Range` を検証せず、Electron が `stream: true` で登録したスキームを無条件に Range 対応とみなす ([PR #47703](https://github.com/electron/electron/pull/47703) で v37 以降に維持されているパッチ)
+2. 丸読み + 全曲デコードは曲の開始直後に CPU 1 コアと Main プロセスの event loop を占有し、デコード済み PCM (5 分のステレオ曲で約 115MB) を保持し続ける。コア数やメモリーの少ない Intel Mac で音飛びの原因になっていた
 
-ノードグラフも AudioPlayer3 を継承します (EQ・ビジュアライザーの拡張点を最初から確保):
+現在の構成は次のとおりです。
+
+1. `HTMLAudioElement` + `MediaElementAudioSourceNode` で即時再生開始 (`canplay` で開始可能)
+2. シークは常に `currentTime` へ直接代入する。Chromium が必要な byte range を `media-stream://` へ再要求する
+3. `currentTime` 代入から要素の `seeked` イベントまでを snapshot の `seeking` として UI へ出す。その間 `currentTime` は目標値を返し、シークが成功したように見せる
+
+ノードグラフは AudioPlayer3 を継承します (EQ・ビジュアライザーの拡張点を最初から確保):
 
 ```
-source (MediaElement | BufferSource)
+source (MediaElement)
   → effectInput(Gain) → [EQ 挿入ポイント (v1.x)] → effectOutput(Gain)
   → analyser (fftSize 64)   ← spectrums 用 (v1.x で利用)
   → gain (ユーザー音量)
-  → mute (遅延シーク中の消音専用)
   → destination
 ```
+
+`<audio>` は必ず `crossOrigin = "anonymous"` で読み込みます。`media-stream://` はアプリのオリジンから見てクロスオリジンで、CORS 承認のない opaque なメディアは `MediaElementAudioSourceNode` で無音になるうえ、制約 B のとおり `buffered` 外へのシークが失敗するためです ([プロセス構成](../architecture/process-model.md))。
 
 ## class + 純関数 reducer の方針
 
@@ -35,11 +40,11 @@ source (MediaElement | BufferSource)
 - クロージャーは可変状態の全体像を一覧できず、「class をそのまま関数化しただけ」で副作用管理は改善されない
 - オーディオエンジンは本質的に状態の塊であり、可変リソースを private field として 1 箇所に宣言できる class の方が見通しがよい
 
-ただし **AudioPlayer3 の弱点はそのまま継承しません**。class に残すのは「副作用リソース (AudioContext・ノードグラフ・media element・buffer source) の器」の役割だけで、状態管理は次の分離を守ります。
+ただし **AudioPlayer3 の弱点はそのまま継承しません**。class に残すのは「副作用リソース (AudioContext・ノードグラフ・media element) の器」の役割だけで、状態管理は次の分離を守ります。
 
 | 責務 | 置き場所 |
 | --- | --- |
-| 状態遷移 (イベント → 次状態) | 純関数 `reducePlayback(internal, event)` (`playbackReducer.ts`)。Web Audio 非依存でユニットテスト可能 |
+| 状態遷移 (イベント → 次状態) | 純関数 `reducePlayback(internal, event)` (`playbackReducer/`)。Web Audio 非依存でユニットテスト可能 |
 | 公開状態 | 不変 snapshot (`snapshotOfPlayback(internal)` の射影)。getter live view は採用しない |
 | 副作用リソースと命令 | class (`WebAudioEngine`)。すべてのイベントを `#dispatch` に集約し、snapshot が変化したときだけ listener へ通知 |
 | 生成の接点 | ファクトリー `createAudioEngine(url, options)`。class は実装詳細で、PlayerProvider は `new` を直接呼ばない |
@@ -53,17 +58,16 @@ source (MediaElement | BufferSource)
 export type PlaybackState = "loading" | "playing" | "paused" | "stopped" | "error";
 
 export type PlaybackError = {
-  readonly kind: "open" | "decode" | "playback";
+  readonly kind: "open" | "playback";
   readonly message: string;
 };
 
 export type PlaybackSnapshot = {
   readonly state: PlaybackState;
-  readonly currentTime: number;   // 遅延シーク中は目標値
+  readonly currentTime: number;   // シーク中は目標値
   readonly duration: number;      // 0 = 未確定
   readonly volume: number;        // 0-1
-  readonly seeking: boolean;      // 遅延シーク中 (UI はスピナー等を表示)
-  readonly bufferReady: boolean;  // buffer モードへ移行済みか
+  readonly seeking: boolean;      // シーク先のデータ待ち (UI はスピナー等を表示)
   readonly error: PlaybackError | null;
 };
 
@@ -90,15 +94,14 @@ export const createAudioEngine = (url: string, options?: { volume?: number }): A
 ## snapshot と通知の実装
 
 ```ts
-// playbackReducer.ts — 純関数の状態コア
-export type InternalPlayback = { mode; state; intendedPlaying; currentTime; duration; volume; pendingSeekTime; error; closed };
+// playbackReducer/ — 純関数の状態コア
+export type InternalPlayback = { state; intendedPlaying; currentTime; duration; volume; pendingSeekTime; error; closed };
 export type PlaybackEvent =
   | { type: "loaded" } | { type: "playRequested" } | { type: "playStarted" }
   | { type: "paused" } | { type: "stopped" } | { type: "ended" }
-  | { type: "seeked"; time } | { type: "seekDeferred"; time } | { type: "seekRecovered" }
+  | { type: "seekStarted"; time } | { type: "seekFinished" }
   | { type: "tick"; time } | { type: "durationChanged"; duration }
-  | { type: "bufferEntered"; resumeOffset } | { type: "failed"; error }
-  | { type: "volumeChanged"; volume } | { type: "closed" };
+  | { type: "failed"; error } | { type: "volumeChanged"; volume } | { type: "closed" };
 export const reducePlayback = (internal, event) => { ... };      // 純関数
 export const snapshotOfPlayback = (internal) => { ... };          // 射影
 
@@ -109,7 +112,6 @@ export class WebAudioEngine {
   readonly #listeners = new Set<() => void>();
   readonly #context: AudioContext;      // ノードグラフは readonly field
   #audio: HTMLAudioElement | null;      // streaming パイプライン
-  #audioBuffer: AudioBuffer | null;     // buffer パイプライン
   // ...
 
   #dispatch(event: PlaybackEvent): void {
@@ -129,35 +131,29 @@ export const createAudioEngine = (url, options = {}): AudioEngine =>
 ```
 
 - `subscribe` / `getSnapshot` は `useSyncExternalStore` の契約 (変化がない限り同一参照を返す) を満たします
-- 再生中は 250ms 間隔の内部タイマーで `tick` イベントを発行し `currentTime` を snapshot に反映します (streaming モードは `timeupdate` イベントでも可だが、buffer モードは `AudioContext.currentTime` からの計算になるためタイマーに統一)
-- 状態遷移 (`loading → playing` など)、`durationchange`、エラー、`bufferReady` への移行は即時イベントとして `#dispatch` します
+- 再生中は 250ms 間隔の内部タイマーで `tick` イベントを発行し `currentTime` を snapshot に反映します (`timeupdate` イベントは発火間隔が実装依存なので、タイマーに統一)
+- `seek()` は `seekStarted` を発行してから `currentTime` を代入し、要素の `seeked` で `seekFinished` を発行します。`pendingSeekTime` が立っている間は `tick` を無視して目標値を表示し続けます。`stop()` の先頭戻しでも `seeked` は発火しますが、`pendingSeekTime` が `null` なので reducer は何もしません
+- 状態遷移 (`loading → playing` など)、`durationchange`、エラーは即時イベントとして `#dispatch` します
 
 ## audio-player からの修正点 (バグ・抜けの解消)
 
 調査で判明した AudioPlayer3 + UI 層の問題を、エンジンの仕様として明示的に潰します。
 
-1. **streaming モードの自然終了を検知する**: `HTMLAudioElement` に `ended` リスナーを張り `state: "stopped"` へ遷移させる。AudioPlayer3 は buffer モード (`node.onended`) しか検知せず、デコード完了前に曲が終わると次曲送りが発火しなかった
-2. **エラーを必ず通知する**: open 失敗 / `HTMLAudioElement` の `error` イベント / `decodeAudioData` 失敗 (degrade する場合も playback へ影響したとき) を `PlaybackError` として snapshot に載せる。AudioPlayer3 にはエラー通知機構自体がなく、すべて `console.error` 止まりだった
-3. **duration の更新を通知する**: `durationchange` とモード移行時に snapshot を更新する。UI が「たまたま再描画されるまで duration が古い」状態をなくす
+1. **自然終了を検知する**: `HTMLAudioElement` に `ended` リスナーを張り `state: "stopped"` へ遷移させる。AudioPlayer3 は buffer モード (`node.onended`) しか検知せず、デコード完了前に曲が終わると次曲送りが発火しなかった
+2. **エラーを必ず通知する**: open 失敗 / `HTMLAudioElement` の `error` イベントを `PlaybackError` として snapshot に載せる。AudioPlayer3 にはエラー通知機構自体がなく、すべて `console.error` 止まりだった
+3. **duration の更新を通知する**: `durationchange` で snapshot を更新する。UI が「たまたま再描画されるまで duration が古い」状態をなくす
 4. **`stop()` の到達経路を用意する**: キュー終端到達時に PlayerProvider が `stop()` を呼び、UI にも停止操作を置く ([プレーヤー UI](../features/player-ui.md))
-5. **`seeking` / `bufferReady` を UI に出す**: 遅延シーク中の無音待ちが「何も起きていない」ように見えた問題への対応
-
-## モード移行の仕様 (AudioPlayer3 から継承)
-
-- 移行時に引き継ぐもの: 再生位置 (`pendingSeekTime` があればそれを優先)、再生状態 (playing なら移行後も再生)、音量・EQ (effectInput 以降のノードグラフは共有のため自動的に維持)
-- streaming 側の後始末: `pause()` → リスナー除去 → `MediaElementAudioSourceNode.disconnect()` → `src` 除去 + `load()` (メモリー解放)
-- `fetch` / `decodeAudioData` の失敗は握りつぶして streaming のまま継続。ただし `closed` チェックを await の後に必ず入れ、close 済みエンジンでの続行を防ぐ (AudioPlayer3 と同様)
-- buffer モードの終端検知は `AudioBufferSourceNode.onended` + 再生位置が `duration - 0.01` 以上であることの確認 (pause による onended と区別)
+5. **`seeking` を UI に出す**: シーク先のデータ待ちが「何も起きていない」ように見えた問題への対応
 
 ## PlayerProvider との責務境界
 
 - エンジンは「**1 つの音源 URL の再生**」だけを知ります。キュー、次曲、曲メタデータは一切持ちません
 - 曲の切り替え = 旧エンジン `close()` → 新エンジン生成。エンジンの使い回しはしません (AudioContext ごと作り直すことでノードグラフの状態リセットを保証)
+- streaming の後始末 (`close()`): `pause()` → リスナー除去 → `MediaElementAudioSourceNode.disconnect()` → `src` 除去 + `load()` (メモリー解放)
 - 音量はアプリ状態 (PlayerProvider) が正で、エンジン生成時に `options.volume` で引き継ぎます
 - `ended` → 次曲、エラー時のキュー継続判断 (次曲へスキップするか停止するか) は PlayerProvider の責務です。v1.0 では**エラー時は自動スキップせず停止して表示**します (連続失敗によるキュー全消化を避けるため)
 
 ## テスト
 
 - 状態遷移 (イベント → snapshot 差分) を純関数 `reducePlayback(internal, event)` として切り出し、Web Audio 非依存でユニットテストします
-- `isTimeBuffered` (TimeRanges 判定)、モード移行時の引き継ぎ計算 (`resumeOffset` の clamp) も純関数としてテストします
-- 実デバイスでの結合確認 (フォーマット別再生、VBR MP3 のシーク) は Phase 3 の手動 QA 項目とします
+- 実デバイスでの結合確認 (フォーマット別再生、`buffered` 外へのシーク) は手動 QA 項目とします

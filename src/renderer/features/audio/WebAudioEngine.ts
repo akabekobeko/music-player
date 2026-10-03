@@ -1,6 +1,4 @@
-import { clampResumeOffset } from "./clampResumeOffset";
 import { clampVolume } from "./clampVolume";
-import { isTimeBuffered } from "./isTimeBuffered";
 import { createInitialPlayback } from "./playbackReducer/createInitialPlayback";
 import { playbackSnapshotsEqual } from "./playbackReducer/playbackSnapshotsEqual";
 import { reducePlayback } from "./playbackReducer/reducePlayback";
@@ -11,9 +9,6 @@ import type { PlaybackSnapshot } from "./types";
 /** Interval of the position timer (also the `currentTime` throttle). */
 const TICK_INTERVAL_MS = 250;
 
-/** Margin distinguishing a natural buffer-mode `ended` from a manual stop. */
-const ENDED_EPSILON_SEC = 0.01;
-
 /**
  * Audio engine for one source URL
  * (`docs/specs/v1.0/renderer/audio-engine.md`).
@@ -22,21 +17,17 @@ const ENDED_EPSILON_SEC = 0.01;
  * (`playbackReducer.ts`) — every observable change flows through
  * {@link WebAudioEngine.#dispatch} as an event, and the published snapshot
  * is a projection of the reducer state. This class owns only the
- * side-effectful resources (AudioContext, node graph, media element,
- * buffer source), declared once as private fields below so the full
- * mutable surface is visible in one place.
+ * side-effectful resources (AudioContext, node graph, media element),
+ * declared once as private fields below so the full mutable surface is
+ * visible in one place.
  *
- * Playback strategy (inherited from audio-player's AudioPlayer3):
- * - streaming mode starts immediately via `HTMLAudioElement`;
- * - the same URL is fetched + decoded in the background, and playback
- *   transparently migrates to an `AudioBufferSourceNode` (free seeking);
- * - out-of-buffer seeks while streaming are deferred: the target is
- *   remembered, output muted, and the seek resolves on `progress` growth
- *   or decode completion — whichever is first.
- *
- * Not inherited from AudioPlayer3: getter live-views (reads go through the
- * immutable snapshot), missing error notification (all failures land in
- * `snapshot.error`), and the undetected streaming `ended`.
+ * Playback strategy: streaming only. `HTMLAudioElement` reads the
+ * `media-stream://` URL with Range requests and seeks go straight to
+ * `currentTime`; Chromium fetches the missing byte range on demand. The
+ * earlier hybrid design (background `decodeAudioData` + migration to an
+ * `AudioBufferSourceNode`) worked around a seek failure in older Electron
+ * builds that no longer reproduces, and its CPU / memory cost caused
+ * dropouts on slow machines.
  */
 export class WebAudioEngine {
   // ---- Pure state core -------------------------------------------------
@@ -45,26 +36,15 @@ export class WebAudioEngine {
   readonly #listeners = new Set<() => void>();
 
   // ---- Node graph (fixed at construction; EQ slot reserved for v1.x) ----
-  // source → effectInput → effectOutput → analyser → gain → mute → out
+  // source → effectInput → effectOutput → analyser → gain → out
   readonly #context: AudioContext;
   readonly #effectInput: GainNode;
   readonly #analyser: AnalyserNode;
   readonly #gain: GainNode;
-  readonly #mute: GainNode;
 
-  // ---- Streaming pipeline (null after migration / close) ----------------
+  // ---- Streaming pipeline (null after close) ----------------------------
   #audio: HTMLAudioElement | null = null;
   #mediaSource: MediaElementAudioSourceNode | null = null;
-
-  // ---- Buffer pipeline (audioBuffer non-null = buffer mode available) ---
-  #audioBuffer: AudioBuffer | null = null;
-  #bufferSource: AudioBufferSourceNode | null = null;
-  /** `AudioContext.currentTime` at the moment the current source started. */
-  #bufferStartContextTime = 0;
-  /** Buffer offset the current source started at. */
-  #bufferStartOffset = 0;
-  /** Position held while buffer-mode playback is not running. */
-  #bufferHeldAt = 0;
 
   // ---- Misc --------------------------------------------------------------
   #spectrums: Uint8Array<ArrayBuffer> | null = null;
@@ -91,19 +71,16 @@ export class WebAudioEngine {
     this.#analyser.fftSize = 64;
     this.#gain = this.#context.createGain();
     this.#gain.gain.value = clampVolume(options.volume ?? 1);
-    this.#mute = this.#context.createGain();
     this.#effectInput.connect(effectOutput);
     effectOutput.connect(this.#analyser);
     this.#analyser.connect(this.#gain);
-    this.#gain.connect(this.#mute);
-    this.#mute.connect(this.#context.destination);
+    this.#gain.connect(this.#context.destination);
 
     this.#attachStreaming(url);
-    void this.#decodeInBackground(url);
 
     this.#timer = setInterval(() => {
       if (!this.#internal.closed && this.#internal.state === "playing") {
-        this.#dispatch({ type: "tick", time: this.#position() });
+        this.#dispatch({ type: "tick", time: this.#audio?.currentTime ?? 0 });
       }
     }, TICK_INTERVAL_MS);
   }
@@ -117,12 +94,6 @@ export class WebAudioEngine {
     }
 
     this.#dispatch({ type: "playRequested" });
-    if (this.#internal.mode === "buffer") {
-      this.#startBufferSource(this.#bufferHeldAt);
-      this.#dispatch({ type: "playStarted" });
-      return;
-    }
-
     try {
       await this.#context.resume();
       if (this.#audio !== null) {
@@ -151,13 +122,7 @@ export class WebAudioEngine {
       return;
     }
 
-    if (this.#internal.mode === "buffer") {
-      this.#bufferHeldAt = this.#position();
-      this.#stopBufferSource();
-    } else {
-      this.#audio?.pause();
-    }
-
+    this.#audio?.pause();
     this.#dispatch({ type: "paused" });
   }
 
@@ -167,10 +132,7 @@ export class WebAudioEngine {
       return;
     }
 
-    if (this.#internal.mode === "buffer") {
-      this.#stopBufferSource();
-      this.#bufferHeldAt = 0;
-    } else if (this.#audio !== null) {
+    if (this.#audio !== null) {
       this.#audio.pause();
       try {
         this.#audio.currentTime = 0;
@@ -179,34 +141,19 @@ export class WebAudioEngine {
       }
     }
 
-    this.#mute.gain.value = 1;
     this.#dispatch({ type: "stopped" });
   }
 
   /**
    * Seek to a position in seconds.
    *
-   * Buffer mode seeks freely. Streaming mode seeks immediately inside the
-   * buffered ranges and defers otherwise (mute + wait for data).
+   * The target is handed to the media element as-is; `seeking` stays on in
+   * the snapshot (and the target is shown as `currentTime`) until the
+   * element reports `seeked`, which may take a moment when the range has to
+   * be fetched first.
    */
   seek(timeSec: number): void {
     if (this.#internal.closed || this.#internal.state === "error") {
-      return;
-    }
-
-    const target = Math.max(0, timeSec);
-    if (this.#internal.mode === "buffer") {
-      const clamped = clampResumeOffset(
-        target,
-        this.#audioBuffer?.duration ?? 0,
-      );
-      if (this.#internal.state === "playing") {
-        this.#startBufferSource(clamped);
-      } else {
-        this.#bufferHeldAt = clamped;
-      }
-
-      this.#dispatch({ type: "seeked", time: clamped });
       return;
     }
 
@@ -214,16 +161,9 @@ export class WebAudioEngine {
       return;
     }
 
-    if (isTimeBuffered(this.#audio.buffered, target)) {
-      this.#audio.currentTime = target;
-      this.#dispatch({ type: "seeked", time: target });
-      return;
-    }
-
-    // Deferred seek: silence output, remember the target, and let progress
-    // growth or decode completion pick it up.
-    this.#mute.gain.value = 0;
-    this.#dispatch({ type: "seekDeferred", time: target });
+    const target = Math.max(0, timeSec);
+    this.#dispatch({ type: "seekStarted", time: target });
+    this.#audio.currentTime = target;
   }
 
   /** Set the user volume (`[0, 1]`). */
@@ -244,9 +184,7 @@ export class WebAudioEngine {
 
     this.#dispatch({ type: "closed" });
     clearInterval(this.#timer);
-    this.#stopBufferSource();
     this.#teardownStreaming();
-    this.#audioBuffer = null;
     this.#listeners.clear();
     void this.#context.close();
   }
@@ -305,19 +243,6 @@ export class WebAudioEngine {
     }
   }
 
-  /** Actual playback position in seconds, mode-aware. */
-  #position(): number {
-    if (this.#internal.mode === "buffer") {
-      return this.#bufferSource !== null
-        ? this.#context.currentTime -
-            this.#bufferStartContextTime +
-            this.#bufferStartOffset
-        : this.#bufferHeldAt;
-    }
-
-    return this.#audio?.currentTime ?? 0;
-  }
-
   // ---- Streaming pipeline -------------------------------------------------
 
   /** Wire the `HTMLAudioElement` and its event listeners. */
@@ -326,8 +251,12 @@ export class WebAudioEngine {
     element.preload = "auto";
     // media-stream:// is cross-origin from the app origin. Anonymous CORS
     // (paired with Access-Control-Allow-Origin on the protocol responses)
-    // keeps the MediaElementAudioSourceNode untainted — a tainted source
-    // plays silence through Web Audio.
+    // is required twice over: a tainted source plays silence through the
+    // MediaElementAudioSourceNode, and without CORS mode Chromium's media
+    // stack compares the data origin of every Range response with the first
+    // one — a non-standard scheme yields a fresh opaque origin each time, so
+    // the first out-of-buffer seek fails with PIPELINE_ERROR_READ (the
+    // audio-player era bug behind electron/electron#38749).
     element.crossOrigin = "anonymous";
     element.oncanplay = () => {
       this.#dispatch({ type: "loaded" });
@@ -335,9 +264,10 @@ export class WebAudioEngine {
     element.ondurationchange = () => {
       this.#dispatch({ type: "durationChanged", duration: element.duration });
     };
+    element.onseeked = () => {
+      this.#dispatch({ type: "seekFinished" });
+    };
     element.onended = () => {
-      // Streaming natural end — audio-player only detected the buffer-mode
-      // one, so tracks ending before decode never advanced the queue.
       this.#dispatch({ type: "ended" });
     };
     element.onerror = () => {
@@ -352,22 +282,13 @@ export class WebAudioEngine {
         },
       });
     };
-    element.onprogress = () => {
-      // Deferred-seek recovery path 1: the buffered range grew far enough.
-      const pending = this.#internal.pendingSeekTime;
-      if (pending !== null && isTimeBuffered(element.buffered, pending)) {
-        element.currentTime = pending;
-        this.#mute.gain.value = 1;
-        this.#dispatch({ type: "seekRecovered" });
-      }
-    };
     element.src = url;
     this.#audio = element;
     this.#mediaSource = this.#context.createMediaElementSource(element);
     this.#mediaSource.connect(this.#effectInput);
   }
 
-  /** Streaming teardown for mode migration and close (spec order). */
+  /** Streaming teardown for close (spec order). */
   #teardownStreaming(): void {
     const element = this.#audio;
     if (element === null) {
@@ -378,138 +299,12 @@ export class WebAudioEngine {
     element.pause();
     element.oncanplay = null;
     element.ondurationchange = null;
+    element.onseeked = null;
     element.onended = null;
     element.onerror = null;
-    element.onprogress = null;
     this.#mediaSource?.disconnect();
     this.#mediaSource = null;
     element.removeAttribute("src");
     element.load();
-  }
-
-  // ---- Buffer pipeline -----------------------------------------------------
-
-  /** Fetch + decode the same URL; on success migrate to buffer mode. */
-  async #decodeInBackground(url: string): Promise<void> {
-    try {
-      const response = await fetch(url);
-      if (this.#internal.closed) {
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.arrayBuffer();
-      if (this.#internal.closed) {
-        return;
-      }
-
-      const decoded = await this.#context.decodeAudioData(data);
-      if (this.#internal.closed) {
-        return;
-      }
-
-      this.#audioBuffer = decoded;
-      this.#enterBufferMode();
-    } catch (error) {
-      if (this.#internal.closed) {
-        return;
-      }
-
-      if (this.#internal.pendingSeekTime !== null) {
-        // The deferred seek was waiting for this decode; without it (and
-        // with progress unable to reach the target) it may never resolve.
-        this.#dispatch({
-          type: "failed",
-          error: {
-            kind: "decode",
-            message: error instanceof Error ? error.message : String(error),
-          },
-        });
-      } else {
-        // Plain degrade: streaming keeps playing, seeks stay range-bound.
-        console.warn("[audio] decode failed; staying in streaming mode", error);
-      }
-    }
-  }
-
-  /** Migrate to buffer mode, carrying position / play state / volume over. */
-  #enterBufferMode(): void {
-    if (this.#audioBuffer === null || this.#internal.mode === "buffer") {
-      return;
-    }
-
-    const resume = clampResumeOffset(
-      this.#internal.pendingSeekTime ?? this.#position(),
-      this.#audioBuffer.duration,
-    );
-    const keepPlaying = this.#internal.state === "playing";
-    this.#teardownStreaming();
-    this.#mute.gain.value = 1; // A deferred seek resolves here — unmute.
-    this.#dispatch({
-      type: "durationChanged",
-      duration: this.#audioBuffer.duration,
-    });
-    this.#dispatch({ type: "bufferEntered", resumeOffset: resume });
-    if (keepPlaying) {
-      this.#startBufferSource(resume);
-    } else {
-      this.#bufferHeldAt = resume;
-    }
-  }
-
-  /** (Re)start buffer-mode playback from an offset. */
-  #startBufferSource(offsetSec: number): void {
-    if (this.#audioBuffer === null) {
-      return;
-    }
-
-    this.#stopBufferSource();
-    const offset = clampResumeOffset(offsetSec, this.#audioBuffer.duration);
-    const source = this.#context.createBufferSource();
-    source.buffer = this.#audioBuffer;
-    source.connect(this.#effectInput);
-    source.onended = () => {
-      if (this.#internal.closed || source !== this.#bufferSource) {
-        return; // Superseded by a seek/pause/close, not a natural end.
-      }
-
-      this.#bufferSource = null;
-      this.#bufferHeldAt = 0;
-      const duration = this.#audioBuffer?.duration ?? 0;
-      if (
-        this.#bufferStartOffset +
-          (this.#context.currentTime - this.#bufferStartContextTime) >=
-        duration - ENDED_EPSILON_SEC
-      ) {
-        this.#dispatch({ type: "ended" });
-      }
-    };
-
-    this.#bufferStartContextTime = this.#context.currentTime;
-    this.#bufferStartOffset = offset;
-    this.#bufferSource = source;
-    source.start(0, offset);
-    void this.#context.resume();
-  }
-
-  /** Stop and detach the current buffer source (its onended becomes inert). */
-  #stopBufferSource(): void {
-    const source = this.#bufferSource;
-    if (source === null) {
-      return;
-    }
-
-    this.#bufferSource = null; // Detach first: onended must become a no-op.
-    source.onended = null;
-    try {
-      source.stop();
-    } catch {
-      // Never started or already stopped — nothing to do.
-    }
-
-    source.disconnect();
   }
 }

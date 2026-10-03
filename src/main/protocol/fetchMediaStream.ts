@@ -14,10 +14,12 @@ import { urlToFilePath } from "./urlToFilePath";
  * Handle a `media-stream://` request for an audio file.
  *
  * Serves only tracks registered in the `musics` table — any other path gets
- * `403` (`docs/specs/v1.0/architecture/process-model.md`). Without a `Range`
- * header the whole file is returned via `net.fetch`; with one, a
- * `206 Partial Content` response streams the requested slice with
- * backpressure so `<audio>` seeking works.
+ * `403` (`docs/specs/v1.0/architecture/process-model.md`). Chromium's media
+ * stack always sends a `Range` header (`bytes=0-` on the first request, the
+ * seek offset afterwards), and every such request gets a `206 Partial
+ * Content` response streaming the requested slice with backpressure. A
+ * request without `Range` is a plain fallback that returns the whole file
+ * via `net.fetch`.
  *
  * @param request - Protocol request from the Renderer.
  * @param db - Library connection; defaults to the app-wide singleton

@@ -2,7 +2,7 @@ import { PROTOCOL_MEDIA_STREAM } from "../../shared/constants";
 import { encodePath } from "./encodePath";
 
 /**
- * `media-stream://` URL for an audio file (`<audio src>` and `fetch()`)
+ * `media-stream://` URL for an audio file (`<audio src>`)
  * (`docs/specs/v1.0/architecture/process-model.md`).
  *
  * @param filePath - Absolute path from `Music.filePath`.

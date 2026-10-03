@@ -16,5 +16,4 @@ export const playbackSnapshotsEqual = (
   a.duration === b.duration &&
   a.volume === b.volume &&
   a.seeking === b.seeking &&
-  a.bufferReady === b.bufferReady &&
   a.error === b.error;

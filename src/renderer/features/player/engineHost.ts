@@ -22,7 +22,6 @@ const idleSnapshot = (volume: number): PlaybackSnapshot => ({
   duration: 0,
   volume,
   seeking: false,
-  bufferReady: false,
   error: null,
 });
 
