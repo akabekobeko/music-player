@@ -9,6 +9,7 @@ import { fileStreamToWebStream } from "./fileStreamToWebStream";
 import { isLibraryMusicPath } from "./isLibraryMusicPath";
 import { parseByteRange } from "./parseByteRange";
 import { urlToFilePath } from "./urlToFilePath";
+import { withCorsHeader } from "./withCorsHeader";
 
 /**
  * Handle a `media-stream://` request for an audio file.
@@ -41,16 +42,10 @@ export const fetchMediaStream = async (
 
   const range = request.headers.get("Range");
   if (range === null) {
-    const response = await net.fetch(pathToFileURL(filePath).href);
     // CORS-clean copy: the audio engine wires this response into a
     // MediaElementAudioSourceNode with `crossOrigin = "anonymous"`; without
     // Access-Control-Allow-Origin the node is tainted and outputs silence.
-    const headers = new Headers(response.headers);
-    headers.set("Access-Control-Allow-Origin", "*");
-    return new Response(response.body, {
-      status: response.status,
-      headers,
-    });
+    return withCorsHeader(await net.fetch(pathToFileURL(filePath).href));
   }
 
   const { size } = fs.statSync(filePath);

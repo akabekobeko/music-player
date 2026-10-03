@@ -37,16 +37,18 @@ webPreferences: {
 | プロトコル | 用途 | privileges |
 | --- | --- | --- |
 | `media-stream://` | 音楽ファイル。`<audio src>` から利用 | `bypassCSP, stream, corsEnabled` |
-| `media-file://` | アートワーク画像 (`<img src>`) | `bypassCSP` |
+| `media-file://` | アートワーク画像 (`<img src>`、MediaSession 用の `fetch`) | `bypassCSP, supportFetchAPI, corsEnabled` |
 
 ```ts
 protocol.registerSchemesAsPrivileged([
-  { scheme: "media-file", privileges: { bypassCSP: true } },
+  { scheme: "media-file", privileges: { bypassCSP: true, supportFetchAPI: true, corsEnabled: true } },
   { scheme: "media-stream", privileges: { bypassCSP: true, stream: true, corsEnabled: true } },
 ]);
 ```
 
 `corsEnabled: true` は必須です。オーディオエンジンは `<audio>` を `crossOrigin = "anonymous"` で読み込み、レスポンスに `Access-Control-Allow-Origin` を付けて CORS 承認済みにします。opaque (no-cors) なクロスオリジン メディアは `MediaElementAudioSourceNode` で無音になるうえ、Chromium の media スタックがシーク時の Range レスポンスの origin を最初のレスポンスと比較し、非 standard スキームでは必ず不一致 (opaque origin) になって `PIPELINE_ERROR_READ` で再生が止まるためです ([オーディオエンジン](../renderer/audio-engine.md) の制約 B)。
+
+`media-file://` の `supportFetchAPI` と `corsEnabled` は、MediaSession の artwork のために必要です (2026-10-03 追記、issue #268)。Chromium は `MediaImage.src` に `http` / `https` / `data` / `blob` スキームしか受け付けないため、Renderer が `media-file://` を `fetch` して Blob URL へ変換します ([プレイヤー UI](../features/player-ui.md) の MediaSession 連携)。`media-file://` はアプリのオリジンから見てクロスオリジンであり、CORS 承認のない opaque レスポンスは body を読めないため、エラー応答 (`403` / `404`) を含むすべての応答に `Access-Control-Allow-Origin: *` を付与します (エラー応答に付けないと、Renderer 側ではステータスではなく CORS エラーとして失敗します)。配信対象は後述のパス検証で `userData/images/` 配下に限定されるため、権限を追加しても読み出せる範囲は広がりません。`<img src>` はこれらの権限なしで従来どおり動作します。
 
 ### media-stream の応答仕様
 
@@ -76,9 +78,11 @@ script-src 'self';
 style-src 'self' 'unsafe-inline';
 img-src 'self' media-file: blob: data:;
 media-src 'self' media-stream:;
+connect-src 'self' media-file:;
 ```
 
 - `img-src` の `blob:` は、将来メタデータ内画像を直接表示する場合 (Uint8Array → Blob → objectURL) のために許可します
+- `connect-src` の `media-file:` は、MediaSession の artwork を Blob URL にするための `fetch` 用です (2026-10-03 追記)。`img-src` の `blob:` はその Blob URL の読み込みにも使われます
 - カスタムプロトコル側にも `bypassCSP` があるため二重の担保になりますが、意図を明示するため CSP にも記載します
 
 ## 共有型・共有定数の置き場所

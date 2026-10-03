@@ -31,7 +31,7 @@ const music = (patch: Partial<Music> = {}): Music =>
   }) as Music;
 
 it("builds metadata with title / artist / album", () => {
-  expect(metadataInitOf(music())).toEqual({
+  expect(metadataInitOf(music(), null)).toEqual({
     title: "Song",
     artist: "Artist",
     album: "Album",
@@ -39,11 +39,20 @@ it("builds metadata with title / artist / album", () => {
   });
 });
 
-it("uses the media-file URL for the artwork", () => {
-  const init = metadataInitOf(music({ picturePath: "/images/a b.jpg" }));
-  expect(init?.artwork).toEqual([{ src: "media-file:///images/a%20b.jpg" }]);
+it("uses the given Blob URL for the artwork", () => {
+  const init = metadataInitOf(
+    music({ picturePath: "/images/a b.jpg" }),
+    "blob:app/1",
+  );
+  expect(init?.artwork).toEqual([{ src: "blob:app/1" }]);
+});
+
+it("never passes the media-file URL, which Chromium rejects", () => {
+  // A track with artwork whose Blob URL is not loaded yet publishes none.
+  const init = metadataInitOf(music({ picturePath: "/images/a.jpg" }), null);
+  expect(init?.artwork).toEqual([]);
 });
 
 it("returns null to clear the metadata", () => {
-  expect(metadataInitOf(null)).toBeNull();
+  expect(metadataInitOf(null, null)).toBeNull();
 });

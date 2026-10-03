@@ -14,7 +14,10 @@ export const APP_NAME = "Parade";
  */
 export const PROTOCOL_MEDIA_STREAM = "media-stream";
 
-/** Custom protocol scheme serving artwork images (`<img src>`). */
+/**
+ * Custom protocol scheme serving artwork images: `<img src>`, plus `fetch`
+ * for the MediaSession artwork Blob URL.
+ */
 export const PROTOCOL_MEDIA_FILE = "media-file";
 
 /**
