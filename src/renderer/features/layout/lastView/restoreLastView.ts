@@ -16,6 +16,11 @@ import { resolveLastView } from "./resolveLastView";
  * the page already has a hash (e.g. a dev reload) the store is seeded but
  * the hash is left alone.
  *
+ * The hash is set with `history.replaceState`, not by assigning
+ * `location.hash`: an assignment adds a session history entry before any
+ * user interaction, which Chromium reports in the DevTools Issues panel.
+ * The router does not exist yet, so nothing needs the `hashchange` event.
+ *
  * @param view - Persisted view, if any.
  */
 export const restoreLastView = async (
@@ -31,7 +36,11 @@ export const restoreLastView = async (
   });
   lastViewStore.initialize(resolved);
   if (window.location.hash === "") {
-    window.location.hash = `#${lastViewPath(resolved)}`;
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `#${lastViewPath(resolved)}`,
+    );
   }
 };
 

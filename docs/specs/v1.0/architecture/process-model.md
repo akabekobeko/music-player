@@ -81,6 +81,8 @@ media-src 'self' media-stream:;
 - `img-src` の `blob:` は、将来メタデータ内画像を直接表示する場合 (Uint8Array → Blob → objectURL) のために許可します
 - カスタムプロトコル側にも `bypassCSP` があるため二重の担保になりますが、意図を明示するため CSP にも記載します
 
+`script-src` に `'unsafe-eval'` は付けません。zod はオブジェクトスキーマの生成時に `Function("")` を試行して eval の可否を判定しており、CSP がこれをブロックすると DevTools の Issues に違反が記録されます。Renderer ではエントリーの最初の import (`src/renderer/libs/configureZod.ts`) で `z.config({ jitless: true })` を設定し、判定そのものを省略します (2026-10-03 追記、issue #270)。CSP の対象外である Main は JIT を有効のままにします。
+
 ## 共有型・共有定数の置き場所
 
 electron-starter は tsconfig が node 系 (`tsconfig.node.json`) と web 系 (`tsconfig.web.json`) に分離しており、共有コードの置き場所がありません。v1.0 で `src/shared/` を新設します。

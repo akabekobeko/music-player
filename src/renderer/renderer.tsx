@@ -1,3 +1,5 @@
+// First on purpose: must run before any module creates a zod schema.
+import "./libs/configureZod";
 import type { AppSettings } from "@mp/ipc";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
