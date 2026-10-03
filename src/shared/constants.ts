@@ -10,7 +10,7 @@ export const APP_NAME = "Parade";
 
 /**
  * Custom protocol scheme streaming audio files to the Renderer.
- * Used by both `<audio src>` and `fetch()`.
+ * Used by `<audio src>` only (no `supportFetchAPI` privilege).
  */
 export const PROTOCOL_MEDIA_STREAM = "media-stream";
 

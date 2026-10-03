@@ -75,15 +75,9 @@ export const reducePlayback = (
         currentTime: internal.duration,
         pendingSeekTime: null,
       };
-    case "seeked":
-      return {
-        ...internal,
-        currentTime: Math.max(0, event.time),
-        pendingSeekTime: null,
-      };
-    case "seekDeferred":
+    case "seekStarted":
       return { ...internal, pendingSeekTime: Math.max(0, event.time) };
-    case "seekRecovered":
+    case "seekFinished":
       return internal.pendingSeekTime === null
         ? internal
         : {
@@ -92,7 +86,7 @@ export const reducePlayback = (
             pendingSeekTime: null,
           };
     case "tick":
-      // A deferred seek owns the displayed position until it resolves.
+      // An in-flight seek owns the displayed position until it resolves.
       return internal.pendingSeekTime !== null || internal.state !== "playing"
         ? internal
         : { ...internal, currentTime: Math.max(0, event.time) };
@@ -100,13 +94,6 @@ export const reducePlayback = (
       return Number.isFinite(event.duration) && event.duration > 0
         ? { ...internal, duration: event.duration }
         : internal;
-    case "bufferEntered":
-      return {
-        ...internal,
-        mode: "buffer",
-        currentTime: Math.max(0, event.resumeOffset),
-        pendingSeekTime: null,
-      };
     case "failed":
       return {
         ...internal,

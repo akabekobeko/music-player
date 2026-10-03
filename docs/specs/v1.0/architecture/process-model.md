@@ -36,17 +36,17 @@ webPreferences: {
 
 | プロトコル | 用途 | privileges |
 | --- | --- | --- |
-| `media-stream://` | 音楽ファイル。`<audio src>` と `fetch()` の両方から利用 | `bypassCSP, stream, supportFetchAPI` |
+| `media-stream://` | 音楽ファイル。`<audio src>` から利用 | `bypassCSP, stream, corsEnabled` |
 | `media-file://` | アートワーク画像 (`<img src>`) | `bypassCSP` |
 
 ```ts
 protocol.registerSchemesAsPrivileged([
   { scheme: "media-file", privileges: { bypassCSP: true } },
-  { scheme: "media-stream", privileges: { bypassCSP: true, stream: true, supportFetchAPI: true } },
+  { scheme: "media-stream", privileges: { bypassCSP: true, stream: true, corsEnabled: true } },
 ]);
 ```
 
-`supportFetchAPI: true` は必須です。オーディオエンジンが同じ URL に対して `<audio src>` (streaming 再生) と `fetch()` (buffer 再生用の全取得) の両方を使うためです ([オーディオエンジン](../renderer/audio-engine.md))。
+`corsEnabled: true` は必須です。オーディオエンジンは `<audio>` を `crossOrigin = "anonymous"` で読み込み、レスポンスに `Access-Control-Allow-Origin` を付けて CORS 承認済みにします。opaque (no-cors) なクロスオリジン メディアは `MediaElementAudioSourceNode` で無音になるうえ、Chromium の media スタックがシーク時の Range レスポンスの origin を最初のレスポンスと比較し、非 standard スキームでは必ず不一致 (opaque origin) になって `PIPELINE_ERROR_READ` で再生が止まるためです ([オーディオエンジン](../renderer/audio-engine.md) の制約 B)。
 
 ### media-stream の応答仕様
 

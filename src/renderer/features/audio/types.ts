@@ -17,8 +17,8 @@ export type PlaybackState =
 
 /** Error surfaced through the snapshot — never only `console.error`. */
 export type PlaybackError = {
-  /** Which stage failed: opening the source, decoding, or playback. */
-  readonly kind: "open" | "decode" | "playback";
+  /** Which stage failed: opening the source or playback. */
+  readonly kind: "open" | "playback";
   /**
    * Human-readable detail: the thrown `Error.message`, or the media
    * element's error message (falling back to a text naming its code).
@@ -39,16 +39,17 @@ export type PlaybackSnapshot = {
    * `stopped` while no engine exists.
    */
   readonly state: PlaybackState;
-  /** Playback position in seconds. During a deferred seek: the target. */
+  /** Playback position in seconds. While a seek is in flight: the target. */
   readonly currentTime: number;
   /** Duration in seconds; `0` means not yet known. */
   readonly duration: number;
   /** User volume in `[0, 1]`. */
   readonly volume: number;
-  /** A deferred seek is waiting for data (UI shows a spinner / pulse). */
+  /**
+   * A seek is waiting for the media element to land (data may have to be
+   * fetched first); the UI shows a spinner / pulse.
+   */
   readonly seeking: boolean;
-  /** Whether playback has switched to buffer mode (seek is then free). */
-  readonly bufferReady: boolean;
   /** Failure detail while `state` is `error`; `null` otherwise. */
   readonly error: PlaybackError | null;
 };
@@ -66,9 +67,9 @@ export type AudioEngine = {
   /** Rewind to the start and stop. */
   readonly stop: () => void;
   /**
-   * Seek to a position in seconds (negative values clamp to `0`). Immediate
-   * in buffer mode or inside the buffered ranges; otherwise deferred
-   * (`seeking` turns on, output is muted) until the data arrives.
+   * Seek to a position in seconds (negative values clamp to `0`). `seeking`
+   * stays on until the media element reports `seeked`; the snapshot shows
+   * the target as `currentTime` meanwhile.
    */
   readonly seek: (timeSec: number) => void;
   /** Set the user volume (`[0, 1]`). */

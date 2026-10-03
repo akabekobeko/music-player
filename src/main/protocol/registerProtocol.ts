@@ -9,12 +9,11 @@ import { fetchMediaStream } from "./fetchMediaStream";
 // Privileged registration must happen before the app's `ready` event, so it
 // runs as a module side effect when Main imports this file.
 //
-// `supportFetchAPI` on media-stream is required: the audio engine uses the
-// same URL for both `<audio src>` (streaming) and `fetch()` (full read for
-// buffer playback). `corsEnabled` is equally required: the engine loads the
-// element with `crossOrigin = "anonymous"` so the
-// MediaElementAudioSourceNode stays untainted (audible), and a CORS-mode
-// request to a scheme without this privilege fails outright
+// `stream` on media-stream marks the scheme as a streaming source for
+// Chromium's media stack (Range requests on seek). `corsEnabled` is equally
+// required: the engine loads the element with `crossOrigin = "anonymous"`
+// so the MediaElementAudioSourceNode stays untainted (audible), and a
+// CORS-mode request to a scheme without this privilege fails outright
 // (MEDIA_ELEMENT_ERROR: Format error) —
 // docs/specs/v1.0/architecture/process-model.md.
 protocol.registerSchemesAsPrivileged([
@@ -27,7 +26,6 @@ protocol.registerSchemesAsPrivileged([
     privileges: {
       bypassCSP: true,
       stream: true,
-      supportFetchAPI: true,
       corsEnabled: true,
     },
   },

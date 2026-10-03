@@ -34,7 +34,7 @@ PlayerBar はウィンドウ最下段・全幅の帯です。タイトルバー�
 | SeekBar | shadcn Slider。step 1 秒。`duration` 未確定 (0) の間は disabled |
 | 時間表示 | 経過 / 総時間。`stopped` でも現在曲があれば 0:00 / 総時間を表示 |
 | 音量 | Popover 内 Slider (0-100 表示、内部は 0-1)。ミュートトグルつき |
-| バッファリング表示 | `seeking` (遅延シーク中) の間、SeekBar 上にスピナーまたはパルス表示 |
+| バッファリング表示 | `seeking` (シーク先のデータ待ち) の間、SeekBar 上にスピナーまたはパルス表示 |
 
 ## 状態の購読と表示更新
 
@@ -45,7 +45,7 @@ PlayerBar はウィンドウ最下段・全幅の帯です。タイトルバー�
 audio-player の「シーク直後に摘まみが巻き戻る」「停止中のシークが反映されない」問題への対応:
 
 - ドラッグ中はローカル state の値を表示し、snapshot の `currentTime` を無視する
-- ドラッグ確定 (commit) で `seek(value)` を呼び、以後は snapshot を表示する。エンジンは遅延シーク中も `currentTime` として目標値を返すため、巻き戻りは発生しない
+- ドラッグ確定 (commit) で `seek(value)` を呼び、以後は snapshot を表示する。エンジンはシーク完了 (`seeked`) までも `currentTime` として目標値を返すため、巻き戻りは発生しない
 - 曲切替時は snapshot 自体が新エンジンの初期値 (0) になるため、リセット漏れも発生しない
 
 ### エラー表示

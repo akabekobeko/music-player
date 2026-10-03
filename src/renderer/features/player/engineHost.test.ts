@@ -8,7 +8,6 @@ const snapshot = (patch: Partial<PlaybackSnapshot> = {}): PlaybackSnapshot => ({
   duration: 100,
   volume: 1,
   seeking: false,
-  bufferReady: false,
   error: null,
   ...patch,
 });
