@@ -51,7 +51,7 @@ export type DemoArtistSeed = {
 /** One row of the `musics` table. */
 export type DemoTrack = {
   /**
-   * Path relative to the assets directory with `/` separators
+   * Path relative to the demo directory with `/` separators
    * (`musics/<artist>/<album>/<file>`). Unique in the library. Only the
    * playable track has a file there.
    */
@@ -107,7 +107,7 @@ export type DemoAlbum = {
   /** Genre shared by every track. */
   readonly genre: DemoGenre;
   /**
-   * Cover image path relative to the assets directory
+   * Cover image path relative to the demo directory
    * (`images/albums/<artist>--<album>-<hash>.jpg`; the hash is derived
    * from the artist and title).
    */
@@ -121,7 +121,7 @@ export type DemoArtist = {
   /** Display name. */
   readonly name: string;
   /**
-   * Artist picture path relative to the assets directory
+   * Artist picture path relative to the demo directory
    * (`images/artists/<artist>.jpg`).
    */
   readonly picturePath: string;

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { DatabaseSync } from "node:sqlite";
@@ -12,12 +12,14 @@ import { getPlaylistMusics } from "../../src/main/playlist/getPlaylistMusics";
 import { listPlaylists } from "../../src/main/playlist/listPlaylists";
 import { isLibraryMusicPath } from "../../src/main/protocol/isLibraryMusicPath";
 import { resolveImagePath } from "../../src/main/protocol/resolveImagePath";
-import { prepareDemoUserData } from "./prepareDemoUserData/prepareDemoUserData.ts";
+import { buildDemoLibrary } from "./assets/buildDemoLibrary/buildDemoLibrary.ts";
+import { writeDemoDatabase } from "./assets/writeDemoDatabase.ts";
 
 /**
- * End to end check of the demo mode without Electron: prepare the demo
- * directory from the committed assets the way `pnpm demo` does, then read it
- * through the app's own database code.
+ * End to end check of the demo mode without Electron: write the demo
+ * database the way the generation does, then read it through the app's own
+ * database code. The pictures and the audio file are not generated here
+ * (they need the network and macOS tools), so only their paths are checked.
  */
 
 let tempDir: string;
@@ -26,9 +28,15 @@ let db: DatabaseSync;
 
 beforeAll(() => {
   tempDir = mkdtempSync(path.join(os.tmpdir(), "parade-demo-test-"));
-  demoDir = path.join(tempDir, "demo");
-  prepareDemoUserData({
-    assetsDir: path.join(import.meta.dirname, "../../docs/demo/assets"),
+  demoDir = path.join(tempDir, "demo-1");
+  mkdirSync(demoDir);
+  writeDemoDatabase({
+    library: buildDemoLibrary(),
+    dbPath: path.join(demoDir, "app.db"),
+    migrationsDir: path.join(
+      import.meta.dirname,
+      "../../src/main/db/migrations",
+    ),
     demoDir,
   });
   db = openDatabase(path.join(demoDir, "app.db"));
@@ -48,16 +56,16 @@ it("lists the artists with pictures the image protocol can serve", () => {
     expect(
       resolveImagePath(artist.picturePath ?? "", imagesDir),
     ).not.toBeNull();
-    expect(existsSync(artist.picturePath ?? "")).toBe(true);
   }
 });
 
-it("lists the albums with existing covers", () => {
+it("lists the albums with covers the image protocol can serve", () => {
   const albums = getAlbums(db, {});
+  const imagesDir = path.join(demoDir, "images");
 
   expect(albums).toHaveLength(346);
   for (const album of albums) {
-    expect(existsSync(album.picturePath ?? "")).toBe(true);
+    expect(resolveImagePath(album.picturePath ?? "", imagesDir)).not.toBeNull();
   }
 });
 
@@ -93,7 +101,6 @@ it("opens My Best with the playable track that the stream protocol serves", () =
   expect(musics).toHaveLength(20);
   expect(first?.title).toBe("Test Tone Serenade");
   expect(isLibraryMusicPath(db, first?.filePath ?? "")).toBe(true);
-  expect(existsSync(first?.filePath ?? "")).toBe(true);
 });
 
 it("puts the playable track on the first row of its genre smart playlist", () => {
@@ -107,5 +114,4 @@ it("puts the playable track on the first row of its genre smart playlist", () =>
 
   expect(musics[0]?.title).toBe("Test Tone Serenade");
   expect(musics.every((music) => music.genre === "Electronic")).toBe(true);
-  expect(existsSync(musics[0]?.filePath ?? "")).toBe(true);
 });

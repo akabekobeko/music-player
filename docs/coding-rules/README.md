@@ -148,6 +148,25 @@ export const AlbumCard = ({ album, width }: Props) => { … };
 - ロジック自体が翻訳文字列を必要とする場合のみ、Hooks 内で `useT` を呼んでよい
   - 例: `usePlaylistListPanel` (プレイリストの既定名)、`useImportConfirmDialog` (状態別の説明文)
 
+## デモ用データ
+
+### 生成物に影響する変更では DEMO_ASSETS_VERSION を増やす
+
+- デモ用データ ([デモ モード](../demo/README.md)) はリポジトリーに含めず、`pnpm demo` がデータ ディレクトリー直下の `demo-N` へ生成する。`N` は `scripts/demo/assets/generateDemoAssets.ts` の定数 `DEMO_ASSETS_VERSION` で、同じ番号の `demo-N` が生成済みなら再生成しない
+- そのため、生成物が変わる変更をしたら、同じ変更 (同じ PR) のなかで `DEMO_ASSETS_VERSION` を 1 増やす。増やし忘れると、生成済みの環境では古いデータのままデモが起動する
+- 増やす必要がある変更
+  - DB スキーマの変更 (`src/main/db/migrations` へのマイグレーション追加)
+  - seed の変更 (`scripts/demo/assets/seed` のアーティスト、写真、語彙)
+  - `docs/demo/CREDITS.md` が変わる変更 (写真の差し替え、出典や作者、ライセンス表記の更新)
+  - `docs/demo/settings.json` の変更
+  - 生成ロジックの変更 (`scripts/demo/assets` 配下。ライブラリーの組み立て、カバー画像、音声、DB への書き込みなど出力が変わるもの)
+  - `demo-N` のディレクトリー構成や、アプリが `userData` に期待する構成の変更 (画像の配置、設定ファイルの形式など)
+- 増やす必要がない変更
+  - 出力が変わらないリファクタリング、コメント、テストだけの変更
+  - デモの起動処理だけの変更 (`scripts/demo.ts`、`scripts/demo/prepareDemoUserData` など生成物に触れないもの)
+- 判断に迷う場合は増やす。不要な再生成は 30 秒ほどで済むが、古いデータが残ると気づきにくい
+- レビューでは、上記に該当する変更に `DEMO_ASSETS_VERSION` の更新が含まれているかを確認する
+
 ## デバッグ用コード
 
 ### 開発時にだけ動くコードは import.meta.env.DEV で分岐する

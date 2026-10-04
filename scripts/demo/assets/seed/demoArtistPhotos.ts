@@ -14,7 +14,7 @@ export type DemoArtistPhoto = {
 
 /**
  * Photograph per artist name. Every file must be published under CC0 on
- * Wikimedia Commons; `pnpm demo:photos` verifies that before downloading.
+ * Wikimedia Commons; the generation verifies that before downloading.
  * Pick photographs without identifiable people, logos or artworks.
  */
 export const DEMO_ARTIST_PHOTOS: Readonly<Record<string, DemoArtistPhoto>> = {

@@ -78,6 +78,7 @@ it("creates the database at the app's current schema version", () => {
     library: buildDemoLibrary(seeds),
     dbPath,
     migrationsDir,
+    demoDir: tempDir,
   });
 
   expect(
@@ -92,6 +93,7 @@ it("leaves a single file without WAL side files", () => {
     library: buildDemoLibrary(seeds),
     dbPath,
     migrationsDir,
+    demoDir: tempDir,
   });
 
   expect(
@@ -104,7 +106,7 @@ it("leaves a single file without WAL side files", () => {
 it("stores every track, cover, artist picture and playlist", () => {
   const library = buildDemoLibrary(seeds);
   const albums = library.artists.flatMap((artist) => artist.albums);
-  writeDemoDatabase({ library, dbPath, migrationsDir });
+  writeDemoDatabase({ library, dbPath, migrationsDir, demoDir: tempDir });
 
   expect(count("musics")).toBe(
     albums.reduce((sum, album) => sum + album.tracks.length, 0),
@@ -115,11 +117,12 @@ it("stores every track, cover, artist picture and playlist", () => {
   expect(count("smart_playlists")).toBe(library.smartPlaylists.length);
 });
 
-it("stores paths relative to the assets directory", () => {
+it("stores absolute paths inside the demo directory", () => {
   writeDemoDatabase({
     library: buildDemoLibrary(seeds),
     dbPath,
     migrationsDir,
+    demoDir: tempDir,
   });
 
   const paths = read((db) =>
@@ -134,14 +137,17 @@ it("stores paths relative to the assets directory", () => {
       ),
   ).map((row) => row.file_path);
   for (const filePath of paths) {
-    expect(filePath).toMatch(/^(musics|images)\//);
+    expect(path.relative(tempDir, filePath).split(path.sep)[0]).toMatch(
+      /^(musics|images)$/,
+    );
+    expect(path.isAbsolute(filePath)).toBe(true);
   }
 });
 
 it("replaces a database that already exists", () => {
   const library = buildDemoLibrary(seeds);
-  writeDemoDatabase({ library, dbPath, migrationsDir });
-  writeDemoDatabase({ library, dbPath, migrationsDir });
+  writeDemoDatabase({ library, dbPath, migrationsDir, demoDir: tempDir });
+  writeDemoDatabase({ library, dbPath, migrationsDir, demoDir: tempDir });
 
   expect(count("artist_pictures")).toBe(library.artists.length);
 });

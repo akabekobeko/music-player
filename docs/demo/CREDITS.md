@@ -1,6 +1,6 @@
 # デモ用アーティスト画像のクレジット
 
-`pnpm demo:photos` が生成するファイルです。直接編集しないでください。
+デモ用データの生成 (`pnpm demo:assets`) が出力するファイルです。直接編集しないでください。
 
 すべて [Wikimedia Commons](https://commons.wikimedia.org/) で [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) として公開されている画像です。ライセンスは取得時に Commons の API で確認しています。
 
