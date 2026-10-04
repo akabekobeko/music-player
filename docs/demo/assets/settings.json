@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "window": {
+    "width": 1280,
+    "height": 800,
+    "maximized": false
+  },
+  "theme": "dark",
+  "sidebar": {
+    "open": true,
+    "width": 296
+  },
+  "lastView": {
+    "section": "artists",
+    "artist": "Milo Ashgrove"
+  }
+}

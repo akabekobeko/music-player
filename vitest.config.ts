@@ -18,7 +18,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "scripts/**/*.test.ts"],
     // No test may reach the real network (MusicBrainz rate limit, CI load).
     setupFiles: ["src/test/blockNetwork.setup.ts"],
   },

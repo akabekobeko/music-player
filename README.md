@@ -80,6 +80,9 @@ pnpm run dev
 | -------------- | ---------------------------------------------------------- |
 | `init`         | Initialize the project with your app name, ID, and license |
 | `dev`          | Start the development server                               |
+| `demo`         | Start the development server on the demo data              |
+| `demo:assets`  | Generate the demo data in `docs/demo/assets` (macOS only)  |
+| `demo:photos`  | Fetch the artist pictures of the demo data (macOS only)    |
 | `build`        | Build all processes (main, preload, renderer)              |
 | `typecheck`    | Run TypeScript type checking                               |
 | `package`      | Build and package the app with electron-builder            |
@@ -102,6 +105,10 @@ Notes:
 - **Packaged builds are not affected.** The redirect only applies when `app.isPackaged` is `false`. This is a runtime check on purpose: a production bundle started unpackaged (`pnpm build && electron .`) must still use the shared directory rather than the stale `Electron` one.
 - Keep `productName` in `package.json` and `electron-builder.yml` identical. If they differ, development and the packaged app end up with separate directories.
 - Development and the packaged app share one library DB, so running a development build with newer migrations upgrades that DB for the packaged app as well.
+
+## Demo Mode
+
+`pnpm demo` starts the development environment on a fictional library, for taking screenshots without real artists or songs. It copies `docs/demo/assets` into a `demo` directory under the userData directory above and redirects `userData` there through the `PARADE_USER_DATA_DIR` environment variable, so the regular library is never read or changed. The variable is only honoured by unpackaged runs. See [docs/demo/README.md](docs/demo/README.md) (Japanese) for the data and how to regenerate it.
 
 ## Development-only Code
 
