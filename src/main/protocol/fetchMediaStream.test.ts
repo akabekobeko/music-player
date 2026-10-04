@@ -24,7 +24,7 @@ afterEach(() => {
 const setupLibrary = (
   content: string,
 ): { library: DatabaseSync; filePath: string } => {
-  tempDir = mkdtempSync(path.join(tmpdir(), "music-player-stream-"));
+  tempDir = mkdtempSync(path.join(tmpdir(), "parade-stream-"));
   const filePath = path.join(tempDir, "song.mp3");
   writeFileSync(filePath, content);
 

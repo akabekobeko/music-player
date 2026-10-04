@@ -9,7 +9,7 @@ let tempDir: string;
 let imagesDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(path.join(tmpdir(), "music-player-images-"));
+  tempDir = mkdtempSync(path.join(tmpdir(), "parade-images-"));
   imagesDir = path.join(tempDir, "images");
   mkdirSync(imagesDir);
 });
