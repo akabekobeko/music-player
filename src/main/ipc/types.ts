@@ -573,9 +573,8 @@ export type LastView = {
  */
 export type PlaylistColumnsSettings = {
   /**
-   * Ids of the optional columns shown in the Playlist view's table. The
-   * always-visible columns are never listed. Order is not significant in
-   * v1.3.
+   * Ids of the optional columns shown in the Playlist view's table, in
+   * display order. The always-visible columns are never listed.
    */
   readonly visibleIds: readonly string[];
   /**

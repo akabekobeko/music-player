@@ -15,13 +15,94 @@ it("starts from the v1.2 columns with no resized width", () => {
   });
 });
 
-it("shows a hidden column", () => {
+it("shows a hidden column at its place by declaration order", () => {
   const next = reducePlaylistColumns(STATE, {
     type: "visibilityChanged",
     columnId: "year",
     visible: true,
   });
-  expect(next.visibleIds).toEqual(["artist", "album", "duration", "year"]);
+  expect(next.visibleIds).toEqual(["artist", "album", "year", "duration"]);
+});
+
+it("shows a hidden column after the nearest column declared before it", () => {
+  const reordered = { ...STATE, visibleIds: ["duration", "album", "artist"] };
+  expect(
+    reducePlaylistColumns(reordered, {
+      type: "visibilityChanged",
+      columnId: "genre",
+      visible: true,
+    }).visibleIds,
+  ).toEqual(["duration", "album", "genre", "artist"]);
+});
+
+it("shows a hidden column in front of the next one when none is declared before it", () => {
+  const withoutArtist = { ...STATE, visibleIds: ["duration", "album"] };
+  expect(
+    reducePlaylistColumns(withoutArtist, {
+      type: "visibilityChanged",
+      columnId: "artist",
+      visible: true,
+    }).visibleIds,
+  ).toEqual(["duration", "artist", "album"]);
+  expect(
+    reducePlaylistColumns(
+      { ...STATE, visibleIds: [] },
+      { type: "visibilityChanged", columnId: "genre", visible: true },
+    ).visibleIds,
+  ).toEqual(["genre"]);
+});
+
+it("moves a column next to another one", () => {
+  expect(
+    reducePlaylistColumns(STATE, {
+      type: "moved",
+      columnId: "duration",
+      targetId: "artist",
+      side: "before",
+    }),
+  ).toEqual({
+    visibleIds: ["duration", "artist", "album"],
+    widths: { artist: 320 },
+  });
+  expect(
+    reducePlaylistColumns(STATE, {
+      type: "moved",
+      columnId: "artist",
+      targetId: "album",
+      side: "after",
+    }).visibleIds,
+  ).toEqual(["album", "artist", "duration"]);
+});
+
+it("returns the same state when a move changes nothing", () => {
+  expect(
+    reducePlaylistColumns(STATE, {
+      type: "moved",
+      columnId: "album",
+      targetId: "artist",
+      side: "after",
+    }),
+  ).toBe(STATE);
+  expect(
+    reducePlaylistColumns(STATE, {
+      type: "moved",
+      columnId: "year",
+      targetId: "artist",
+      side: "after",
+    }),
+  ).toBe(STATE);
+});
+
+it("ignores a move of a pinned column", () => {
+  const listed = { ...STATE, visibleIds: ["title", "artist", "album"] };
+  expect(
+    reducePlaylistColumns(listed, {
+      type: "moved",
+      columnId: "title",
+      targetId: "album",
+      side: "after",
+    }),
+  ).toBe(listed);
 });
 
 it("hides a visible column and keeps its saved width", () => {

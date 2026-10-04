@@ -1,6 +1,8 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
+import type { DragEvent } from "react";
 import { useT } from "@/features/i18n/useT";
 import type {
+  ColumnDropSide,
   PlaylistColumn,
   PlaylistColumnId,
 } from "@/features/playlistColumns/types";
@@ -12,6 +14,7 @@ import {
   PLAYLIST_TABLE_PADDING_X,
 } from "./constants";
 import type { PlaylistSort } from "./types";
+import { useColumnReorder } from "./useColumnReorder/useColumnReorder";
 import type { ColumnResizeHandlers } from "./useColumnResize/useColumnResize";
 
 type Props = {
@@ -29,6 +32,12 @@ type Props = {
   readonly minWidthOf: (columnId: PlaylistColumnId) => number;
   /** Returns a column to its default width (handle double-click). */
   readonly onResetWidth: (columnId: PlaylistColumnId) => void;
+  /** Persists a column move; called once when a dragged column is dropped. */
+  readonly onColumnMove: (
+    columnId: PlaylistColumnId,
+    targetId: PlaylistColumnId,
+    side: ColumnDropSide,
+  ) => void;
 };
 
 /**
@@ -47,6 +56,15 @@ type Props = {
  * (`docs/specs/v1.3/features/column-resize.md`); the drag starts from the
  * displayed width, which this header knows through `widthOf`.
  *
+ * An optional column's label is also the drag source of the column reorder
+ * (`docs/specs/v1.3/features/column-reorder.md`): the label rather than the
+ * cell, so a drag never starts on the resize handle, and every cell is a
+ * drop target. The dragged column is dimmed and a line on the edge of the
+ * target column shows where it would land. A landing place after the last
+ * optional column is drawn on the left edge of the menu column instead:
+ * that column is fixed to the right edge, so the line stays in view while
+ * the table is scrolled sideways.
+ *
  * The menu column's header is fixed to the right edge like its cells, and
  * opaque so the labels passing beneath do not show through
  * (`docs/specs/v1.3/architecture/table-structure.md`).
@@ -59,8 +77,21 @@ export const PlaylistTableHeader = ({
   resize,
   minWidthOf,
   onResetWidth,
+  onColumnMove,
 }: Props) => {
   const t = useT();
+  const reorder = useColumnReorder({ columns, onColumnMove });
+  const dropIndex = columns.findIndex(
+    (column) => column.id === reorder.drop?.targetId,
+  );
+  const dropNext = columns[dropIndex + 1];
+  /** Column and edge the landing line is drawn on. */
+  const line =
+    reorder.drop === null
+      ? null
+      : reorder.drop.side === "after" && dropNext?.pinned === true
+        ? { columnId: dropNext.id, side: "before" }
+        : { columnId: reorder.drop.targetId, side: reorder.drop.side };
   return (
     <thead
       // biome-ignore lint/a11y/noRedundantRoles: the display override drops the implicit role.
@@ -75,10 +106,19 @@ export const PlaylistTableHeader = ({
         // biome-ignore lint/a11y/noRedundantRoles: the display override drops the implicit role.
         role="row"
         className="flex h-full"
+        onDragLeave={reorder.handlers.dragLeave}
       >
         {columns.map((column) => {
           const sorted = sort.columnId === column.id;
           const fixed = column.id === "menu";
+          const dragProps = column.pinned
+            ? {}
+            : {
+                draggable: true,
+                onDragStart: (event: DragEvent<HTMLElement>) =>
+                  reorder.handlers.beginDrag(event, column.id),
+                onDragEnd: reorder.handlers.endDrag,
+              };
           return (
             <th
               key={column.id}
@@ -95,11 +135,16 @@ export const PlaylistTableHeader = ({
               className={cn(
                 "flex shrink-0 font-medium text-muted-foreground text-xs",
                 fixed ? "sticky bg-background" : "relative",
+                reorder.draggingId === column.id && "opacity-50",
               )}
               style={{
                 width: widthOf(column.id),
                 right: fixed ? PLAYLIST_TABLE_MENU_STICKY_RIGHT : undefined,
               }}
+              onDragOver={(event) =>
+                reorder.handlers.dragOver(event, column.id)
+              }
+              onDrop={(event) => reorder.handlers.dropOn(event, column.id)}
             >
               {column.labelKey === null ? null : column.sortable ? (
                 <button
@@ -110,6 +155,7 @@ export const PlaylistTableHeader = ({
                     sorted && "text-foreground",
                   )}
                   onClick={() => onSort(column.id)}
+                  {...dragProps}
                 >
                   <span className="truncate">{t(column.labelKey)}</span>
                   {sorted &&
@@ -125,9 +171,19 @@ export const PlaylistTableHeader = ({
                     "min-w-0 flex-1 self-center truncate px-2",
                     column.align === "end" ? "text-end" : "text-start",
                   )}
+                  {...dragProps}
                 >
                   {t(column.labelKey)}
                 </span>
+              )}
+              {line?.columnId === column.id && (
+                <span
+                  aria-hidden
+                  className={cn(
+                    "pointer-events-none absolute inset-y-0 w-0.5 bg-primary",
+                    line.side === "before" ? "left-0" : "right-0",
+                  )}
+                />
               )}
               {column.resizable && (
                 <ColumnResizeHandle

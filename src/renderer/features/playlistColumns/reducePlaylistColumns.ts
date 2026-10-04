@@ -1,5 +1,10 @@
 import { DEFAULT_PLAYLIST_COLUMNS_STATE, PLAYLIST_COLUMNS } from "./constants";
-import type { PlaylistColumnId, PlaylistColumnsState } from "./types";
+import { reorderColumnIds } from "./reorderColumnIds";
+import type {
+  ColumnDropSide,
+  PlaylistColumnId,
+  PlaylistColumnsState,
+} from "./types";
 
 /** Store actions; reduced by the pure {@link reducePlaylistColumns}. */
 export type PlaylistColumnsAction =
@@ -14,7 +19,44 @@ export type PlaylistColumnsAction =
       readonly width: number;
     }
   | { readonly type: "widthReset"; readonly columnId: PlaylistColumnId }
+  | {
+      readonly type: "moved";
+      readonly columnId: PlaylistColumnId;
+      readonly targetId: PlaylistColumnId;
+      readonly side: ColumnDropSide;
+    }
   | { readonly type: "reset" };
+
+/**
+ * Add a newly shown column to the visible ids. It goes right after the
+ * nearest visible column declared before it, so a layout that was never
+ * reordered stays in declaration order; with none before it, it goes in
+ * front of the nearest visible column declared after it.
+ *
+ * @param visibleIds - Ids of the visible optional columns in display order.
+ * @param columnId - Column to show; not in `visibleIds`.
+ * @returns The ids with the column inserted.
+ */
+const withShown = (
+  visibleIds: readonly string[],
+  columnId: PlaylistColumnId,
+): readonly string[] => {
+  const declared = PLAYLIST_COLUMNS.map((column) => column.id);
+  const position = declared.indexOf(columnId);
+  const before = declared
+    .slice(0, position)
+    .findLast((id) => visibleIds.includes(id));
+  if (before !== undefined) {
+    return visibleIds.toSpliced(visibleIds.indexOf(before) + 1, 0, columnId);
+  }
+
+  const after = declared
+    .slice(position + 1)
+    .find((id) => visibleIds.includes(id));
+  return after === undefined
+    ? [...visibleIds, columnId]
+    : visibleIds.toSpliced(visibleIds.indexOf(after), 0, columnId);
+};
 
 /**
  * Reduce one action onto the column layout
@@ -22,12 +64,16 @@ export type PlaylistColumnsAction =
  * the side effects (persistence, notification).
  *
  * - `visibilityChanged` shows or hides an optional column. Pinned columns
- *   are ignored, and hiding keeps the column's saved width.
+ *   are ignored, and hiding keeps the column's saved width. A shown column
+ *   takes its place by declaration order (`withShown`).
  * - `widthChanged` saves a resized width in px. Columns that cannot be
  *   resized are ignored, and a width equal to the column's default drops
  *   the saved width instead, so "resized back to the default" and "never
  *   resized" are the same state.
  * - `widthReset` drops a saved width, returning the column to its default.
+ * - `moved` moves a visible optional column before or after another one
+ *   (`docs/specs/v1.3/features/column-reorder.md`). Pinned columns do not
+ *   move.
  * - `reset` returns to `DEFAULT_PLAYLIST_COLUMNS_STATE`.
  *
  * @param state - Current column layout.
@@ -70,7 +116,7 @@ export const reducePlaylistColumns = (
       return {
         ...state,
         visibleIds: action.visible
-          ? [...state.visibleIds, column.id]
+          ? withShown(state.visibleIds, column.id)
           : state.visibleIds.filter((id) => id !== column.id),
       };
     }
@@ -85,5 +131,18 @@ export const reducePlaylistColumns = (
     }
     case "widthReset":
       return withoutWidth();
+    case "moved": {
+      if (column.pinned) {
+        return state;
+      }
+
+      const visibleIds = reorderColumnIds({
+        ids: state.visibleIds,
+        sourceId: column.id,
+        targetId: action.targetId,
+        side: action.side,
+      });
+      return visibleIds === state.visibleIds ? state : { ...state, visibleIds };
+    }
   }
 };

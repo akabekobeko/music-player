@@ -1,6 +1,6 @@
 # カラム定義
 
-Playlists のテーブルが表示できるカラムの一覧です。定義は `PLAYLIST_COLUMNS` (`src/renderer/features/playlistColumns/constants.ts`) に宣言順で置き、この順序が表示順になります。型は [型定義](../architecture/column-settings-types.md) を参照してください。
+Playlists のテーブルが表示できるカラムの一覧です。定義は `PLAYLIST_COLUMNS` (`src/renderer/features/playlistColumns/constants.ts`) に宣言順で置き、この順序が既定の表示順になります。並び順はヘッダーのドラッグ & ドロップで変えられます ([カラムの並べ替え](column-reorder.md))。型は [型定義](../architecture/column-settings-types.md) を参照してください。
 
 ## 一覧
 
@@ -36,7 +36,7 @@ Playlists のテーブルが表示できるカラムの一覧です。定義は 
 
 ## 常に表示するカラム
 
-`ordinal`、`title`、`menu` は常に表示し、カラム メニューには出しません ([表示カラムの切り替え](column-visibility.md))。
+`ordinal`、`title`、`menu` は常に表示し、カラム メニューには出しません ([表示カラムの切り替え](column-visibility.md))。並べ替えでも動かせません。
 
 - `ordinal`: 再生ボタンと再生中の表示を兼ねる。ソートを登録順へ戻す入口でもある ([ソート](column-sort.md))
 - `title`: 行が何の曲かを示す唯一の手がかり

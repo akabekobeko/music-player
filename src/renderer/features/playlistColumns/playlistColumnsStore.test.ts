@@ -96,7 +96,7 @@ it("saves the whole layout on every change", () => {
     visible: true,
   });
   expect(save).toHaveBeenLastCalledWith({
-    visibleIds: ["year", "genre"],
+    visibleIds: ["genre", "year"],
     widths: { title: 400, year: 96 },
   });
   store.dispatch({ type: "reset" });

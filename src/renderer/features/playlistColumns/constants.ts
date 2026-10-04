@@ -8,7 +8,8 @@ export const MIN_COLUMN_WIDTH = 48;
 
 /**
  * Columns of the Playlist view's table in declaration order, which is also
- * the display order (`docs/specs/v1.3/features/columns.md`). The default
+ * the display order until the user reorders the columns
+ * (`docs/specs/v1.3/features/columns.md`). The default
  * visible set mirrors the v1.2 track list: ordinal, title, artist, album,
  * and duration.
  */

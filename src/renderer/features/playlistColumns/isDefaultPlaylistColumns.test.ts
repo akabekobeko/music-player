@@ -6,13 +6,13 @@ it("is true for the default layout", () => {
   expect(isDefaultPlaylistColumns(DEFAULT_PLAYLIST_COLUMNS_STATE)).toBe(true);
 });
 
-it("ignores the order of the visible columns", () => {
+it("is false when the columns were reordered", () => {
   expect(
     isDefaultPlaylistColumns({
       visibleIds: ["duration", "artist", "album"],
       widths: {},
     }),
-  ).toBe(true);
+  ).toBe(false);
 });
 
 it("is false when a column was shown or hidden", () => {
