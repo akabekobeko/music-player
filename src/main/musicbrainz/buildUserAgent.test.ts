@@ -3,7 +3,7 @@ import { buildUserAgent } from "./buildUserAgent";
 
 it("follows the MusicBrainz recommended form with the repository as contact", () => {
   expect(buildUserAgent("1.2.0")).toBe(
-    "Parade/1.2.0 ( https://github.com/akabekobeko/music-player )",
+    "Parade/1.2.0 ( https://github.com/akabekobeko/parade )",
   );
 });
 

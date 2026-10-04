@@ -12,4 +12,4 @@
  * @returns The user agent string, e.g. `Parade/1.2.0 ( https://... )`.
  */
 export const buildUserAgent = (version: string): string =>
-  `Parade/${version} ( https://github.com/akabekobeko/music-player )`;
+  `Parade/${version} ( https://github.com/akabekobeko/parade )`;

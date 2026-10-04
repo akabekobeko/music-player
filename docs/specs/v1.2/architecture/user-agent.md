@@ -34,7 +34,7 @@ Application name/<version> ( contact-email )
 ```ts
 // src/main/musicbrainz/buildUserAgent.ts
 export const buildUserAgent = (version: string): string =>
-  `Parade/${version} ( https://github.com/akabekobeko/music-player )`;
+  `Parade/${version} ( https://github.com/akabekobeko/parade )`;
 ```
 
 - `version` は `app.getVersion()` (package.json の `version`。about ダイアログと同じ値)
