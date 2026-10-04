@@ -15,6 +15,11 @@ type Params = {
   readonly dbPath: string;
   /** Directory of the app's migration scripts (`src/main/db/migrations`). */
   readonly migrationsDir: string;
+  /**
+   * Absolute path of the demo directory that holds the pictures and the
+   * audio file. The stored paths point into it.
+   */
+  readonly demoDir: string;
 };
 
 /**
@@ -25,8 +30,9 @@ type Params = {
  * would have created. The scripts are taken from the directory in name
  * order because the app's ordered list is built from Vite raw imports and
  * cannot be loaded here; `writeDemoDatabase.test.ts` checks that both
- * agree. Paths are stored relative to the assets directory;
- * `pnpm demo` turns them into absolute paths after copying.
+ * agree. The app expects absolute paths in the platform's notation, so the
+ * paths of the library, which are relative to the demo directory, are
+ * stored resolved against `demoDir`.
  *
  * @param params - See {@link Params}.
  * @returns void.
@@ -35,7 +41,11 @@ export const writeDemoDatabase = ({
   library,
   dbPath,
   migrationsDir,
+  demoDir,
 }: Params): void => {
+  const toAbsolute = (relativePath: string): string =>
+    path.join(demoDir, ...relativePath.split("/"));
+
   for (const suffix of ["", "-wal", "-shm", "-journal"]) {
     rmSync(`${dbPath}${suffix}`, { force: true });
   }
@@ -45,7 +55,7 @@ export const writeDemoDatabase = ({
     .sort();
   const db = new DatabaseSync(dbPath);
   try {
-    // A single self-contained file: no WAL side files to commit.
+    // A single self-contained file without WAL side files.
     db.exec("PRAGMA journal_mode = DELETE");
     db.exec("PRAGMA foreign_keys = ON");
     for (const [index, name] of migrations.entries()) {
@@ -74,10 +84,12 @@ export const writeDemoDatabase = ({
     const musicIds = new Map<string, number | bigint>();
     for (const artist of library.artists) {
       for (const album of artist.albums) {
-        const pictureId = insertPicture.run(album.coverPath).lastInsertRowid;
+        const pictureId = insertPicture.run(
+          toAbsolute(album.coverPath),
+        ).lastInsertRowid;
         for (const track of album.tracks) {
           const { lastInsertRowid } = insertMusic.run(
-            track.filePath,
+            toAbsolute(track.filePath),
             track.audioFormat,
             track.title,
             track.artist,
@@ -105,7 +117,7 @@ export const writeDemoDatabase = ({
 
       insertArtistPicture.run(
         artist.name,
-        insertPicture.run(artist.picturePath).lastInsertRowid,
+        insertPicture.run(toAbsolute(artist.picturePath)).lastInsertRowid,
       );
     }
 

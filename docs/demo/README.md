@@ -8,31 +8,38 @@
 pnpm demo
 ```
 
-`pnpm dev` と同じ開発用の起動 (Renderer の dev server と Main / Preload の watch ビルド) を、デモ用データに差し替えて行います。起動のたびに次の処理をします。
+`pnpm dev` と同じ開発用の起動 (Renderer の dev server と Main / Preload の watch ビルド) を、デモ用データに差し替えて行います。デモ用データはリポジトリーに含めず、データ ディレクトリー直下のバージョン番号つきディレクトリー `demo-N` (例: `demo-1`) へ生成します。`N` は `scripts/demo/assets/generateDemoAssets.ts` の定数 `DEMO_ASSETS_VERSION` です。
 
-1. データ ディレクトリー直下の `demo` ディレクトリーを削除します (前回のデモで行った操作や、古い構造のデータは残しません)
-2. `docs/demo/assets` の内容を `demo` へコピーします
-3. コピーした `app.db` 内のファイル パスを、`demo` ディレクトリーを指す絶対パスへ書き換えます
-4. `demo` を `userData` として Electron を起動します
+起動のたびに次の処理をします。
 
-`demo` ディレクトリーの場所は次のとおりです。
+1. 現在のバージョンの `demo-N` が生成済みであれば、そのまま利用します
+2. `demo-N` がない、または生成が完了していない場合は、デモ用データを `demo-N` へ生成します ([データの更新](#データの更新) の `pnpm demo:assets` と同じ処理ですが、`docs/demo/CREDITS.md` は更新しません)
+3. データ ディレクトリー直下にある、現在のバージョン以外のデモ用ディレクトリーを削除します (ほかの番号の `demo-N` と、バージョン管理を導入する前の `demo`)。生成に失敗した場合は削除しません
+4. `demo-N` を `userData` として Electron を起動します
 
-- macOS: `~/Library/Application Support/Parade/demo`
-- Windows: `%APPDATA%\Parade\demo`
-- Linux: `~/.config/Parade/demo`
+`demo-N` ディレクトリーの場所は次のとおりです。
 
-デモ起動中のライブラリー DB、設定、アートワーク、Chromium のキャッシュはすべて `demo` 配下に置かれるので、通常のデータを参照も変更もしません。デモ中に行った取り込みや削除、設定変更は次回の `pnpm demo` で消えます。
+- macOS: `~/Library/Application Support/Parade/demo-N`
+- Windows: `%APPDATA%\Parade\demo-N`
+- Linux: `~/.config/Parade/demo-N`
 
-削除とコピーは `pnpm demo` の実行ごとに 1 回です。起動中にソースを編集して Electron が再起動しても、デモ データは作り直しません。
+デモ起動中のライブラリー DB、設定、アートワーク、Chromium のキャッシュはすべて `demo-N` 配下に置かれるので、通常のデータを参照も変更もしません。生成済みの `demo-N` はそのまま使うので、デモ中に行った取り込みや削除、設定変更は次回の `pnpm demo` にも残ります。初期状態へ戻すには `pnpm demo:assets` を実行するか、`demo-N` を削除してから `pnpm demo` を実行します。
 
-`pnpm dev` と同じポート (5173) で dev server を起動するので、`pnpm dev` やほかの `pnpm demo` と同時には実行できません。ポートが使用中の場合は、`demo` ディレクトリーに触れる前にエラーで終了します (起動中のデモのデータを消さないため)。
+生成にはネットワーク (Wikimedia Commons) と macOS (`sips`、`afconvert`) が必要で、30 秒ほどかかります。そのため Windows と Linux では、生成済みの `demo-N` がなければ `pnpm demo` は失敗します。生成が途中で失敗した場合は、次回の `pnpm demo` で続きから生成します。
+
+`pnpm dev` と同じポート (5173) で dev server を起動するので、`pnpm dev` やほかの `pnpm demo` と同時には実行できません。ポートが使用中の場合は、デモ用ディレクトリーに触れる前にエラーで終了します (起動中のデモのデータを消さないため)。
 
 ### 仕組み
 
-- `scripts/demo.ts` がデータを準備し、環境変数 `PARADE_USER_DATA_DIR` に `demo` ディレクトリーのパスを設定して `scripts/dev.ts` を実行します
+- `scripts/demo.ts` がデータを準備し、環境変数 `PARADE_USER_DATA_DIR` に `demo-N` ディレクトリーのパスを設定して `scripts/dev.ts` を実行します
 - Main プロセス (`src/main/main.ts`) は未パッケージ実行のときだけ `PARADE_USER_DATA_DIR` を読み、指定があればそのディレクトリーを `userData` にします。パッケージ版のアプリはこの環境変数を読まないので、デモ モードはありません
-- `docs/demo/assets/app.db` はファイル パスを assets ディレクトリーからの相対パス (区切りは `/`) で保存しています。書き換えの対象は `musics.file_path` と `pictures.file_path` で、OS のパス区切りにも合わせます
+- 生成が完了した `demo-N` には目印のファイル `.demo-ready` を置きます。このファイルがないディレクトリーは生成途中とみなして、生成をやり直します
+- `app.db` の `musics.file_path` と `pictures.file_path` には、`demo-N` 配下を指す絶対パスを OS のパス区切りで保存します
 - `app.db` のスキーマがアプリより古い場合は、通常の起動と同じくアプリがマイグレーションします
+
+### バージョン番号の更新
+
+生成物に影響する変更をしたら、同じ変更のなかで `DEMO_ASSETS_VERSION` を 1 増やします。番号が変わると、次回の `pnpm demo` が古い `demo-N` を削除して生成し直します。更新が必要になる変更は [コーディングルール](../coding-rules/README.md#生成物に影響する変更では-demo_assets_version-を増やす) にまとめています。
 
 ## 再生できる曲
 
@@ -46,7 +53,7 @@ DB には全曲のタイトルやファイル パスが入っていますが、�
 | 演奏時間 | 1:47 |
 | ジャンル | Electronic |
 | 形式 | m4a (AAC) |
-| ファイル | `docs/demo/assets/musics/Milo Ashgrove/Modulations/01 Test Tone Serenade.m4a` |
+| ファイル | `demo-N/musics/Milo Ashgrove/Modulations/01 Test Tone Serenade.m4a` |
 
 次の場所から再生できます。
 
@@ -63,17 +70,27 @@ DB には全曲のタイトルやファイル パスが入っていますが、�
 
 ### ディレクトリー構成
 
+リポジトリーに置くのは資料と設定だけです。
+
 ```
 docs/demo/
 ├── README.md        # この資料
-├── CREDITS.md       # アーティスト画像のクレジット (pnpm demo:photos が生成)
-└── assets/          # userData へコピーされるデータ
-    ├── app.db       # ライブラリー DB (ファイル パスは相対パス)
-    ├── settings.json
-    ├── images/
-    │   ├── albums/  # アルバムのカバー画像 (<artist>--<album>-<hash>.jpg)
-    │   └── artists/ # アーティスト画像 (<artist>.jpg)
-    └── musics/      # 再生できる 1 曲だけを格納
+├── CREDITS.md       # アーティスト画像のクレジット (pnpm demo:assets が更新)
+└── settings.json    # デモ用の設定 (生成時に demo-N へコピー)
+```
+
+画像、音声、DB は生成時にデータ ディレクトリーへ作成します。
+
+```
+<データ ディレクトリー>/demo-N/
+├── .demo-ready      # 生成が完了した目印
+├── CREDITS.md       # 取得済みのアーティスト画像の出典 (取得し直すかどうかの判定に使用)
+├── app.db           # ライブラリー DB (ファイル パスは絶対パス)
+├── settings.json    # docs/demo/settings.json のコピー
+├── images/
+│   ├── albums/      # アルバムのカバー画像 (<artist>--<album>-<hash>.jpg)
+│   └── artists/     # アーティスト画像 (<artist>.jpg)
+└── musics/          # 再生できる 1 曲だけを格納
 ```
 
 ### ライブラリーの内容
@@ -107,11 +124,11 @@ docs/demo/
 
 ### 設定
 
-`settings.json` はウィンドウ サイズを 1280 x 800、テーマを dark、サイドバーを表示、起動時の画面を Artists (Milo Ashgrove を選択) にしています。ウィンドウ位置と言語は指定していないので OS に従います。撮影に合わせてテーマや言語を変えたい場合は、起動後にアプリの設定から変更してください (次回の `pnpm demo` で元に戻ります)。
+`docs/demo/settings.json` はウィンドウ サイズを 1280 x 800、テーマを dark、サイドバーを表示、起動時の画面を Artists (Milo Ashgrove を選択) にしています。ウィンドウ位置と言語は指定していないので OS に従います。撮影に合わせてテーマや言語を変えたい場合は、起動後にアプリの設定から変更してください。変更は `demo-N` の `settings.json` に保存され、生成し直すまで残ります。
 
 ## 画像と音声の出どころ
 
-リポジトリーに含めても問題のない素材だけを使っています。
+第三者の素材は、出典とライセンスを確認できるものだけを使っています。
 
 ### アルバムのカバー画像
 
@@ -124,7 +141,7 @@ docs/demo/
 - 画像ごとの出典、作者、ライセンスは [CREDITS.md](CREDITS.md) にまとめています
 - ライセンスは取得時に Commons の API (`imageinfo` の `extmetadata.License`) で確認し、`cc0` 以外のファイルがあれば取得を中止します
 - CC0 が放棄するのは撮影者や公開者の著作権だけなので、肖像権や商標、写り込んだ物の権利に配慮して選んでいます。人物が特定できる写真、ロゴやブランド名が読み取れる写真、現代の著作物 (ポスター、ジャケット、グラフィティ、彫刻など) が主題の写真は避け、楽器、風景、動植物、道具などを題材にしています
-- 選定は目視で行っています。問題のある画像が見つかった場合は `seed/demoArtistPhotos.ts` のファイル名を差し替えて `pnpm demo:photos` を実行してください
+- 選定は目視で行っています。問題のある画像が見つかった場合は `seed/demoArtistPhotos.ts` のファイル名を差し替えて `pnpm demo:assets` を実行し、`DEMO_ASSETS_VERSION` を増やしてください
 
 ### 音声
 
@@ -132,7 +149,7 @@ docs/demo/
 
 ## データの更新
 
-デモ用データは `scripts/demo/assets/seed` の定義から生成します。`docs/demo/assets` のファイルを直接編集せず、定義を変更してから再生成してください。
+デモ用データは `scripts/demo/assets/seed` の定義と `docs/demo/settings.json` から生成します。`demo-N` のファイルを直接編集せず、定義を変更してから再生成してください。
 
 | ファイル | 内容 |
 | --- | --- |
@@ -141,17 +158,18 @@ docs/demo/
 | `seed/vocabulary.ts` | アルバム名や曲名を組み立てる語彙、ジャンルごとの値の範囲 |
 
 ```sh
-# アーティスト画像を取得し、CREDITS.md を更新 (ネットワークが必要)
-pnpm demo:photos
-
-# カバー画像、再生できる曲、app.db、settings.json を生成
+# 現在のバージョンの demo-N へ、アーティスト画像、カバー画像、再生できる曲、app.db、settings.json を生成し、CREDITS.md を更新
 pnpm demo:assets
 ```
 
-- どちらも macOS 専用です (`sips` と `afconvert` を使います)
+- `pnpm demo` は `demo-N` が生成済みなら何もしないので、定義の変更を確認するときは `pnpm demo:assets` で生成し直します。起動中のアプリが使っている DB を置き換えないように、dev server のポート (5173) が使用中の場合はエラーで終了するので、`pnpm demo` や `pnpm dev` を止めてから実行します
+- 変更を確認できたら `DEMO_ASSETS_VERSION` を増やしてコミットします ([バージョン番号の更新](#バージョン番号の更新))
+- macOS 専用で (`sips` と `afconvert` を使います)、ネットワークが必要です
 - 生成は決定的です。アルバム名や曲名はアーティスト名を種にした擬似乱数で決まるので、あるアーティストの定義を変えてもほかのアーティストの内容は変わりません。例外はゲスト参加曲の相手で、ほかのアーティストから選ぶため、アーティストの追加、削除、改名で変わることがあります
+- `app.db` と `settings.json` は毎回作り直します。デモ中に行った操作や設定変更は残りません
 - 既存のカバー画像と音声ファイルは作り直しません。作り直す場合は `--force` を付けます (`pnpm demo:assets --force`)。カバー画像のファイル名にはアーティスト名とアルバム名から求めたハッシュが入るので、改名したアルバムのカバーは新しい名前で生成されます。どのアルバムにも使われなくなった画像は削除します
-- アーティスト画像は、`CREDITS.md` に記録された出典が定義と同じであれば取得し直しません。`seed/demoArtistPhotos.ts` で `title` を差し替えた画像だけを取得します。`align` だけを変えた場合や、すべて取得し直す場合は `pnpm demo:photos --force` を実行します
+- アーティスト画像は、`demo-N` の `CREDITS.md` に記録された出典が定義と同じであれば取得し直しません。`seed/demoArtistPhotos.ts` で `title` を差し替えた画像だけを取得します。`align` だけを変えた場合や、すべて取得し直す場合は `--force` を付けます
 - アーティスト画像に指定できるのは JPEG のファイルだけです
-- アーティストを追加したら、`seed/demoArtistPhotos.ts` に CC0 の写真を追加してから `pnpm demo:photos`、`pnpm demo:assets` の順に実行します
-- `scripts/demo/assets/demoAssets.test.ts` が、コミットされたデータと定義の整合 (曲の一覧、画像ファイルの有無、設定の妥当性など) を検証します。定義を変えて再生成を忘れるとテストが失敗します
+- アーティストを追加したら、`seed/demoArtistPhotos.ts` に CC0 の写真を追加してから `pnpm demo:assets` を実行します
+- `pnpm demo:assets` は `docs/demo/CREDITS.md` を Commons の最新の情報で書き出します。差分が出た場合は内容を確認してコミットしてください。`pnpm demo` による生成はリポジトリーのファイルを変更しません
+- `scripts/demo/assets/demoCredits.test.ts` が `CREDITS.md` と定義の整合を、`demoSettings.test.ts` が `settings.json` の妥当性を検証します。写真の定義を変えて再生成を忘れるとテストが失敗します

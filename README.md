@@ -81,8 +81,7 @@ pnpm run dev
 | `init`         | Initialize the project with your app name, ID, and license |
 | `dev`          | Start the development server                               |
 | `demo`         | Start the development server on the demo data              |
-| `demo:assets`  | Generate the demo data in `docs/demo/assets` (macOS only)  |
-| `demo:photos`  | Fetch the artist pictures of the demo data (macOS only)    |
+| `demo:assets`  | Generate the demo data again (macOS only)                  |
 | `build`        | Build all processes (main, preload, renderer)              |
 | `typecheck`    | Run TypeScript type checking                               |
 | `package`      | Build and package the app with electron-builder            |
@@ -108,7 +107,7 @@ Notes:
 
 ## Demo Mode
 
-`pnpm demo` starts the development environment on a fictional library, for taking screenshots without real artists or songs. It copies `docs/demo/assets` into a `demo` directory under the userData directory above and redirects `userData` there through the `PARADE_USER_DATA_DIR` environment variable, so the regular library is never read or changed. The variable is only honoured by unpackaged runs. See [docs/demo/README.md](docs/demo/README.md) (Japanese) for the data and how to regenerate it.
+`pnpm demo` starts the development environment on a fictional library, for taking screenshots without real artists or songs. The demo data is not kept in the repository: it is generated into a versioned `demo-N` directory under the userData directory above (macOS only, needs the network) and reused until `DEMO_ASSETS_VERSION` in `scripts/demo/assets/generateDemoAssets.ts` changes. `userData` is redirected there through the `PARADE_USER_DATA_DIR` environment variable, so the regular library is never read or changed. The variable is only honoured by unpackaged runs. See [docs/demo/README.md](docs/demo/README.md) (Japanese) for the data and how to regenerate it.
 
 ## Development-only Code
 

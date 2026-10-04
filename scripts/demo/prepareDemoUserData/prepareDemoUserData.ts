@@ -1,48 +1,63 @@
-import { cpSync, existsSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { rewriteDemoDatabasePaths } from "./rewriteDemoDatabasePaths.ts";
+import { removeStaleDemoDirs } from "./removeStaleDemoDirs.ts";
 
-/** Directory name of the demo data; removal is refused for any other name. */
-export const DEMO_DIR_NAME = "demo";
+/**
+ * File that marks a demo directory as completely generated. A directory
+ * without it is left over from an interrupted generation.
+ */
+const READY_MARKER = ".demo-ready";
 
 /** Inputs of {@link prepareDemoUserData}. */
 type Params = {
-  /** Source directory of the committed demo data (`docs/demo/assets`). */
-  readonly assetsDir: string;
-  /**
-   * Destination directory used as userData while the demo runs. Its base
-   * name must be {@link DEMO_DIR_NAME}.
-   */
+  /** The app's regular userData directory (`<appData>/<productName>`). */
+  readonly userDataDir: string;
+  /** Version of the demo assets (`DEMO_ASSETS_VERSION`). */
+  readonly version: number;
+  /** Whether to run the generation even when the directory is ready. */
+  readonly regenerate: boolean;
+  /** Generates the demo assets into the given demo directory. */
+  readonly generate: (demoDir: string) => Promise<void>;
+};
+
+/** Result of {@link prepareDemoUserData}. */
+type Result = {
+  /** Demo directory to use as userData (`<userDataDir>/demo-<version>`). */
   readonly demoDir: string;
+  /** Whether the assets were generated in this call. */
+  readonly generated: boolean;
 };
 
 /**
- * Recreate the demo userData directory from the committed assets.
+ * Prepare the demo userData directory of the given assets version.
  *
- * An existing directory is removed first so every launch starts from the
- * latest assets, whatever an earlier run changed and whatever structure an
- * older version left behind. The database paths are then rewritten to point
- * into the new directory.
+ * A directory of the current version that was generated completely is
+ * used as it is, with whatever earlier demo runs changed in it; otherwise
+ * the assets are generated. A generation that fails leaves the directory
+ * unmarked, so the next call runs it again. The demo directories of other
+ * versions are removed once the current one is ready, never before a
+ * generation that may still fail.
  *
- * @param params - Source and destination directories.
- * @returns void.
+ * @param params - See {@link Params}.
+ * @returns The demo directory and whether it was generated.
  */
-export const prepareDemoUserData = ({ assetsDir, demoDir }: Params): void => {
-  // The directory is deleted recursively, so never accept a path that is
-  // not the dedicated demo directory.
-  if (path.basename(demoDir) !== DEMO_DIR_NAME) {
-    throw new Error(`Refusing to recreate a non-demo directory: ${demoDir}`);
+export const prepareDemoUserData = async ({
+  userDataDir,
+  version,
+  regenerate,
+  generate,
+}: Params): Promise<Result> => {
+  const name = `demo-${version}`;
+  const demoDir = path.join(userDataDir, name);
+  const markerPath = path.join(demoDir, READY_MARKER);
+  const generated = regenerate || !existsSync(markerPath);
+  if (generated) {
+    rmSync(markerPath, { force: true });
+    mkdirSync(demoDir, { recursive: true });
+    await generate(demoDir);
+    writeFileSync(markerPath, "");
   }
 
-  if (!existsSync(path.join(assetsDir, "app.db"))) {
-    throw new Error(`Demo assets are missing: ${assetsDir}`);
-  }
-
-  rmSync(demoDir, { recursive: true, force: true });
-  cpSync(assetsDir, demoDir, {
-    recursive: true,
-    // Skip OS metadata such as .DS_Store.
-    filter: (source) => !path.basename(source).startsWith("."),
-  });
-  rewriteDemoDatabasePaths(path.join(demoDir, "app.db"), demoDir);
+  removeStaleDemoDirs(userDataDir, name);
+  return { demoDir, generated };
 };
