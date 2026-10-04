@@ -92,6 +92,43 @@ it("removes the directories of other versions and generates again", async () => 
   expect(existsSync(path.join(userDataDir, "demo-4", "app.db"))).toBe(true);
 });
 
+it("removes the directories of other versions when the current one is ready", async () => {
+  await prepareDemoUserData({
+    userDataDir,
+    version: 3,
+    regenerate: false,
+    generate,
+  });
+  mkdirSync(path.join(userDataDir, "demo-2"));
+
+  await prepareDemoUserData({
+    userDataDir,
+    version: 3,
+    regenerate: false,
+    generate,
+  });
+
+  expect(existsSync(path.join(userDataDir, "demo-2"))).toBe(false);
+  expect(generatedDirs).toHaveLength(1);
+});
+
+it("keeps the directories of other versions when the generation fails", async () => {
+  mkdirSync(path.join(userDataDir, "demo-2"));
+
+  await expect(
+    prepareDemoUserData({
+      userDataDir,
+      version: 3,
+      regenerate: false,
+      generate: async () => {
+        throw new Error("network");
+      },
+    }),
+  ).rejects.toThrow("network");
+
+  expect(existsSync(path.join(userDataDir, "demo-2"))).toBe(true);
+});
+
 it("generates again after a generation that failed", async () => {
   await expect(
     prepareDemoUserData({

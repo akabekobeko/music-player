@@ -32,8 +32,6 @@ type Params = {
   readonly artists: readonly DemoArtist[];
   /** Demo directory the pictures are written into. */
   readonly demoDir: string;
-  /** Path of the credits document (`docs/demo/CREDITS.md`). */
-  readonly creditsPath: string;
   /** Whether to download every picture again. */
   readonly force: boolean;
 };
@@ -77,26 +75,26 @@ function buildCredits(
 }
 
 /**
- * Fetch the artist pictures of the demo library into the demo directory
- * and update the credits document.
+ * Fetch the artist pictures of the demo library into the demo directory.
  *
  * Every picture is a photograph from Wikimedia Commons named in
  * `seed/demoArtistPhotos.ts`. The license of each file is read from the
  * Commons API and anything other than CC0 aborts the run, so a photograph
- * whose license changed is never downloaded. A stored picture is kept when
- * the credits already list the same source file for its artist and
+ * whose license changed is never downloaded. The credits of the stored
+ * pictures are kept in `CREDITS.md` inside the demo directory: a picture
+ * is kept when they already list the same source file for its artist and
  * downloaded again otherwise; `force` downloads everything again (needed
  * after changing only `align`). See `docs/demo/README.md`.
  *
  * @param params - See {@link Params}.
- * @returns void.
+ * @returns Markdown text of the credits (`docs/demo/CREDITS.md`).
  */
 export const fetchDemoArtistPictures = async ({
   artists,
   demoDir,
-  creditsPath,
   force,
-}: Params): Promise<void> => {
+}: Params): Promise<string> => {
+  const creditsPath = path.join(demoDir, "CREDITS.md");
   // Rows of the previous run: a picture whose row is unchanged was made
   // from the same source file and does not need to be fetched again.
   const previousRows = new Set(
@@ -187,8 +185,10 @@ export const fetchDemoArtistPictures = async ({
     rmSync(path.join(picturesDir, name));
   }
 
-  writeFileSync(creditsPath, buildCredits(rows));
+  const credits = buildCredits(rows);
+  writeFileSync(creditsPath, credits);
   console.log(
     `Artist pictures: ${rows.length} (downloaded ${downloaded}, removed ${stale.length})`,
   );
+  return credits;
 };

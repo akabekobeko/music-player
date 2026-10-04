@@ -31,11 +31,12 @@ type Result = {
 /**
  * Prepare the demo userData directory of the given assets version.
  *
- * The demo directories of other versions are removed. A directory of the
- * current version that was generated completely is used as it is, with
- * whatever earlier demo runs changed in it; otherwise the assets are
- * generated. A generation that fails leaves the directory unmarked, so the
- * next call runs it again.
+ * A directory of the current version that was generated completely is
+ * used as it is, with whatever earlier demo runs changed in it; otherwise
+ * the assets are generated. A generation that fails leaves the directory
+ * unmarked, so the next call runs it again. The demo directories of other
+ * versions are removed once the current one is ready, never before a
+ * generation that may still fail.
  *
  * @param params - See {@link Params}.
  * @returns The demo directory and whether it was generated.
@@ -49,15 +50,14 @@ export const prepareDemoUserData = async ({
   const name = `demo-${version}`;
   const demoDir = path.join(userDataDir, name);
   const markerPath = path.join(demoDir, READY_MARKER);
-  removeStaleDemoDirs(userDataDir, name);
-
-  if (!regenerate && existsSync(markerPath)) {
-    return { demoDir, generated: false };
+  const generated = regenerate || !existsSync(markerPath);
+  if (generated) {
+    rmSync(markerPath, { force: true });
+    mkdirSync(demoDir, { recursive: true });
+    await generate(demoDir);
+    writeFileSync(markerPath, "");
   }
 
-  rmSync(markerPath, { force: true });
-  mkdirSync(demoDir, { recursive: true });
-  await generate(demoDir);
-  writeFileSync(markerPath, "");
-  return { demoDir, generated: true };
+  removeStaleDemoDirs(userDataDir, name);
+  return { demoDir, generated };
 };

@@ -5,6 +5,7 @@ import {
   readdirSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { buildDemoLibrary } from "./buildDemoLibrary/buildDemoLibrary.ts";
@@ -40,6 +41,11 @@ type Params = {
    * they exist.
    */
   readonly force: boolean;
+  /**
+   * Whether to write the credits of the fetched pictures to
+   * `docs/demo/CREDITS.md`.
+   */
+  readonly updateCredits: boolean;
 };
 
 /**
@@ -129,8 +135,8 @@ async function writePlayableTrack(
  *
  * Builds the library from the seed data in `scripts/demo/assets/seed`, then
  * writes the artist pictures, the album covers, the playable track and
- * `app.db`, and copies `docs/demo/settings.json`. Also updates
- * `docs/demo/CREDITS.md`. Files that exist are kept unless `force` is set;
+ * `app.db`, and copies `docs/demo/settings.json`. Files that exist are
+ * kept unless `force` is set;
  * `app.db` and `settings.json` are always replaced. Needs the network
  * (Wikimedia Commons) and macOS (`sips`, `afconvert`). See
  * `docs/demo/README.md`.
@@ -142,6 +148,7 @@ export const generateDemoAssets = async ({
   root,
   demoDir,
   force,
+  updateCredits,
 }: Params): Promise<void> => {
   if (process.platform !== "darwin") {
     throw new Error(
@@ -151,12 +158,15 @@ export const generateDemoAssets = async ({
 
   const library = buildDemoLibrary();
 
-  await fetchDemoArtistPictures({
+  const credits = await fetchDemoArtistPictures({
     artists: library.artists,
     demoDir,
-    creditsPath: path.join(root, "docs/demo/CREDITS.md"),
     force,
   });
+  if (updateCredits) {
+    writeFileSync(path.join(root, "docs/demo/CREDITS.md"), credits);
+  }
+
   mkdirSync(path.join(demoDir, "images/albums"), { recursive: true });
   writeAlbumCovers(library, demoDir, force);
   await writePlayableTrack(library, demoDir, force);

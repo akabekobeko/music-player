@@ -1,14 +1,11 @@
 import path from "node:path";
+import { assertDevServerStopped } from "./demo/assertDevServerStopped.ts";
 import {
   DEMO_ASSETS_VERSION,
   generateDemoAssets,
 } from "./demo/assets/generateDemoAssets.ts";
-import { isPortInUse } from "./demo/isPortInUse.ts";
 import { prepareDemoUserData } from "./demo/prepareDemoUserData/prepareDemoUserData.ts";
 import { resolveUserDataDir } from "./demo/resolveUserDataDir.ts";
-
-/** Port of the renderer dev server; the same as in scripts/dev.ts. */
-const DEV_SERVER_PORT = 5173;
 
 /**
  * Start the development environment on the demo data (`pnpm demo`).
@@ -21,20 +18,21 @@ const DEV_SERVER_PORT = 5173;
 async function startDemo(): Promise<void> {
   const root = path.join(import.meta.dirname, "..");
 
-  // Checked before anything is deleted: when the port is taken the launch
-  // would fail anyway, and if the holder is another demo run, removing or
-  // generating the directory would pull the data out from under it.
-  if (await isPortInUse(DEV_SERVER_PORT)) {
-    throw new Error(
-      `Port ${DEV_SERVER_PORT} is in use. Stop the running "pnpm dev" or "pnpm demo" first.`,
-    );
-  }
+  await assertDevServerStopped();
 
   const { demoDir, generated } = await prepareDemoUserData({
     userDataDir: resolveUserDataDir(root),
     version: DEMO_ASSETS_VERSION,
     regenerate: false,
-    generate: (demoDir) => generateDemoAssets({ root, demoDir, force: false }),
+    // Launching must not change tracked files, so the credits stay as
+    // they are.
+    generate: (demoDir) =>
+      generateDemoAssets({
+        root,
+        demoDir,
+        force: false,
+        updateCredits: false,
+      }),
   });
   console.log(`Demo data ${generated ? "generated" : "found"} in ${demoDir}`);
 
