@@ -81,7 +81,7 @@ Release Notes のカテゴリー分類には既存のラベルを使用します
 
 macOS は `electron-builder.yml` の `mac.target` で arm64 と x64 の両方を指定しており、1 つの runner (`macos-latest`、Apple Silicon) で両アーキテクチャーのイメージをビルドします。アプリにネイティブ モジュールを同梱していないため、Intel runner を別途用意する必要はありません。Windows と Linux は runner のアーキテクチャー (x64) でビルドされます。
 
-最新版へのリンクは常に <https://github.com/akabekobeko/music-player/releases/latest> で参照できます。過去バージョンのアセットも削除せず残します (public リポジトリーのリリース アセットは容量無制限・無料。1 ファイル 2 GiB の上限のみ)。
+最新版へのリンクは常に <https://github.com/akabekobeko/parade/releases/latest> で参照できます。過去バージョンのアセットも削除せず残します (public リポジトリーのリリース アセットは容量無制限・無料。1 ファイル 2 GiB の上限のみ)。
 
 ## 注意事項
 

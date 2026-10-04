@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 const makeTempDbPath = (): string => {
-  tempDir = mkdtempSync(path.join(tmpdir(), "music-player-db-"));
+  tempDir = mkdtempSync(path.join(tmpdir(), "parade-db-"));
   return path.join(tempDir, "app.db");
 };
 

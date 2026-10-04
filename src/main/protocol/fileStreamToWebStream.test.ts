@@ -14,7 +14,7 @@ afterEach(() => {
 });
 
 const makeFile = (content: string): string => {
-  tempDir = mkdtempSync(path.join(tmpdir(), "music-player-webstream-"));
+  tempDir = mkdtempSync(path.join(tmpdir(), "parade-webstream-"));
   const filePath = path.join(tempDir, "data.bin");
   writeFileSync(filePath, content);
   return filePath;
