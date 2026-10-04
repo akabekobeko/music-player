@@ -11,6 +11,7 @@ import { pushFullScreenState } from "./ipc/pushFullScreenState";
 import { installApplicationMenu } from "./menu/applicationMenu";
 // Importing also registers the privileged schemes (must run before `ready`).
 import { registerProtocolHandlers } from "./protocol/registerProtocol";
+import { resolveUnpackagedUserDataPath } from "./resolveUnpackagedUserDataPath";
 import {
   flushSettings,
   getSettings,
@@ -32,10 +33,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // unpackaged" is a fact of the process, and a production bundle started with
 // `electron .` must still land on the shared directory rather than the stale
 // "Electron" one.
+// `PARADE_USER_DATA_DIR` redirects the run to another directory; `pnpm demo`
+// uses it to isolate the demo data from the regular library
+// (docs/demo/README.md). It is read only here, so the packaged app ignores it.
 if (!app.isPackaged) {
   app.setPath(
     "userData",
-    path.join(app.getPath("appData"), __APP_PRODUCT_NAME__),
+    resolveUnpackagedUserDataPath({
+      appData: app.getPath("appData"),
+      productName: __APP_PRODUCT_NAME__,
+      override: process.env.PARADE_USER_DATA_DIR,
+    }),
   );
 }
 
