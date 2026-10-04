@@ -31,7 +31,10 @@ import { minResizeWidthOf } from "@/features/playlistColumns/minResizeWidthOf";
 import { playlistColumnsStore } from "@/features/playlistColumns/playlistColumnsStore";
 import { resolveColumnWidths } from "@/features/playlistColumns/resolveColumnWidths";
 import { resolveVisibleColumns } from "@/features/playlistColumns/resolveVisibleColumns";
-import type { PlaylistColumnId } from "@/features/playlistColumns/types";
+import type {
+  ColumnDropSide,
+  PlaylistColumnId,
+} from "@/features/playlistColumns/types";
 import { matchesTrackFilter } from "@/features/trackFilter/matchesTrackFilter";
 import { trackFilterStore } from "@/features/trackFilter/trackFilterStore";
 import { moveItem } from "./moveItem";
@@ -162,6 +165,15 @@ export const usePlaylistContent = (routeId: string) => {
     (total, column) => total + widthOf(column.id),
     0,
   );
+
+  /** Move a column next to another one (header drag & drop). */
+  const moveColumn = (
+    columnId: PlaylistColumnId,
+    targetId: PlaylistColumnId,
+    side: ColumnDropSide,
+  ): void => {
+    playlistColumnsStore.dispatch({ type: "moved", columnId, targetId, side });
+  };
 
   /** Return a column to its default width (resize handle double-click). */
   const resetWidth = (columnId: PlaylistColumnId): void => {
@@ -305,7 +317,11 @@ export const usePlaylistContent = (routeId: string) => {
   };
 
   const dragOver = (index: number): void => {
-    setOverIndex(index);
+    // Only for a row drag: a column header or a file from outside passes
+    // over the rows too.
+    if (dragIndex !== null) {
+      setOverIndex(index);
+    }
   };
 
   const dropOn = (index: number): void => {
@@ -350,9 +366,13 @@ export const usePlaylistContent = (routeId: string) => {
     rows,
     filterActive,
     totalDurationMs,
-    /** Table layout: columns, displayed widths, and the virtualised scroll. */
+    /**
+     * Table layout: columns and their reorder, displayed widths, and the
+     * virtualised scroll.
+     */
     table: {
       columns,
+      moveColumn,
       widthOf,
       width: tableWidth,
       measured,

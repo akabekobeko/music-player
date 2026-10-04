@@ -101,6 +101,7 @@ export const PlaylistContent = ({ routeId }: Props) => {
               resize={resize.handlers}
               minWidthOf={resize.minWidthOf}
               onResetWidth={resize.resetWidth}
+              onColumnMove={table.moveColumn}
             />
             <PlaylistTableBody height={table.virtualizer.getTotalSize()}>
               {table.virtualizer.getVirtualItems().map((item) => {

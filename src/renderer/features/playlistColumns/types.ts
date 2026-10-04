@@ -46,6 +46,12 @@ export type PlaylistColumn = {
 };
 
 /**
+ * Side of a column another column is dropped on when the columns are
+ * reordered: `before` lands it to the left, `after` to the right.
+ */
+export type ColumnDropSide = "before" | "after";
+
+/**
  * Column widths in pixels keyed by column id. Holds the visible columns
  * only, so a hidden column has no entry.
  */
@@ -61,9 +67,9 @@ export type PlaylistColumnWidths = Readonly<
  */
 export type PlaylistColumnsState = {
   /**
-   * Ids of the optional columns shown. The pinned columns are never listed
-   * and the order is not significant: the table always shows the columns in
-   * declaration order.
+   * Ids of the optional columns shown, in display order. The pinned columns
+   * are never listed: they keep their place before and after the optional
+   * ones.
    */
   readonly visibleIds: readonly string[];
   /**
