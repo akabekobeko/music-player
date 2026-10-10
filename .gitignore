@@ -141,5 +141,8 @@ vite.config.ts.timestamp-*
 # Electron builder output
 release/
 
+# Astro cache (web/)
+.astro/
+
 # Claude
 settings.local.json

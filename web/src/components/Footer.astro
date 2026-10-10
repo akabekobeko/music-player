@@ -1,0 +1,54 @@
+---
+import { tFor } from "../i18n/t";
+import type { Locale } from "../i18n/types";
+import {
+  ISSUES_URL,
+  LICENSE_URL,
+  RELEASES_URL,
+  REPOSITORY_URL,
+} from "../lib/links";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = tFor(locale);
+const links = [
+  { href: REPOSITORY_URL, label: t("footer.github") },
+  { href: RELEASES_URL, label: t("footer.releases") },
+  { href: ISSUES_URL, label: t("footer.issues") },
+];
+---
+
+<footer class="flex justify-center border-t px-4 sm:px-8">
+  <div class="flex w-full max-w-(--content-max-width) flex-col gap-3 py-6 text-sm text-muted-foreground">
+    <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+      <p class="flex flex-wrap gap-x-3">
+        <span>{t("footer.copyright")}</span>
+        <a href={LICENSE_URL} class="hover:text-foreground">
+          {t("footer.license")}
+        </a>
+      </p>
+      <ul class="flex flex-wrap gap-x-4">
+        {links.map((link) => (
+          <li>
+            <a href={link.href} class="hover:text-foreground">
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <p>
+      {t("footer.credits.before")}
+      <a href="https://musicbrainz.org/" class="hover:text-foreground">
+        {t("footer.credits.musicbrainz")}
+      </a>
+      {t("footer.credits.and")}
+      <a href="https://coverartarchive.org/" class="hover:text-foreground">
+        {t("footer.credits.coverArtArchive")}
+      </a>
+      {t("footer.credits.after")}
+    </p>
+  </div>
+</footer>

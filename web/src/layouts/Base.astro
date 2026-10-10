@@ -1,0 +1,85 @@
+---
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import type { Locale } from "../i18n/types";
+import { withBase } from "../lib/links";
+import { type Page, pagePath } from "../lib/pages";
+
+interface Props {
+  locale: Locale;
+  page: Page;
+  title: string;
+  description: string;
+}
+const { locale, page, title, description } = Astro.props;
+const path = pagePath[page];
+// Localised pages get a canonical URL and hreflang alternates; the 404 page
+// exists in English only.
+const canonical =
+  path === undefined ? undefined : getAbsoluteLocaleUrl(locale, path);
+const alternates =
+  path === undefined
+    ? []
+    : [
+        { hreflang: "en", href: getAbsoluteLocaleUrl("en", path) },
+        { hreflang: "ja", href: getAbsoluteLocaleUrl("ja", path) },
+        { hreflang: "x-default", href: getAbsoluteLocaleUrl("en", path) },
+      ];
+const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={withBase("icon.svg")} type="image/svg+xml" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {alternates.map((alternate) => (
+      <link
+        rel="alternate"
+        hreflang={alternate.hreflang}
+        href={alternate.href}
+      />
+    ))}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={ogLocale} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <script is:inline>
+      // Apply the saved theme (or the OS setting) before the first paint so
+      // the page never flashes the wrong colours. Keep in sync with
+      // ThemeToggle.astro.
+      (() => {
+        let theme = null;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {
+          // Storage unavailable: fall through to the OS setting.
+        }
+        const dark =
+          theme === "dark" ||
+          (theme !== "light" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <Header locale={locale} page={page} />
+    <main class="flex flex-1 justify-center px-4 sm:px-8">
+      <div class="flex w-full max-w-(--content-max-width) flex-col gap-8 py-12">
+        <slot />
+      </div>
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

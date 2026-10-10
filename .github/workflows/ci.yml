@@ -51,3 +51,78 @@ jobs:
 
       - name: Run unit tests
         run: pnpm vitest run
+
+  # Decide whether the website changed, so the web job only runs for web/
+  # changes (`paths` filters apply to a whole workflow, not to one job).
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # paths-filter lists the changed files of a pull request through the API
+      pull-requests: read
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            web:
+              - "web/**"
+              - "pnpm-lock.yaml"
+              - "pnpm-workspace.yaml"
+              - "mise.toml"
+              - ".github/workflows/ci.yml"
+
+  # Type-check and build the website (docs/specs/web/architecture/repository.md).
+  # The build output is kept as an artifact so a PR can be reviewed without a
+  # local environment (docs/specs/web/architecture/local-preview.md).
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read tool versions from mise.toml
+        id: versions
+        run: |
+          node_version=$(sed -n 's/^node = "\(.*\)"$/\1/p' mise.toml)
+          pnpm_version=$(sed -n 's/^pnpm = "\(.*\)"$/\1/p' mise.toml)
+          test -n "$node_version" && test -n "$pnpm_version"
+          echo "node=$node_version" >> "$GITHUB_OUTPUT"
+          echo "pnpm=$pnpm_version" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: ${{ steps.versions.outputs.pnpm }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ steps.versions.outputs.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          # The root install pulls in electron; the site never runs it
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+
+      - name: Type-check the website
+        run: pnpm --filter parade-web check
+
+      - name: Build the website
+        run: pnpm --filter parade-web build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-dist
+          path: web/dist
+          retention-days: 7

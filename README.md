@@ -46,6 +46,7 @@ pnpm run dev
 ```
 /
 ├── scripts/                     # Development tools
+├── web/                         # Official website (Astro, GitHub Pages)
 ├── src/
 │   ├── main/
 │   │   ├── main.ts              # Main process entry point
@@ -88,6 +89,20 @@ pnpm run dev
 | `icons`        | Rasterise `build/icon.svg` into the app icons (macOS only) |
 | `sync-targets` | Sync tsconfig targets with the installed Electron version  |
 | `shadcn`       | Run the shadcn CLI against the renderer tsconfig           |
+
+## Website
+
+The official website (<https://akabekobeko.github.io/parade/>) lives in `web/` as a separate package of the pnpm workspace, built with Astro. It is not part of the app build or package. Run its scripts from the root with the workspace filter:
+
+```sh
+pnpm --filter parade-web dev      # http://localhost:4321/parade/
+pnpm --filter parade-web build    # web/dist/
+pnpm --filter parade-web preview
+pnpm --filter parade-web check    # astro check
+pnpm --filter parade-web format   # Prettier for .astro files
+```
+
+Pushing changes under `web/` to `main` publishes the site through `.github/workflows/pages.yml`. See [web/README.md](web/README.md) and the specification in [docs/specs/web](docs/specs/web/README.md) (Japanese).
 
 ## Development userData Directory
 
