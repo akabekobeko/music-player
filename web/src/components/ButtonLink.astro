@@ -1,17 +1,22 @@
 ---
-// Outlined pill link whose border lights up on hover (the app's outline
-// Button). Phase 2 adds the filled variant for the download page.
+// Pill link in the app's Button styles: `outline` lights its border up on
+// hover (outline Button), `primary` is filled and glows in the primary
+// colour (default Button).
 interface Props {
   href: string;
+  variant?: "outline" | "primary";
   class?: string;
 }
-const { href, class: className } = Astro.props;
+const { href, variant = "outline", class: className } = Astro.props;
 ---
 
 <a
   href={href}
   class:list={[
-    "inline-flex h-10 items-center gap-2 rounded-full border border-foreground px-5 text-sm font-medium text-foreground transition-glow hover:glow-border",
+    "inline-flex h-10 items-center gap-2 rounded-full border px-5 text-sm font-medium transition-glow",
+    variant === "primary"
+      ? "border-primary bg-primary text-primary-foreground hover:glow-primary"
+      : "border-foreground text-foreground hover:glow-border",
     className,
   ]}
 >

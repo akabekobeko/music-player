@@ -81,6 +81,14 @@
 }
 
 /*
+ * Primary glow: the filled button lights up in its own colour. Same values as
+ * the app's default Button variant.
+ */
+@utility glow-primary {
+  box-shadow: 0 0 5px 1px color-mix(in oklch, var(--primary) 60%, transparent);
+}
+
+/*
  * Transition for the glow utilities. Switched off under reduced motion; the
  * glow itself stays.
  */

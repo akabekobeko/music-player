@@ -1,0 +1,90 @@
+---
+import { tFor } from "../i18n/t";
+import type { Locale, TranslationKey } from "../i18n/types";
+import { formatSizeMB } from "../lib/formatSize";
+import { primaryAsset } from "../lib/releases/classifyAssets";
+import type { AssetExt, DownloadAsset, Platform } from "../lib/releases/types";
+import ButtonLink from "./ButtonLink.astro";
+
+interface Props {
+  locale: Locale;
+  platform: Platform;
+  assets: readonly DownloadAsset[];
+  /** Release page, linked when the recommended format is missing. */
+  releaseUrl: string;
+}
+const { locale, platform, assets, releaseUrl } = Astro.props;
+const t = tFor(locale);
+const os = platform.split("-")[0] as "mac" | "win" | "linux";
+const primary = primaryAsset(platform, assets);
+const others = assets.filter((asset) => asset !== primary);
+/** Button label per recommended format. */
+const BUTTON_LABEL: Readonly<Record<AssetExt, TranslationKey>> = {
+  dmg: "download.button.dmg",
+  exe: "download.button.exe",
+  AppImage: "download.button.AppImage",
+  zip: "download.link.zip",
+  deb: "download.link.deb",
+};
+/** Text-link label per secondary format. */
+const LINK_LABEL: Readonly<Record<AssetExt, TranslationKey>> = {
+  zip: os === "win" ? "download.link.zip.win" : "download.link.zip",
+  deb: "download.link.deb",
+  dmg: "download.button.dmg",
+  exe: "download.button.exe",
+  AppImage: "download.button.AppImage",
+};
+---
+
+{/*
+  One platform card (docs/specs/web/features/download-page.md). `data-os`
+  lets the page script move the visitor's platform to the front and mark it
+  with `data-detected`.
+*/}
+<li
+  data-os={os}
+  class="flex flex-col gap-4 rounded-xl border bg-card p-5 text-card-foreground transition-glow data-detected:glow-border"
+>
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex flex-col gap-1">
+      <h3 class="text-xl font-semibold">{t(`download.card.${os}`)}</h3>
+      <p class="text-sm text-muted-foreground">
+        {t(`download.card.${platform}.note`)}
+      </p>
+    </div>
+    <span
+      data-detected-badge
+      hidden
+      class="rounded-full bg-foreground px-2 py-0.5 text-xs font-medium text-background"
+    >
+      {t("download.card.detected")}
+    </span>
+  </div>
+  {primary === undefined ? (
+    <div class="flex flex-col gap-2">
+      <ButtonLink href={releaseUrl}>{t("download.card.missing")}</ButtonLink>
+    </div>
+  ) : (
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <ButtonLink href={primary.url} variant="primary">
+          {t(BUTTON_LABEL[primary.ext])}
+        </ButtonLink>
+        {others.map((asset) => (
+          <a
+            href={asset.url}
+            class="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t(LINK_LABEL[asset.ext])}
+          </a>
+        ))}
+      </div>
+      <p class="break-all text-xs text-muted-foreground">
+        {primary.name}, {formatSizeMB(primary.size)}
+      </p>
+    </div>
+  )}
+  {os === "mac" && (
+    <p class="text-xs text-muted-foreground">{t("download.macHelp")}</p>
+  )}
+</li>

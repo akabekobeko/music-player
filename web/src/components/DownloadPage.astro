@@ -1,27 +1,157 @@
 ---
-import ButtonLink from "./ButtonLink.astro";
 import { tFor } from "../i18n/t";
 import type { Locale } from "../i18n/types";
 import Base from "../layouts/Base.astro";
-import { LATEST_RELEASE_URL } from "../lib/links";
+import { formatReleaseDate } from "../lib/formatDate";
+import { ISSUES_URL, RELEASES_URL } from "../lib/links";
+import { getLatestRelease } from "../lib/releases/latestRelease";
+import { PLATFORMS } from "../lib/releases/types";
+import DownloadCard from "./DownloadCard.astro";
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const t = tFor(locale);
+// Fetched once per build and shared by every page; throws in a build when
+// the API cannot be reached (docs/specs/web/architecture/release-data.md).
+const result = await getLatestRelease();
+const release = result.status === "ok" ? result.release : undefined;
 ---
 
-{/* Placeholder until Phase 2 (docs/specs/web/features/download-page.md). */}
 <Base
   locale={locale}
   page="download"
   title={t("download.pageTitle")}
-  description={t("site.description")}
+  description={t("download.description")}
 >
-  <section class="flex flex-col items-start gap-6">
-    <h1 class="text-3xl font-bold tracking-tight">{t("download.title")}</h1>
-    <p class="max-w-prose text-muted-foreground">{t("download.placeholder")}</p>
-    <ButtonLink href={LATEST_RELEASE_URL}>{t("download.releases")}</ButtonLink>
+  <section class="flex flex-col gap-3">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+      {t("download.title")}
+    </h1>
+    {release === undefined ? (
+      <p
+        role="alert"
+        class="rounded-lg border border-destructive px-4 py-3 text-sm text-destructive"
+      >
+        {t("download.fetchFailed", {
+          message: result.status === "error" ? result.message : "",
+        })}
+      </p>
+    ) : (
+      <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
+        <span class="font-semibold text-foreground">{release.tag}</span>
+        <span>
+          {t("download.released", {
+            date: formatReleaseDate(locale, release.publishedAt),
+          })}
+        </span>
+        <a
+          href={release.url}
+          class="text-foreground underline-offset-4 hover:underline"
+        >
+          {t("download.releaseNotes")}
+        </a>
+      </p>
+    )}
+  </section>
+
+  {release !== undefined && (
+    <ul data-download-cards class="grid gap-4 sm:grid-cols-2">
+      {PLATFORMS.map((platform) => (
+        <DownloadCard
+          locale={locale}
+          platform={platform}
+          assets={release.downloads[platform]}
+          releaseUrl={release.url}
+        />
+      ))}
+    </ul>
+  )}
+
+  <section class="flex flex-col gap-4">
+    <h2 class="text-2xl font-semibold tracking-tight">
+      {t("download.notes.title")}
+    </h2>
+    <p class="max-w-prose text-muted-foreground">{t("download.notes.intro")}</p>
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="flex flex-col gap-2">
+        <h3 class="font-semibold">{t("download.notes.mac.title")}</h3>
+        <p class="text-sm text-muted-foreground">
+          {t("download.notes.mac.body")}
+        </p>
+        <pre class="overflow-x-auto rounded-md bg-muted px-3 py-2 text-xs"><code>xattr -d com.apple.quarantine /Applications/Parade.app</code></pre>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h3 class="font-semibold">{t("download.notes.windows.title")}</h3>
+        <p class="text-sm text-muted-foreground">
+          {t("download.notes.windows.body")}
+        </p>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h3 class="font-semibold">{t("download.notes.linux.title")}</h3>
+        <p class="text-sm text-muted-foreground">
+          {t("download.notes.linux.body")}
+        </p>
+        <pre class="overflow-x-auto rounded-md bg-muted px-3 py-2 text-xs"><code>chmod +x Parade-{release?.version ?? "<version>"}-linux-x86_64.AppImage
+sudo apt install ./Parade-{release?.version ?? "<version>"}-linux-amd64.deb</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-4">
+    <h2 class="text-2xl font-semibold tracking-tight">
+      {t("download.more.title")}
+    </h2>
+    <dl class="grid gap-4 md:grid-cols-3">
+      <div class="flex flex-col gap-1">
+        <dt class="font-semibold">
+          <a href={RELEASES_URL} class="underline-offset-4 hover:underline">
+            {t("download.more.allReleases")}
+          </a>
+        </dt>
+        <dd class="text-sm text-muted-foreground">
+          {t("download.more.allReleases.body")}
+        </dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="font-semibold">{t("download.more.requirements")}</dt>
+        <dd class="text-sm text-muted-foreground">
+          {t("download.more.requirements.before")}
+          <a
+            href={ISSUES_URL}
+            class="text-foreground underline-offset-4 hover:underline"
+          >
+            {t("download.more.requirements.link")}
+          </a>
+          {t("download.more.requirements.after")}
+        </dd>
+      </div>
+      <div class="flex flex-col gap-1">
+        <dt class="font-semibold">{t("download.more.formats")}</dt>
+        <dd class="text-sm text-muted-foreground">
+          {t("download.more.formats.body")}
+        </dd>
+      </div>
+    </dl>
   </section>
 </Base>
+
+<script>
+  import { browserInfo, detectOs } from "../lib/detectOs";
+
+  // Move the visitor's platform to the front and mark it. macOS keeps both
+  // its cards (Apple Silicon and Intel cannot be told apart reliably).
+  const os = detectOs(browserInfo());
+  const list = document.querySelector("[data-download-cards]");
+  if (os !== undefined && list !== null) {
+    const matching = [
+      ...list.querySelectorAll<HTMLElement>("[data-os]"),
+    ].filter((card) => card.dataset.os === os);
+    for (const card of matching.reverse()) {
+      card.dataset.detected = "";
+      card.querySelector("[data-detected-badge]")?.removeAttribute("hidden");
+      list.prepend(card);
+    }
+  }
+</script>

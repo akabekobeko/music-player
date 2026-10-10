@@ -1,9 +1,12 @@
 ---
-import ButtonLink from "./ButtonLink.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
 import { tFor } from "../i18n/t";
 import type { Locale } from "../i18n/types";
 import Base from "../layouts/Base.astro";
+import { formatReleaseDate } from "../lib/formatDate";
 import { REPOSITORY_URL } from "../lib/links";
+import { getLatestRelease } from "../lib/releases/latestRelease";
+import ButtonLink from "./ButtonLink.astro";
 import GitHubIcon from "./icons/GitHubIcon.astro";
 
 interface Props {
@@ -11,6 +14,9 @@ interface Props {
 }
 const { locale } = Astro.props;
 const t = tFor(locale);
+const result = await getLatestRelease();
+const release = result.status === "ok" ? result.release : undefined;
+const downloadUrl = getRelativeLocaleUrl(locale, "download");
 ---
 
 {/* Placeholder until Phase 3 (docs/specs/web/features/top-page.md). */}
@@ -28,9 +34,44 @@ const t = tFor(locale);
       <p class="text-xl text-muted-foreground">{t("site.tagline")}</p>
     </div>
     <p class="max-w-prose text-base">{t("site.description")}</p>
-    <ButtonLink href={REPOSITORY_URL}>
-      <GitHubIcon class="size-4" />
-      {t("home.github")}
-    </ButtonLink>
+    <div class="flex flex-wrap items-center gap-3">
+      <ButtonLink href={downloadUrl} variant="primary">
+        <span
+          data-download-label
+          data-label-mac={t("home.download.mac")}
+          data-label-win={t("home.download.win")}
+          data-label-linux={t("home.download.linux")}
+        >
+          {t("home.download")}
+        </span>
+      </ButtonLink>
+      <ButtonLink href={REPOSITORY_URL}>
+        <GitHubIcon class="size-4" />
+        {t("home.github")}
+      </ButtonLink>
+    </div>
+    {release !== undefined && (
+      <p class="text-sm text-muted-foreground">
+        {t("home.latest", {
+          version: release.tag,
+          date: formatReleaseDate(locale, release.publishedAt),
+        })}
+      </p>
+    )}
   </section>
 </Base>
+
+<script>
+  import { browserInfo, detectOs } from "../lib/detectOs";
+
+  // Name the visitor's OS on the download button; without JavaScript the
+  // plain label stays.
+  const os = detectOs(browserInfo());
+  const label = document.querySelector<HTMLElement>("[data-download-label]");
+  if (os !== undefined && label !== null) {
+    const text = label.getAttribute(`data-label-${os}`);
+    if (text !== null) {
+      label.textContent = text;
+    }
+  }
+</script>

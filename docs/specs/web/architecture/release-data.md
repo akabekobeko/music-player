@@ -13,7 +13,7 @@
 
 ## 取得
 
-Astro のフロントマター (ビルド時) で次を行います。実装は `web/src/lib/` に置き、取得 (`fetchLatestRelease`) と分類 (`classifyAssets`) を純関数に分けて vitest で検査します。
+Astro のフロントマター (ビルド時) で次を行います。実装は `web/src/lib/releases/` に置き、取得 (`fetchReleases`)、分類 (`classifyAssets`)、選択 (`selectLatestRelease`) を純関数に分けて vitest で検査します。ページからは `getLatestRelease` (ビルドごとに 1 回だけ取得する入口) を呼びます。
 
 1. `GET https://api.github.com/repos/akabekobeko/parade/releases?per_page=10` を呼ぶ。環境変数 `GITHUB_TOKEN` があれば `Authorization: Bearer` を付ける (Actions では自動で与える)
 2. 応答を zod スキーマで parse する (アプリの外部 API と同じ方針。読む項目だけ宣言する: `tag_name`、`name`、`html_url`、`published_at`、`draft`、`prerelease`、`assets[].name`、`assets[].browser_download_url`、`assets[].size`)
@@ -77,8 +77,8 @@ type LatestRelease = {
 - API が 4xx / 5xx を返す、またはネットワークに失敗した場合は、2 秒間隔で最大 3 回再試行し、それでも失敗したら**ビルドを失敗させる**。古い情報で上書き公開するよりも、直前の公開を残すほうがよい。再公開は `workflow_dispatch` で行う
 - 分類できるアセットを持つリリースが 1 つもない場合もビルドを失敗させる (初回公開前の状態は想定しない。v1.3.0 が既にある)
 - 開発サーバーでは失敗しても落とさず、ダウンロード ページに取得失敗の旨を表示する (トップ ページの作業を妨げないため)
-- オフラインでの確認とテストのために、応答のスナップショット (`web/src/lib/fixtures/releases.json`) を `PARADE_WEB_RELEASE_FIXTURE=1` で使える ([ローカル プレビュー](local-preview.md))
+- オフラインでの確認とテストのために、応答のスナップショット (`web/src/lib/releases/fixtures/releases.json`) を `PARADE_WEB_RELEASE_FIXTURE=1` で使える ([ローカル プレビュー](local-preview.md))
 
 ## キャッシュ
 
-Astro のビルドごとに 1 回だけ取得します。`web/src/lib/` のモジュール スコープで Promise を保持し、トップ ページ (バージョン表示) とダウンロード ページ、英語 / 日本語の各ページから同じ結果を使います。
+Astro のビルドごとに 1 回だけ取得します。`web/src/lib/releases/latestRelease.ts` のモジュール スコープで Promise を保持し、トップ ページ (バージョン表示) とダウンロード ページ、英語 / 日本語の各ページから同じ結果を使います。

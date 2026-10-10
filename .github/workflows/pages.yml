@@ -2,12 +2,21 @@ name: Pages
 
 # Publishes the website (web/) to GitHub Pages
 # (docs/specs/web/architecture/deploy.md). The repository setting
-# "Pages > Source" must be "GitHub Actions". The Release workflow trigger
-# (workflow_run) is added in Phase 2 together with the download page.
+# "Pages > Source" must be "GitHub Actions".
+#
+# Triggers:
+# - push to main under web/: a site change
+# - Release workflow completed: the download page picks up the new assets
+#   (the version commit pushed by release.yml uses GITHUB_TOKEN, which never
+#   fires the push trigger, so workflow_run is the only path for releases)
+# - workflow_dispatch: republish by hand, e.g. after a transient API failure
 on:
   push:
     branches: [main]
     paths: ["web/**", ".github/workflows/pages.yml"]
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +29,9 @@ concurrency:
 
 jobs:
   build:
+    # Skip when the Release workflow failed, so the site never points at a
+    # release whose assets are missing
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -57,6 +69,9 @@ jobs:
 
       - name: Build the website
         run: pnpm --filter parade-web build
+        env:
+          # Authenticated requests to the GitHub REST API (5,000 per hour)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

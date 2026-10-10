@@ -19,7 +19,7 @@
 ダウンロード ページは起動時 (開発サーバー) またはビルド時に GitHub REST API を呼びます ([リリース情報の取得](release-data.md))。
 
 - 未認証でも動く (60 回 / 時)。開発サーバーの再起動やビルドを繰り返す場合は `GITHUB_TOKEN="$(gh auth token)" pnpm --filter parade-web dev` のように `gh` のトークンを渡す
-- オフラインや API 障害のときは、環境変数 `PARADE_WEB_RELEASE_FIXTURE=1` で `web/src/lib/fixtures/releases.json` (v1.3.0 の応答のスナップショット) を使う。vitest も同じ fixture を使う。fixture はリリースのたびに更新しなくてよい (分類のテストと表示の確認が目的)
+- オフラインや API 障害のときは、環境変数 `PARADE_WEB_RELEASE_FIXTURE=1` で `web/src/lib/releases/fixtures/releases.json` (v1.3.0 の応答のスナップショット) を使う。vitest も同じ fixture を使う。fixture はリリースのたびに更新しなくてよい (分類のテストと表示の確認が目的)
 - 開発サーバーでは取得に失敗してもページを出し、失敗の旨をダウンロード ページに表示する。ビルドは失敗させる
 
 ## 確認項目

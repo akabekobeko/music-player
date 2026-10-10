@@ -20,6 +20,7 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.1",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.0",
+    "zod": "^4.6.5"
   }
 }
