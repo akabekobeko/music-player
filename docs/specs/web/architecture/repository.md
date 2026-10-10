@@ -62,3 +62,22 @@ web/
 - `tsconfig.json` の project references には追加しない。`web/tsconfig.json` は Astro の `astro/tsconfigs/strict` を継承した独立の設定とし、`astro check` で検査する
 - ルートの `README.md` に `web/` の項目を足し、`docs/README.md` からこの仕様書へリンクする
 - `ci.yml` に `astro check` と `astro build` を追加する (`paths` の条件で `web/**` 変更時だけ走らせる)
+
+## アプリのビルドへの影響
+
+`web/` を同じリポジトリーに置いても、アプリのビルドとパッケージには含まれません。各工程を確認した結果は次のとおりです。
+
+| 工程 | 確認結果 |
+| --- | --- |
+| `pnpm build` (Vite) | Main / Preload / Renderer の 3 つのビルドはそれぞれ `src/<process>/vite.config.ts` を明示し、Renderer は `root` を `src/renderer` に固定している。`web/` は入力にならない |
+| Tailwind のクラス検出 | `@tailwindcss/vite` はクラス名の走査範囲 (source detection の base) に Vite の `root` を使う。アプリの CSS は `src/renderer` 配下だけを走査するので、`web/` のクラスがアプリの CSS に混入しない |
+| `electron-builder` | `files` が `dist/**/*` だけ (パターンはプロジェクト ルート基準)。`web/` と `web/dist/` はパッケージに入らない |
+| `pnpm typecheck` | `tsc --build` の project references と `tsconfig.scripts.json` は `web/` を含まない。`web/tsconfig.json` は参照に加えず `astro check` で検査する |
+| `.gitignore` | `dist` のパターンは階層を問わず一致するので、`web/dist/` も無視される |
+| biome | ルート設定が `web/` にも及ぶ。整形規則の共有が目的なので意図どおり |
+
+影響が出るのは次の 3 点で、いずれも実装時に対応します。
+
+- **`pnpm install` の所要時間**: workspace に `web/` を入れると、`ci.yml` と `release.yml` のルートでの `pnpm install` が Astro と sharp も取得し、数十秒ほど伸びる。アプリのビルドには無関係なので許容する。伸びが気になる場合は、アプリ側の job だけ `pnpm install --frozen-lockfile --filter parade` で絞る (Release のビルド時間 30 分の timeout には影響しない)
+- **vitest**: ルートの `vitest.config.ts` の `include` は `src/**` と `scripts/**` なので、そのままでは `web/` のテストが `pnpm test` と `ci.yml` で走らない。**ルートの `include` に `web/src/**/*.test.ts` を追加する**。`web/` に別の vitest 設定は持たない (テスト対象はリリース情報の取得と分類の純関数だけで、Astro の `getViteConfig` は不要。ネットワーク遮断の `setupFiles` もアプリと共有できる)
+- **lefthook**: `pre-commit` の biome は `web/` の `.ts` / `.css` / `.json` にも掛かる。`.astro` は `glob` に含めず、`prettier-plugin-astro` で整形する (前述)
