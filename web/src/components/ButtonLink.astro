@@ -1,0 +1,19 @@
+---
+// Outlined pill link whose border lights up on hover (the app's outline
+// Button). Phase 2 adds the filled variant for the download page.
+interface Props {
+  href: string;
+  class?: string;
+}
+const { href, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    "inline-flex h-10 items-center gap-2 rounded-full border border-foreground px-5 text-sm font-medium text-foreground transition-glow hover:glow-border",
+    className,
+  ]}
+>
+  <slot />
+</a>

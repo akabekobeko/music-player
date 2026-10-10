@@ -1,0 +1,33 @@
+---
+import ButtonLink from "../components/ButtonLink.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { tFor } from "../i18n/t";
+import Base from "../layouts/Base.astro";
+
+// GitHub Pages serves a single 404.html, so this page is English only.
+const locale = "en";
+const t = tFor(locale);
+const links = [
+  { href: getRelativeLocaleUrl(locale, ""), label: t("nav.home") },
+  { href: getRelativeLocaleUrl(locale, "download"), label: t("nav.download") },
+];
+---
+
+<Base
+  locale={locale}
+  page="notFound"
+  title={t("notFound.pageTitle")}
+  description={t("notFound.message")}
+>
+  <section class="flex flex-col items-start gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">{t("notFound.title")}</h1>
+    <p class="text-muted-foreground">{t("notFound.message")}</p>
+    <ul class="flex flex-wrap gap-3">
+      {links.map((link) => (
+        <li>
+          <ButtonLink href={link.href}>{link.label}</ButtonLink>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>

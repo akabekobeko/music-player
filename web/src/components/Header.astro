@@ -1,0 +1,73 @@
+---
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { tFor } from "../i18n/t";
+import type { Locale } from "../i18n/types";
+import { REPOSITORY_URL, withBase } from "../lib/links";
+import { navPages, type Page, pagePath } from "../lib/pages";
+import GitHubIcon from "./icons/GitHubIcon.astro";
+import LocaleSwitch from "./LocaleSwitch.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  locale: Locale;
+  page: Page;
+}
+const { locale, page } = Astro.props;
+const t = tFor(locale);
+// The 404 page has no locale variants; its language switch goes to the top.
+const currentPath = pagePath[page] ?? "";
+---
+
+{/*
+  Sticky header (docs/specs/web/features/pages.md). Three columns: icon and
+  product name, page links, then the language switch, theme toggle and GitHub
+  link. The two switches stay visible at every width; on narrow screens the
+  product name goes first, then the GitHub link.
+*/}
+<header class="sticky top-0 z-10 flex h-(--header-height) justify-center border-b bg-background/80 px-4 backdrop-blur sm:px-8">
+  <div class="grid w-full max-w-(--content-max-width) grid-cols-[auto_1fr_auto] items-center gap-2 sm:grid-cols-[1fr_auto_1fr] sm:gap-4">
+    <a
+      href={getRelativeLocaleUrl(locale, "")}
+      class="inline-flex w-fit items-center gap-2 text-foreground transition-glow hover:glow-lamp"
+    >
+      <img src={withBase("icon.svg")} width="28" height="28" alt="" />
+      <span class="hidden text-base font-semibold sm:inline">
+        {t("site.name")}
+      </span>
+    </a>
+
+    <nav class="justify-self-center">
+      <ul class="flex items-center gap-1">
+        {navPages.map((item) => {
+          const current = item === page;
+          return (
+            <li>
+              <a
+                href={getRelativeLocaleUrl(locale, pagePath[item] ?? "")}
+                aria-current={current ? "page" : undefined}
+                class:list={[
+                  "inline-flex h-8 items-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-glow hover:glow-lamp",
+                  current ? "bg-foreground text-background" : "text-foreground",
+                ]}
+              >
+                {t(`nav.${item}`)}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+
+    <div class="flex items-center justify-end gap-1">
+      <LocaleSwitch locale={locale} path={currentPath} />
+      <ThemeToggle locale={locale} />
+      <a
+        href={REPOSITORY_URL}
+        aria-label={t("header.github")}
+        class="hidden size-8 items-center justify-center rounded-full text-foreground transition-glow hover:glow-lamp xs:inline-flex"
+      >
+        <GitHubIcon class="size-5" />
+      </a>
+    </div>
+  </div>
+</header>

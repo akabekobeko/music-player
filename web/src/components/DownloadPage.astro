@@ -1,0 +1,27 @@
+---
+import ButtonLink from "./ButtonLink.astro";
+import { tFor } from "../i18n/t";
+import type { Locale } from "../i18n/types";
+import Base from "../layouts/Base.astro";
+import { LATEST_RELEASE_URL } from "../lib/links";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = tFor(locale);
+---
+
+{/* Placeholder until Phase 2 (docs/specs/web/features/download-page.md). */}
+<Base
+  locale={locale}
+  page="download"
+  title={t("download.pageTitle")}
+  description={t("site.description")}
+>
+  <section class="flex flex-col items-start gap-6">
+    <h1 class="text-3xl font-bold tracking-tight">{t("download.title")}</h1>
+    <p class="max-w-prose text-muted-foreground">{t("download.placeholder")}</p>
+    <ButtonLink href={LATEST_RELEASE_URL}>{t("download.releases")}</ButtonLink>
+  </section>
+</Base>

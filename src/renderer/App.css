@@ -76,6 +76,8 @@
  * from the default shadcn values. `--background` / `--foreground` are
  * mirrored as hex on the Main side (buildWindowBackgroundColor /
  * buildTitleBarOverlay); keep them in sync.
+ * The :root and .dark blocks are copied to web/src/styles/tokens.css for the
+ * website; update that copy by hand when changing a token here.
  */
 :root {
   --background: oklch(0.94 0.006 225);

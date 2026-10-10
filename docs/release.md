@@ -12,6 +12,7 @@ flowchart TD
   D --> E[package.json の version を更新して main へ commit]
   E --> F[タグをバージョン更新 commit へ移動]
   F --> G[3 OS でビルドしてリリースへアセットを添付]
+  G --> H[Pages ワークフローがサイトを再公開]
 ```
 
 1. PR を main へマージすると [Release Drafter](https://github.com/release-drafter/release-drafter) (`.github/workflows/release-drafter.yml`) が次リリースのドラフトを自動更新する
@@ -22,6 +23,8 @@ flowchart TD
 3. Publish を契機に `release.yml` が自動実行される
    - `version` job: タグからバージョンを取り出し、`package.json` の `version` を更新して main へ commit (`chore: vX.Y.Z`)。Publish 時に打たれたタグをこの commit へ移動する
    - `build` job: macOS / Windows / Linux の 3 OS でパッケージをビルドし、リリースへアセットを添付する
+
+4. Release の完了後に `pages.yml` が起動し、公式サイト (<https://akabekobeko.github.io/parade/>) を再公開してダウンロード ページを新バージョンへ切り替える (`workflow_run` の契機は公式サイトの Phase 2 で追加する。それまでは `web/` の変更を main へ push したときと、Actions の "Pages" を **Run workflow** で手動実行したときに公開される。[デプロイ](specs/web/architecture/deploy.md))
 
 リリース作業として人間が行うのは **PR のマージ**と**ドラフトの Publish** だけです。
 
