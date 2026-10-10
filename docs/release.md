@@ -24,7 +24,10 @@ flowchart TD
    - `version` job: タグからバージョンを取り出し、`package.json` の `version` を更新して main へ commit (`chore: vX.Y.Z`)。Publish 時に打たれたタグをこの commit へ移動する
    - `build` job: macOS / Windows / Linux の 3 OS でパッケージをビルドし、リリースへアセットを添付する
 
-4. Release の完了後に `pages.yml` が起動し、公式サイト (<https://akabekobeko.github.io/parade/>) を再公開してダウンロード ページを新バージョンへ切り替える (`workflow_run` の契機は公式サイトの Phase 2 で追加する。それまでは `web/` の変更を main へ push したときと、Actions の "Pages" を **Run workflow** で手動実行したときに公開される。[デプロイ](specs/web/architecture/deploy.md))
+4. Release ワークフローの完了 (`workflow_run`) を契機に `pages.yml` が起動し、公式サイト (<https://akabekobeko.github.io/parade/>) を再ビルドしてダウンロード ページを新バージョンへ切り替える ([デプロイ](specs/web/architecture/deploy.md))
+   - ダウンロード ページはビルド時に GitHub REST API からリリース一覧を取得し、アセットを持つ最新の公開リリースを表示する。Release ワークフローが失敗した場合は再公開しない
+   - `version` job が main へ push するバージョン更新 commit は `GITHUB_TOKEN` によるものなので、`pages.yml` の `push` 契機は走らない。リリースでの再公開は `workflow_run` だけが担う
+   - API の一時障害などでビルドが失敗したときは、Actions の "Pages" を **Run workflow** で手動実行して再公開する
 
 リリース作業として人間が行うのは **PR のマージ**と**ドラフトの Publish** だけです。
 

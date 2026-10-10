@@ -37,6 +37,27 @@ committing `.astro` changes. The
 [Astro VS Code extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)
 formats them on save with the same plugin.
 
+## Release data
+
+The download page and the version line on the top page read the latest
+release from the GitHub REST API at build time (and on every dev server
+start). Unauthenticated requests are limited to 60 per hour per IP, so pass a
+token when building repeatedly:
+
+```sh
+GITHUB_TOKEN="$(gh auth token)" pnpm --filter parade-web dev
+```
+
+Offline, or to work on the page without the API, use the snapshot in
+`src/lib/releases/fixtures/releases.json` (v1.3.0, also used by the tests):
+
+```sh
+PARADE_WEB_RELEASE_FIXTURE=1 pnpm --filter parade-web dev
+```
+
+A failed fetch stops `astro build` (the site keeps its previous deployment).
+The dev server shows the error on the download page instead.
+
 ## Tests
 
 The few pure functions (dictionary lookup, date formatting) are tested with
