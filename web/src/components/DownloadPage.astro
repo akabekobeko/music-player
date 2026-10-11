@@ -74,7 +74,7 @@ const release = result.status === "ok" ? result.release : undefined;
       {t("download.notes.title")}
     </h2>
     <p class="max-w-prose text-muted-foreground">{t("download.notes.intro")}</p>
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
         <h3 class="font-semibold">{t("download.notes.mac.title")}</h3>
         <p class="text-sm text-muted-foreground">
@@ -103,7 +103,7 @@ sudo apt install ./Parade-{release?.version ?? "<version>"}-linux-amd64.deb</cod
     <h2 class="text-2xl font-semibold tracking-tight">
       {t("download.more.title")}
     </h2>
-    <dl class="grid gap-4 md:grid-cols-3">
+    <dl class="flex flex-col gap-6">
       <div class="flex flex-col gap-1">
         <dt class="font-semibold">
           <a href={RELEASES_URL} class="underline-offset-4 hover:underline">
