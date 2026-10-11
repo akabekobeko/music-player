@@ -24,6 +24,7 @@ export default defineConfig({
       "scripts/**/*.test.ts",
       // The website (web/) shares this config; see docs/specs/web/architecture/repository.md
       "web/src/**/*.test.ts",
+      "web/scripts/**/*.test.ts",
     ],
     // No test may reach the real network (MusicBrainz rate limit, CI load).
     setupFiles: ["src/test/blockNetwork.setup.ts"],

@@ -18,6 +18,7 @@ the repository root once, then use the scripts below from the root with
 | `preview` | Serve `web/dist/` at `http://localhost:4321/parade/` (same files as Pages)   |
 | `check`   | Type-check `.astro` and `.ts` files with `astro check`                       |
 | `format`  | Format `.astro` files with Prettier (see below)                              |
+| `screenshots:mask` | Pixelate and crop raw screenshots into `src/assets/screenshots/` (see below) |
 
 Astro prefixes every URL with the `base` (`/parade`), so
 `http://localhost:4321/` answers 404 on purpose.
@@ -58,13 +59,28 @@ PARADE_WEB_RELEASE_FIXTURE=1 pnpm --filter parade-web dev
 A failed fetch stops `astro build` (the site keeps its previous deployment).
 The dev server shows the error on the download page instead.
 
-## Tests
+## Screenshots
 
-The few pure functions (dictionary lookup, date formatting) are tested with
-the root vitest configuration, which includes `web/src/**/*.test.ts`:
+The top page shows screenshots of the app taken in demo mode
+(`pnpm demo`); the procedure and the list of scenes are in
+[docs/specs/web/features/screenshots.md](../docs/specs/web/features/screenshots.md).
+Keep the raw captures outside the repository and run the mask script on
+their directory. It pixelates the regions and cuts the crops listed in
+`screenshots.manifest.json` (coordinates in pixels of the 2x capture) and
+writes the result to `src/assets/screenshots/<scene>.png`:
 
 ```sh
-pnpm vitest run web/src
+pnpm --filter parade-web screenshots:mask -- /path/to/raw-captures
+```
+
+## Tests
+
+The few pure functions (dictionary lookup, date formatting, the screenshot
+manifest and mosaic) are tested with the root vitest configuration, which
+includes `web/src/**/*.test.ts` and `web/scripts/**/*.test.ts`:
+
+```sh
+pnpm vitest run web
 ```
 
 ## Notes

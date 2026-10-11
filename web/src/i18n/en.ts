@@ -22,6 +22,49 @@ export const en = {
   "home.download.win": "Download for Windows",
   "home.download.linux": "Download for Linux",
   "home.latest": "Latest version {version}, released {date}",
+  "home.hero.summary":
+    "Runs on macOS, Windows and Linux. English and Japanese UI. Open source under the MIT License, built with Electron.",
+  "home.hero.screenshot.alt":
+    "Artists view of Parade in the dark theme, showing the albums of Milo Ashgrove with a song playing",
+  "home.features.title": "Features",
+  "home.feature.artists.title": "Browse by artist",
+  "home.feature.artists.body":
+    "Pick an artist from the initial-letter list and look through their albums and songs while you listen. Artist images and album artwork make the library yours to recognise at a glance.",
+  "home.feature.artists.alt":
+    "Artists view listing the albums of Milo Ashgrove with artist images and album artwork",
+  "home.feature.albums.title": "Filter your albums",
+  "home.feature.albums.body":
+    "Narrow the album grid by genre, decade or a few typed letters from the sidebar, then enjoy the covers laid out side by side.",
+  "home.feature.albums.alt":
+    "Albums view with the sidebar filtering by the Jazz genre and the 1990s, showing a grid of album covers",
+  "home.feature.playlists.title": "Playlists and smart playlists",
+  "home.feature.playlists.body":
+    "Arrange songs by hand in a regular playlist, or let a smart playlist keep itself up to date from your conditions. The song table lets you choose the columns, resize and reorder them, and sort by any of them.",
+  "home.feature.playlists.alt":
+    "Playlists view showing the My Best playlist as a table with the title, artist, album, album artist, genre and year columns",
+  "home.feature.metadata.title": "Edit and complete metadata",
+  "home.feature.metadata.body":
+    "Edit the title, artist, artwork and more in the song info dialog and write the changes back to the file, for one song or for many at once. Fetch the missing details and cover art from MusicBrainz and Cover Art Archive and choose, field by field, what to keep.",
+  "home.feature.metadata.alt":
+    "Song info dialog with the Details tab showing the editable title, artist, album, genre and year fields",
+  "home.feature.player.title": "Play your way",
+  "home.feature.player.body":
+    "Queue songs up, shuffle them and control playback from the media keys of your OS. Parade plays mp3, flac, m4a / mp4, ogg / opus, wav, aiff, wma and ape.",
+  "home.feature.player.alt":
+    "Player bar with a song playing and the queue popover listing the upcoming songs",
+  "home.feature.theme.title": "Light and dark",
+  "home.feature.theme.body":
+    "A dark and a light theme, following your OS setting or fixed to the one you prefer.",
+  "home.feature.theme.alt":
+    "Artists view of Parade in the light theme, showing the albums of Milo Ashgrove",
+  "home.feature.language.title": "English and Japanese",
+  "home.feature.language.body":
+    "Choose English, Japanese or your system language on the settings page. The theme is switched there as well.",
+  "home.feature.language.alt":
+    "Settings page with the theme set to Dark and the language set to English",
+  "home.cta.title": "Get Parade",
+  "home.cta.body": "Free and open source, for macOS, Windows and Linux.",
+  "home.cta.button": "Go to downloads",
   "download.title": "Download Parade",
   "download.pageTitle": "Download | Parade",
   "download.description":
