@@ -1,10 +1,19 @@
 ---
+import type { ImageOutputFormat } from "astro";
+import { Picture } from "astro:assets";
 import { getRelativeLocaleUrl } from "astro:i18n";
+import albums from "../assets/screenshots/albums.png";
+import artists from "../assets/screenshots/artists.png";
+import artistsLight from "../assets/screenshots/artists-light.png";
+import musicInfo from "../assets/screenshots/music-info.png";
+import player from "../assets/screenshots/player.png";
+import playlists from "../assets/screenshots/playlists.png";
+import settings from "../assets/screenshots/settings.png";
 import { tFor } from "../i18n/t";
 import type { Locale } from "../i18n/types";
 import Base from "../layouts/Base.astro";
 import { formatReleaseDate } from "../lib/formatDate";
-import { REPOSITORY_URL } from "../lib/links";
+import { REPOSITORY_URL, withBase } from "../lib/links";
 import { getLatestRelease } from "../lib/releases/latestRelease";
 import ButtonLink from "./ButtonLink.astro";
 import GitHubIcon from "./icons/GitHubIcon.astro";
@@ -17,24 +26,71 @@ const t = tFor(locale);
 const result = await getLatestRelease();
 const release = result.status === "ok" ? result.release : undefined;
 const downloadUrl = getRelativeLocaleUrl(locale, "download");
+
+/**
+ * Features in display order (docs/specs/web/features/top-page.md). The key
+ * names the dictionary entries `home.feature.<key>.title` / `.body` /
+ * `.alt` and the screenshot comes from `src/assets/screenshots/`.
+ */
+const features = [
+  { key: "artists", image: artists },
+  { key: "albums", image: albums },
+  { key: "playlists", image: playlists },
+  { key: "metadata", image: musicInfo },
+  { key: "player", image: player },
+  { key: "theme", image: artistsLight },
+  { key: "language", image: settings },
+] as const;
+
+/** Rendered widths of the screenshots; the 2x captures are 2784px wide. */
+const WIDTHS = [640, 1280, 2560];
+const FORMATS: ImageOutputFormat[] = ["avif", "webp"];
+/**
+ * `<img>` fallback for browsers without `<picture>` support; webp rather
+ * than the default png, which would add a full-size PNG set per image to
+ * the build.
+ */
+const FALLBACK_FORMAT: ImageOutputFormat = "webp";
+/**
+ * Rendered widths for `sizes`: the content column is 1120px at most with a
+ * 32px gutter from `sm` up and 16px below (Base.astro).
+ */
+const HERO_SIZES =
+  "(min-width: 1184px) 1120px, (min-width: 640px) calc(100vw - 64px), calc(100vw - 32px)";
+/** A feature image takes half the content column (minus the gap) from `md` up. */
+const FEATURE_SIZES =
+  "(min-width: 1184px) 544px, (min-width: 768px) calc(50vw - 48px), (min-width: 640px) calc(100vw - 64px), calc(100vw - 32px)";
 ---
 
-{/* Placeholder until Phase 3 (docs/specs/web/features/top-page.md). */}
 <Base
   locale={locale}
   page="home"
   title={t("home.title")}
   description={t("site.description")}
 >
-  <section class="flex flex-col items-start gap-6 py-12">
-    <div class="flex flex-col gap-3">
-      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        {t("site.name")}
-      </h1>
-      <p class="text-xl text-muted-foreground">{t("site.tagline")}</p>
+  {/* Hero: icon, name, tagline, summary, buttons and the main screenshot. */}
+  <section class="flex flex-col items-center gap-8 pt-4 text-center">
+    <div class="flex flex-col items-center gap-4">
+      <img
+        src={withBase("icon.svg")}
+        width="96"
+        height="96"
+        alt=""
+        class="size-24"
+      />
+      <div class="flex flex-col gap-2">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          {t("site.name")}
+        </h1>
+        <p class="text-xl text-muted-foreground sm:text-2xl">
+          {t("site.tagline")}
+        </p>
+      </div>
+      <p class="max-w-prose text-base text-muted-foreground">
+        {t("home.hero.summary")}
+      </p>
     </div>
-    <p class="max-w-prose text-base">{t("site.description")}</p>
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex flex-wrap items-center justify-center gap-3">
       <ButtonLink href={downloadUrl} variant="primary">
         <span
           data-download-label
@@ -50,6 +106,63 @@ const downloadUrl = getRelativeLocaleUrl(locale, "download");
         {t("home.github")}
       </ButtonLink>
     </div>
+    {/* The capture includes the macOS window shadow, so no frame or shadow here. */}
+    <Picture
+      src={artists}
+      widths={WIDTHS}
+      sizes={HERO_SIZES}
+      formats={FORMATS}
+      fallbackFormat={FALLBACK_FORMAT}
+      alt={t("home.hero.screenshot.alt")}
+      loading="eager"
+      fetchpriority="high"
+      class="h-auto w-full"
+    />
+  </section>
+
+  {/*
+    Features: heading, two or three sentences and a screenshot each. From
+    `md` up they sit side by side, alternating sides; below, text then image.
+  */}
+  <section class="flex flex-col gap-10">
+    <h2 class="text-center text-3xl font-bold tracking-tight">
+      {t("home.features.title")}
+    </h2>
+    <ul class="flex flex-col gap-12">
+      {features.map((feature, index) => (
+        <li class="grid items-center gap-6 md:grid-cols-2 md:gap-8">
+          <div
+            class:list={[
+              "flex flex-col gap-3",
+              index % 2 === 1 && "md:order-2",
+            ]}
+          >
+            <h3 class="text-2xl font-semibold tracking-tight">
+              {t(`home.feature.${feature.key}.title`)}
+            </h3>
+            <p class="text-muted-foreground">
+              {t(`home.feature.${feature.key}.body`)}
+            </p>
+          </div>
+          <Picture
+            src={feature.image}
+            widths={WIDTHS}
+            sizes={FEATURE_SIZES}
+            formats={FORMATS}
+            fallbackFormat={FALLBACK_FORMAT}
+            alt={t(`home.feature.${feature.key}.alt`)}
+            loading="lazy"
+            class="h-auto w-full"
+          />
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {/* Download call to action with the latest version. */}
+  <section class="flex flex-col items-center gap-4 rounded-xl border bg-card px-6 py-10 text-center text-card-foreground">
+    <h2 class="text-3xl font-bold tracking-tight">{t("home.cta.title")}</h2>
+    <p class="max-w-prose text-muted-foreground">{t("home.cta.body")}</p>
     {release !== undefined && (
       <p class="text-sm text-muted-foreground">
         {t("home.latest", {
@@ -58,6 +171,9 @@ const downloadUrl = getRelativeLocaleUrl(locale, "download");
         })}
       </p>
     )}
+    <ButtonLink href={downloadUrl} variant="primary">
+      {t("home.cta.button")}
+    </ButtonLink>
   </section>
 </Base>
 

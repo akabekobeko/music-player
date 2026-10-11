@@ -5,7 +5,7 @@
 ## 前提
 
 - macOS。デモ用データの生成に `sips` と `afconvert` が必要 ([デモ モード](../../../demo/README.md))
-- Retina ディスプレイ (2x) で撮影する。ウィンドウ 1280 x 800 を 2560 x 1600 の PNG で保存する
+- Retina ディスプレイ (2x) で撮影する。ウィンドウ 1280 x 800 を 2x の PNG で保存する。`screencapture -l` は影の余白を含めるので、画像は 2784 x 1824 になる (ウィンドウ本体は 2560 x 1600)
 - 表示の拡大率はシステム既定 (「デフォルト」)。メニュー バーとドックの状態は写らないので任意
 
 ## 手順
@@ -22,6 +22,8 @@
 
 AI が操作する場合は `cmux-cua` の `launch_app` ではなく `pnpm demo` で起動し (dev server と watch ビルドが必要)、起動後のウィンドウを `list_windows` で見つけて AX (Accessibility) 経由で操作します。Electron の AX ツリーはレンダラーの DOM を反映するので、サイドバーのタブや行はラベルで辿れます。AX で辿れない操作 (ドラッグ、hover) は座標指定のクリックとカーソル移動で行います。
 
+`cmux-cua` が使えない場合は、`pnpm build` のあとに `PARADE_USER_DATA_DIR=<demo-N のパス> electron dist/main/main.js --remote-debugging-port=<port>` で起動し、CDP (Chrome DevTools Protocol) の `Runtime.evaluate` と `Input.dispatchMouseEvent` でレンダラーを操作する方法もあります (v1.3 のトップ ページ実装はこの方法で撮影)。ウィンドウ ID は `CGWindowListCopyWindowInfo` を呼ぶ小さな Swift スクリプトで取得できます。`screencapture -l` は前面にないウィンドウを非アクティブな見た目 (灰色の信号ボタン、小さい影) で撮るので、撮影の直前に `osascript` でアプリを前面にします。
+
 ## 撮影する画面
 
 テーマはデモ設定の既定 (ダーク) を基本にし、テーマ紹介用に 1 枚だけライトを撮ります。アプリの言語は英語だけです (設定の Language を English にする。OS が日本語の場合は System のままだと日本語になる)。日本語 UI は撮らず、対応言語は `settings` の画面と文章で伝えます。
@@ -31,12 +33,12 @@ AI が操作する場合は `cmux-cua` の `launch_app` ではなく `pnpm demo`
 | `artists` | Artists ビュー、Milo Ashgrove、再生中 | 起動直後の状態 (Milo Ashgrove が選択済み)。アルバム Modulations の 1 曲目 Test Tone Serenade を再生する。再生位置が 0:30 前後になるまで待つ | 再生できるのはこの曲だけ。他の曲は再生するとエラーになる |
 | `artists-light` | 同上、ライト テーマ | Settings → Theme を Light にしてから `artists` と同じ状態にする | 撮影後に Dark へ戻す |
 | `albums` | Albums ビュー、フィルター適用 | サイドバーのジャンルで Jazz、年代で 1990s を選び、アルバムが 10 - 20 枚程度並ぶ状態にする。再生中のまま | ジャケットは生成した抽象図形なので権利の問題はない |
-| `playlists` | Playlists ビュー、テーブル | My Best を開く。カラム メニューで Album Artist と Genre と Year を表示し、ウィンドウ幅に収まるように調整する。1 行目 (Test Tone Serenade) を再生中にする | 右クリック メニューは閉じる |
-| `music-info` | 曲情報ダイアログ | Test Tone Serenade の行メニューから Music info を開き、Basic タブを表示する | **File タブはファイル パスが出るので撮らない。** Basic タブでもファイル名が見える場合はマスクする |
+| `playlists` | Playlists ビュー、テーブル | My Best を開く。コンテンツ ツールバーのカラム メニューで Album artist と Genre と Year を表示し、ウィンドウ幅に収まるようにカラム幅を縮める (Title 190、Artist 140、Album 140、Album artist 130、Genre 90、Year 60)。1 行目 (Test Tone Serenade) を再生中にする | 右クリック メニューは閉じる |
+| `music-info` | 曲情報ダイアログ | Test Tone Serenade の行メニューから Song info を開き、Details タブを表示する | **File タブはファイル パスが出るので撮らない。** Details タブでもファイル名が見える場合はマスクする |
 | `player` | プレーヤー バーとキュー | 再生中にキュー ボタンでキュー ポップオーバーを開く。ウィンドウ全体を撮り、サイト側でプレーヤー バー付近を切り出す | 切り出しの座標はマスクの manifest に書く |
 | `settings` | Settings ページ | サイドバーから Settings を開く。Theme が Dark、Language が English の状態 | ライブラリー統計はデモ用データの数値なのでそのままでよい |
 
-- 撮影の前に、トースト通知、ツールチップ、ホバー状態が残っていないことを確認する
+- 撮影の前に、トースト通知、ツールチップ、ホバー状態が残っていないことを確認する。再生できる曲は 1:47 で終わり、次の曲へ進むと再生エラーのトースト (ファイル パスを含む) が出るので、撮影のたびに再生し直す
 - ウィンドウの位置は画面の中央にし、他のウィンドウを重ねない
 - 撮り直す場合は同じ scene 名で上書きする。画面が変わっていない scene は撮り直さない (差分を小さくするため)
 
@@ -72,7 +74,7 @@ commit する前に次を確認します。
 - [ ] ファイル パス、ユーザー名、メール アドレスが写っていない
 - [ ] 実在のアーティスト名、曲名、アルバム名がない (デモ用データは架空だが、偶然の一致は `docs/demo/README.md` の注意のとおり)
 - [ ] トースト、ツールチップ、ホバー状態が残っていない
-- [ ] 画像サイズが 2560 x 1600 (切り出した `player` を除く) で、ファイル サイズが 1 枚 1 MB 以内
+- [ ] 画像サイズが 2784 x 1824 (切り出した `player` を除く) で、ファイル サイズが 1 枚 1 MB 以内を目安にする (ジャケットが並ぶ `albums` は可逆圧縮では 1.2 MB 程度になる)
 - [ ] `pnpm --filter parade-web build` で画像最適化が通る
 
 ## 更新の契機
