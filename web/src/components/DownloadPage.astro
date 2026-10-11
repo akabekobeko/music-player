@@ -46,10 +46,7 @@ const release = result.status === "ok" ? result.release : undefined;
             date: formatReleaseDate(locale, release.publishedAt),
           })}
         </span>
-        <a
-          href={release.url}
-          class="text-foreground underline-offset-4 hover:underline"
-        >
+        <a href={release.url} class="link text-foreground">
           {t("download.releaseNotes")}
         </a>
       </p>
@@ -106,7 +103,7 @@ sudo apt install ./Parade-{release?.version ?? "<version>"}-linux-amd64.deb</cod
     <dl class="flex flex-col gap-6">
       <div class="flex flex-col gap-1">
         <dt class="font-semibold">
-          <a href={RELEASES_URL} class="underline-offset-4 hover:underline">
+          <a href={RELEASES_URL} class="link">
             {t("download.more.allReleases")}
           </a>
         </dt>
@@ -118,10 +115,7 @@ sudo apt install ./Parade-{release?.version ?? "<version>"}-linux-amd64.deb</cod
         <dt class="font-semibold">{t("download.more.requirements")}</dt>
         <dd class="text-sm text-muted-foreground">
           {t("download.more.requirements.before")}
-          <a
-            href={ISSUES_URL}
-            class="text-foreground underline-offset-4 hover:underline"
-          >
+          <a href={ISSUES_URL} class="link text-foreground">
             {t("download.more.requirements.link")}
           </a>
           {t("download.more.requirements.after")}

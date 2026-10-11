@@ -65,6 +65,9 @@ export const en = {
   "home.cta.title": "Get Parade",
   "home.cta.body": "Free and open source, for macOS, Windows and Linux.",
   "home.cta.button": "Go to downloads",
+  "home.jaBanner.message": "このサイトは日本語でも読めます。",
+  "home.jaBanner.link": "日本語版を開く",
+  "home.jaBanner.close": "閉じる",
   "download.title": "Download Parade",
   "download.pageTitle": "Download | Parade",
   "download.description":

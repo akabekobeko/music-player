@@ -28,6 +28,13 @@ const alternates =
         { hreflang: "x-default", href: getAbsoluteLocaleUrl("en", path) },
       ];
 const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
+// OGP image per locale (docs/specs/web/features/pages.md): 1200 x 630,
+// rendered by `pnpm --filter parade-web og:render`. Absolute URL because
+// crawlers do not resolve relative ones.
+const ogImage = new URL(
+  withBase(locale === "ja" ? "og-image-ja.png" : "og-image.png"),
+  Astro.site,
+).href;
 ---
 
 <!doctype html>
@@ -39,6 +46,8 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" href={withBase("icon.svg")} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase("apple-touch-icon.png")} />
+    <link rel="sitemap" href={withBase("sitemap-index.xml")} />
     {canonical && <link rel="canonical" href={canonical} />}
     {alternates.map((alternate) => (
       <link
@@ -50,8 +59,20 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Parade" />
     <meta property="og:locale" content={ogLocale} />
+    {path !== undefined && (
+      <meta
+        property="og:locale:alternate"
+        content={locale === "ja" ? "en_US" : "ja_JP"}
+      />
+    )}
     {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>
       // Apply the saved theme (or the OS setting) before the first paint so
       // the page never flashes the wrong colours. Keep in sync with
@@ -74,6 +95,15 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     </script>
   </head>
   <body class="flex min-h-dvh flex-col">
+    {/*
+      Seen the Japanese version: the English top page's banner
+      (JaBanner.astro) stays away from now on. Same key as there.
+    */}
+    {locale === "ja" && <script is:inline>
+      try {
+        localStorage.setItem("ja-banner-dismissed", "1");
+      } catch {}
+    </script>}
     <Header locale={locale} page={page} />
     <main class="flex flex-1 justify-center px-4 sm:px-8">
       <div class="flex w-full max-w-(--content-max-width) flex-col gap-8 py-12">

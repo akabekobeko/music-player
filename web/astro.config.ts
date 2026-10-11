@@ -1,3 +1,4 @@
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
@@ -18,6 +19,17 @@ export default defineConfig({
     locales: ["en", "ja"],
     routing: { prefixDefaultLocale: false },
   },
+  integrations: [
+    // sitemap-index.xml with hreflang alternates per page
+    // (docs/specs/web/architecture/i18n.md). The integration leaves the
+    // 404 page out by itself.
+    sitemap({
+      i18n: {
+        defaultLocale: "en",
+        locales: { en: "en", ja: "ja" },
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

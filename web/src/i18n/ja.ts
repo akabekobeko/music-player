@@ -64,6 +64,9 @@ export const ja: Dictionary = {
   "home.cta.body":
     "macOS / Windows / Linux 向けに、無料でオープンソースで提供しています。",
   "home.cta.button": "ダウンロード ページへ",
+  "home.jaBanner.message": "このサイトは日本語でも読めます。",
+  "home.jaBanner.link": "日本語版を開く",
+  "home.jaBanner.close": "閉じる",
   "download.title": "Parade をダウンロード",
   "download.pageTitle": "Download | Parade",
   "download.description":

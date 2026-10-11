@@ -10,10 +10,12 @@
     "preview": "astro preview",
     "check": "astro check",
     "format": "prettier --write \"src/**/*.astro\"",
-    "screenshots:mask": "node scripts/maskScreenshots.ts"
+    "screenshots:mask": "node scripts/maskScreenshots.ts",
+    "og:render": "node scripts/renderOgImages.ts"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/inter": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.8",
