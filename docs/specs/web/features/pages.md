@@ -57,7 +57,8 @@ URL はすべて `base` (`/parade`) の後ろに付きます。
 
 - `<title>`: `Parade` (トップ)、`Download | Parade` (ダウンロード)。日本語も製品名は英語のまま
 - `<meta name="description">`: 辞書から locale ごとに与える
-- OGP: `og:title`、`og:description`、`og:image` (Phase 4 で 1200 x 630 の画像を用意する。アプリ アイコンと製品名、タグライン)、`og:locale`
+- OGP: `og:title`、`og:description`、`og:image`、`og:locale`。画像は 1200 x 630 の `public/og-image.png` (英語) と `public/og-image-ja.png` (日本語) で、アプリ アイコンと製品名、タグラインを `pnpm --filter parade-web og:render` (Electron のオフスクリーン描画) で生成する。絶対 URL で参照する
 - `hreflang` alternate と canonical ([多言語対応](../architecture/i18n.md))
-- favicon: `icon.svg` (SVG) と `apple-touch-icon.png` (`build/icon-mac.png` から 180px を生成)
+- favicon: `icon.svg` (SVG) と `apple-touch-icon.png` (余白のない `build/icon.png` から `sips -z 180 180` で生成。iOS は角丸を自分で付け透過を無視するので、余白つきの `icon-mac.png` では黒い枠が出る)
+- `sitemap-index.xml` (`@astrojs/sitemap`、`hreflang` の alternate を含む。404 は除く) と `public/robots.txt`
 - テーマ初期化のインライン スクリプト ([テーマとスタイル](../architecture/theme.md))

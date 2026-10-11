@@ -67,4 +67,6 @@ Parade の公式サイト (GitHub Pages) の仕様書です。アプリの機能
 
 ## 運用
 
+公開済みのサイトは <https://akabekobeko.github.io/parade/> (日本語は `/ja/`) で、リポジトリーの README と GitHub の About からリンクしています。
+
 サイトの変更はアプリと同じ PR フローで行います。ブランチ接頭辞は内容に応じて `feat/` `fix/` `docs/` `chore/` を使い、Release Notes には他の PR と同じカテゴリーで載ります。サイトだけの変更でもリリースを打つ必要はなく、main へのマージで自動公開されます ([デプロイ](architecture/deploy.md))。

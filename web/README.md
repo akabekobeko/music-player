@@ -19,6 +19,7 @@ the repository root once, then use the scripts below from the root with
 | `check`   | Type-check `.astro` and `.ts` files with `astro check`                       |
 | `format`  | Format `.astro` files with Prettier (see below)                              |
 | `screenshots:mask` | Pixelate and crop raw screenshots into `src/assets/screenshots/` (see below) |
+| `og:render` | Render the OGP images (`public/og-image.png`, `og-image-ja.png`) with Electron |
 
 Astro prefixes every URL with the `base` (`/parade`), so
 `http://localhost:4321/` answers 404 on purpose.
@@ -72,6 +73,21 @@ writes the result to `src/assets/screenshots/<scene>.png`:
 ```sh
 pnpm --filter parade-web screenshots:mask -- /path/to/raw-captures
 ```
+
+## OGP images and icons
+
+`public/og-image.png` (English tagline) and `public/og-image-ja.png` are
+rendered offscreen by Electron so they use the site's font and colours. Run
+the script again when the icon, the product name or the tagline changes:
+
+```sh
+pnpm --filter parade-web og:render
+```
+
+`public/apple-touch-icon.png` is the full-bleed `build/icon.png` scaled to
+180px (`sips -z 180 180 build/icon.png --out web/public/apple-touch-icon.png`).
+iOS masks the corners itself and ignores transparency, so the padded
+`icon-mac.png` would get a black frame.
 
 ## Tests
 

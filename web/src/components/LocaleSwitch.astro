@@ -17,14 +17,19 @@ const other: Locale = locale === "en" ? "ja" : "en";
   Plain link to the same page in the other language, so it works without
   JavaScript. Shows the other language's name in that language; below the
   `xs` breakpoint only the short code (docs/specs/web/architecture/i18n.md).
+  The "Switch to ..." hint is visually hidden text rather than an
+  aria-label, so the accessible name still contains the visible label.
 */}
 <a
   href={getRelativeLocaleUrl(other, path)}
   hreflang={other}
-  lang={other}
-  aria-label={t("header.switchLocale")}
   class="inline-flex h-8 items-center rounded-full px-2 text-sm font-medium whitespace-nowrap text-foreground transition-glow hover:glow-lamp"
 >
-  <span class="xs:hidden">{t("header.switchLocale.short")}</span>
-  <span class="hidden xs:inline">{t("header.switchLocale.label")}</span>
+  <span lang={other} class="xs:hidden">
+    {t("header.switchLocale.short")}
+  </span>
+  <span lang={other} class="hidden xs:inline">
+    {t("header.switchLocale.label")}
+  </span>
+  <span class="sr-only">{t("header.switchLocale")}</span>
 </a>

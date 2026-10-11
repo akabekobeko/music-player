@@ -31,7 +31,7 @@ const currentPath = pagePath[page] ?? "";
       class="inline-flex w-fit items-center gap-2 text-foreground transition-glow hover:glow-lamp"
     >
       <img src={withBase("icon.svg")} width="28" height="28" alt="" />
-      <span class="hidden text-base font-semibold sm:inline">
+      <span class="sr-only text-base font-semibold sm:not-sr-only">
         {t("site.name")}
       </span>
     </a>

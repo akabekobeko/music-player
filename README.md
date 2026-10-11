@@ -4,6 +4,8 @@
 
 Cross-platform music player powered by Electron
 
+**Website:** <https://akabekobeko.github.io/parade/> ([日本語](https://akabekobeko.github.io/parade/ja/)) · **Download:** <https://akabekobeko.github.io/parade/download/>
+
 ## Getting Started
 
 ### Prerequisites

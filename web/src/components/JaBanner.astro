@@ -1,0 +1,75 @@
+---
+import X from "lucide-static/icons/x.svg";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { tFor } from "../i18n/t";
+
+// Shown on the English top page only to visitors whose browser language is
+// Japanese and who have neither dismissed it nor seen a Japanese page
+// (docs/specs/web/architecture/i18n.md). No redirect; without JavaScript
+// the banner simply never appears. The text is Japanese on purpose: it
+// addresses Japanese readers of the English page. The storage key is
+// shared with Base.astro, which sets it on every Japanese page.
+const t = tFor("en");
+const jaUrl = getRelativeLocaleUrl("ja", "");
+---
+
+<div
+  data-ja-banner
+  hidden
+  lang="ja"
+  class="flex items-start justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-sm text-card-foreground"
+>
+  <p class="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 py-1.5">
+    <span>{t("home.jaBanner.message")}</span>
+    <a href={jaUrl} hreflang="ja" class="link font-medium">
+      {t("home.jaBanner.link")}
+    </a>
+  </p>
+  <button
+    type="button"
+    data-ja-banner-close
+    aria-label={t("home.jaBanner.close")}
+    class="inline-flex size-8 items-center justify-center rounded-full text-foreground transition-glow hover:glow-lamp"
+  >
+    <X class="size-4" aria-hidden="true" />
+  </button>
+</div>
+
+<script is:inline>
+  // Decide before the hero below is laid out, so showing the banner does
+  // not shift the page after the first paint.
+  (() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem("ja-banner-dismissed") === "1";
+    } catch {
+      // Storage unavailable: treat as not seen.
+    }
+    if (navigator.language.startsWith("ja") && !seen) {
+      document.querySelector("[data-ja-banner]").hidden = false;
+    }
+  })();
+</script>
+
+<script>
+  const STORAGE_KEY = "ja-banner-dismissed";
+  const banner = document.querySelector<HTMLElement>("[data-ja-banner]");
+
+  const remember = (): void => {
+    try {
+      localStorage.setItem(STORAGE_KEY, "1");
+    } catch {
+      // Storage unavailable: the banner comes back on the next visit.
+    }
+  };
+
+  if (banner !== null) {
+    banner.querySelector("a")?.addEventListener("click", remember);
+    banner
+      .querySelector("[data-ja-banner-close]")
+      ?.addEventListener("click", () => {
+        banner.hidden = true;
+        remember();
+      });
+  }
+</script>
